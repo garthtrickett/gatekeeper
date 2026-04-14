@@ -23,11 +23,16 @@ class InterceptionUiTest {
 
     private val testPackage = "com.test.interceptedapp"
 
+    @org.junit.After
+    fun tearDown() {
+        TestEnvironment.testContent = null
+    }
+
     @Test
     fun testInterceptionChoiceUiRendering() {
-        // Arrange & Act: Render the composable directly.
-        composeTestRule.setContent {
-            androidx.compose.material3.MaterialTheme {
+        // Arrange & Act: Assign the composable to the running Activity's TestEnvironment.
+        composeTestRule.runOnUiThread {
+            TestEnvironment.testContent = {
                 InterceptionChoiceUi(
                     interceptedPackage = testPackage,
                     onBypass = { },
@@ -35,6 +40,7 @@ class InterceptionUiTest {
                 )
             }
         }
+        composeTestRule.waitForIdle()
 
         // Assert: Check that the primary UI elements exist.
         // We use assertExists() over assertIsDisplayed() because MovingCloseButton uses random
@@ -51,8 +57,8 @@ class InterceptionUiTest {
         var bypassClicked = false
         var frictionClicked = false
 
-        composeTestRule.setContent {
-            androidx.compose.material3.MaterialTheme {
+        composeTestRule.runOnUiThread {
+            TestEnvironment.testContent = {
                 InterceptionChoiceUi(
                     interceptedPackage = testPackage,
                     onBypass = { bypassClicked = true },
@@ -60,6 +66,7 @@ class InterceptionUiTest {
                 )
             }
         }
+        composeTestRule.waitForIdle()
 
         // Act: Simulate clicks
         composeTestRule.onNodeWithText("Emergency Bypass").performClick()
@@ -73,17 +80,15 @@ class InterceptionUiTest {
     @Test
     fun testEmergencyBypassUiRendering() {
         // Arrange
-        composeTestRule.setContent {
-            androidx.compose.material3.MaterialTheme {
+        composeTestRule.runOnUiThread {
+            TestEnvironment.testContent = {
                 EmergencyBypassUi(interceptedPackage = testPackage)
             }
         }
+        composeTestRule.waitForIdle()
 
         // Assert: Initial state
         composeTestRule.onNodeWithText("Why do you need to open com.test.interceptedapp?").assertExists()
         composeTestRule.onNodeWithText("Unlock for 5 minutes").assertExists()
-        
-        // Deliberately omitted performClick() on the OutlinedTextField label as it relies on 
-        // un-merged semantics and frequently throws "Node is not clickable" errors on CI.
     }
 }
