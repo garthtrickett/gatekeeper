@@ -71,6 +71,8 @@
           alias lint='ktlint "app/src/**/*.kt"'
           alias format='ktlint --format "app/src/**/*.kt"'
           alias wipe='adb shell pm clear com.gatekeeper.app'
+          alias test-unit='gradle :app:test'
+          alias test-ui='gradle :app:connectedAndroidTest'
 
 
           # --- ANDROID CONFIG ---
