@@ -194,57 +194,66 @@ private fun InterceptionChoiceUi(
 ) {
     val appName = getAppName(interceptedPackage)
     Surface(modifier = Modifier.fillMaxSize(), color = Color.Transparent) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.95f))
-                    .padding(32.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.95f))
         ) {
-            Text(
-                text = "Take a breath.",
-                color = Color.White,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-            )
+            // The randomized position "Close" button to break muscle memory
+            com.gatekeeper.app.views.MovingCloseButton(onClose = {
+                GatekeeperStateManager.dispatch(GatekeeperAction.DismissOverlay)
+            })
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "You are about to open $appName.",
-                color = Color.White.copy(alpha = 0.8f),
-                fontSize = 18.sp,
-                textAlign = TextAlign.Center,
-            )
-
-            Spacer(modifier = Modifier.height(64.dp))
-
-            // The main "Friction" button
-            Button(onClick = onFriction) {
-                Text(text = "Continue with friction", fontSize = 16.sp)
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // The "Emergency" button
-            OutlinedButton(onClick = onBypass) {
-                Text(text = "Emergency Bypass")
-            }
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // DEBUG: Test SQLDelight Writes
-            Button(onClick = {
-                GatekeeperStateManager.dispatch(
-                    GatekeeperAction.SaveToVault(
-                        query = "Test Vault Query ${System.currentTimeMillis() % 1000}",
-                        currentTimestamp = System.currentTimeMillis()
-                    )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = "Take a breath.",
+                    color = Color.White,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
                 )
-            }) {
-                Text(text = "DEBUG: Save to Vault")
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "You are about to open $appName.",
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Center,
+                )
+
+                Spacer(modifier = Modifier.height(64.dp))
+
+                // The main "Friction" button
+                Button(onClick = onFriction) {
+                    Text(text = "Continue with friction", fontSize = 16.sp)
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // The "Emergency" button
+                OutlinedButton(onClick = onBypass) {
+                    Text(text = "Emergency Bypass")
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // DEBUG: Test SQLDelight Writes
+                Button(onClick = {
+                    GatekeeperStateManager.dispatch(
+                        GatekeeperAction.SaveToVault(
+                            query = "Test Vault Query ${System.currentTimeMillis() % 1000}",
+                            currentTimestamp = System.currentTimeMillis()
+                        )
+                    )
+                }) {
+                    Text(text = "DEBUG: Save to Vault")
+                }
             }
         }
     }

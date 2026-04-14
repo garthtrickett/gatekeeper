@@ -47,6 +47,7 @@
 
         buildInputs = with pkgs; [
           # --- ANDROID DEV CORE ---
+          sqlite
           jdk21
           gradle
           android-tools

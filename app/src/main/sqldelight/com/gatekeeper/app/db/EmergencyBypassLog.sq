@@ -1,0 +1,13 @@
+CREATE TABLE EmergencyBypassLog (
+    id TEXT NOT NULL PRIMARY KEY,
+    packageName TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    timestamp INTEGER NOT NULL
+);
+
+insert:
+INSERT INTO EmergencyBypassLog(id, packageName, reason, timestamp)
+VALUES (?, ?, ?, ?);
+
+selectAll:
+SELECT * FROM EmergencyBypassLog ORDER BY timestamp DESC;

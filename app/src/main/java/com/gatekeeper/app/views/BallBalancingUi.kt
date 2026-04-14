@@ -152,5 +152,6 @@ fun BallBalancingUi(interceptedPackage: String) {
             modifier = Modifier.fillMaxWidth(0.7f),
             color = Color.Cyan,
         )
+        }
     }
 }

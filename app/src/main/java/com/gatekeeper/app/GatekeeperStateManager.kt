@@ -119,6 +119,16 @@ object GatekeeperStateManager {
                     }
                 }
 
+                is GatekeeperAction.EmergencyBypassRequested -> {
+                    Log.i("Gatekeeper", "DB: Logging Emergency Bypass for ${action.packageName}")
+                    db.emergencyBypassLogQueries.insert(
+                        id = java.util.UUID.randomUUID().toString(),
+                        packageName = action.packageName,
+                        reason = action.reason,
+                        timestamp = action.currentTimestamp
+                    )
+                }
+
                 else -> { /* No database side effect for this action */ }
             }
         }
