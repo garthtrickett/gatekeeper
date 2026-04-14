@@ -69,6 +69,7 @@
           alias deploy='gradle installDebug && adb logcat -c && echo "✅ Deployed. Waiting for logs..." && logs'
           alias lint='ktlint "app/src/**/*.kt"'
           alias format='ktlint --format "app/src/**/*.kt"'
+          alias wipe='adb shell pm clear com.gatekeeper.app'
 
 
           # --- ANDROID CONFIG ---

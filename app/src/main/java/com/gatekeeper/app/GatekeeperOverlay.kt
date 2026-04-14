@@ -232,6 +232,20 @@ private fun InterceptionChoiceUi(
             OutlinedButton(onClick = onBypass) {
                 Text(text = "Emergency Bypass")
             }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // DEBUG: Test SQLDelight Writes
+            Button(onClick = {
+                GatekeeperStateManager.dispatch(
+                    GatekeeperAction.SaveToVault(
+                        query = "Test Vault Query ${System.currentTimeMillis() % 1000}",
+                        currentTimestamp = System.currentTimeMillis()
+                    )
+                )
+            }) {
+                Text(text = "DEBUG: Save to Vault")
+            }
         }
     }
 }

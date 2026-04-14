@@ -1,0 +1,9 @@
+{
+  "summary": "Inject temporary debug button to test DB writes.",
+  "files": [
+    {
+      "file_path": "app/src/main/java/com/gatekeeper/app/GatekeeperOverlay.kt",
+      "code_diff": "<<<<<<< SEARCH\n            // The \"Emergency\" button\n            OutlinedButton(onClick = onBypass) {\n                Text(text = \"Emergency Bypass\")\n            }\n        }\n    }\n}\n=======\n            // The \"Emergency\" button\n            OutlinedButton(onClick = onBypass) {\n                Text(text = \"Emergency Bypass\")\n            }\n            \n            Spacer(modifier = Modifier.height(24.dp))\n            \n            // DEBUG: Test SQLDelight Writes\n            Button(onClick = {\n                GatekeeperStateManager.dispatch(\n                    GatekeeperAction.SaveToVault(\n                        query = \"Test Vault Query ${System.currentTimeMillis() % 1000}\",\n                        currentTimestamp = System.currentTimeMillis()\n                    )\n                )\n            }) {\n                Text(text = \"DEBUG: Save to Vault\")\n            }\n        }\n    }\n}\n>>>>>>> REPLACE"
+    }
+  ]
+}
