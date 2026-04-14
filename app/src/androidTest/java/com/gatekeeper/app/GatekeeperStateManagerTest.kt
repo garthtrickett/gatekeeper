@@ -60,7 +60,7 @@ class GatekeeperStateManagerTest {
     }
 
     @Test
-    fun `dispatching EmergencyBypassRequested writes a log to the database`() = runTest {
+    fun testEmergencyBypassLogging() = runTest {
         // Arrange
         val action = GatekeeperAction.EmergencyBypassRequested(
             packageName = "com.test.app",
@@ -82,7 +82,7 @@ class GatekeeperStateManagerTest {
     }
 
     @Test
-    fun `dispatching SaveToVault writes a new item to the database`() = runTest {
+    fun testSaveToVaultLogging() = runTest {
         // Arrange
         val action = GatekeeperAction.SaveToVault(
             query = "How to test SQLDelight?",

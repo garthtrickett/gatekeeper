@@ -22,7 +22,7 @@ class InterceptionUiTest {
     private val testPackage = "com.test.interceptedapp"
 
     @Test
-    fun `InterceptionChoiceUi displays correct app name and buttons`() {
+    fun testInterceptionChoiceUiRendering() {
         // Arrange & Act: Render the composable directly.
         composeTestRule.setContent {
             InterceptionChoiceUi(
@@ -42,7 +42,7 @@ class InterceptionUiTest {
     }
 
     @Test
-    fun `InterceptionChoiceUi button clicks are handled`() {
+    fun testInterceptionChoiceUiClicks() {
         // Arrange
         var bypassClicked = false
         var frictionClicked = false
@@ -65,7 +65,7 @@ class InterceptionUiTest {
     }
 
     @Test
-    fun `EmergencyBypassUi displays correctly and enables button when text is entered`() {
+    fun testEmergencyBypassUiRendering() {
         // Arrange
         composeTestRule.setContent {
             EmergencyBypassUi(interceptedPackage = testPackage)

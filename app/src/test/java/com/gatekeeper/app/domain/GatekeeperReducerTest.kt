@@ -18,7 +18,7 @@ class GatekeeperReducerTest {
     )
 
     @Test
-    fun `AppBroughtToForeground with blacklisted app and no whitelist triggers overlay`() {
+    fun testAppBroughtToForeground_Blacklisted_NoWhitelist_TriggersOverlay() {
         // Arrange: The app is blacklisted and has no active whitelist.
         val action = GatekeeperAction.AppBroughtToForeground(blacklistedApp, 1000L)
 
@@ -31,7 +31,7 @@ class GatekeeperReducerTest {
     }
 
     @Test
-    fun `AppBroughtToForeground with non-blacklisted app does nothing`() {
+    fun testAppBroughtToForeground_NotBlacklisted_DoesNothing() {
         // Arrange: The app is not on our blacklist.
         val action = GatekeeperAction.AppBroughtToForeground(whitelistedApp, 1000L)
 
@@ -43,7 +43,7 @@ class GatekeeperReducerTest {
     }
 
     @Test
-    fun `AppBroughtToForeground with blacklisted app but active whitelist does nothing`() {
+    fun testAppBroughtToForeground_Blacklisted_Whitelisted_DoesNothing() {
         // Arrange: The app is blacklisted, but has a valid whitelist.
         val stateWithWhitelist = initialState.copy(
             activeWhitelists = mapOf(
@@ -65,7 +65,7 @@ class GatekeeperReducerTest {
     }
 
     @Test
-    fun `AppBroughtToForeground with blacklisted app and expired whitelist triggers overlay`() {
+    fun testAppBroughtToForeground_Blacklisted_ExpiredWhitelist_TriggersOverlay() {
         // Arrange: The whitelist's expiry timestamp is in the past.
         val stateWithExpiredWhitelist = initialState.copy(
             activeWhitelists = mapOf(
@@ -88,7 +88,7 @@ class GatekeeperReducerTest {
     }
 
     @Test
-    fun `EmergencyBypassRequested grants a new whitelist and dismisses overlay`() {
+    fun testEmergencyBypassRequested_GrantsWhitelist_DismissesOverlay() {
         // Arrange: The overlay is currently active.
         val stateWithOverlay = initialState.copy(
             isOverlayActive = true,
@@ -114,7 +114,7 @@ class GatekeeperReducerTest {
     }
 
     @Test
-    fun `DismissOverlay correctly clears overlay state`() {
+    fun testDismissOverlay_ClearsState() {
         // Arrange
         val stateWithOverlay = initialState.copy(
             isOverlayActive = true,
