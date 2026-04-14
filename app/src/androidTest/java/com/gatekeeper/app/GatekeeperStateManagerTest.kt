@@ -56,8 +56,7 @@ class GatekeeperStateManagerTest {
         db =
             GatekeeperDatabase(
                 driver = driver,
-                SessionLogAdapter = SessionLog.Adapter(emotionAdapter = emotionAdapter),
-                ),
+                SessionLogAdapter = SessionLog.Adapter(emotionAdapter = emotionAdapter)
             )
 
         mutableState = MutableStateFlow(GatekeeperState())
