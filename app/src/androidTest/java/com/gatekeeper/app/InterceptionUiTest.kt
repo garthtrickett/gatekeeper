@@ -20,7 +20,7 @@ import org.junit.runner.RunWith
 class InterceptionUiTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     private val testPackage = "com.test.interceptedapp"
 
