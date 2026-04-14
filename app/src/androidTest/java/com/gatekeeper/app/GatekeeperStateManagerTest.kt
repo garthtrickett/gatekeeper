@@ -20,12 +20,15 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import androidx.test.ext.junit.runners.AndroidJUnit4
 
 /**
  * Instrumented integration test for the GatekeeperStateManager and its side effects.
  * This test runs on an emulator/device and uses an in-memory SQLDelight database
  * to verify that dispatching actions correctly triggers database writes.
  */
+@RunWith(AndroidJUnit4::class)
 class GatekeeperStateManagerTest {
 
     private lateinit var db: GatekeeperDatabase

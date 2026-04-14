@@ -1,12 +1,14 @@
 package com.gatekeeper.app
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
 /**
  * Instrumented UI tests for the interception composables.
@@ -14,10 +16,11 @@ import org.junit.Test
  * the full end-to-end flow easily. Instead, we test each screen in isolation
  * by rendering it directly onto a test-owned Compose surface.
  */
+@RunWith(AndroidJUnit4::class)
 class InterceptionUiTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     private val testPackage = "com.test.interceptedapp"
 
