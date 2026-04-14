@@ -1,17 +1,9 @@
 {
-  "summary": "Systematic debugging Step 2: The Smoke Test failed with 'No compose hierarchies found', strongly indicating the Android 16 emulator screen is locked or off, pausing the Activity and preventing Compose layout passes. Updating MainActivity to force the screen on and bypass the keyguard, and switching the test rule to use this wakeful Activity.",
+  "summary": "Fix compilation errors by correcting the missing import for `createAndroidComposeRule`. When `createAndroidComposeRule` was unresolved, the test runner could not infer `setContent` as a `@Composable` scope, resulting in cascaded compilation errors.",
   "files":[
     {
-      "file_path": "app/src/main/java/com/gatekeeper/app/MainActivity.kt",
-      "code_diff": "<<<<<<< SEARCH\npackage com.gatekeeper.app\n\nimport android.os.Bundle\nimport androidx.activity.ComponentActivity\n\nclass MainActivity : ComponentActivity() {\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n    }\n}\n=======\npackage com.gatekeeper.app\n\nimport android.os.Build\nimport android.os.Bundle\nimport android.view.WindowManager\nimport androidx.activity.ComponentActivity\n\nclass MainActivity : ComponentActivity() {\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n\n        // UI Test Stability: Force the screen on and bypass the keyguard.\n        // If the screen is off or locked, Compose will never perform a layout pass,\n        // causing 'No compose hierarchies found' errors in tests.\n        window.addFlags(\n            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or\n            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or\n            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or\n            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON\n        )\n\n        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {\n            setShowWhenLocked(true)\n            setTurnScreenOn(true)\n            val keyguardManager = getSystemService(KEYGUARD_SERVICE) as android.app.KeyguardManager\n            keyguardManager.requestDismissKeyguard(this, null)\n        }\n    }\n}\n>>>>>>> REPLACE"
-    },
-    {
       "file_path": "app/src/androidTest/java/com/gatekeeper/app/InterceptionUiTest.kt",
-      "code_diff": "<<<<<<< SEARCH\n    @get:Rule\n    val composeTestRule = createComposeRule()\n\n    private val testPackage = \"com.test.interceptedapp\"\n\n    @Test\n    fun test00_SmokeTest() {\n=======\n    @get:Rule\n    val composeTestRule = createAndroidComposeRule<MainActivity>()\n\n    private val testPackage = \"com.test.interceptedapp\"\n\n    @Test\n    fun test00_SmokeTest() {\n>>>>>>> REPLACE"
-    },
-    {
-      "file_path": "app/src/main/AndroidManifest.xml",
-      "code_diff": "<<<<<<< SEARCH\n        <activity\n            android:name=\".MainActivity\"\n            android:exported=\"true\"\n            android:theme=\"@android:style/Theme.DeviceDefault\">\n            <intent-filter>\n=======\n        <activity\n            android:name=\".MainActivity\"\n            android:exported=\"true\"\n            android:showWhenLocked=\"true\"\n            android:turnScreenOn=\"true\"\n            android:theme=\"@android:style/Theme.DeviceDefault\">\n            <intent-filter>\n>>>>>>> REPLACE"
+      "code_diff": "<<<<<<< SEARCH\nimport androidx.compose.ui.test.junit4.createComposeRule\nimport androidx.compose.ui.test.onNodeWithText\n=======\nimport androidx.compose.ui.test.junit4.createAndroidComposeRule\nimport androidx.compose.ui.test.onNodeWithText\n>>>>>>> REPLACE"
     }
   ]
 }
