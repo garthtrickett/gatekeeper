@@ -25,6 +25,7 @@ object DatabaseManager {
                 SessionLog.Adapter(
                     emotionAdapter = emotionAdapter,
                 ),
+            EmergencyBypassLogAdapter = EmergencyBypassLog.Adapter()
         )
     }
 }

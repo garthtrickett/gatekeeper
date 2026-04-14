@@ -100,58 +100,66 @@ fun BallBalancingUi(interceptedPackage: String) {
     }
 
     // --- The UI ---
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.95f))
-                .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+    androidx.compose.foundation.layout.Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.95f))
     ) {
-        Text(
-            text = "Hold Steady",
-            color = Color.White,
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Keep the ball in the target for ${GOAL_SECONDS.toInt()} seconds.",
-            color = Color.White.copy(alpha = 0.8f),
-            fontSize = 18.sp,
-            textAlign = TextAlign.Center,
-        )
-        Spacer(modifier = Modifier.height(32.dp))
+        // Muscle memory breaking close button
+        MovingCloseButton(onClose = {
+            GatekeeperStateManager.dispatch(GatekeeperAction.DismissOverlay)
+        })
 
-        // --- The Game Canvas ---
-        Canvas(modifier = Modifier.fillMaxSize(0.8f)) {
-            val canvasWidth = size.width
-            val canvasHeight = size.height
-
-            // Draw the target circle
-            drawCircle(
-                color = Color.DarkGray,
-                radius = canvasWidth * 0.1f,
-                center = center,
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = "Hold Steady",
+                color = Color.White,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Keep the ball in the target for ${GOAL_SECONDS.toInt()} seconds.",
+                color = Color.White.copy(alpha = 0.8f),
+                fontSize = 18.sp,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // Draw the ball
-            drawCircle(
+            // --- The Game Canvas ---
+            Canvas(modifier = Modifier.fillMaxSize(0.8f)) {
+                val canvasWidth = size.width
+                val canvasHeight = size.height
+
+                // Draw the target circle
+                drawCircle(
+                    color = Color.DarkGray,
+                    radius = canvasWidth * 0.1f,
+                    center = center,
+                )
+
+                // Draw the ball
+                drawCircle(
+                    color = Color.Cyan,
+                    radius = canvasWidth * 0.04f, // Ball is smaller than target
+                    center = Offset(ballPosition.x * canvasWidth, ballPosition.y * canvasHeight),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // --- Progress Bar ---
+            LinearProgressIndicator(
+                progress = { progress / GOAL_SECONDS },
+                modifier = Modifier.fillMaxWidth(0.7f),
                 color = Color.Cyan,
-                radius = canvasWidth * 0.04f, // Ball is smaller than target
-                center = Offset(ballPosition.x * canvasWidth, ballPosition.y * canvasHeight),
             )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // --- Progress Bar ---
-        LinearProgressIndicator(
-            progress = { progress / GOAL_SECONDS },
-            modifier = Modifier.fillMaxWidth(0.7f),
-            color = Color.Cyan,
-        )
         }
     }
 }
