@@ -31,11 +31,6 @@ android {
     buildFeatures {
         compose = true
     }
-
-    composeOptions {
-        // This version is specifically paired with Kotlin 1.9.24
-        kotlinCompilerExtensionVersion = "1.5.14" 
-    }
 }
 
 sqldelight {
