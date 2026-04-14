@@ -1,9 +1,9 @@
 {
-  "summary": "Inject temporary debug button to test DB writes.",
+  "summary": "Enable Compose buildFeatures in app/build.gradle.kts to fix compiler IR lowering crash.",
   "files": [
     {
-      "file_path": "app/src/main/java/com/gatekeeper/app/GatekeeperOverlay.kt",
-      "code_diff": "<<<<<<< SEARCH\n            // The \"Emergency\" button\n            OutlinedButton(onClick = onBypass) {\n                Text(text = \"Emergency Bypass\")\n            }\n        }\n    }\n}\n=======\n            // The \"Emergency\" button\n            OutlinedButton(onClick = onBypass) {\n                Text(text = \"Emergency Bypass\")\n            }\n            \n            Spacer(modifier = Modifier.height(24.dp))\n            \n            // DEBUG: Test SQLDelight Writes\n            Button(onClick = {\n                GatekeeperStateManager.dispatch(\n                    GatekeeperAction.SaveToVault(\n                        query = \"Test Vault Query ${System.currentTimeMillis() % 1000}\",\n                        currentTimestamp = System.currentTimeMillis()\n                    )\n                )\n            }) {\n                Text(text = \"DEBUG: Save to Vault\")\n            }\n        }\n    }\n}\n>>>>>>> REPLACE"
+      "file_path": "app/build.gradle.kts",
+      "code_diff": "<<<<<<< SEARCH\n    kotlinOptions {\n        jvmTarget = \"17\"\n    }\n    composeOptions {\n        // This version is specifically paired with Kotlin 1.9.24\n        kotlinCompilerExtensionVersion = \"1.5.14\" \n    }\n}\n=======\n    kotlinOptions {\n        jvmTarget = \"17\"\n    }\n\n    buildFeatures {\n        compose = true\n    }\n\n    composeOptions {\n        // This version is specifically paired with Kotlin 1.9.24\n        kotlinCompilerExtensionVersion = \"1.5.14\" \n    }\n}\n>>>>>>> REPLACE"
     }
   ]
 }
