@@ -1,9 +1,0 @@
-{
-  "summary": "Fix 'Not a valid Kotlin file' lint error by removing a stray comma and parenthesis from a constructor call inside GatekeeperStateManagerTest.kt.",
-  "files": [
-    {
-      "file_path": "app/src/androidTest/java/com/gatekeeper/app/GatekeeperStateManagerTest.kt",
-      "code_diff": "<<<<<<< SEARCH\n        db =\n            GatekeeperDatabase(\n                driver = driver,\n                SessionLogAdapter = SessionLog.Adapter(emotionAdapter = emotionAdapter),\n                ),\n            )\n=======\n        db =\n            GatekeeperDatabase(\n                driver = driver,\n                SessionLogAdapter = SessionLog.Adapter(emotionAdapter = emotionAdapter)\n            )\n>>>>>>> REPLACE"
-    }
-  ]
-}
