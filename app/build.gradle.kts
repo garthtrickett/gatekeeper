@@ -80,10 +80,11 @@ dependencies {
     androidTestImplementation("com.google.truth:truth:1.4.2")
     // Core libraries for Android instrumented tests (run on emulator/device)
     // CRITICAL: Upgraded to latest stable versions to fix InputManager crash on Android 16 (API 36)
-    androidTestImplementation("androidx.test:core-ktx:1.7.0")
-    androidTestImplementation("androidx.test:runner:1.7.0")
-    androidTestImplementation("androidx.test:rules:1.5.0") // Downgraded to stable to fix ComposeTestRule init
-    androidTestImplementation("androidx.test.ext:junit-ktx:1.3.0")
+    // Rolled back to a known-stable test runner foundation to fix ComposeTestRule init failures.
+    androidTestImplementation("androidx.test:core-ktx:1.5.0")
+    androidTestImplementation("androidx.test:runner:1.5.0")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.1.5")
 
     // Force all Espresso modules to the latest stable to fix the Android 16 crash
     val espressoVersion = "3.7.0"

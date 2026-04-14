@@ -32,8 +32,6 @@ class InterceptionUiTest {
             )
         }
 
-        composeTestRule.waitForIdle()
-
         // Assert: Check that the primary UI elements are visible.
         // Note: We can't test the actual app name label easily without a real PackageManager.
         // We test for the text *around* the app name.
@@ -57,8 +55,6 @@ class InterceptionUiTest {
             )
         }
 
-        composeTestRule.waitForIdle()
-
         // Act: Simulate clicks
         composeTestRule.onNodeWithText("Emergency Bypass").performClick()
         composeTestRule.onNodeWithText("Continue with friction").performClick()
@@ -74,8 +70,6 @@ class InterceptionUiTest {
         composeTestRule.setContent {
             EmergencyBypassUi(interceptedPackage = testPackage)
         }
-
-        composeTestRule.waitForIdle()
 
         // Assert: Initial state
         composeTestRule.onNodeWithText("Why do you need to open com.test.interceptedapp?").assertIsDisplayed()
