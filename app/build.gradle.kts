@@ -67,6 +67,9 @@ dependencies {
     // THE FIX: Add this line to resolve ViewModelStore and ViewModelStoreOwner
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.2")
 
+    // Required for ComponentActivity to function correctly in Compose tests
+    implementation("androidx.activity:activity-compose:1.9.3")
+
     // SQLDelight Database Driver
     implementation("app.cash.sqldelight:android-driver:2.0.2")
 
@@ -79,12 +82,11 @@ dependencies {
     testImplementation("com.google.truth:truth:1.4.2")
     androidTestImplementation("com.google.truth:truth:1.4.2")
     // Core libraries for Android instrumented tests (run on emulator/device)
-    // CRITICAL: Upgraded to latest stable versions to fix InputManager crash on Android 16 (API 36)
-    // Rolled back to a known-stable test runner foundation to fix ComposeTestRule init failures.
-    androidTestImplementation("androidx.test:core-ktx:1.5.0")
-    androidTestImplementation("androidx.test:runner:1.5.0")
-    androidTestImplementation("androidx.test:rules:1.5.0")
-    androidTestImplementation("androidx.test.ext:junit-ktx:1.1.5")
+    // CRITICAL: Aligned test runner and core libraries with Espresso 3.7.0 and Android 16 (API 36)
+    androidTestImplementation("androidx.test:core-ktx:1.6.1")
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test:rules:1.6.1")
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.2.1")
 
     // Force all Espresso modules to the latest stable to fix the Android 16 crash
     val espressoVersion = "3.7.0"

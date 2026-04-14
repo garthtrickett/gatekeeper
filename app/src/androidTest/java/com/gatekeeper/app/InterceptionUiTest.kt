@@ -25,11 +25,13 @@ class InterceptionUiTest {
     fun testInterceptionChoiceUiRendering() {
         // Arrange & Act: Render the composable directly.
         composeTestRule.setContent {
-            InterceptionChoiceUi(
-                interceptedPackage = testPackage,
-                onBypass = { },
-                onFriction = { }
-            )
+            androidx.compose.material3.MaterialTheme {
+                InterceptionChoiceUi(
+                    interceptedPackage = testPackage,
+                    onBypass = { },
+                    onFriction = { }
+                )
+            }
         }
 
         // Assert: Check that the primary UI elements are visible.
@@ -48,11 +50,13 @@ class InterceptionUiTest {
         var frictionClicked = false
 
         composeTestRule.setContent {
-            InterceptionChoiceUi(
-                interceptedPackage = testPackage,
-                onBypass = { bypassClicked = true },
-                onFriction = { frictionClicked = true }
-            )
+            androidx.compose.material3.MaterialTheme {
+                InterceptionChoiceUi(
+                    interceptedPackage = testPackage,
+                    onBypass = { bypassClicked = true },
+                    onFriction = { frictionClicked = true }
+                )
+            }
         }
 
         // Act: Simulate clicks
@@ -68,7 +72,9 @@ class InterceptionUiTest {
     fun testEmergencyBypassUiRendering() {
         // Arrange
         composeTestRule.setContent {
-            EmergencyBypassUi(interceptedPackage = testPackage)
+            androidx.compose.material3.MaterialTheme {
+                EmergencyBypassUi(interceptedPackage = testPackage)
+            }
         }
 
         // Assert: Initial state
