@@ -32,6 +32,15 @@ android {
     buildFeatures {
         compose = true
     }
+
+    // Absolutely guarantee Compose doesn't silently downgrade our test libraries
+    configurations.all {
+        resolutionStrategy {
+            force("androidx.test.espresso:espresso-core:3.7.0-alpha02")
+            force("androidx.test.espresso:espresso-idling-resource:3.7.0-alpha02")
+            force("androidx.test.espresso:espresso-intents:3.7.0-alpha02")
+        }
+    }
 }
 
 sqldelight {
