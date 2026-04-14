@@ -1,9 +1,9 @@
 {
-  "summary": "fixing test-ui",
+  "summary": "Reverting flake.nix to disable the emulator and system images, as you'll be using a physical device for testing.",
   "files": [
     {
       "file_path": "flake.nix",
-      "code_diff": "<<<<<<< SEARCH\n      # 3. Android SDK Composition\n      androidComposition = pkgs.androidenv.composeAndroidPackages {\n        cmdLineToolsVersion = \"11.0\";\n        platformToolsVersion = \"35.0.2\";\n        buildToolsVersions = [ \"35.0.0\" \"34.0.0\" ];\n        includeEmulator = false;\n        platformVersions = [ \"35\" \"34\" ];\n        includeSources = true; # Added for Kotlin LSP code navigation\n        includeSystemImages = false;\n      };\n=======\n      # 3. Android SDK Composition\n      androidComposition = pkgs.androidenv.composeAndroidPackages {\n        cmdLineToolsVersion = \"11.0\";\n        platformToolsVersion = \"35.0.2\";\n        buildToolsVersions = [ \"35.0.0\" \"34.0.0\" ];\n        includeEmulator = true;\n        platformVersions = [ \"35\" \"34\" ];\n        includeSources = true; # Added for Kotlin LSP code navigation\n        includeSystemImages = true;\n        systemImageTypes = [ \"google_apis_playstore\" ];\n        abiVersions = [ \"arm64-v8a\" ];\n      };\n>>>>>>> REPLACE"
+      "code_diff": "<<<<<<< SEARCH\n      # 3. Android SDK Composition\n      androidComposition = pkgs.androidenv.composeAndroidPackages {\n        cmdLineToolsVersion = \"11.0\";\n        platformToolsVersion = \"35.0.2\";\n        buildToolsVersions = [ \"35.0.0\" \"34.0.0\" ];\n        includeEmulator = true;\n        platformVersions = [ \"35\" \"34\" ];\n        includeSources = true; # Added for Kotlin LSP code navigation\n        includeSystemImages = true;\n        systemImageTypes = [ \"google_apis_playstore\" ];\n        abiVersions = [ \"arm64-v8a\" ];\n      };\n=======\n      # 3. Android SDK Composition\n      androidComposition = pkgs.androidenv.composeAndroidPackages {\n        cmdLineToolsVersion = \"11.0\";\n        platformToolsVersion = \"35.0.2\";\n        buildToolsVersions = [ \"35.0.0\" \"34.0.0\" ];\n        includeEmulator = false;\n        platformVersions = [ \"35\" \"34\" ];\n        includeSources = true; # Added for Kotlin LSP code navigation\n        includeSystemImages = false;\n      };\n>>>>>>> REPLACE"
     }
   ]
 }

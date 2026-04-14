@@ -29,12 +29,10 @@
         cmdLineToolsVersion = "11.0";
         platformToolsVersion = "35.0.2";
         buildToolsVersions = [ "35.0.0" "34.0.0" ];
-        includeEmulator = true;
+        includeEmulator = false;
         platformVersions = [ "35" "34" ];
         includeSources = true; # Added for Kotlin LSP code navigation
-        includeSystemImages = true;
-        systemImageTypes = [ "google_apis_playstore" ];
-        abiVersions = [ "arm64-v8a" ];
+        includeSystemImages = false;
       };
 
       androidSdk = androidComposition.androidsdk;
