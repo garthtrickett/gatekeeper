@@ -1,7 +1,7 @@
 package com.gatekeeper.app
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
@@ -17,7 +17,7 @@ import org.junit.Test
 class InterceptionUiTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createEmptyComposeRule()
 
     private val testPackage = "com.test.interceptedapp"
 
