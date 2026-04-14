@@ -1,7 +1,8 @@
 package com.gatekeeper.app
 
+import androidx.test.platform.app.InstrumentationRegistry
 import app.cash.sqldelight.ColumnAdapter
-import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.gatekeeper.app.db.GatekeeperDatabase
 import com.gatekeeper.app.db.SessionLog
 import com.gatekeeper.app.domain.Emotion
@@ -27,7 +28,7 @@ import org.junit.Test
 class GatekeeperStateManagerTest {
 
     private lateinit var db: GatekeeperDatabase
-    private lateinit var driver: JdbcSqliteDriver
+    private lateinit var driver: AndroidSqliteDriver
 
     // We are creating a manual, test-only version of the StateManager's logic
     // to inject our in-memory database.
@@ -36,9 +37,10 @@ class GatekeeperStateManagerTest {
 
     @Before
     fun setup() {
-        // Use the in-memory JDBC driver for SQLDelight
-        driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
-        GatekeeperDatabase.Schema.create(driver)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        
+        // Use the Android driver. Passing 'null' as the name creates an in-memory DB.
+        driver = AndroidSqliteDriver(GatekeeperDatabase.Schema, context, null)
 
         // We must provide the same ColumnAdapter used in production
         val emotionAdapter = object : ColumnAdapter<Emotion, String> {
