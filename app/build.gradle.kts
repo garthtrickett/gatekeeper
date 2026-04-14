@@ -79,7 +79,12 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.6.1")
     androidTestImplementation("androidx.test:rules:1.6.1")
     androidTestImplementation("androidx.test.ext:junit-ktx:1.2.1")
+    
+    // CRITICAL FIX: Compose ui-test-junit4 transitively pulls in Espresso 3.5.1,
+    // which crashes on Android 15/16. We must force all Espresso modules to 3.6.1.
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.6.1")
 
     // SQLDelight in-memory JVM driver for instrumented database tests
     androidTestImplementation("app.cash.sqldelight:sqlite-driver:2.0.2")
