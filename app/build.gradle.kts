@@ -49,7 +49,8 @@ sqldelight {
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     // Jetpack Compose BOM (Bill of Materials) ensures version compatibility
-    val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
+    // Updated to Oct 2024 for Android 15 / API 35 compatibility
+    val composeBom = platform("androidx.compose:compose-bom:2024.10.00")
     implementation(composeBom)
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
@@ -75,6 +76,8 @@ dependencies {
 
     // Core libraries for Android instrumented tests (run on emulator/device)
     androidTestImplementation("androidx.test:core-ktx:1.6.1")
+    androidTestImplementation("androidx.test:runner:1.6.1")
+    androidTestImplementation("androidx.test:rules:1.6.1")
     androidTestImplementation("androidx.test.ext:junit-ktx:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
