@@ -1,17 +1,13 @@
 {
-  "summary": "The new Android 16 testing libraries (`3.7.0-alpha02`) were compiled by Google using Kotlin 2.1.0. Because Kotlin metadata is backwards-compatible but not forward-compatible, your current Kotlin compiler (1.9.24) cannot read the new libraries. To fix this, we need to upgrade the project to Kotlin 2.1.0. This is actually a great architectural upgrade: as of Kotlin 2.0, the Jetpack Compose compiler is natively built into Kotlin itself, making it much faster and more stable.",
+  "summary": "Switching to the idiomatic Kotlin DSL for the Compose plugin to ensure Android Gradle Plugin resolves it correctly.",
   "files": [
     {
       "file_path": "build.gradle.kts",
-      "code_diff": "<<<<<<< SEARCH\nplugins {\n    // These versions match the Android SDK 34/35 defined in our Nix Flake\n    id(\"com.android.application\") version \"8.5.2\" apply false\n    id(\"org.jetbrains.kotlin.android\") version \"1.9.24\" apply false\n    id(\"app.cash.sqldelight\") version \"2.0.2\" apply false\n}\n=======\nplugins {\n    // These versions match the Android SDK 34/35 defined in our Nix Flake\n    id(\"com.android.application\") version \"8.5.2\" apply false\n    id(\"org.jetbrains.kotlin.android\") version \"2.1.0\" apply false\n    id(\"org.jetbrains.kotlin.plugin.compose\") version \"2.1.0\" apply false\n    id(\"app.cash.sqldelight\") version \"2.0.2\" apply false\n}\n>>>>>>> REPLACE"
+      "code_diff": "<<<<<<< SEARCH\nplugins {\n    // These versions match the Android SDK 34/35 defined in our Nix Flake\n    id(\"com.android.application\") version \"8.5.2\" apply false\n    id(\"org.jetbrains.kotlin.android\") version \"2.1.0\" apply false\n    id(\"org.jetbrains.kotlin.plugin.compose\") version \"2.1.0\" apply false\n    id(\"app.cash.sqldelight\") version \"2.0.2\" apply false\n}\n=======\nplugins {\n    // These versions match the Android SDK 34/35 defined in our Nix Flake\n    id(\"com.android.application\") version \"8.5.2\" apply false\n    kotlin(\"android\") version \"2.1.0\" apply false\n    kotlin(\"plugin.compose\") version \"2.1.0\" apply false\n    id(\"app.cash.sqldelight\") version \"2.0.2\" apply false\n}\n>>>>>>> REPLACE"
     },
     {
       "file_path": "app/build.gradle.kts",
-      "code_diff": "<<<<<<< SEARCH\nplugins {\n    id(\"com.android.application\")\n    id(\"org.jetbrains.kotlin.android\")\n    id(\"app.cash.sqldelight\")\n}\n=======\nplugins {\n    id(\"com.android.application\")\n    id(\"org.jetbrains.kotlin.android\")\n    id(\"org.jetbrains.kotlin.plugin.compose\")\n    id(\"app.cash.sqldelight\")\n}\n>>>>>>> REPLACE"
-    },
-    {
-      "file_path": "app/build.gradle.kts",
-      "code_diff": "<<<<<<< SEARCH\n    buildFeatures {\n        compose = true\n    }\n\n    composeOptions {\n        // This version is specifically paired with Kotlin 1.9.24\n        kotlinCompilerExtensionVersion = \"1.5.14\" \n    }\n}\n=======\n    buildFeatures {\n        compose = true\n    }\n}\n>>>>>>> REPLACE"
+      "code_diff": "<<<<<<< SEARCH\nplugins {\n    id(\"com.android.application\")\n    id(\"org.jetbrains.kotlin.android\")\n    id(\"org.jetbrains.kotlin.plugin.compose\")\n    id(\"app.cash.sqldelight\")\n}\n=======\nplugins {\n    id(\"com.android.application\")\n    kotlin(\"android\")\n    kotlin(\"plugin.compose\")\n    id(\"app.cash.sqldelight\")\n}\n>>>>>>> REPLACE"
     }
   ]
 }
