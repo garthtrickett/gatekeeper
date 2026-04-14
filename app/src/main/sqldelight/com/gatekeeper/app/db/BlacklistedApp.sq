@@ -1,0 +1,12 @@
+CREATE TABLE BlacklistedApp (
+    packageName TEXT NOT NULL PRIMARY KEY
+);
+
+selectAll:
+SELECT packageName FROM BlacklistedApp;
+
+insert:
+INSERT OR REPLACE INTO BlacklistedApp(packageName) VALUES (?);
+
+delete:
+DELETE FROM BlacklistedApp WHERE packageName = ?;

@@ -1,0 +1,20 @@
+import kotlin.Boolean;
+
+-- The `isResolved` column uses an INTEGER to store a boolean value (0 for false, 1 for true).
+-- SQLDelight's built-in adapter handles the conversion to Kotlin's Boolean type.
+CREATE TABLE VaultItem (
+    id TEXT NOT NULL PRIMARY KEY,
+    query TEXT NOT NULL,
+    capturedAtTimestamp INTEGER NOT NULL,
+    isResolved INTEGER AS Boolean NOT NULL DEFAULT 0
+);
+
+selectAll:
+SELECT * FROM VaultItem ORDER BY capturedAtTimestamp DESC;
+
+insert:
+INSERT INTO VaultItem(id, query, capturedAtTimestamp, isResolved)
+VALUES (?, ?, ?, ?);
+
+markAsResolved:
+UPDATE VaultItem SET isResolved = 1 WHERE id = ?;
