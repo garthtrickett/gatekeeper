@@ -5,7 +5,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,16 +23,6 @@ class InterceptionUiTest {
 
     private val testPackage = "com.test.interceptedapp"
 
-    @Test
-    fun test00_SmokeTest() {
-        // This tests whether the Compose test runner can launch an activity at all.
-        composeTestRule.setContent {
-            androidx.compose.material3.Text("Smoke Test Working")
-        }
-        composeTestRule.onNodeWithText("Smoke Test Working").assertExists()
-    }
-
-    @Ignore("Temporarily disabled for systematic debugging")
     @Test
     fun testInterceptionChoiceUiRendering() {
         // Arrange & Act: Render the composable directly.
@@ -56,7 +45,6 @@ class InterceptionUiTest {
         composeTestRule.onNodeWithText("Give Up").assertExists()
     }
 
-    @Ignore("Temporarily disabled for systematic debugging")
     @Test
     fun testInterceptionChoiceUiClicks() {
         // Arrange
@@ -82,7 +70,6 @@ class InterceptionUiTest {
         assertThat(frictionClicked).isTrue()
     }
 
-    @Ignore("Temporarily disabled for systematic debugging")
     @Test
     fun testEmergencyBypassUiRendering() {
         // Arrange
