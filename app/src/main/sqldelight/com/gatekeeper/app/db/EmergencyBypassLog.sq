@@ -7,7 +7,7 @@ CREATE TABLE EmergencyBypassLog (
 
 insert:
 INSERT INTO EmergencyBypassLog(id, packageName, reason, timestamp)
-VALUES (?, ?, ?, ?);
+VALUES (:id, :packageName, :reason, :timestamp);
 
 selectAll:
 SELECT * FROM EmergencyBypassLog ORDER BY timestamp DESC;

@@ -14,6 +14,7 @@ find . -maxdepth 10 \
     -not -path '*/.gradle/*' \
     -type f \( \
     -name "*.kt" -o \
+    -name "*.sq" -o \
     -name "*.kts" -o \
     -name "*.xml" -o \
     -name "*.properties" -o \

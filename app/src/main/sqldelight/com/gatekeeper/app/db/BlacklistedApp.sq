@@ -6,7 +6,7 @@ selectAll:
 SELECT packageName FROM BlacklistedApp;
 
 insert:
-INSERT OR REPLACE INTO BlacklistedApp(packageName) VALUES (?);
+INSERT OR REPLACE INTO BlacklistedApp(packageName) VALUES (:packageName);
 
 delete:
-DELETE FROM BlacklistedApp WHERE packageName = ?;
+DELETE FROM BlacklistedApp WHERE packageName = :packageName;

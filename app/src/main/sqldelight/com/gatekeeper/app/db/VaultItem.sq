@@ -14,7 +14,7 @@ SELECT * FROM VaultItem ORDER BY capturedAtTimestamp DESC;
 
 insert:
 INSERT INTO VaultItem(id, query, capturedAtTimestamp, isResolved)
-VALUES (?, ?, ?, ?);
+VALUES (:id, :query, :capturedAtTimestamp, :isResolved);
 
 markAsResolved:
-UPDATE VaultItem SET isResolved = 1 WHERE id = ?;
+UPDATE VaultItem SET isResolved = 1 WHERE id = :id;

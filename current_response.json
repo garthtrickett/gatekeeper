@@ -1,9 +1,21 @@
 {
-  "summary": "Fix SQLDelight build error by removing the unnecessary EmergencyBypassLogAdapter from the DatabaseManager, as the table uses only standard types.",
+  "summary": "Refactors all SQLDelight schema files (.sq) to use named parameters (e.g., `:id`) instead of positional parameters (`?`). This resolves a subtle build issue where the Kotlin code's named-argument calls could not be reliably mapped to the SQL queries, preventing the `EmergencyBypassLog` table from being created in the deployed application's database. This change requires clearing app data to take effect.",
   "files": [
     {
-      "file_path": "app/src/main/java/com/gatekeeper/app/db/DatabaseManager.kt",
-      "code_diff": "<<<<<<< SEARCH\n                SessionLog.Adapter(\n                    emotionAdapter = emotionAdapter,\n                ),\n            EmergencyBypassLogAdapter = EmergencyBypassLog.Adapter()\n        )\n=======\n                SessionLog.Adapter(\n                    emotionAdapter = emotionAdapter,\n                )\n        )\n>>>>>>> REPLACE"
+      "file_path": "app/src/main/sqldelight/com/gatekeeper/app/db/BlacklistedApp.sq",
+      "code_diff": "<<<<<<< SEARCH\ninsert:\nINSERT OR REPLACE INTO BlacklistedApp(packageName) VALUES (?);\n\ndelete:\nDELETE FROM BlacklistedApp WHERE packageName = ?;\n=======\ninsert:\nINSERT OR REPLACE INTO BlacklistedApp(packageName) VALUES (:packageName);\n\ndelete:\nDELETE FROM BlacklistedApp WHERE packageName = :packageName;\n>>>>>>> REPLACE"
+    },
+    {
+      "file_path": "app/src/main/sqldelight/com/gatekeeper/app/db/EmergencyBypassLog.sq",
+      "code_diff": "<<<<<<< SEARCH\ninsert:\nINSERT INTO EmergencyBypassLog(id, packageName, reason, timestamp)\nVALUES (?, ?, ?, ?);\n=======\ninsert:\nINSERT INTO EmergencyBypassLog(id, packageName, reason, timestamp)\nVALUES (:id, :packageName, :reason, :timestamp);\n>>>>>>> REPLACE"
+    },
+    {
+      "file_path": "app/src/main/sqldelight/com/gatekeeper/app/db/SessionLog.sq",
+      "code_diff": "<<<<<<< SEARCH\ninsert:\nINSERT INTO SessionLog(id, packageName, durationMillis, emotion, loggedAtTimestamp)\nVALUES (?, ?, ?, ?, ?);\n=======\ninsert:\nINSERT INTO SessionLog(id, packageName, durationMillis, emotion, loggedAtTimestamp)\nVALUES (:id, :packageName, :durationMillis, :emotion, :loggedAtTimestamp);\n>>>>>>> REPLACE"
+    },
+    {
+      "file_path": "app/src/main/sqldelight/com/gatekeeper/app/db/VaultItem.sq",
+      "code_diff": "<<<<<<< SEARCH\ninsert:\nINSERT INTO VaultItem(id, query, capturedAtTimestamp, isResolved)\nVALUES (?, ?, ?, ?);\n\nmarkAsResolved:\nUPDATE VaultItem SET isResolved = 1 WHERE id = ?;\n=======\ninsert:\nINSERT INTO VaultItem(id, query, capturedAtTimestamp, isResolved)\nVALUES (:id, :query, :capturedAtTimestamp, :isResolved);\n\nmarkAsResolved:\nUPDATE VaultItem SET isResolved = 1 WHERE id = :id;\n>>>>>>> REPLACE"
     }
   ]
 }
