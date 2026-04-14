@@ -36,9 +36,9 @@ android {
     // Absolutely guarantee Compose doesn't silently downgrade our test libraries
     configurations.all {
         resolutionStrategy {
-            force("androidx.test.espresso:espresso-core:3.6.1")
-            force("androidx.test.espresso:espresso-idling-resource:3.6.1")
-            force("androidx.test.espresso:espresso-intents:3.6.1")
+            force("androidx.test.espresso:espresso-core:3.7.0")
+            force("androidx.test.espresso:espresso-idling-resource:3.7.0")
+            force("androidx.test.espresso:espresso-intents:3.7.0")
         }
     }
 }
@@ -80,13 +80,13 @@ dependencies {
     androidTestImplementation("com.google.truth:truth:1.4.2")
     // Core libraries for Android instrumented tests (run on emulator/device)
     // CRITICAL: Upgraded to latest stable versions to fix InputManager crash on Android 16 (API 36)
-    androidTestImplementation("androidx.test:core-ktx:1.6.1")
-    androidTestImplementation("androidx.test:runner:1.6.1")
-    androidTestImplementation("androidx.test:rules:1.6.1")
-    androidTestImplementation("androidx.test.ext:junit-ktx:1.2.1")
+    androidTestImplementation("androidx.test:core-ktx:1.7.0")
+    androidTestImplementation("androidx.test:runner:1.7.0")
+    androidTestImplementation("androidx.test:rules:1.7.0")
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.3.0")
 
     // Force all Espresso modules to the latest stable to fix the Android 16 crash
-    val espressoVersion = "3.6.1"
+    val espressoVersion = "3.7.0"
     androidTestImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
     androidTestImplementation("androidx.test.espresso:espresso-idling-resource:$espressoVersion")
     androidTestImplementation("androidx.test.espresso:espresso-intents:$espressoVersion")
