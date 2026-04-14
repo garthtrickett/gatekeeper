@@ -68,6 +68,7 @@ dependencies {
 
     // Google's fluent assertion library for more readable tests
     testImplementation("com.google.truth:truth:1.4.2")
+    androidTestImplementation("com.google.truth:truth:1.4.2")
 
     // Core libraries for Android instrumented tests (run on emulator/device)
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

@@ -187,7 +187,7 @@ private fun InterceptionScreen() {
 
 @Suppress("FunctionName")
 @Composable
-private fun InterceptionChoiceUi(
+fun InterceptionChoiceUi(
     interceptedPackage: String,
     onBypass: () -> Unit,
     onFriction: () -> Unit,
@@ -262,7 +262,7 @@ private fun InterceptionChoiceUi(
 // EmergencyBypassUi is now simplified and takes the package name as a parameter
 @Suppress("FunctionName")
 @Composable
-private fun EmergencyBypassUi(interceptedPackage: String) {
+fun EmergencyBypassUi(interceptedPackage: String) {
     var reason by remember { mutableStateOf("") }
     val appName = getAppName(interceptedPackage)
 

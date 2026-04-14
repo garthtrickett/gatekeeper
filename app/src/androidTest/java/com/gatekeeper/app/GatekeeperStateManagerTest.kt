@@ -1,7 +1,10 @@
 package com.gatekeeper.app
 
+import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.gatekeeper.app.db.GatekeeperDatabase
+import com.gatekeeper.app.db.SessionLog
+import com.gatekeeper.app.domain.Emotion
 import com.gatekeeper.app.domain.GatekeeperAction
 import com.gatekeeper.app.domain.GatekeeperState
 import com.gatekeeper.app.domain.reduce
@@ -36,7 +39,17 @@ class GatekeeperStateManagerTest {
         // Use the in-memory JDBC driver for SQLDelight
         driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         GatekeeperDatabase.Schema.create(driver)
-        db = GatekeeperDatabase(driver)
+
+        // We must provide the same ColumnAdapter used in production
+        val emotionAdapter = object : ColumnAdapter<Emotion, String> {
+            override fun decode(databaseValue: String): Emotion = Emotion.valueOf(databaseValue)
+            override fun encode(value: Emotion): String = value.name
+        }
+
+        db = GatekeeperDatabase(
+            driver = driver,
+            SessionLogAdapter = SessionLog.Adapter(emotionAdapter = emotionAdapter)
+        )
 
         _state = MutableStateFlow(GatekeeperState())
     }

@@ -1,9 +1,17 @@
 {
-  "summary": "Adds convenience aliases to the Nix flake for running unit and instrumented tests quickly from the command line.",
+  "summary": "Fixes instrumented test compilation errors. Adds Truth dependency to the androidTest classpath, exposes internal interception Composables for testing, and correctly configures the in-memory SQLDelight database with required ColumnAdapters in the test setup.",
   "files": [
     {
-      "file_path": "flake.nix",
-      "code_diff": "<<<<<<< SEARCH\n          alias format='ktlint --format \"app/src/**/*.kt\"'\n          alias wipe='adb shell pm clear com.gatekeeper.app'\n=======\n          alias format='ktlint --format \"app/src/**/*.kt\"'\n          alias wipe='adb shell pm clear com.gatekeeper.app'\n          alias test-unit='gradle :app:test'\n          alias test-ui='gradle :app:connectedAndroidTest'\n>>>>>>> REPLACE"
+      "file_path": "app/build.gradle.kts",
+      "code_diff": "<<<<<<< SEARCH\n    // Google's fluent assertion library for more readable tests\n    testImplementation(\"com.google.truth:truth:1.4.2\")\n\n    // Core libraries for Android instrumented tests (run on emulator/device)\n=======\n    // Google's fluent assertion library for more readable tests\n    testImplementation(\"com.google.truth:truth:1.4.2\")\n    androidTestImplementation(\"com.google.truth:truth:1.4.2\")\n\n    // Core libraries for Android instrumented tests (run on emulator/device)\n>>>>>>> REPLACE"
+    },
+    {
+      "file_path": "app/src/main/java/com/gatekeeper/app/GatekeeperOverlay.kt",
+      "code_diff": "<<<<<<< SEARCH\n@Suppress(\"FunctionName\")\n@Composable\nprivate fun InterceptionChoiceUi(\n    interceptedPackage: String,\n    onBypass: () -> Unit,\n    onFriction: () -> Unit,\n) {\n=======\n@Suppress(\"FunctionName\")\n@Composable\nfun InterceptionChoiceUi(\n    interceptedPackage: String,\n    onBypass: () -> Unit,\n    onFriction: () -> Unit,\n) {\n>>>>>>> REPLACE\n<<<<<<< SEARCH\n// EmergencyBypassUi is now simplified and takes the package name as a parameter\n@Suppress(\"FunctionName\")\n@Composable\nprivate fun EmergencyBypassUi(interceptedPackage: String) {\n=======\n// EmergencyBypassUi is now simplified and takes the package name as a parameter\n@Suppress(\"FunctionName\")\n@Composable\nfun EmergencyBypassUi(interceptedPackage: String) {\n>>>>>>> REPLACE"
+    },
+    {
+      "file_path": "app/src/androidTest/java/com/gatekeeper/app/GatekeeperStateManagerTest.kt",
+      "code_diff": "<<<<<<< SEARCH\nimport app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver\nimport com.gatekeeper.app.db.GatekeeperDatabase\nimport com.gatekeeper.app.domain.GatekeeperAction\n=======\nimport app.cash.sqldelight.ColumnAdapter\nimport app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver\nimport com.gatekeeper.app.db.GatekeeperDatabase\nimport com.gatekeeper.app.db.SessionLog\nimport com.gatekeeper.app.domain.Emotion\nimport com.gatekeeper.app.domain.GatekeeperAction\n>>>>>>> REPLACE\n<<<<<<< SEARCH\n    @Before\n    fun setup() {\n        // Use the in-memory JDBC driver for SQLDelight\n        driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)\n        GatekeeperDatabase.Schema.create(driver)\n        db = GatekeeperDatabase(driver)\n\n        _state = MutableStateFlow(GatekeeperState())\n    }\n=======\n    @Before\n    fun setup() {\n        // Use the in-memory JDBC driver for SQLDelight\n        driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)\n        GatekeeperDatabase.Schema.create(driver)\n\n        // We must provide the same ColumnAdapter used in production\n        val emotionAdapter = object : ColumnAdapter<Emotion, String> {\n            override fun decode(databaseValue: String): Emotion = Emotion.valueOf(databaseValue)\n            override fun encode(value: Emotion): String = value.name\n        }\n\n        db = GatekeeperDatabase(\n            driver = driver,\n            SessionLogAdapter = SessionLog.Adapter(emotionAdapter = emotionAdapter)\n        )\n\n        _state = MutableStateFlow(GatekeeperState())\n    }\n>>>>>>> REPLACE"
     }
   ]
 }
