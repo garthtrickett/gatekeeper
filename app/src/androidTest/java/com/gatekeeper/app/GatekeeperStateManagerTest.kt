@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -105,16 +106,16 @@ class GatekeeperStateManagerTest {
     }
 
     /**
-     * A test-specific replica of the dispatch and side-effect handling logic from
-     * the real GatekeeperStateManager, but using our in-memory `db` instance.
+     * A test-specific replica of the dispatch and side-effect handling logic.
+     * It returns a Job so the test can wait for the DB write to finish.
      */
-    private fun dispatchWithSideEffects(action: GatekeeperAction) {
+    private suspend fun dispatchWithSideEffects(action: GatekeeperAction) {
         val oldState = _state.value
         val newState = reduce(oldState, action)
         _state.value = newState
 
         // Mimic the real side-effect logic
-        scope.launch {
+        val job = scope.launch {
             when (action) {
                 is GatekeeperAction.EmergencyBypassRequested -> {
                     db.emergencyBypassLogQueries.insert(
@@ -136,9 +137,8 @@ class GatekeeperStateManagerTest {
                 }
                 else -> { /* Other side effects not under test */ }
             }
-        }.invokeOnCompletion {
-            // In a real app, this is not needed. In a test, we need to ensure
-            // the coroutine completes before our assertions run.
         }
+        // Wait for the background work to finish before returning
+        job.join()
     }
 }

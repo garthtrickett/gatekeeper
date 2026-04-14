@@ -74,7 +74,8 @@ dependencies {
     androidTestImplementation("com.google.truth:truth:1.4.2")
 
     // Core libraries for Android instrumented tests (run on emulator/device)
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test:core-ktx:1.6.1")
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
     // SQLDelight in-memory JVM driver for instrumented database tests
