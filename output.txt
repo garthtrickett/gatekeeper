@@ -1,0 +1,679 @@
+Initialized native services in: /home/garth/.gradle/native
+Initialized jansi services in: /home/garth/.gradle/native
+The client will now receive all logging from the daemon (pid: 2992597). The daemon log file: /home/garth/.gradle/daemon/8.14.4/daemon-2992597.out.log
+Starting 14th build in daemon [uptime: 25 mins 5.429 secs, performance: 100%, GC rate: 0.00/s, heap usage: 1% of 2 GiB]
+Using 10 worker leases.
+Now considering [/home/garth/files/code/reconnect] as hierarchies to watch
+Watching the file system is configured to be enabled if available
+File system watching is active
+Starting Build
+Settings evaluated using settings file '/home/garth/files/code/reconnect/settings.gradle.kts'.
+Projects loaded. Root project using build file '/home/garth/files/code/reconnect/build.gradle.kts'.
+Included projects: [root project 'Gatekeeper', project ':app']
+
+> Configure project :
+Evaluating root project 'Gatekeeper' using build file '/home/garth/files/code/reconnect/build.gradle.kts'.
+Resolved plugin [id: 'com.android.application', version: '8.5.2', apply: false]
+Resolved plugin [id: 'org.jetbrains.kotlin.android', version: '2.1.0', apply: false]
+Resolved plugin [id: 'org.jetbrains.kotlin.plugin.compose', version: '2.1.0', apply: false]
+Resolved plugin [id: 'app.cash.sqldelight', version: '2.0.2', apply: false]
+
+> Configure project :app
+Evaluating project ':app' using build file '/home/garth/files/code/reconnect/app/build.gradle.kts'.
+Resolved plugin [id: 'com.android.application']
+Resolved plugin [id: 'org.jetbrains.kotlin.android']
+Resolved plugin [id: 'org.jetbrains.kotlin.plugin.compose']
+Resolved plugin [id: 'app.cash.sqldelight']
+Using default execution profile
+Using Kotlin Gradle Plugin gradle85 variant
+Detected Android Gradle Plugin compose compiler configuration
+Detected Android Gradle Plugin compose compiler configuration
+Detected Android Gradle Plugin compose compiler configuration
+Detected Android Gradle Plugin compose compiler configuration
+Detected Android Gradle Plugin compose compiler configuration
+All projects evaluated.
+Task path ':app:connectedAndroidTest' matched project ':app'
+Task name matched 'connectedAndroidTest'
+Selected primary task 'connectedAndroidTest' from project :app
+Tasks to be executed: [task ':app:checkKotlinGradlePluginConfigurationErrors', task ':app:generateDebugGatekeeperDatabaseInterface', task ':app:preBuild', task ':app:preDebugBuild', task ':app:checkDebugAarMetadata', task ':app:generateDebugResValues', task ':app:mapDebugSourceSetPaths', task ':app:generateDebugResources', task ':app:mergeDebugResources', task ':app:packageDebugResources', task ':app:parseDebugLocalResources', task ':app:createDebugCompatibleScreenManifests', task ':app:extractDeepLinksDebug', task ':app:processDebugMainManifest', task ':app:processDebugManifest', task ':app:processDebugManifestForPackage', task ':app:processDebugResources', task ':app:compileDebugKotlin', task ':app:javaPreCompileDebug', task ':app:compileDebugJavaWithJavac', task ':app:bundleDebugClassesToCompileJar', task ':app:preDebugAndroidTestBuild', task ':app:checkDebugAndroidTestAarMetadata', task ':app:generateDebugAndroidTestResValues', task ':app:mapDebugAndroidTestSourceSetPaths', task ':app:generateDebugAndroidTestResources', task ':app:mergeDebugAndroidTestResources', task ':app:processDebugAndroidTestManifest', task ':app:processDebugAndroidTestResources', task ':app:compileDebugAndroidTestKotlin', task ':app:javaPreCompileDebugAndroidTest', task ':app:compileDebugAndroidTestJavaWithJavac', task ':app:mergeDebugShaders', task ':app:compileDebugShaders', task ':app:generateDebugAssets', task ':app:mergeDebugAssets', task ':app:compressDebugAssets', task ':app:desugarDebugFileDependencies', task ':app:dexBuilderDebug', task ':app:mergeDebugGlobalSynthetics', task ':app:processDebugJavaRes', task ':app:mergeDebugJavaResource', task ':app:checkDebugDuplicateClasses', task ':app:mergeDebugStartupProfile', task ':app:mergeExtDexDebug', task ':app:mergeLibDexDebug', task ':app:mergeProjectDexDebug', task ':app:mergeDebugJniLibFolders', task ':app:mergeDebugNativeLibs', task ':app:stripDebugDebugSymbols', task ':app:validateSigningDebug', task ':app:writeDebugAppMetadata', task ':app:writeDebugSigningConfigVersions', task ':app:packageDebug', task ':app:createDebugApkListingFileRedirect', task ':app:mergeDebugAndroidTestShaders', task ':app:compileDebugAndroidTestShaders', task ':app:generateDebugAndroidTestAssets', task ':app:mergeDebugAndroidTestAssets', task ':app:compressDebugAndroidTestAssets', task ':app:desugarDebugAndroidTestFileDependencies', task ':app:dexBuilderDebugAndroidTest', task ':app:mergeDebugAndroidTestGlobalSynthetics', task ':app:processDebugAndroidTestJavaRes', task ':app:mergeDebugAndroidTestJavaResource', task ':app:checkDebugAndroidTestDuplicateClasses', task ':app:mergeExtDexDebugAndroidTest', task ':app:mergeLibDexDebugAndroidTest', task ':app:mergeProjectDexDebugAndroidTest', task ':app:mergeDebugAndroidTestJniLibFolders', task ':app:mergeDebugAndroidTestNativeLibs', task ':app:stripDebugAndroidTestDebugSymbols', task ':app:validateSigningDebugAndroidTest', task ':app:writeDebugAndroidTestSigningConfigVersions', task ':app:packageDebugAndroidTest', task ':app:createDebugAndroidTestApkListingFileRedirect', task ':app:connectedDebugAndroidTest', task ':app:connectedAndroidTest']
+Tasks that were excluded: []
+Resolve mutations for :app:checkKotlinGradlePluginConfigurationErrors (Thread[#2096,Execution worker,5,main]) started.
+:app:checkKotlinGradlePluginConfigurationErrors (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Skipping task ':app:checkKotlinGradlePluginConfigurationErrors' as task onlyIf 'errorDiagnostics are present' is false.
+Resolve mutations for :app:generateDebugGatekeeperDatabaseInterface (Thread[#2096,Execution worker,5,main]) started.
+:app:generateDebugGatekeeperDatabaseInterface (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:generateDebugGatekeeperDatabaseInterface UP-TO-DATE
+Caching disabled for task ':app:generateDebugGatekeeperDatabaseInterface' because:
+  Build cache is disabled
+Skipping task ':app:generateDebugGatekeeperDatabaseInterface' as it is up-to-date.
+Resolve mutations for :app:preBuild (Thread[#2096,Execution worker,5,main]) started.
+:app:preBuild (Thread[#2098,Execution worker Thread 3,5,main]) started.
+
+> Task :app:preBuild UP-TO-DATE
+Skipping task ':app:preBuild' as it has no actions.
+Resolve mutations for :app:preDebugBuild (Thread[#2098,Execution worker Thread 3,5,main]) started.
+:app:preDebugBuild (Thread[#2098,Execution worker Thread 3,5,main]) started.
+
+> Task :app:preDebugBuild UP-TO-DATE
+Skipping task ':app:preDebugBuild' as it has no actions.
+Resolve mutations for :app:checkDebugAarMetadata (Thread[#2098,Execution worker Thread 3,5,main]) started.
+:app:checkDebugAarMetadata (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+Caching disabled for task ':app:checkDebugAarMetadata' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:checkDebugAarMetadata' as it is up-to-date.
+Resolve mutations for :app:generateDebugResValues (Thread[#2096,Execution worker,5,main]) started.
+:app:generateDebugResValues (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:generateDebugResValues UP-TO-DATE
+Caching disabled for task ':app:generateDebugResValues' because:
+  Build cache is disabled
+Skipping task ':app:generateDebugResValues' as it is up-to-date.
+Resolve mutations for :app:mapDebugSourceSetPaths (Thread[#2096,Execution worker,5,main]) started.
+:app:mapDebugSourceSetPaths (Thread[#2101,Execution worker Thread 6,5,main]) started.
+
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+Caching disabled for task ':app:mapDebugSourceSetPaths' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:mapDebugSourceSetPaths' as it is up-to-date.
+Resolve mutations for :app:generateDebugResources (Thread[#2101,Execution worker Thread 6,5,main]) started.
+:app:generateDebugResources (Thread[#2101,Execution worker Thread 6,5,main]) started.
+
+> Task :app:generateDebugResources UP-TO-DATE
+Caching disabled for task ':app:generateDebugResources' because:
+  Build cache is disabled
+Skipping task ':app:generateDebugResources' as it is up-to-date.
+Resolve mutations for :app:mergeDebugResources (Thread[#2101,Execution worker Thread 6,5,main]) started.
+:app:mergeDebugResources (Thread[#2101,Execution worker Thread 6,5,main]) started.
+
+> Task :app:mergeDebugResources UP-TO-DATE
+Caching disabled for task ':app:mergeDebugResources' because:
+  Build cache is disabled
+Skipping task ':app:mergeDebugResources' as it is up-to-date.
+Resolve mutations for :app:packageDebugResources (Thread[#2101,Execution worker Thread 6,5,main]) started.
+:app:packageDebugResources (Thread[#2101,Execution worker Thread 6,5,main]) started.
+
+> Task :app:packageDebugResources UP-TO-DATE
+Caching disabled for task ':app:packageDebugResources' because:
+  Build cache is disabled
+Skipping task ':app:packageDebugResources' as it is up-to-date.
+Resolve mutations for :app:parseDebugLocalResources (Thread[#2101,Execution worker Thread 6,5,main]) started.
+:app:parseDebugLocalResources (Thread[#2104,Execution worker Thread 9,5,main]) started.
+
+> Task :app:parseDebugLocalResources UP-TO-DATE
+Caching disabled for task ':app:parseDebugLocalResources' because:
+  Build cache is disabled
+Skipping task ':app:parseDebugLocalResources' as it is up-to-date.
+Resolve mutations for :app:createDebugCompatibleScreenManifests (Thread[#2104,Execution worker Thread 9,5,main]) started.
+:app:createDebugCompatibleScreenManifests (Thread[#2104,Execution worker Thread 9,5,main]) started.
+
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+Caching disabled for task ':app:createDebugCompatibleScreenManifests' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:createDebugCompatibleScreenManifests' as it is up-to-date.
+Resolve mutations for :app:extractDeepLinksDebug (Thread[#2104,Execution worker Thread 9,5,main]) started.
+:app:extractDeepLinksDebug (Thread[#2101,Execution worker Thread 6,5,main]) started.
+
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+Caching disabled for task ':app:extractDeepLinksDebug' because:
+  Build cache is disabled
+Skipping task ':app:extractDeepLinksDebug' as it is up-to-date.
+Resolve mutations for :app:processDebugMainManifest (Thread[#2101,Execution worker Thread 6,5,main]) started.
+:app:processDebugMainManifest (Thread[#2101,Execution worker Thread 6,5,main]) started.
+
+> Task :app:processDebugMainManifest UP-TO-DATE
+Caching disabled for task ':app:processDebugMainManifest' because:
+  Build cache is disabled
+Skipping task ':app:processDebugMainManifest' as it is up-to-date.
+Resolve mutations for :app:processDebugManifest (Thread[#2101,Execution worker Thread 6,5,main]) started.
+:app:processDebugManifest (Thread[#2095,included builds,5,main]) started.
+
+> Task :app:processDebugManifest UP-TO-DATE
+Caching disabled for task ':app:processDebugManifest' because:
+  Build cache is disabled
+Skipping task ':app:processDebugManifest' as it is up-to-date.
+Resolve mutations for :app:processDebugManifestForPackage (Thread[#2095,included builds,5,main]) started.
+:app:processDebugManifestForPackage (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+Custom actions are attached to task ':app:processDebugManifestForPackage'.
+Caching disabled for task ':app:processDebugManifestForPackage' because:
+  Build cache is disabled
+Skipping task ':app:processDebugManifestForPackage' as it is up-to-date.
+Resolve mutations for :app:processDebugResources (Thread[#2096,Execution worker,5,main]) started.
+:app:processDebugResources (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:processDebugResources UP-TO-DATE
+Caching disabled for task ':app:processDebugResources' because:
+  Build cache is disabled
+Skipping task ':app:processDebugResources' as it is up-to-date.
+Resolve mutations for :app:compileDebugKotlin (Thread[#2096,Execution worker,5,main]) started.
+:app:compileDebugKotlin (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:compileDebugKotlin UP-TO-DATE
+Caching disabled for task ':app:compileDebugKotlin' because:
+  Build cache is disabled
+Skipping task ':app:compileDebugKotlin' as it is up-to-date.
+Resolve mutations for :app:javaPreCompileDebug (Thread[#2096,Execution worker,5,main]) started.
+:app:javaPreCompileDebug (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:javaPreCompileDebug UP-TO-DATE
+Caching disabled for task ':app:javaPreCompileDebug' because:
+  Build cache is disabled
+Skipping task ':app:javaPreCompileDebug' as it is up-to-date.
+Resolve mutations for :app:compileDebugJavaWithJavac (Thread[#2096,Execution worker,5,main]) started.
+:app:compileDebugJavaWithJavac (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+Skipping task ':app:compileDebugJavaWithJavac' as it has no source files and no previous output files.
+Resolve mutations for :app:bundleDebugClassesToCompileJar (Thread[#2096,Execution worker,5,main]) started.
+:app:bundleDebugClassesToCompileJar (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:bundleDebugClassesToCompileJar UP-TO-DATE
+Caching disabled for task ':app:bundleDebugClassesToCompileJar' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:bundleDebugClassesToCompileJar' as it is up-to-date.
+work action resolve classes.jar (project :app) (Thread[#2096,Execution worker,5,main]) started.
+Resolve mutations for :app:preDebugAndroidTestBuild (Thread[#2096,Execution worker,5,main]) started.
+:app:preDebugAndroidTestBuild (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:preDebugAndroidTestBuild SKIPPED
+Skipping task ':app:preDebugAndroidTestBuild' as task onlyIf 'Task is enabled' is false.
+Resolve mutations for :app:checkDebugAndroidTestAarMetadata (Thread[#2096,Execution worker,5,main]) started.
+:app:checkDebugAndroidTestAarMetadata (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:checkDebugAndroidTestAarMetadata UP-TO-DATE
+Caching disabled for task ':app:checkDebugAndroidTestAarMetadata' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:checkDebugAndroidTestAarMetadata' as it is up-to-date.
+Resolve mutations for :app:generateDebugAndroidTestResValues (Thread[#2096,Execution worker,5,main]) started.
+:app:generateDebugAndroidTestResValues (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:generateDebugAndroidTestResValues UP-TO-DATE
+Caching disabled for task ':app:generateDebugAndroidTestResValues' because:
+  Build cache is disabled
+Skipping task ':app:generateDebugAndroidTestResValues' as it is up-to-date.
+Resolve mutations for :app:mapDebugAndroidTestSourceSetPaths (Thread[#2096,Execution worker,5,main]) started.
+:app:mapDebugAndroidTestSourceSetPaths (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:mapDebugAndroidTestSourceSetPaths UP-TO-DATE
+Caching disabled for task ':app:mapDebugAndroidTestSourceSetPaths' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:mapDebugAndroidTestSourceSetPaths' as it is up-to-date.
+Resolve mutations for :app:generateDebugAndroidTestResources (Thread[#2096,Execution worker,5,main]) started.
+:app:generateDebugAndroidTestResources (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:generateDebugAndroidTestResources UP-TO-DATE
+Caching disabled for task ':app:generateDebugAndroidTestResources' because:
+  Build cache is disabled
+Skipping task ':app:generateDebugAndroidTestResources' as it is up-to-date.
+Resolve mutations for :app:mergeDebugAndroidTestResources (Thread[#2096,Execution worker,5,main]) started.
+:app:mergeDebugAndroidTestResources (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:mergeDebugAndroidTestResources UP-TO-DATE
+Caching disabled for task ':app:mergeDebugAndroidTestResources' because:
+  Build cache is disabled
+Skipping task ':app:mergeDebugAndroidTestResources' as it is up-to-date.
+Resolve mutations for :app:processDebugAndroidTestManifest (Thread[#2096,Execution worker,5,main]) started.
+:app:processDebugAndroidTestManifest (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:processDebugAndroidTestManifest UP-TO-DATE
+Caching disabled for task ':app:processDebugAndroidTestManifest' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:processDebugAndroidTestManifest' as it is up-to-date.
+Resolve mutations for :app:processDebugAndroidTestResources (Thread[#2096,Execution worker,5,main]) started.
+:app:processDebugAndroidTestResources (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:processDebugAndroidTestResources UP-TO-DATE
+Caching disabled for task ':app:processDebugAndroidTestResources' because:
+  Build cache is disabled
+Skipping task ':app:processDebugAndroidTestResources' as it is up-to-date.
+Resolve mutations for :app:compileDebugAndroidTestKotlin (Thread[#2096,Execution worker,5,main]) started.
+:app:compileDebugAndroidTestKotlin (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:compileDebugAndroidTestKotlin UP-TO-DATE
+Caching disabled for task ':app:compileDebugAndroidTestKotlin' because:
+  Build cache is disabled
+Skipping task ':app:compileDebugAndroidTestKotlin' as it is up-to-date.
+Resolve mutations for :app:javaPreCompileDebugAndroidTest (Thread[#2096,Execution worker,5,main]) started.
+:app:javaPreCompileDebugAndroidTest (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:javaPreCompileDebugAndroidTest UP-TO-DATE
+Caching disabled for task ':app:javaPreCompileDebugAndroidTest' because:
+  Build cache is disabled
+Skipping task ':app:javaPreCompileDebugAndroidTest' as it is up-to-date.
+Resolve mutations for :app:compileDebugAndroidTestJavaWithJavac (Thread[#2096,Execution worker,5,main]) started.
+:app:compileDebugAndroidTestJavaWithJavac (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:compileDebugAndroidTestJavaWithJavac NO-SOURCE
+Skipping task ':app:compileDebugAndroidTestJavaWithJavac' as it has no source files and no previous output files.
+Resolve mutations for :app:mergeDebugShaders (Thread[#2096,Execution worker,5,main]) started.
+:app:mergeDebugShaders (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:mergeDebugShaders UP-TO-DATE
+Caching disabled for task ':app:mergeDebugShaders' because:
+  Build cache is disabled
+  Simple merging task
+Skipping task ':app:mergeDebugShaders' as it is up-to-date.
+Resolve mutations for :app:compileDebugShaders (Thread[#2096,Execution worker,5,main]) started.
+:app:compileDebugShaders (Thread[#2099,Execution worker Thread 4,5,main]) started.
+
+> Task :app:compileDebugShaders NO-SOURCE
+Skipping task ':app:compileDebugShaders' as it has no source files and no previous output files.
+Resolve mutations for :app:generateDebugAssets (Thread[#2099,Execution worker Thread 4,5,main]) started.
+:app:generateDebugAssets (Thread[#2095,included builds,5,main]) started.
+
+> Task :app:generateDebugAssets UP-TO-DATE
+Skipping task ':app:generateDebugAssets' as it has no actions.
+Resolve mutations for :app:mergeDebugAssets (Thread[#2095,included builds,5,main]) started.
+:app:mergeDebugAssets (Thread[#2095,included builds,5,main]) started.
+
+> Task :app:mergeDebugAssets UP-TO-DATE
+Caching disabled for task ':app:mergeDebugAssets' because:
+  Build cache is disabled
+  Simple merging task
+Skipping task ':app:mergeDebugAssets' as it is up-to-date.
+Resolve mutations for :app:compressDebugAssets (Thread[#2095,included builds,5,main]) started.
+:app:compressDebugAssets (Thread[#2095,included builds,5,main]) started.
+
+> Task :app:compressDebugAssets UP-TO-DATE
+Caching disabled for task ':app:compressDebugAssets' because:
+  Build cache is disabled
+Skipping task ':app:compressDebugAssets' as it is up-to-date.
+Resolve mutations for :app:desugarDebugFileDependencies (Thread[#2095,included builds,5,main]) started.
+:app:desugarDebugFileDependencies (Thread[#2095,included builds,5,main]) started.
+
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+Caching disabled for task ':app:desugarDebugFileDependencies' because:
+  Build cache is disabled
+Skipping task ':app:desugarDebugFileDependencies' as it is up-to-date.
+Resolve mutations for :app:dexBuilderDebug (Thread[#2095,included builds,5,main]) started.
+:app:dexBuilderDebug (Thread[#2095,included builds,5,main]) started.
+
+> Task :app:dexBuilderDebug UP-TO-DATE
+Caching disabled for task ':app:dexBuilderDebug' because:
+  Build cache is disabled
+Skipping task ':app:dexBuilderDebug' as it is up-to-date.
+Resolve mutations for :app:mergeDebugGlobalSynthetics (Thread[#2095,included builds,5,main]) started.
+:app:mergeDebugGlobalSynthetics (Thread[#2100,Execution worker Thread 5,5,main]) started.
+
+> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE
+Caching disabled for task ':app:mergeDebugGlobalSynthetics' because:
+  Build cache is disabled
+Skipping task ':app:mergeDebugGlobalSynthetics' as it is up-to-date.
+Resolve mutations for :app:processDebugJavaRes (Thread[#2100,Execution worker Thread 5,5,main]) started.
+:app:processDebugJavaRes (Thread[#2100,Execution worker Thread 5,5,main]) started.
+
+> Task :app:processDebugJavaRes UP-TO-DATE
+file or directory '/home/garth/files/code/reconnect/app/src/main/resources', not found
+file or directory '/home/garth/files/code/reconnect/app/src/debug/resources', not found
+file or directory '/home/garth/files/code/reconnect/app/src/main/resources', not found
+file or directory '/home/garth/files/code/reconnect/app/src/debug/resources', not found
+Caching disabled for task ':app:processDebugJavaRes' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:processDebugJavaRes' as it is up-to-date.
+Resolve mutations for :app:mergeDebugJavaResource (Thread[#2100,Execution worker Thread 5,5,main]) started.
+:app:mergeDebugJavaResource (Thread[#2100,Execution worker Thread 5,5,main]) started.
+
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+Caching disabled for task ':app:mergeDebugJavaResource' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:mergeDebugJavaResource' as it is up-to-date.
+Resolve mutations for :app:checkDebugDuplicateClasses (Thread[#2100,Execution worker Thread 5,5,main]) started.
+:app:checkDebugDuplicateClasses (Thread[#2102,Execution worker Thread 7,5,main]) started.
+
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+Caching disabled for task ':app:checkDebugDuplicateClasses' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:checkDebugDuplicateClasses' as it is up-to-date.
+Resolve mutations for :app:mergeDebugStartupProfile (Thread[#2102,Execution worker Thread 7,5,main]) started.
+:app:mergeDebugStartupProfile (Thread[#2102,Execution worker Thread 7,5,main]) started.
+
+> Task :app:mergeDebugStartupProfile UP-TO-DATE
+Caching disabled for task ':app:mergeDebugStartupProfile' because:
+  Build cache is disabled
+  Simple merging task
+Skipping task ':app:mergeDebugStartupProfile' as it is up-to-date.
+Resolve mutations for :app:mergeExtDexDebug (Thread[#2102,Execution worker Thread 7,5,main]) started.
+:app:mergeExtDexDebug (Thread[#2104,Execution worker Thread 9,5,main]) started.
+
+> Task :app:mergeExtDexDebug UP-TO-DATE
+Caching disabled for task ':app:mergeExtDexDebug' because:
+  Build cache is disabled
+Skipping task ':app:mergeExtDexDebug' as it is up-to-date.
+Resolve mutations for :app:mergeLibDexDebug (Thread[#2104,Execution worker Thread 9,5,main]) started.
+:app:mergeLibDexDebug (Thread[#2104,Execution worker Thread 9,5,main]) started.
+
+> Task :app:mergeLibDexDebug UP-TO-DATE
+Caching disabled for task ':app:mergeLibDexDebug' because:
+  Build cache is disabled
+Skipping task ':app:mergeLibDexDebug' as it is up-to-date.
+Resolve mutations for :app:mergeProjectDexDebug (Thread[#2104,Execution worker Thread 9,5,main]) started.
+:app:mergeProjectDexDebug (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:mergeProjectDexDebug UP-TO-DATE
+Caching disabled for task ':app:mergeProjectDexDebug' because:
+  Build cache is disabled
+Skipping task ':app:mergeProjectDexDebug' as it is up-to-date.
+Resolve mutations for :app:mergeDebugJniLibFolders (Thread[#2096,Execution worker,5,main]) started.
+:app:mergeDebugJniLibFolders (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+Caching disabled for task ':app:mergeDebugJniLibFolders' because:
+  Build cache is disabled
+  Simple merging task
+Skipping task ':app:mergeDebugJniLibFolders' as it is up-to-date.
+Resolve mutations for :app:mergeDebugNativeLibs (Thread[#2096,Execution worker,5,main]) started.
+:app:mergeDebugNativeLibs (Thread[#2099,Execution worker Thread 4,5,main]) started.
+
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+Caching disabled for task ':app:mergeDebugNativeLibs' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:mergeDebugNativeLibs' as it is up-to-date.
+Resolve mutations for :app:stripDebugDebugSymbols (Thread[#2099,Execution worker Thread 4,5,main]) started.
+:app:stripDebugDebugSymbols (Thread[#2099,Execution worker Thread 4,5,main]) started.
+
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+Caching disabled for task ':app:stripDebugDebugSymbols' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:stripDebugDebugSymbols' as it is up-to-date.
+Resolve mutations for :app:validateSigningDebug (Thread[#2099,Execution worker Thread 4,5,main]) started.
+:app:validateSigningDebug (Thread[#2099,Execution worker Thread 4,5,main]) started.
+
+> Task :app:validateSigningDebug UP-TO-DATE
+Caching disabled for task ':app:validateSigningDebug' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:validateSigningDebug' as it is up-to-date.
+Resolve mutations for :app:writeDebugAppMetadata (Thread[#2099,Execution worker Thread 4,5,main]) started.
+:app:writeDebugAppMetadata (Thread[#2099,Execution worker Thread 4,5,main]) started.
+
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+Caching disabled for task ':app:writeDebugAppMetadata' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:writeDebugAppMetadata' as it is up-to-date.
+Resolve mutations for :app:writeDebugSigningConfigVersions (Thread[#2099,Execution worker Thread 4,5,main]) started.
+:app:writeDebugSigningConfigVersions (Thread[#2099,Execution worker Thread 4,5,main]) started.
+
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+Caching disabled for task ':app:writeDebugSigningConfigVersions' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:writeDebugSigningConfigVersions' as it is up-to-date.
+Resolve mutations for :app:packageDebug (Thread[#2099,Execution worker Thread 4,5,main]) started.
+:app:packageDebug (Thread[#2099,Execution worker Thread 4,5,main]) started.
+
+> Task :app:packageDebug UP-TO-DATE
+Custom actions are attached to task ':app:packageDebug'.
+Caching disabled for task ':app:packageDebug' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:packageDebug' as it is up-to-date.
+Resolve mutations for :app:createDebugApkListingFileRedirect (Thread[#2099,Execution worker Thread 4,5,main]) started.
+:app:createDebugApkListingFileRedirect (Thread[#2099,Execution worker Thread 4,5,main]) started.
+
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+Caching disabled for task ':app:createDebugApkListingFileRedirect' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:createDebugApkListingFileRedirect' as it is up-to-date.
+Resolve mutations for :app:mergeDebugAndroidTestShaders (Thread[#2099,Execution worker Thread 4,5,main]) started.
+:app:mergeDebugAndroidTestShaders (Thread[#2099,Execution worker Thread 4,5,main]) started.
+
+> Task :app:mergeDebugAndroidTestShaders UP-TO-DATE
+Caching disabled for task ':app:mergeDebugAndroidTestShaders' because:
+  Build cache is disabled
+  Simple merging task
+Skipping task ':app:mergeDebugAndroidTestShaders' as it is up-to-date.
+Resolve mutations for :app:compileDebugAndroidTestShaders (Thread[#2099,Execution worker Thread 4,5,main]) started.
+:app:compileDebugAndroidTestShaders (Thread[#2099,Execution worker Thread 4,5,main]) started.
+
+> Task :app:compileDebugAndroidTestShaders NO-SOURCE
+Skipping task ':app:compileDebugAndroidTestShaders' as it has no source files and no previous output files.
+Resolve mutations for :app:generateDebugAndroidTestAssets (Thread[#2099,Execution worker Thread 4,5,main]) started.
+:app:generateDebugAndroidTestAssets (Thread[#2102,Execution worker Thread 7,5,main]) started.
+
+> Task :app:generateDebugAndroidTestAssets UP-TO-DATE
+Skipping task ':app:generateDebugAndroidTestAssets' as it has no actions.
+Resolve mutations for :app:mergeDebugAndroidTestAssets (Thread[#2102,Execution worker Thread 7,5,main]) started.
+:app:mergeDebugAndroidTestAssets (Thread[#2102,Execution worker Thread 7,5,main]) started.
+
+> Task :app:mergeDebugAndroidTestAssets UP-TO-DATE
+Caching disabled for task ':app:mergeDebugAndroidTestAssets' because:
+  Build cache is disabled
+  Simple merging task
+Skipping task ':app:mergeDebugAndroidTestAssets' as it is up-to-date.
+Resolve mutations for :app:compressDebugAndroidTestAssets (Thread[#2102,Execution worker Thread 7,5,main]) started.
+:app:compressDebugAndroidTestAssets (Thread[#2102,Execution worker Thread 7,5,main]) started.
+
+> Task :app:compressDebugAndroidTestAssets UP-TO-DATE
+Caching disabled for task ':app:compressDebugAndroidTestAssets' because:
+  Build cache is disabled
+Skipping task ':app:compressDebugAndroidTestAssets' as it is up-to-date.
+Resolve mutations for :app:desugarDebugAndroidTestFileDependencies (Thread[#2102,Execution worker Thread 7,5,main]) started.
+:app:desugarDebugAndroidTestFileDependencies (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:desugarDebugAndroidTestFileDependencies UP-TO-DATE
+Caching disabled for task ':app:desugarDebugAndroidTestFileDependencies' because:
+  Build cache is disabled
+Skipping task ':app:desugarDebugAndroidTestFileDependencies' as it is up-to-date.
+Resolve mutations for :app:dexBuilderDebugAndroidTest (Thread[#2096,Execution worker,5,main]) started.
+:app:dexBuilderDebugAndroidTest (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:dexBuilderDebugAndroidTest UP-TO-DATE
+Caching disabled for task ':app:dexBuilderDebugAndroidTest' because:
+  Build cache is disabled
+Skipping task ':app:dexBuilderDebugAndroidTest' as it is up-to-date.
+Resolve mutations for :app:mergeDebugAndroidTestGlobalSynthetics (Thread[#2096,Execution worker,5,main]) started.
+:app:mergeDebugAndroidTestGlobalSynthetics (Thread[#2098,Execution worker Thread 3,5,main]) started.
+
+> Task :app:mergeDebugAndroidTestGlobalSynthetics UP-TO-DATE
+Caching disabled for task ':app:mergeDebugAndroidTestGlobalSynthetics' because:
+  Build cache is disabled
+Skipping task ':app:mergeDebugAndroidTestGlobalSynthetics' as it is up-to-date.
+Resolve mutations for :app:processDebugAndroidTestJavaRes (Thread[#2098,Execution worker Thread 3,5,main]) started.
+:app:processDebugAndroidTestJavaRes (Thread[#2095,included builds,5,main]) started.
+
+> Task :app:processDebugAndroidTestJavaRes UP-TO-DATE
+file or directory '/home/garth/files/code/reconnect/app/src/androidTest/resources', not found
+file or directory '/home/garth/files/code/reconnect/app/src/androidTestDebug/resources', not found
+file or directory '/home/garth/files/code/reconnect/app/src/androidTest/resources', not found
+file or directory '/home/garth/files/code/reconnect/app/src/androidTestDebug/resources', not found
+Caching disabled for task ':app:processDebugAndroidTestJavaRes' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:processDebugAndroidTestJavaRes' as it is up-to-date.
+Resolve mutations for :app:mergeDebugAndroidTestJavaResource (Thread[#2095,included builds,5,main]) started.
+:app:mergeDebugAndroidTestJavaResource (Thread[#2097,Execution worker Thread 2,5,main]) started.
+
+> Task :app:mergeDebugAndroidTestJavaResource UP-TO-DATE
+Caching disabled for task ':app:mergeDebugAndroidTestJavaResource' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:mergeDebugAndroidTestJavaResource' as it is up-to-date.
+Resolve mutations for :app:checkDebugAndroidTestDuplicateClasses (Thread[#2097,Execution worker Thread 2,5,main]) started.
+:app:checkDebugAndroidTestDuplicateClasses (Thread[#2097,Execution worker Thread 2,5,main]) started.
+
+> Task :app:checkDebugAndroidTestDuplicateClasses UP-TO-DATE
+Caching disabled for task ':app:checkDebugAndroidTestDuplicateClasses' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:checkDebugAndroidTestDuplicateClasses' as it is up-to-date.
+Resolve mutations for :app:mergeExtDexDebugAndroidTest (Thread[#2097,Execution worker Thread 2,5,main]) started.
+:app:mergeExtDexDebugAndroidTest (Thread[#2100,Execution worker Thread 5,5,main]) started.
+
+> Task :app:mergeExtDexDebugAndroidTest UP-TO-DATE
+Caching disabled for task ':app:mergeExtDexDebugAndroidTest' because:
+  Build cache is disabled
+Skipping task ':app:mergeExtDexDebugAndroidTest' as it is up-to-date.
+Resolve mutations for :app:mergeLibDexDebugAndroidTest (Thread[#2100,Execution worker Thread 5,5,main]) started.
+:app:mergeLibDexDebugAndroidTest (Thread[#2100,Execution worker Thread 5,5,main]) started.
+
+> Task :app:mergeLibDexDebugAndroidTest UP-TO-DATE
+Caching disabled for task ':app:mergeLibDexDebugAndroidTest' because:
+  Build cache is disabled
+Skipping task ':app:mergeLibDexDebugAndroidTest' as it is up-to-date.
+Resolve mutations for :app:mergeProjectDexDebugAndroidTest (Thread[#2100,Execution worker Thread 5,5,main]) started.
+:app:mergeProjectDexDebugAndroidTest (Thread[#2100,Execution worker Thread 5,5,main]) started.
+
+> Task :app:mergeProjectDexDebugAndroidTest UP-TO-DATE
+Caching disabled for task ':app:mergeProjectDexDebugAndroidTest' because:
+  Build cache is disabled
+Skipping task ':app:mergeProjectDexDebugAndroidTest' as it is up-to-date.
+Resolve mutations for :app:mergeDebugAndroidTestJniLibFolders (Thread[#2100,Execution worker Thread 5,5,main]) started.
+:app:mergeDebugAndroidTestJniLibFolders (Thread[#2098,Execution worker Thread 3,5,main]) started.
+
+> Task :app:mergeDebugAndroidTestJniLibFolders UP-TO-DATE
+Caching disabled for task ':app:mergeDebugAndroidTestJniLibFolders' because:
+  Build cache is disabled
+  Simple merging task
+Skipping task ':app:mergeDebugAndroidTestJniLibFolders' as it is up-to-date.
+Resolve mutations for :app:mergeDebugAndroidTestNativeLibs (Thread[#2098,Execution worker Thread 3,5,main]) started.
+:app:mergeDebugAndroidTestNativeLibs (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
+Skipping task ':app:mergeDebugAndroidTestNativeLibs' as it has no source files and no previous output files.
+Resolve mutations for :app:stripDebugAndroidTestDebugSymbols (Thread[#2096,Execution worker,5,main]) started.
+:app:stripDebugAndroidTestDebugSymbols (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
+Skipping task ':app:stripDebugAndroidTestDebugSymbols' as it has no source files and no previous output files.
+Resolve mutations for :app:validateSigningDebugAndroidTest (Thread[#2096,Execution worker,5,main]) started.
+:app:validateSigningDebugAndroidTest (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:validateSigningDebugAndroidTest UP-TO-DATE
+Caching disabled for task ':app:validateSigningDebugAndroidTest' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:validateSigningDebugAndroidTest' as it is up-to-date.
+Resolve mutations for :app:writeDebugAndroidTestSigningConfigVersions (Thread[#2096,Execution worker,5,main]) started.
+:app:writeDebugAndroidTestSigningConfigVersions (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:writeDebugAndroidTestSigningConfigVersions UP-TO-DATE
+Caching disabled for task ':app:writeDebugAndroidTestSigningConfigVersions' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:writeDebugAndroidTestSigningConfigVersions' as it is up-to-date.
+Resolve mutations for :app:packageDebugAndroidTest (Thread[#2096,Execution worker,5,main]) started.
+:app:packageDebugAndroidTest (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:packageDebugAndroidTest UP-TO-DATE
+Custom actions are attached to task ':app:packageDebugAndroidTest'.
+Caching disabled for task ':app:packageDebugAndroidTest' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:packageDebugAndroidTest' as it is up-to-date.
+Resolve mutations for :app:createDebugAndroidTestApkListingFileRedirect (Thread[#2096,Execution worker,5,main]) started.
+:app:createDebugAndroidTestApkListingFileRedirect (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:createDebugAndroidTestApkListingFileRedirect UP-TO-DATE
+Caching disabled for task ':app:createDebugAndroidTestApkListingFileRedirect' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:createDebugAndroidTestApkListingFileRedirect' as it is up-to-date.
+Resolve mutations for :app:connectedDebugAndroidTest (Thread[#2096,Execution worker,5,main]) started.
+:app:connectedDebugAndroidTest (Thread[#2096,Execution worker,5,main]) started.
+
+> Task :app:connectedDebugAndroidTest
+Caching disabled for task ':app:connectedDebugAndroidTest' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Task ':app:connectedDebugAndroidTest' is not up-to-date because:
+  Task.upToDateWhen is false.
+3C111JEHN03005 with id null is not a Gradle Managed Device
+
+INFO: Constructing runner from config.
+INFO: Configuring Android Instrumentation driver: android_instrumentation_runtime {
+  instrumentation_info {
+    app_package: "com.gatekeeper.app"
+    test_package: "com.gatekeeper.app.test"
+    test_runner_class: "androidx.test.runner.AndroidJUnitRunner"
+  }
+  instrumentation_args {
+    args_map {
+      key: "additionalTestOutputDir"
+      value: "/sdcard/Android/media/com.gatekeeper.app/additional_test_output"
+    }
+  }
+}
+am_instrument_timeout: 31536000
+INFO: No installables found in test fixture. Nothing to install.
+INFO: Installing [/home/garth/files/code/reconnect/app/build/outputs/apk/debug/app-debug.apk] on device 3C111JEHN03005.
+INFO: Installing [/home/garth/files/code/reconnect/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk] on device 3C111JEHN03005.
+INFO: Start logcat streaming.
+INFO: Running Android Instrumentation driver.
+
+> Task :app:connectedDebugAndroidTest
+Starting 5 tests on Pixel 7a - 16
+
+com.gatekeeper.app.GatekeeperStateManagerTest > testSaveToVaultLogging[Pixel 7a - 16] [32mSUCCESS [0m
+
+com.gatekeeper.app.GatekeeperStateManagerTest > testEmergencyBypassLogging[Pixel 7a - 16] [32mSUCCESS [0m
+
+com.gatekeeper.app.InterceptionUiTest > testEmergencyBypassUiRendering[Pixel 7a - 16] [31mFAILED [0m
+	java.lang.IllegalStateException: com.gatekeeper.app.MainActivity@6ae3110 has already set content. If you have populated the Activity with a ComposeView, make sure to call setContent on that ComposeView instead of on the test rule; and make sure that that call to `setContent {}` is done after the ComposeTestRule has run
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.setContent(ComposeUiTest.android.kt:481)
+
+com.gatekeeper.app.InterceptionUiTest > testInterceptionChoiceUiClicks[Pixel 7a - 16] [31mFAILED [0m
+	java.lang.IllegalStateException: com.gatekeeper.app.MainActivity@d6a694d has already set content. If you have populated the Activity with a ComposeView, make sure to call setContent on that ComposeView instead of on the test rule; and make sure that that call to `setContent {}` is done after the ComposeTestRule has run
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.setContent(ComposeUiTest.android.kt:481)
+
+com.gatekeeper.app.InterceptionUiTest > testInterceptionChoiceUiRendering[Pixel 7a - 16] [31mFAILED [0m
+	java.lang.IllegalStateException: com.gatekeeper.app.MainActivity@c50d4c3 has already set content. If you have populated the Activity with a ComposeView, make sure to call setContent on that ComposeView instead of on the test rule; and make sure that that call to `setContent {}` is done after the ComposeTestRule has run
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.setContent(ComposeUiTest.android.kt:481)
+
+INFO: Stop logcat streaming.
+INFO: Uninstalling com.gatekeeper.app for device 3C111JEHN03005.
+INFO: Uninstalling com.gatekeeper.app.test for device 3C111JEHN03005.
+Finished 5 tests on Pixel 7a - 16
+[XmlResultReporter]: XML test result file generated at /home/garth/files/code/reconnect/app/build/outputs/androidTest-results/connected/debug/TEST-Pixel 7a - 16-_app-.xml. Total tests 5, failure 3, passed 2, 
+INFO: Execute com.gatekeeper.app.GatekeeperStateManagerTest.testSaveToVaultLogging: PASSED
+INFO: Execute com.gatekeeper.app.GatekeeperStateManagerTest.testEmergencyBypassLogging: PASSED
+SEVERE: Execute com.gatekeeper.app.InterceptionUiTest.testEmergencyBypassUiRendering: FAILED
+java.lang.IllegalStateException: java.lang.IllegalStateException: com.gatekeeper.app.MainActivity@6ae3110 has already set content. If you have populated the Activity with a ComposeView, make sure to call setContent on that ComposeView instead of on the test rule; and make sure that that call to `setContent {}` is done after the ComposeTestRule has run
+at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.setContent(ComposeUiTest.android.kt:481)
+at androidx.compose.ui.test.junit4.AndroidComposeTestRule.setContent(AndroidComposeTestRule.android.kt:348)
+at com.gatekeeper.app.InterceptionUiTest.testEmergencyBypassUiRendering(InterceptionUiTest.kt:77)
+java.lang.IllegalStateException: com.gatekeeper.app.MainActivity@6ae3110 has already set content. If you have populated the Activity with a ComposeView, make sure to call setContent on that ComposeView instead of on the test rule; and make sure that that call to `setContent {}` is done after the ComposeTestRule has run
+at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.setContent(ComposeUiTest.android.kt:481)
+at androidx.compose.ui.test.junit4.AndroidComposeTestRule.setContent(AndroidComposeTestRule.android.kt:348)
+at com.gatekeeper.app.InterceptionUiTest.testEmergencyBypassUiRendering(InterceptionUiTest.kt:77)
+SEVERE: Execute com.gatekeeper.app.InterceptionUiTest.testInterceptionChoiceUiClicks: FAILED
+java.lang.IllegalStateException: java.lang.IllegalStateException: com.gatekeeper.app.MainActivity@d6a694d has already set content. If you have populated the Activity with a ComposeView, make sure to call setContent on that ComposeView instead of on the test rule; and make sure that that call to `setContent {}` is done after the ComposeTestRule has run
+at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.setContent(ComposeUiTest.android.kt:481)
+at androidx.compose.ui.test.junit4.AndroidComposeTestRule.setContent(AndroidComposeTestRule.android.kt:348)
+at com.gatekeeper.app.InterceptionUiTest.testInterceptionChoiceUiClicks(InterceptionUiTest.kt:55)
+java.lang.IllegalStateException: com.gatekeeper.app.MainActivity@d6a694d has already set content. If you have populated the Activity with a ComposeView, make sure to call setContent on that ComposeView instead of on the test rule; and make sure that that call to `setContent {}` is done after the ComposeTestRule has run
+at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.setContent(ComposeUiTest.android.kt:481)
+at androidx.compose.ui.test.junit4.AndroidComposeTestRule.setContent(AndroidComposeTestRule.android.kt:348)
+at com.gatekeeper.app.InterceptionUiTest.testInterceptionChoiceUiClicks(InterceptionUiTest.kt:55)
+SEVERE: Execute com.gatekeeper.app.InterceptionUiTest.testInterceptionChoiceUiRendering: FAILED
+java.lang.IllegalStateException: java.lang.IllegalStateException: com.gatekeeper.app.MainActivity@c50d4c3 has already set content. If you have populated the Activity with a ComposeView, make sure to call setContent on that ComposeView instead of on the test rule; and make sure that that call to `setContent {}` is done after the ComposeTestRule has run
+at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.setContent(ComposeUiTest.android.kt:481)
+at androidx.compose.ui.test.junit4.AndroidComposeTestRule.setContent(AndroidComposeTestRule.android.kt:348)
+at com.gatekeeper.app.InterceptionUiTest.testInterceptionChoiceUiRendering(InterceptionUiTest.kt:30)
+java.lang.IllegalStateException: com.gatekeeper.app.MainActivity@c50d4c3 has already set content. If you have populated the Activity with a ComposeView, make sure to call setContent on that ComposeView instead of on the test rule; and make sure that that call to `setContent {}` is done after the ComposeTestRule has run
+at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.setContent(ComposeUiTest.android.kt:481)
+at androidx.compose.ui.test.junit4.AndroidComposeTestRule.setContent(AndroidComposeTestRule.android.kt:348)
+at com.gatekeeper.app.InterceptionUiTest.testInterceptionChoiceUiRendering(InterceptionUiTest.kt:30)
+
+> Task :app:connectedDebugAndroidTest FAILED
+Tests on Pixel 7a - 16 failed: There was 3 failure(s).
+65 actionable tasks: 1 executed, 64 up-to-date
