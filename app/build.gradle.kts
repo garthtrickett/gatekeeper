@@ -60,4 +60,24 @@ dependencies {
 
     // SQLDelight Database Driver
     implementation("app.cash.sqldelight:android-driver:2.0.2")
+
+    // --- Automated Testing Dependencies ---
+
+    // Core library for JVM-only unit tests
+    testImplementation("junit:junit:4.13.2")
+
+    // Google's fluent assertion library for more readable tests
+    testImplementation("com.google.truth:truth:1.4.2")
+
+    // Core libraries for Android instrumented tests (run on emulator/device)
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+
+    // SQLDelight in-memory JVM driver for instrumented database tests
+    androidTestImplementation("app.cash.sqldelight:sqlite-driver:2.0.2")
+
+    // Jetpack Compose testing
+    androidTestImplementation(composeBom)
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
