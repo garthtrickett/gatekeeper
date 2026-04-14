@@ -73,13 +73,20 @@ dependencies {
     // Google's fluent assertion library for more readable tests
     testImplementation("com.google.truth:truth:1.4.2")
     androidTestImplementation("com.google.truth:truth:1.4.2")
-
     // Core libraries for Android instrumented tests (run on emulator/device)
-    androidTestImplementation("androidx.test:core-ktx:1.6.1")
-    androidTestImplementation("androidx.test:runner:1.6.1")
-    androidTestImplementation("androidx.test:rules:1.6.1")
-    androidTestImplementation("androidx.test.ext:junit-ktx:1.2.1")
-    
+    // CRITICAL: Upgraded to alpha versions to fix InputManager crash on Android 16 (API 36)
+    androidTestImplementation("androidx.test:core-ktx:1.7.0-alpha02")
+    androidTestImplementation("androidx.test:runner:1.7.0-alpha02")
+    androidTestImplementation("androidx.test:rules:1.7.0-alpha02")
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.3.0-alpha02")
+
+    // Force all Espresso modules to 3.7.0-alpha02 to fix the Android 16 crash
+    val espressoVersion = "3.7.0-alpha02"
+    androidTestImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
+    androidTestImplementation("androidx.test.espresso:espresso-idling-resource:$espressoVersion")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:$espressoVersion")
+
+    // SQLDelight in-memory JVM driver for instrumented database tests
     // CRITICAL FIX: Compose ui-test-junit4 transitively pulls in Espresso 3.5.1,
     // which crashes on Android 15/16. We must force all Espresso modules to 3.6.1.
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
