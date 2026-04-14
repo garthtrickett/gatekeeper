@@ -195,9 +195,10 @@ fun InterceptionChoiceUi(
     val appName = getAppName(interceptedPackage)
     Surface(modifier = Modifier.fillMaxSize(), color = Color.Transparent) {
         androidx.compose.foundation.layout.Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.95f))
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.95f)),
         ) {
             // The randomized position "Close" button to break muscle memory
             com.gatekeeper.app.views.MovingCloseButton(onClose = {
@@ -205,9 +206,10 @@ fun InterceptionChoiceUi(
             })
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(32.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(32.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -240,16 +242,16 @@ fun InterceptionChoiceUi(
                 OutlinedButton(onClick = onBypass) {
                     Text(text = "Emergency Bypass")
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 // DEBUG: Test SQLDelight Writes
                 Button(onClick = {
                     GatekeeperStateManager.dispatch(
                         GatekeeperAction.SaveToVault(
                             query = "Test Vault Query ${System.currentTimeMillis() % 1000}",
-                            currentTimestamp = System.currentTimeMillis()
-                        )
+                            currentTimestamp = System.currentTimeMillis(),
+                        ),
                     )
                 }) {
                     Text(text = "DEBUG: Save to Vault")

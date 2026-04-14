@@ -101,9 +101,10 @@ fun BallBalancingUi(interceptedPackage: String) {
 
     // --- The UI ---
     androidx.compose.foundation.layout.Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.95f))
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.95f)),
     ) {
         // Muscle memory breaking close button
         MovingCloseButton(onClose = {
@@ -111,9 +112,10 @@ fun BallBalancingUi(interceptedPackage: String) {
         })
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

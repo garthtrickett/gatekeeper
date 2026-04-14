@@ -9,13 +9,13 @@ import org.junit.Test
  * consistently produces the expected new state, with zero side effects.
  */
 class GatekeeperReducerTest {
-
     private val blacklistedApp = "com.test.blacklisted"
     private val whitelistedApp = "com.test.whitelisted"
 
-    private val initialState = GatekeeperState(
-        blacklistedApps = setOf(blacklistedApp)
-    )
+    private val initialState =
+        GatekeeperState(
+            blacklistedApps = setOf(blacklistedApp),
+        )
 
     @Test
     fun testAppBroughtToForeground_Blacklisted_NoWhitelist_TriggersOverlay() {
@@ -45,16 +45,19 @@ class GatekeeperReducerTest {
     @Test
     fun testAppBroughtToForeground_Blacklisted_Whitelisted_DoesNothing() {
         // Arrange: The app is blacklisted, but has a valid whitelist.
-        val stateWithWhitelist = initialState.copy(
-            activeWhitelists = mapOf(
-                blacklistedApp to TemporaryWhitelist(
-                    packageName = blacklistedApp,
-                    reason = "Test",
-                    grantedAtTimestamp = 500L,
-                    expiresAtTimestamp = 1500L // Expires in the future
-                )
+        val stateWithWhitelist =
+            initialState.copy(
+                activeWhitelists =
+                    mapOf(
+                        blacklistedApp to
+                            TemporaryWhitelist(
+                                packageName = blacklistedApp,
+                                reason = "Test",
+                                grantedAtTimestamp = 500L,
+                                expiresAtTimestamp = 1500L, // Expires in the future
+                            ),
+                    ),
             )
-        )
         val action = GatekeeperAction.AppBroughtToForeground(blacklistedApp, 1000L)
 
         // Act
@@ -67,16 +70,19 @@ class GatekeeperReducerTest {
     @Test
     fun testAppBroughtToForeground_Blacklisted_ExpiredWhitelist_TriggersOverlay() {
         // Arrange: The whitelist's expiry timestamp is in the past.
-        val stateWithExpiredWhitelist = initialState.copy(
-            activeWhitelists = mapOf(
-                blacklistedApp to TemporaryWhitelist(
-                    packageName = blacklistedApp,
-                    reason = "Test",
-                    grantedAtTimestamp = 100L,
-                    expiresAtTimestamp = 500L // Expired
-                )
+        val stateWithExpiredWhitelist =
+            initialState.copy(
+                activeWhitelists =
+                    mapOf(
+                        blacklistedApp to
+                            TemporaryWhitelist(
+                                packageName = blacklistedApp,
+                                reason = "Test",
+                                grantedAtTimestamp = 100L,
+                                expiresAtTimestamp = 500L, // Expired
+                            ),
+                    ),
             )
-        )
         val action = GatekeeperAction.AppBroughtToForeground(blacklistedApp, 1000L)
 
         // Act
@@ -90,15 +96,17 @@ class GatekeeperReducerTest {
     @Test
     fun testEmergencyBypassRequested_GrantsWhitelist_DismissesOverlay() {
         // Arrange: The overlay is currently active.
-        val stateWithOverlay = initialState.copy(
-            isOverlayActive = true,
-            currentlyInterceptedApp = blacklistedApp
-        )
-        val action = GatekeeperAction.EmergencyBypassRequested(
-            packageName = blacklistedApp,
-            reason = "I need to call an Uber",
-            currentTimestamp = 1000L
-        )
+        val stateWithOverlay =
+            initialState.copy(
+                isOverlayActive = true,
+                currentlyInterceptedApp = blacklistedApp,
+            )
+        val action =
+            GatekeeperAction.EmergencyBypassRequested(
+                packageName = blacklistedApp,
+                reason = "I need to call an Uber",
+                currentTimestamp = 1000L,
+            )
 
         // Act
         val newState = reduce(stateWithOverlay, action)
@@ -116,10 +124,11 @@ class GatekeeperReducerTest {
     @Test
     fun testDismissOverlay_ClearsState() {
         // Arrange
-        val stateWithOverlay = initialState.copy(
-            isOverlayActive = true,
-            currentlyInterceptedApp = blacklistedApp
-        )
+        val stateWithOverlay =
+            initialState.copy(
+                isOverlayActive = true,
+                currentlyInterceptedApp = blacklistedApp,
+            )
 
         // Act
         val newState = reduce(stateWithOverlay, GatekeeperAction.DismissOverlay)

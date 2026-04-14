@@ -24,7 +24,7 @@ object DatabaseManager {
             SessionLogAdapter =
                 SessionLog.Adapter(
                     emotionAdapter = emotionAdapter,
-                )
+                ),
         )
     }
 }

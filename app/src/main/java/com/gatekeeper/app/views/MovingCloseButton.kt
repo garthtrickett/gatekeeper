@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 
+@Suppress("FunctionName")
 @Composable
 fun MovingCloseButton(onClose: () -> Unit) {
     val configuration = LocalConfiguration.current
@@ -24,7 +25,7 @@ fun MovingCloseButton(onClose: () -> Unit) {
 
     OutlinedButton(
         onClick = onClose,
-        modifier = Modifier.absoluteOffset(x = randomX.dp, y = randomY.dp)
+        modifier = Modifier.absoluteOffset(x = randomX.dp, y = randomY.dp),
     ) {
         Text("Give Up", color = Color.White.copy(alpha = 0.6f))
     }

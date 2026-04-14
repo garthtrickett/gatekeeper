@@ -17,7 +17,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class InterceptionUiTest {
-
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
@@ -31,7 +30,7 @@ class InterceptionUiTest {
                 InterceptionChoiceUi(
                     interceptedPackage = testPackage,
                     onBypass = { },
-                    onFriction = { }
+                    onFriction = { },
                 )
             }
         }
@@ -56,7 +55,7 @@ class InterceptionUiTest {
                 InterceptionChoiceUi(
                     interceptedPackage = testPackage,
                     onBypass = { bypassClicked = true },
-                    onFriction = { frictionClicked = true }
+                    onFriction = { frictionClicked = true },
                 )
             }
         }
