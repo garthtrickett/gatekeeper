@@ -17,8 +17,8 @@ android {
         versionCode = 1
         versionName = "1.0-MVP"
 
-        // CRITICAL: Tells Android to use the standard test runner
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // CRITICAL: Use a custom runner to initialize our Application class in tests
+        testInstrumentationRunner = "com.gatekeeper.app.CustomTestRunner"
     }
 
     compileOptions {
