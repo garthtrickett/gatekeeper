@@ -4,6 +4,9 @@ import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.material3.MaterialTheme
+import com.gatekeeper.app.views.VaultReviewScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,6 +27,12 @@ class MainActivity : ComponentActivity() {
             setTurnScreenOn(true)
             val keyguardManager = getSystemService(KEYGUARD_SERVICE) as android.app.KeyguardManager
             keyguardManager.requestDismissKeyguard(this, null)
+        }
+
+        setContent {
+            MaterialTheme {
+                VaultReviewScreen()
+            }
         }
     }
 }
