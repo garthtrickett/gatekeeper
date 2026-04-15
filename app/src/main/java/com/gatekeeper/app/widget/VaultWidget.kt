@@ -1,6 +1,7 @@
 package com.gatekeeper.app.widget
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
@@ -26,12 +27,12 @@ class VaultWidget : GlanceAppWidget() {
     ) {
         provideContent {
             Box(
-                modifier =
+                modifier = 
                     GlanceModifier
                         .fillMaxSize()
                         .background(Color(0xFF1E1E1E))
                         .padding(12.dp)
-                        .clickable(actionStartActivity(VaultCaptureActivity::class.java)),
+                        .clickable(actionStartActivity(Intent(context, VaultCaptureActivity::class.java))),
                 contentAlignment = Alignment.CenterStart,
             ) {
                 Text(
