@@ -194,6 +194,29 @@ class GatekeeperStateManagerTest {
                         db.vaultItemQueries.markAsResolved(action.id)
                     }
 
+                    is GatekeeperAction.SaveToContentBank -> {
+                        val newItem = (newState.contentItems - oldState.contentItems.toSet()).first()
+                        db.contentItemQueries.insert(
+                            id = newItem.id,
+                            videoId = newItem.videoId,
+                            title = newItem.title,
+                            source = newItem.source,
+                            type = newItem.type,
+                            rank = newItem.rank,
+                            capturedAtTimestamp = newItem.capturedAtTimestamp
+                        )
+                    }
+
+                    is GatekeeperAction.ReorderContentBank -> {
+                        newState.contentItems.forEach { item ->
+                            db.contentItemQueries.updateRank(rank = item.rank, id = item.id)
+                        }
+                    }
+
+                    is GatekeeperAction.RemoveFromContentBank -> {
+                        db.contentItemQueries.delete(id = action.id)
+                    }
+
                     else -> { /* Other side effects not under test */ }
                 }
             }
