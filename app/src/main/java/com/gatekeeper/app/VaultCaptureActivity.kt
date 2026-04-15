@@ -62,12 +62,6 @@ fun VaultCaptureDialog(
     onSave: (String) -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
-    val focusRequester = remember { FocusRequester() }
-
-    // Zero-latency feel: Immediately request keyboard focus when the modal opens
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -84,10 +78,7 @@ fun VaultCaptureDialog(
                     value = query,
                     onValueChange = { query = it },
                     label = { Text("What do you want to search?") },
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .focusRequester(focusRequester),
+                    modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
                 Spacer(modifier = Modifier.height(24.dp))
