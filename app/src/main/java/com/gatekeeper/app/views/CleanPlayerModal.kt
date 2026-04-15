@@ -25,23 +25,27 @@ import androidx.compose.ui.window.DialogProperties
 @SuppressLint("SetJavaScriptEnabled")
 @Suppress("FunctionName")
 @Composable
-fun CleanPlayerModal(videoId: String, onClose: () -> Unit) {
+fun CleanPlayerModal(
+    videoId: String,
+    onClose: () -> Unit,
+) {
     Dialog(
         onDismissRequest = onClose,
-        properties = DialogProperties(usePlatformDefaultWidth = false) // Allow full screen width
+        properties = DialogProperties(usePlatformDefaultWidth = false), // Allow full screen width
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = Color.Black
+            color = Color.Black,
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 // Header with Close Button
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Black)
-                        .padding(8.dp),
-                    contentAlignment = Alignment.TopEnd
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .background(Color.Black)
+                            .padding(8.dp),
+                    contentAlignment = Alignment.TopEnd,
                 ) {
                     TextButton(onClick = onClose) {
                         Text("Close Video", color = Color.White)
@@ -59,12 +63,13 @@ fun CleanPlayerModal(videoId: String, onClose: () -> Unit) {
                             webViewClient = WebViewClient()
                             webChromeClient = WebChromeClient() // Required for HTML5 full-screen media
 
-                            val htmlData = """
+                            val htmlData =
+                                """
                                 <!DOCTYPE html>
                                 <html>
                                 <body style="margin:0;padding:0;background:#000;display:flex;justify-content:center;align-items:center;height:100vh;">
                                     <iframe width="100%" height="100%" 
-                                            src="https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=1" 
+                                            src="https://www.youtube-nocookie.com/embed/$videoId?rel=0&modestbranding=1&autoplay=1" 
                                             title="YouTube video player" 
                                             frameborder="0" 
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -72,11 +77,11 @@ fun CleanPlayerModal(videoId: String, onClose: () -> Unit) {
                                     </iframe>
                                 </body>
                                 </html>
-                            """.trimIndent()
-                            
+                                """.trimIndent()
+
                             loadDataWithBaseURL("https://www.youtube-nocookie.com", htmlData, "text/html", "UTF-8", null)
                         }
-                    }
+                    },
                 )
             }
         }

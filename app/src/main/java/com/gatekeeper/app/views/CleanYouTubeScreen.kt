@@ -93,7 +93,7 @@ fun CleanYouTubeScreen() {
                     Text(
                         "No results to display.",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -105,7 +105,7 @@ fun CleanYouTubeScreen() {
                 videoId = state.activeVideoId!!,
                 onClose = {
                     GatekeeperStateManager.dispatch(GatekeeperAction.CloseCleanPlayer)
-                }
+                },
             )
         }
     }
