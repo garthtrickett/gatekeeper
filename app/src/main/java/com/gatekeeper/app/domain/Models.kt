@@ -26,11 +26,16 @@ data class ContentItem(
 )
 
 enum class ContentSource {
-    YOUTUBE, SOUNDCLOUD, SUBSTACK, GENERIC
+    YOUTUBE,
+    SOUNDCLOUD,
+    SUBSTACK,
+    GENERIC,
 }
 
 enum class ContentType {
-    VIDEO, AUDIO, READING
+    VIDEO,
+    AUDIO,
+    READING,
 }
 
 /**

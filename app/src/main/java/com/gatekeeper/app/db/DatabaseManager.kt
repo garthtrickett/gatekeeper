@@ -3,6 +3,8 @@ package com.gatekeeper.app.db
 import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.gatekeeper.app.App
+import com.gatekeeper.app.domain.ContentSource
+import com.gatekeeper.app.domain.ContentType
 import com.gatekeeper.app.domain.Emotion
 
 object DatabaseManager {

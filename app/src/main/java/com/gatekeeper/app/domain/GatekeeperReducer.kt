@@ -126,9 +126,10 @@ fun reduce(
                 mutableList.add(action.toIndex, itemToMove)
 
                 // Reassign ranks based on new array indices
-                val updatedList = mutableList.mapIndexed { index, item ->
-                    item.copy(rank = index.toLong())
-                }
+                val updatedList =
+                    mutableList.mapIndexed { index, item ->
+                        item.copy(rank = index.toLong())
+                    }
                 state.copy(contentItems = updatedList)
             }
         }
