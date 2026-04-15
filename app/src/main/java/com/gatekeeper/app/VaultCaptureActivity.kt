@@ -68,11 +68,16 @@ fun VaultCaptureDialog(
     var query by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-
     Dialog(onDismissRequest = onDismiss) {
+        LaunchedEffect(Unit) {
+            // A Dialog creates a new sub-window. We must wait a moment for it to be fully 
+            // attached before requesting focus, otherwise it crashes (especially in UI tests).
+            kotlinx.coroutines.delay(50)
+            try {
+                focusRequester.requestFocus()
+            } catch (ignore: IllegalStateException) {}
+        }
+
         Surface(
             shape = MaterialTheme.shapes.medium,
             color = MaterialTheme.colorScheme.surface,

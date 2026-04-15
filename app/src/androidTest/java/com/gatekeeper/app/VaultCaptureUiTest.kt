@@ -63,7 +63,7 @@ class VaultCaptureUiTest {
 
         // Act: Type text into the text field
         composeTestRule.onNodeWithText("What do you want to search?").performTextInput("ergonomic mouse")
-        
+
         // Act: Trigger the 'Done' action on the keyboard
         composeTestRule.onNodeWithText("What do you want to search?").performImeAction()
 
