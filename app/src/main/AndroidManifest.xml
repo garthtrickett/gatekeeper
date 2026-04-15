@@ -54,6 +54,17 @@
             android:excludeFromRecents="true"
             android:launchMode="singleTask" />
 
+        <service
+            android:name=".services.VaultTileService"
+            android:label="Save to Vault"
+            android:icon="@android:drawable/ic_menu_search"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
         <!-- The Home Screen Access Point -->
         <receiver
             android:name=".widget.VaultWidgetReceiver"

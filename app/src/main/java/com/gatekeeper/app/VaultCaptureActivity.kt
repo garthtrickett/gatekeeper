@@ -25,9 +25,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.gatekeeper.app.domain.GatekeeperAction
@@ -62,6 +65,11 @@ fun VaultCaptureDialog(
     onSave: (String) -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -78,8 +86,15 @@ fun VaultCaptureDialog(
                     value = query,
                     onValueChange = { query = it },
                     label = { Text("What do you want to search?") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            val trimmed = query.trim()
+                            if (trimmed.isNotEmpty()) onSave(trimmed)
+                        }
+                    )
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(
