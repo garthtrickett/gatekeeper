@@ -93,10 +93,20 @@ fun CleanYouTubeScreen() {
                     Text(
                         "No results to display.",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
+        }
+
+        // Render the CleanPlayer Modal when a video is selected
+        if (state.activeVideoId != null) {
+            CleanPlayerModal(
+                videoId = state.activeVideoId!!,
+                onClose = {
+                    GatekeeperStateManager.dispatch(GatekeeperAction.CloseCleanPlayer)
+                }
+            )
         }
     }
 }
