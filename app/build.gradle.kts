@@ -79,6 +79,9 @@ dependencies {
     // SQLDelight Database Driver
     implementation("app.cash.sqldelight:android-driver:2.0.2")
 
+    // Image Loading
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
     // Ktor Networking Client
     implementation("io.ktor:ktor-client-core:2.3.12")
     implementation("io.ktor:ktor-client-okhttp:2.3.12") // Proven JVM engine
