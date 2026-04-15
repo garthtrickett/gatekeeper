@@ -59,10 +59,10 @@ class VaultReviewUiTest {
         // Arrange: Inside the time window
         val unlockedTime = LocalTime.of(18, 15)
         val uniqueQuery = "Test Resolution UI ${System.currentTimeMillis()}"
-        
+
         // Seed the state manager with a test query
         GatekeeperStateManager.dispatch(
-            GatekeeperAction.SaveToVault(uniqueQuery, System.currentTimeMillis())
+            GatekeeperAction.SaveToVault(uniqueQuery, System.currentTimeMillis()),
         )
 
         // Act

@@ -21,10 +21,12 @@ object YoutubeApiClient {
                 url("https://www.googleapis.com/youtube/v3/")
             }
             install(ContentNegotiation) {
-                json(Json {
-                    ignoreUnknownKeys = true
-                    prettyPrint = true
-                })
+                json(
+                    Json {
+                        ignoreUnknownKeys = true
+                        prettyPrint = true
+                    },
+                )
             }
         }
     }
@@ -41,14 +43,16 @@ object YoutubeApiClient {
         }
 
         return try {
-            val response: YoutubeSearchResponse = client.get("search") {
-                parameter("key", API_KEY)
-                parameter("part", "snippet")
-                parameter("q", query)
-                parameter("type", "video")
-                parameter("maxResults", 5)
-                parameter("videoDuration", "medium") // or "long"
-            }.body()
+            val response: YoutubeSearchResponse =
+                client
+                    .get("search") {
+                        parameter("key", API_KEY)
+                        parameter("part", "snippet")
+                        parameter("q", query)
+                        parameter("type", "video")
+                        parameter("maxResults", 5)
+                        parameter("videoDuration", "medium") // or "long"
+                    }.body()
             Result.success(response)
         } catch (e: Exception) {
             Log.e("Gatekeeper", "YouTube API Call Failed: ${e.message}")

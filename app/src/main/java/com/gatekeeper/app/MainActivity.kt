@@ -32,12 +32,13 @@ class MainActivity : ComponentActivity() {
         // Skip rendering the default UI if we are running instrumented tests.
         // This allows our tests to use MainActivity for its WakeLock properties
         // while calling composeTestRule.setContent { ... } to render specific isolated screens.
-        val isRunningTest = try {
-            Class.forName("androidx.test.espresso.Espresso")
-            true
-        } catch (e: ClassNotFoundException) {
-            false
-        }
+        val isRunningTest =
+            try {
+                Class.forName("androidx.test.espresso.Espresso")
+                true
+            } catch (e: ClassNotFoundException) {
+                false
+            }
 
         if (!isRunningTest) {
             setContent {

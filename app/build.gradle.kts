@@ -85,6 +85,8 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
 
     // --- Automated Testing Dependencies ---
+    // Ktor Mock Client for testing API calls
+    androidTestImplementation("io.ktor:ktor-client-mock:2.3.12")
 
     // Core library for JVM-only unit tests
     testImplementation("junit:junit:4.13.2")
