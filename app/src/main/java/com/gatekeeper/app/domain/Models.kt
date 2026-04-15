@@ -4,6 +4,7 @@ import java.util.UUID
 
 /**
  * Represents a single query saved to the Vault instead of being searched immediately.
+ */
 data class VaultItem(
     val id: String = UUID.randomUUID().toString(),
     val query: String,
@@ -30,35 +31,6 @@ enum class ContentSource {
 
 enum class ContentType {
     VIDEO, AUDIO, READING
-}
-
-/**
- * The core emotions for the Post-Session Metacognition pop-up.
- */
-enum class Emotion {
- * Represents a piece of curated media saved to the Content Bank.
- */
-data class ContentItem(
-    val id: String = UUID.randomUUID().toString(),
-    val videoId: String,
-    val title: String,
-    val source: ContentSource,
-    val type: ContentType,
-    val rank: Long,
-    val capturedAtTimestamp: Long,
-)
-
-enum class ContentSource {
-    YOUTUBE,
-    SOUNDCLOUD,
-    SUBSTACK,
-    GENERIC,
-}
-
-enum class ContentType {
-    VIDEO,
-    AUDIO,
-    READING,
 }
 
 /**

@@ -4,8 +4,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import com.gatekeeper.app.db.ContentItem
 import com.gatekeeper.app.db.GatekeeperDatabase
 import com.gatekeeper.app.db.SessionLog
+import com.gatekeeper.app.domain.ContentSource
+import com.gatekeeper.app.domain.ContentType
 import com.gatekeeper.app.domain.Emotion
 import com.gatekeeper.app.domain.GatekeeperAction
 import com.gatekeeper.app.domain.GatekeeperState

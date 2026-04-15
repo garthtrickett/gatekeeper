@@ -47,11 +47,14 @@ object GatekeeperStateManager {
                 .executeAsList()
                 .toSet()
         val vaultItemsFromDb = db.vaultItemQueries.selectAll().executeAsList()
+        val vaultItemsFromDb = db.vaultItemQueries.selectAll().executeAsList()
+        val contentItemsFromDb = db.contentItemQueries.selectAllByRank().executeAsList()
         val sessionLogsFromDb = db.sessionLogQueries.selectAll().executeAsList()
 
         GatekeeperState(
             blacklistedApps = blacklistedApps,
             vaultItems = vaultItemsFromDb.map { VaultItem(it.id, it.query, it.capturedAtTimestamp, it.isResolved) },
+            contentItems = contentItemsFromDb.map { ContentItem(it.id, it.videoId, it.title, it.source, it.type, it.rank, it.capturedAtTimestamp) },
             sessionLogs = sessionLogsFromDb.map { SessionLog(it.id, it.packageName, it.durationMillis, it.emotion, it.loggedAtTimestamp) },
         )
     }
