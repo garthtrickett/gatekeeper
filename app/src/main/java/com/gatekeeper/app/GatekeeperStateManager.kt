@@ -1,8 +1,6 @@
 package com.gatekeeper.app
 
 import android.util.Log
-import com.gatekeeper.app.db.DatabaseManager
-import com.gatekeeper.app.domain.GatekeeperAction
 import com.gatekeeper.app.api.YoutubeApiClient
 import com.gatekeeper.app.db.DatabaseManager
 import com.gatekeeper.app.domain.GatekeeperAction
@@ -137,11 +135,11 @@ object GatekeeperStateManager {
 
                 is GatekeeperAction.SearchYouTubeRequested -> {
                     Log.i("Gatekeeper", "API: Searching YouTube for '${action.query}'")
-                    YoutubeApiClient.searchVideos(action.query)
+                    YoutubeApiClient
+                        .searchVideos(action.query)
                         .onSuccess { response ->
                             dispatch(GatekeeperAction.YouTubeSearchCompleted(response.items))
-                        }
-                        .onFailure {
+                        }.onFailure {
                             dispatch(GatekeeperAction.YouTubeSearchFailed)
                         }
                 }

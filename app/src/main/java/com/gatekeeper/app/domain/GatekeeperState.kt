@@ -13,7 +13,6 @@ data class GatekeeperState(
     val activeWhitelists: Map<String, TemporaryWhitelist> = emptyMap(),
     val vaultItems: List<VaultItem> = emptyList(),
     val sessionLogs: List<SessionLog> = emptyList(),
-
     // --- Clean Room Media Engine State ---
     val isLoadingYouTube: Boolean = false,
     val youtubeSearchResults: List<YoutubeSearchItem> = emptyList(),

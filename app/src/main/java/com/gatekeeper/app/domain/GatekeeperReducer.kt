@@ -84,7 +84,7 @@ fun reduce(
                     query = action.query,
                     capturedAtTimestamp = action.currentTimestamp,
                 )
-                state.copy(vaultItems = state.vaultItems + newItem)
+            state.copy(vaultItems = state.vaultItems + newItem)
         }
 
         is GatekeeperAction.MarkVaultItemResolved -> {

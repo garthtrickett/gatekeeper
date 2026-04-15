@@ -1,5 +1,10 @@
 package com.gatekeeper.app.domain
 
+import com.gatekeeper.app.api.ItemId
+import com.gatekeeper.app.api.ThumbnailInfo
+import com.gatekeeper.app.api.Thumbnails
+import com.gatekeeper.app.api.YoutubeSearchItem
+import com.gatekeeper.app.api.YoutubeSnippet
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -172,5 +177,78 @@ class GatekeeperReducerTest {
         assertThat(savedItem.query).isEqualTo("best standing desks")
         assertThat(savedItem.capturedAtTimestamp).isEqualTo(2000L)
         assertThat(savedItem.isResolved).isFalse()
+    }
+
+    // --- YouTube Reducer Tests ---
+
+    @Test
+    fun testSearchYouTubeRequested_setsLoadingState() {
+        // Arrange
+        val action = GatekeeperAction.SearchYouTubeRequested("functional programming")
+
+        // Act
+        val newState = reduce(initialState, action)
+
+        // Assert
+        assertThat(newState.isLoadingYouTube).isTrue()
+        assertThat(newState.youtubeSearchResults).isEmpty()
+    }
+
+    @Test
+    fun testYouTubeSearchCompleted_populatesResults_clearsLoading() {
+        // Arrange
+        val stateBefore = initialState.copy(isLoadingYouTube = true)
+        val mockResults = listOf(
+            YoutubeSearchItem(
+                id = ItemId("videoId1"),
+                snippet = YoutubeSnippet("Title 1", "Channel 1", Thumbnails(ThumbnailInfo("url1")))
+            )
+        )
+        val action = GatekeeperAction.YouTubeSearchCompleted(mockResults)
+
+        // Act
+        val newState = reduce(stateBefore, action)
+
+        // Assert
+        assertThat(newState.isLoadingYouTube).isFalse()
+        assertThat(newState.youtubeSearchResults).hasSize(1)
+        assertThat(newState.youtubeSearchResults.first().id.videoId).isEqualTo("videoId1")
+    }
+
+    @Test
+    fun testYouTubeSearchFailed_clearsLoadingState() {
+        // Arrange
+        val stateBefore = initialState.copy(isLoadingYouTube = true)
+
+        // Act
+        val newState = reduce(stateBefore, GatekeeperAction.YouTubeSearchFailed)
+
+        // Assert
+        assertThat(newState.isLoadingYouTube).isFalse()
+        assertThat(newState.youtubeSearchResults).isEmpty()
+    }
+
+    @Test
+    fun testOpenCleanPlayer_setsActiveVideoId() {
+        // Arrange
+        val action = GatekeeperAction.OpenCleanPlayer("testVideoId")
+
+        // Act
+        val newState = reduce(initialState, action)
+
+        // Assert
+        assertThat(newState.activeVideoId).isEqualTo("testVideoId")
+    }
+
+    @Test
+    fun testCloseCleanPlayer_clearsActiveVideoId() {
+        // Arrange
+        val stateBefore = initialState.copy(activeVideoId = "testVideoId")
+
+        // Act
+        val newState = reduce(stateBefore, GatekeeperAction.CloseCleanPlayer)
+
+        // Assert
+        assertThat(newState.activeVideoId).isNull()
     }
 }

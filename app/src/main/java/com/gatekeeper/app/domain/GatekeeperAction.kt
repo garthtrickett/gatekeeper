@@ -39,10 +39,20 @@ sealed interface GatekeeperAction {
     ) : GatekeeperAction
 
     // --- Layer 5: Clean Room Media Engines ---
-    data class SearchYouTubeRequested(val query: String) : GatekeeperAction
-    data class YouTubeSearchCompleted(val results: List<com.gatekeeper.app.api.YoutubeSearchItem>) : GatekeeperAction
+    data class SearchYouTubeRequested(
+        val query: String,
+    ) : GatekeeperAction
+
+    data class YouTubeSearchCompleted(
+        val results: List<com.gatekeeper.app.api.YoutubeSearchItem>,
+    ) : GatekeeperAction
+
     object YouTubeSearchFailed : GatekeeperAction
-    data class OpenCleanPlayer(val videoId: String) : GatekeeperAction
+
+    data class OpenCleanPlayer(
+        val videoId: String,
+    ) : GatekeeperAction
+
     object CloseCleanPlayer : GatekeeperAction
 
     // --- Post-Session Metacognition ---
