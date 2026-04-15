@@ -84,7 +84,7 @@ fun reduce(
                     query = action.query,
                     capturedAtTimestamp = action.currentTimestamp,
                 )
-            state.copy(vaultItems = state.vaultItems + newItem)
+                state.copy(vaultItems = state.vaultItems + newItem)
         }
 
         is GatekeeperAction.MarkVaultItemResolved -> {
@@ -94,6 +94,27 @@ fun reduce(
                         if (it.id == action.id) it.copy(isResolved = true) else it
                     },
             )
+        }
+
+        // --- YouTube Clean Room Logic ---
+        is GatekeeperAction.SearchYouTubeRequested -> {
+            state.copy(isLoadingYouTube = true, youtubeSearchResults = emptyList())
+        }
+
+        is GatekeeperAction.YouTubeSearchCompleted -> {
+            state.copy(isLoadingYouTube = false, youtubeSearchResults = action.results)
+        }
+
+        GatekeeperAction.YouTubeSearchFailed -> {
+            state.copy(isLoadingYouTube = false)
+        }
+
+        is GatekeeperAction.OpenCleanPlayer -> {
+            state.copy(activeVideoId = action.videoId)
+        }
+
+        GatekeeperAction.CloseCleanPlayer -> {
+            state.copy(activeVideoId = null)
         }
 
         // --- Metacognition Logic ---
