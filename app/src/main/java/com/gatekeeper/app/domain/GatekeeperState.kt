@@ -1,3 +1,5 @@
+package com.gatekeeper.app.domain
+
 import com.gatekeeper.app.api.YoutubeSearchItem
 
 /**

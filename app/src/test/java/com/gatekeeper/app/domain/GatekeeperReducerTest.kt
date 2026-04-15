@@ -198,12 +198,13 @@ class GatekeeperReducerTest {
     fun testYouTubeSearchCompleted_populatesResults_clearsLoading() {
         // Arrange
         val stateBefore = initialState.copy(isLoadingYouTube = true)
-        val mockResults = listOf(
-            YoutubeSearchItem(
-                id = ItemId("videoId1"),
-                snippet = YoutubeSnippet("Title 1", "Channel 1", Thumbnails(ThumbnailInfo("url1")))
+        val mockResults =
+            listOf(
+                YoutubeSearchItem(
+                    id = ItemId("videoId1"),
+                    snippet = YoutubeSnippet("Title 1", "Channel 1", Thumbnails(ThumbnailInfo("url1"))),
+                ),
             )
-        )
         val action = GatekeeperAction.YouTubeSearchCompleted(mockResults)
 
         // Act
@@ -212,7 +213,11 @@ class GatekeeperReducerTest {
         // Assert
         assertThat(newState.isLoadingYouTube).isFalse()
         assertThat(newState.youtubeSearchResults).hasSize(1)
-        assertThat(newState.youtubeSearchResults.first().id.videoId).isEqualTo("videoId1")
+        assertThat(
+            newState.youtubeSearchResults
+                .first()
+                .id.videoId,
+        ).isEqualTo("videoId1")
     }
 
     @Test

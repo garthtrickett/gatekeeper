@@ -1,6 +1,8 @@
 package com.gatekeeper.app
 
 import android.util.Log
+package com.gatekeeper.app
+
 import com.gatekeeper.app.api.YoutubeApiClient
 import com.gatekeeper.app.db.DatabaseManager
 import com.gatekeeper.app.domain.GatekeeperAction
