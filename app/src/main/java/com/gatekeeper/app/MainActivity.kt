@@ -45,7 +45,33 @@ class MainActivity : ComponentActivity() {
         if (!isRunningTest) {
             setContent {
                 MaterialTheme {
-                    VaultReviewScreen()
+                    var selectedTab by remember { mutableIntStateOf(0) }
+                    
+                    Column {
+                        TabRow(selectedTabIndex = selectedTab) {
+                            Tab(
+                                selected = selectedTab == 0,
+                                onClick = { selectedTab = 0 }
+                            ) {
+                                Box(modifier = Modifier.padding(16.dp)) {
+                                    Text("Lookup Vault")
+                                }
+                            }
+                            Tab(
+                                selected = selectedTab == 1,
+                                onClick = { selectedTab = 1 }
+                            ) {
+                                Box(modifier = Modifier.padding(16.dp)) {
+                                    Text("Content Bank")
+                                }
+                            }
+                        }
+                        
+                        when (selectedTab) {
+                            0 -> VaultReviewScreen()
+                            1 -> ContentBankScreen()
+                        }
+                    }
                 }
             }
         }
