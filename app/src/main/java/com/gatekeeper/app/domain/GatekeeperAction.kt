@@ -39,6 +39,11 @@ sealed interface GatekeeperAction {
     ) : GatekeeperAction
 
     // --- Layer 3: The Content Bank ---
+    data class ProcessSharedLink(
+        val url: String,
+        val currentTimestamp: Long,
+    ) : GatekeeperAction
+
     data class SaveToContentBank(
         val videoId: String,
         val title: String,

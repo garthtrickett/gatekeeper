@@ -97,6 +97,8 @@ fun reduce(
         }
 
         // --- Content Bank Logic ---
+        is GatekeeperAction.ProcessSharedLink -> state // Pure side-effect trigger
+
         is GatekeeperAction.SaveToContentBank -> {
             val newRank = state.contentItems.size.toLong()
             val newItem = ContentItem(
