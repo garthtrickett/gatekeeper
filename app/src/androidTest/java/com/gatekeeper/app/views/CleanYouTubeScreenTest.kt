@@ -13,12 +13,18 @@ import com.gatekeeper.app.api.YoutubeSnippet
 import com.gatekeeper.app.domain.GatekeeperAction
 import com.gatekeeper.app.resetStateForTest
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class CleanYouTubeScreenTest {
+    @Before
+    fun setup() {
+        GatekeeperStateManager.resetStateForTest()
+    }
+
     @After
     fun tearDown() {
         // Reset the singleton state to prevent test leakage

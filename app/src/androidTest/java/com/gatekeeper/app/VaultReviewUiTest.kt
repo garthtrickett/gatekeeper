@@ -8,6 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.gatekeeper.app.domain.GatekeeperAction
 import com.gatekeeper.app.views.VaultReviewScreen
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,6 +16,11 @@ import java.time.LocalTime
 
 @RunWith(AndroidJUnit4::class)
 class VaultReviewUiTest {
+    @Before
+    fun setup() {
+        GatekeeperStateManager.resetStateForTest()
+    }
+
     @After
     fun tearDown() {
         // Reset the singleton state to prevent test leakage

@@ -12,12 +12,18 @@ import com.gatekeeper.app.domain.ContentType
 import com.gatekeeper.app.domain.GatekeeperAction
 import com.gatekeeper.app.views.ContentBankScreen
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class ContentBankUiTest {
+    @Before
+    fun setup() {
+        GatekeeperStateManager.resetStateForTest()
+    }
+
     @After
     fun tearDown() {
         // Reset the singleton state to prevent test leakage
