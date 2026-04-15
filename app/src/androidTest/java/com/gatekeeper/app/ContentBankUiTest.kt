@@ -11,12 +11,19 @@ import com.gatekeeper.app.domain.ContentSource
 import com.gatekeeper.app.domain.ContentType
 import com.gatekeeper.app.domain.GatekeeperAction
 import com.gatekeeper.app.views.ContentBankScreen
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class ContentBankUiTest {
+    @After
+    fun tearDown() {
+        // Reset the singleton state to prevent test leakage
+        GatekeeperStateManager.resetStateForTest()
+    }
+
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
