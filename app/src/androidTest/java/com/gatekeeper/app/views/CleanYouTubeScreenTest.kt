@@ -10,13 +10,6 @@ import com.gatekeeper.app.api.ThumbnailInfo
 import com.gatekeeper.app.api.Thumbnails
 import com.gatekeeper.app.api.YoutubeSearchItem
 import com.gatekeeper.app.api.YoutubeSnippet
-import com.gatekeeper.app.GatekeeperStateManager
-import com.gatekeeper.app.MainActivity
-import com.gatekeeper.app.api.ItemId
-import com.gatekeeper.app.api.ThumbnailInfo
-import com.gatekeeper.app.api.Thumbnails
-import com.gatekeeper.app.api.YoutubeSearchItem
-import com.gatekeeper.app.api.YoutubeSnippet
 import com.gatekeeper.app.domain.GatekeeperAction
 import com.gatekeeper.app.resetStateForTest
 import org.junit.After
