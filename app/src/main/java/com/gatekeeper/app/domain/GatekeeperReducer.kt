@@ -1,7 +1,5 @@
 package com.gatekeeper.app.domain
 
-package com.gatekeeper.app.domain
-
 /**
  * Pure top-level function. Evaluates actions and returns a new state.
  * No side effects allowed here (no DB calls, no clock reads, no API calls).

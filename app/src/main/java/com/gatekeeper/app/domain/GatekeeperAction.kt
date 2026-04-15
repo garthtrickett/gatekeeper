@@ -1,7 +1,5 @@
 package com.gatekeeper.app.domain
 
-package com.gatekeeper.app.domain
-
 /**
  * A closed set of all possible intents or events in the system.
  */
