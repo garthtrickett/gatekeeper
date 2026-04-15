@@ -70,12 +70,13 @@ fun VaultCaptureDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         LaunchedEffect(Unit) {
-            // A Dialog creates a new sub-window. We must wait a moment for it to be fully 
+            // A Dialog creates a new sub-window. We must wait a moment for it to be fully
             // attached before requesting focus, otherwise it crashes (especially in UI tests).
             kotlinx.coroutines.delay(50)
             try {
                 focusRequester.requestFocus()
-            } catch (ignore: IllegalStateException) {}
+            } catch (ignore: IllegalStateException) {
+            }
         }
 
         Surface(

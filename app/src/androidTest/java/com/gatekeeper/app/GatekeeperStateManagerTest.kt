@@ -9,6 +9,7 @@ import com.gatekeeper.app.db.SessionLog
 import com.gatekeeper.app.domain.Emotion
 import com.gatekeeper.app.domain.GatekeeperAction
 import com.gatekeeper.app.domain.GatekeeperState
+import com.gatekeeper.app.domain.VaultItem
 import com.gatekeeper.app.domain.reduce
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -92,6 +93,30 @@ class GatekeeperStateManagerTest {
         }
 
     @Test
+    fun testMarkVaultItemResolvedLogging() =
+        runTest {
+            // Arrange
+            val initialItem = VaultItem(query = "Test resolve", capturedAtTimestamp = 1000L)
+            db.vaultItemQueries.insert(
+                id = initialItem.id,
+                query = initialItem.query,
+                capturedAtTimestamp = initialItem.capturedAtTimestamp,
+                isResolved = false,
+            )
+            mutableState.value = GatekeeperState(vaultItems = listOf(initialItem))
+
+            val action = GatekeeperAction.MarkVaultItemResolved(initialItem.id)
+
+            // Act
+            dispatchWithSideEffects(action)
+
+            // Assert
+            val items = db.vaultItemQueries.selectAll().executeAsList()
+            val updatedItem = items.first { it.id == initialItem.id }
+            assertThat(updatedItem.isResolved).isTrue()
+        }
+
+    @Test
     fun testSaveToVaultLogging() =
         runTest {
             // Arrange
@@ -147,6 +172,10 @@ class GatekeeperStateManagerTest {
                             capturedAtTimestamp = newItem.capturedAtTimestamp,
                             isResolved = newItem.isResolved,
                         )
+                    }
+
+                    is GatekeeperAction.MarkVaultItemResolved -> {
+                        db.vaultItemQueries.markAsResolved(action.id)
                     }
 
                     else -> { /* Other side effects not under test */ }

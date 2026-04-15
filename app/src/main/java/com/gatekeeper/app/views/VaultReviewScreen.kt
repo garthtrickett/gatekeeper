@@ -30,8 +30,8 @@ import com.gatekeeper.app.GatekeeperStateManager
 import com.gatekeeper.app.domain.GatekeeperAction
 import com.gatekeeper.app.domain.VaultItem
 import com.gatekeeper.app.domain.isVaultUnlocked
-import java.time.LocalTime
 import kotlinx.coroutines.delay
+import java.time.LocalTime
 
 @Suppress("FunctionName")
 @Composable
@@ -55,7 +55,7 @@ fun VaultReviewScreen(overrideTime: LocalTime? = null) {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = MaterialTheme.colorScheme.background,
     ) {
         if (isUnlocked) {
             VaultList(unresolvedItems)
@@ -69,27 +69,28 @@ fun VaultReviewScreen(overrideTime: LocalTime? = null) {
 @Composable
 private fun VaultList(items: List<VaultItem>) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp),
     ) {
         Text(text = "Lookup Vault", style = MaterialTheme.typography.headlineLarge)
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "You have until 6:30 PM to review these.",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(modifier = Modifier.height(24.dp))
 
         if (items.isEmpty()) {
             Text(
                 text = "Vault is empty. Good job staying focused!",
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
             )
         } else {
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 items(items, key = { it.id }) {
                     VaultItemCard(it)
@@ -106,17 +107,17 @@ private fun VaultItemCard(item: VaultItem) {
         Row(
             modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = item.query,
                 modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
             )
             Button(
                 onClick = {
                     GatekeeperStateManager.dispatch(GatekeeperAction.MarkVaultItemResolved(item.id))
-                }
+                },
             ) {
                 Text(text = "Resolved")
             }
@@ -128,25 +129,26 @@ private fun VaultItemCard(item: VaultItem) {
 @Composable
 private fun LockedVaultMessage() {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(32.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(text = "🔒", style = MaterialTheme.typography.displayLarge)
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "The Vault is Locked",
             style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Your distractions are safely stored.\nYou can review them between 6:00 PM and 6:30 PM.",
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

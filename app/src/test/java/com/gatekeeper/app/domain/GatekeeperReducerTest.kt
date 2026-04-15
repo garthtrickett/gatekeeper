@@ -139,6 +139,21 @@ class GatekeeperReducerTest {
     }
 
     @Test
+    fun testMarkVaultItemResolved_UpdatesItemStatus() {
+        // Arrange
+        val item = VaultItem(id = "123", query = "Test Query", capturedAtTimestamp = 1000L)
+        val stateWithItem = initialState.copy(vaultItems = listOf(item))
+        val action = GatekeeperAction.MarkVaultItemResolved("123")
+
+        // Act
+        val newState = reduce(stateWithItem, action)
+
+        // Assert
+        assertThat(newState.vaultItems).hasSize(1)
+        assertThat(newState.vaultItems.first().isResolved).isTrue()
+    }
+
+    @Test
     fun testSaveToVault_AppendsToVaultItems() {
         // Arrange
         val action =

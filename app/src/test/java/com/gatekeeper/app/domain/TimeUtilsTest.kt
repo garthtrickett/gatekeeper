@@ -1,8 +1,8 @@
 package com.gatekeeper.app.domain
 
 import com.google.common.truth.Truth.assertThat
-import java.time.LocalTime
 import org.junit.Test
+import java.time.LocalTime
 
 class TimeUtilsTest {
     @Test
