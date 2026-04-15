@@ -54,10 +54,26 @@ class GatekeeperStateManagerTest {
                 override fun encode(value: Emotion): String = value.name
             }
 
+        val contentSourceAdapter =
+            object : ColumnAdapter<ContentSource, String> {
+                override fun decode(databaseValue: String): ContentSource = ContentSource.valueOf(databaseValue)
+                override fun encode(value: ContentSource): String = value.name
+            }
+
+        val contentTypeAdapter =
+            object : ColumnAdapter<ContentType, String> {
+                override fun decode(databaseValue: String): ContentType = ContentType.valueOf(databaseValue)
+                override fun encode(value: ContentType): String = value.name
+            }
+
         db =
             GatekeeperDatabase(
                 driver = driver,
                 SessionLogAdapter = SessionLog.Adapter(emotionAdapter = emotionAdapter),
+                ContentItemAdapter = ContentItem.Adapter(
+                    sourceAdapter = contentSourceAdapter,
+                    typeAdapter = contentTypeAdapter,
+                ),
             )
 
         mutableState = MutableStateFlow(GatekeeperState())

@@ -13,6 +13,27 @@ data class VaultItem(
 )
 
 /**
+ * Represents a piece of curated media saved to the Content Bank.
+ */
+data class ContentItem(
+    val id: String = UUID.randomUUID().toString(),
+    val videoId: String,
+    val title: String,
+    val source: ContentSource,
+    val type: ContentType,
+    val rank: Long,
+    val capturedAtTimestamp: Long,
+)
+
+enum class ContentSource {
+    YOUTUBE, SOUNDCLOUD, SUBSTACK, GENERIC
+}
+
+enum class ContentType {
+    VIDEO, AUDIO, READING
+}
+
+/**
  * The core emotions for the Post-Session Metacognition pop-up.
  */
 enum class Emotion {
