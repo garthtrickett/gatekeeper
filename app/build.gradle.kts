@@ -63,6 +63,7 @@ dependencies {
     
     // Required to run Compose outside of an Activity
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.2")
     implementation("androidx.savedstate:savedstate-ktx:1.2.1")
 
     // THE FIX: Add this line to resolve ViewModelStore and ViewModelStoreOwner
