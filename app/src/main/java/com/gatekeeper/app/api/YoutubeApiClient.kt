@@ -15,7 +15,7 @@ object YoutubeApiClient {
     // IMPORTANT: You must replace this with your actual YouTube Data API key.
     private const val API_KEY = "REPLACE_WITH_YOUR_YOUTUBE_API_KEY"
 
-    internal var client = 
+    internal var client =
         HttpClient(OkHttp) {
             defaultRequest {
                 url("https://www.googleapis.com/youtube/v3/")

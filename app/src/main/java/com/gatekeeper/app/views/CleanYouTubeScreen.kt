@@ -53,7 +53,7 @@ fun CleanYouTubeScreen() {
             Text(
                 "Find exactly what you need. No rabbit holes.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -64,13 +64,14 @@ fun CleanYouTubeScreen() {
                 label = { Text("Search for intentional content...") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        if (query.isNotBlank()) {
-                            GatekeeperStateManager.dispatch(GatekeeperAction.SearchYouTubeRequested(query))
-                        }
-                    }
-                )
+                keyboardActions =
+                    KeyboardActions(
+                        onSearch = {
+                            if (query.isNotBlank()) {
+                                GatekeeperStateManager.dispatch(GatekeeperAction.SearchYouTubeRequested(query))
+                            }
+                        },
+                    ),
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -92,7 +93,7 @@ fun CleanYouTubeScreen() {
                     Text(
                         "No results to display.",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -102,31 +103,39 @@ fun CleanYouTubeScreen() {
 
 @Suppress("FunctionName")
 @Composable
-fun YouTubeResultItem(item: YoutubeSearchItem, onClick: () -> Unit) {
+fun YouTubeResultItem(
+    item: YoutubeSearchItem,
+    onClick: () -> Unit,
+) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
                 model = item.snippet.thumbnails.high.url,
                 contentDescription = "Thumbnail for ${item.snippet.title}",
-                modifier = Modifier
-                    .width(120.dp)
-                    .aspectRatio(16f / 9f),
-                contentScale = ContentScale.Crop
+                modifier =
+                    Modifier
+                        .width(120.dp)
+                        .aspectRatio(16f / 9f),
+                contentScale = ContentScale.Crop,
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                val decodedTitle = android.text.Html.fromHtml(item.snippet.title, android.text.Html.FROM_HTML_MODE_LEGACY).toString()
+                val decodedTitle =
+                    android.text.Html
+                        .fromHtml(item.snippet.title, android.text.Html.FROM_HTML_MODE_LEGACY)
+                        .toString()
                 Text(
                     text = decodedTitle,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -134,7 +143,7 @@ fun YouTubeResultItem(item: YoutubeSearchItem, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
