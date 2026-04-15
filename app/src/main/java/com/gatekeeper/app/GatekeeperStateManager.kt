@@ -3,11 +3,14 @@ package com.gatekeeper.app
 import android.util.Log
 import com.gatekeeper.app.api.YoutubeApiClient
 import com.gatekeeper.app.db.DatabaseManager
+import com.gatekeeper.app.domain.ContentItem
 import com.gatekeeper.app.domain.GatekeeperAction
 import com.gatekeeper.app.domain.GatekeeperState
 import com.gatekeeper.app.domain.SessionLog
 import com.gatekeeper.app.domain.VaultItem
 import com.gatekeeper.app.domain.reduce
+import java.net.URL
+import javax.net.ssl.HttpsURLConnection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
