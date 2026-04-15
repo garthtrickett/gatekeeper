@@ -20,12 +20,14 @@ object DatabaseManager {
     private val contentSourceAdapter =
         object : ColumnAdapter<ContentSource, String> {
             override fun decode(databaseValue: String): ContentSource = ContentSource.valueOf(databaseValue)
+
             override fun encode(value: ContentSource): String = value.name
         }
 
     private val contentTypeAdapter =
         object : ColumnAdapter<ContentType, String> {
             override fun decode(databaseValue: String): ContentType = ContentType.valueOf(databaseValue)
+
             override fun encode(value: ContentType): String = value.name
         }
 

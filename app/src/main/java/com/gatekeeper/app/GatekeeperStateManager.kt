@@ -110,30 +110,34 @@ object GatekeeperStateManager {
                     Log.i("Gatekeeper", "Processing shared link: ${action.url}")
                     val pattern = """(?<=youtu\.be/|watch\?v=|/shorts/)([a-zA-Z0-9_-]{11})""".toRegex()
                     val videoId = pattern.find(action.url)?.value
-                    
+
                     if (videoId != null) {
                         var title = "YouTube Video"
                         try {
                             val connection = URL(action.url).openConnection() as HttpsURLConnection
                             connection.requestMethod = "GET"
                             connection.setRequestProperty("User-Agent", "Mozilla/5.0")
-                            val html = connection.inputStream.bufferedReader().use { it.readText() }
+                            val html = connection.inputStream.readBytes().toString(Charsets.UTF_8)
                             val titleRegex = """<title>(.*?)</title>""".toRegex()
                             val match = titleRegex.find(html)
-                            title = match?.groupValues?.get(1)?.replace(" - YouTube", "")?.trim() ?: "YouTube Video"
+                            title = match
+                                ?.groupValues
+                                ?.get(1)
+                                ?.replace(" - YouTube", "")
+                                ?.trim() ?: "YouTube Video"
                             title = title.replace("&amp;", "&").replace("&#39;", "'").replace("&quot;", "\"")
                         } catch (e: Exception) {
                             Log.e("Gatekeeper", "Failed to fetch YouTube title", e)
                         }
-                        
+
                         dispatch(
                             GatekeeperAction.SaveToContentBank(
                                 videoId = videoId,
                                 title = title,
                                 source = com.gatekeeper.app.domain.ContentSource.YOUTUBE,
                                 type = com.gatekeeper.app.domain.ContentType.VIDEO,
-                                currentTimestamp = action.currentTimestamp
-                            )
+                                currentTimestamp = action.currentTimestamp,
+                            ),
                         )
                     } else {
                         // Generic link handling
@@ -143,8 +147,8 @@ object GatekeeperStateManager {
                                 title = "Saved Link",
                                 source = com.gatekeeper.app.domain.ContentSource.GENERIC,
                                 type = com.gatekeeper.app.domain.ContentType.READING,
-                                currentTimestamp = action.currentTimestamp
-                            )
+                                currentTimestamp = action.currentTimestamp,
+                            ),
                         )
                     }
                 }
@@ -160,7 +164,7 @@ object GatekeeperStateManager {
                             source = it.source,
                             type = it.type,
                             rank = it.rank,
-                            capturedAtTimestamp = it.capturedAtTimestamp
+                            capturedAtTimestamp = it.capturedAtTimestamp,
                         )
                     }
                 }

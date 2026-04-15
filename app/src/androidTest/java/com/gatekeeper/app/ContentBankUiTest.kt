@@ -41,8 +41,8 @@ class ContentBankUiTest {
                 title = "Never Gonna Give You Up",
                 source = ContentSource.YOUTUBE,
                 type = ContentType.VIDEO,
-                currentTimestamp = 1000L
-            )
+                currentTimestamp = 1000L,
+            ),
         )
 
         composeTestRule.setContent {
@@ -71,8 +71,8 @@ class ContentBankUiTest {
                 title = title,
                 source = ContentSource.YOUTUBE,
                 type = ContentType.VIDEO,
-                currentTimestamp = 1000L
-            )
+                currentTimestamp = 1000L,
+            ),
         )
 
         composeTestRule.setContent {
@@ -82,7 +82,7 @@ class ContentBankUiTest {
         }
 
         composeTestRule.onNodeWithText(title).assertExists()
-        
+
         // Act: Click Drop
         composeTestRule.onNodeWithText("Drop").performClick()
         composeTestRule.waitForIdle()

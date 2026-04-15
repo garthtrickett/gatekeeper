@@ -4,7 +4,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class ShareRegexTest {
-    
     // We copy the exact regex used in the GatekeeperStateManager here to verify it parses URLs correctly.
     private val youtubePattern = """(?<=youtu\.be/|watch\?v=|/shorts/)([a-zA-Z0-9_-]{11})""".toRegex()
 

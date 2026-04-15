@@ -97,34 +97,40 @@ fun reduce(
         }
 
         // --- Content Bank Logic ---
-        is GatekeeperAction.ProcessSharedLink -> state // Pure side-effect trigger
+        is GatekeeperAction.ProcessSharedLink -> {
+            state
+        }
+
+        // Pure side-effect trigger
 
         is GatekeeperAction.SaveToContentBank -> {
             val newRank = state.contentItems.size.toLong()
-            val newItem = ContentItem(
-                videoId = action.videoId,
-                title = action.title,
-                source = action.source,
-                type = action.type,
-                rank = newRank,
-                capturedAtTimestamp = action.currentTimestamp,
-            )
+            val newItem =
+                ContentItem(
+                    videoId = action.videoId,
+                    title = action.title,
+                    source = action.source,
+                    type = action.type,
+                    rank = newRank,
+                    capturedAtTimestamp = action.currentTimestamp,
+                )
             state.copy(contentItems = state.contentItems + newItem)
         }
 
         is GatekeeperAction.ReorderContentBank -> {
             if (action.fromIndex !in state.contentItems.indices || action.toIndex !in state.contentItems.indices) {
-                return state
-            }
-            val mutableList = state.contentItems.toMutableList()
-            val itemToMove = mutableList.removeAt(action.fromIndex)
-            mutableList.add(action.toIndex, itemToMove)
+                state
+            } else {
+                val mutableList = state.contentItems.toMutableList()
+                val itemToMove = mutableList.removeAt(action.fromIndex)
+                mutableList.add(action.toIndex, itemToMove)
 
-            // Reassign ranks based on new array indices
-            val updatedList = mutableList.mapIndexed { index, item ->
-                item.copy(rank = index.toLong())
+                // Reassign ranks based on new array indices
+                val updatedList = mutableList.mapIndexed { index, item ->
+                    item.copy(rank = index.toLong())
+                }
+                state.copy(contentItems = updatedList)
             }
-            state.copy(contentItems = updatedList)
         }
 
         is GatekeeperAction.RemoveFromContentBank -> {

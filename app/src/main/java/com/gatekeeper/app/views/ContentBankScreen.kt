@@ -65,7 +65,7 @@ fun ContentBankScreen() {
                             item = item,
                             index = index,
                             isFirst = index == 0,
-                            isLast = index == items.size - 1
+                            isLast = index == items.size - 1,
                         )
                     }
                 }
@@ -86,25 +86,30 @@ fun ContentBankScreen() {
 
 @Suppress("FunctionName")
 @Composable
-private fun ContentItemCard(item: ContentItem, index: Int, isFirst: Boolean, isLast: Boolean) {
+private fun ContentItemCard(
+    item: ContentItem,
+    index: Int,
+    isFirst: Boolean,
+    isLast: Boolean,
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             // Rank Controls (Brutalist Reordering)
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 TextButton(
                     onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.ReorderContentBank(index, index - 1)) },
-                    enabled = !isFirst
+                    enabled = !isFirst,
                 ) { Text("▲") }
                 Text("#${item.rank + 1}", fontWeight = FontWeight.Bold)
                 TextButton(
                     onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.ReorderContentBank(index, index + 1)) },
-                    enabled = !isLast
+                    enabled = !isLast,
                 ) { Text("▼") }
             }
 
@@ -116,13 +121,13 @@ private fun ContentItemCard(item: ContentItem, index: Int, isFirst: Boolean, isL
                     text = item.title,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = item.source.name,
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
 
