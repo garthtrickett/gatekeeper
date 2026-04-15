@@ -3,6 +3,7 @@ package com.gatekeeper.app
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -44,6 +45,30 @@ class VaultCaptureUiTest {
 
         // Assert: Verify the callback was triggered with the correct text
         assertThat(savedQuery).isEqualTo("mechanical keyboards")
+    }
+
+    @Test
+    fun testVaultCaptureDialog_KeyboardDoneAction() {
+        // Arrange
+        var savedQuery: String? = null
+
+        composeTestRule.setContent {
+            androidx.compose.material3.MaterialTheme {
+                VaultCaptureDialog(
+                    onDismiss = { },
+                    onSave = { savedQuery = it },
+                )
+            }
+        }
+
+        // Act: Type text into the text field
+        composeTestRule.onNodeWithText("What do you want to search?").performTextInput("ergonomic mouse")
+        
+        // Act: Trigger the 'Done' action on the keyboard
+        composeTestRule.onNodeWithText("What do you want to search?").performImeAction()
+
+        // Assert: Verify the callback was triggered via keyboard action
+        assertThat(savedQuery).isEqualTo("ergonomic mouse")
     }
 
     @Test
