@@ -46,5 +46,25 @@
                 android:value="System-Level Cognitive Orthotic Interceptor" />
         </service>
 
+        <!-- Layer 2: The Vault Capture Flow -->
+        <activity
+            android:name=".VaultCaptureActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask" />
+
+        <!-- The Home Screen Access Point -->
+        <receiver
+            android:name=".widget.VaultWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/vault_widget_info" />
+        </receiver>
+
     </application>
 </manifest>

@@ -70,6 +70,10 @@ dependencies {
     // Required for ComponentActivity to function correctly in Compose tests
     implementation("androidx.activity:activity-compose:1.9.3")
 
+    // Jetpack Glance for OS-level Widgets
+    implementation("androidx.glance:glance-appwidget:1.1.0")
+    implementation("androidx.glance:glance-material3:1.1.0")
+
     // SQLDelight Database Driver
     implementation("app.cash.sqldelight:android-driver:2.0.2")
 
