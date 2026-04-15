@@ -27,7 +27,7 @@ class VaultWidget : GlanceAppWidget() {
     ) {
         provideContent {
             Box(
-                modifier = 
+                modifier =
                     GlanceModifier
                         .fillMaxSize()
                         .background(Color(0xFF1E1E1E))
