@@ -141,17 +141,18 @@ class GatekeeperReducerTest {
     @Test
     fun testSaveToVault_AppendsToVaultItems() {
         // Arrange
-        val action = GatekeeperAction.SaveToVault(
-            query = "best standing desks",
-            currentTimestamp = 2000L
-        )
+        val action =
+            GatekeeperAction.SaveToVault(
+                query = "best standing desks",
+                currentTimestamp = 2000L,
+            )
 
         // Act
         val newState = reduce(initialState, action)
 
         // Assert
         assertThat(newState.vaultItems).hasSize(1)
-        
+
         val savedItem = newState.vaultItems.first()
         assertThat(savedItem.query).isEqualTo("best standing desks")
         assertThat(savedItem.capturedAtTimestamp).isEqualTo(2000L)

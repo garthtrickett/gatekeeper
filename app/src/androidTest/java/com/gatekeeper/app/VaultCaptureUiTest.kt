@@ -26,7 +26,7 @@ class VaultCaptureUiTest {
             androidx.compose.material3.MaterialTheme {
                 VaultCaptureDialog(
                     onDismiss = { dismissed = true },
-                    onSave = { savedQuery = it }
+                    onSave = { savedQuery = it },
                 )
             }
         }
@@ -55,7 +55,7 @@ class VaultCaptureUiTest {
             androidx.compose.material3.MaterialTheme {
                 VaultCaptureDialog(
                     onDismiss = { dismissed = true },
-                    onSave = { }
+                    onSave = { },
                 )
             }
         }

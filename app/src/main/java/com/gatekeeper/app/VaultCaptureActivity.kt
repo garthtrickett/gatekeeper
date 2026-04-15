@@ -35,7 +35,7 @@ import com.gatekeeper.app.domain.GatekeeperAction
 class VaultCaptureActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         setContent {
             MaterialTheme {
                 VaultCaptureDialog(
@@ -44,12 +44,12 @@ class VaultCaptureActivity : ComponentActivity() {
                         GatekeeperStateManager.dispatch(
                             GatekeeperAction.SaveToVault(
                                 query = query,
-                                currentTimestamp = System.currentTimeMillis()
-                            )
+                                currentTimestamp = System.currentTimeMillis(),
+                            ),
                         )
                         Toast.makeText(this, "Saved. We'll look this up at 6 PM.", Toast.LENGTH_SHORT).show()
                         finish()
-                    }
+                    },
                 )
             }
         }
@@ -57,7 +57,10 @@ class VaultCaptureActivity : ComponentActivity() {
 }
 
 @Composable
-fun VaultCaptureDialog(onDismiss: () -> Unit, onSave: (String) -> Unit) {
+fun VaultCaptureDialog(
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit,
+) {
     var query by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
@@ -70,10 +73,10 @@ fun VaultCaptureDialog(onDismiss: () -> Unit, onSave: (String) -> Unit) {
         Surface(
             shape = MaterialTheme.shapes.medium,
             color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
         ) {
             Column(
-                modifier = Modifier.padding(24.dp)
+                modifier = Modifier.padding(24.dp),
             ) {
                 Text("Lookup Vault", style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(16.dp))
@@ -81,16 +84,17 @@ fun VaultCaptureDialog(onDismiss: () -> Unit, onSave: (String) -> Unit) {
                     value = query,
                     onValueChange = { query = it },
                     label = { Text("What do you want to search?") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                    singleLine = true
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
+                    singleLine = true,
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     TextButton(onClick = onDismiss) {
                         Text("Cancel")
@@ -101,7 +105,7 @@ fun VaultCaptureDialog(onDismiss: () -> Unit, onSave: (String) -> Unit) {
                             val trimmed = query.trim()
                             if (trimmed.isNotEmpty()) onSave(trimmed)
                         },
-                        enabled = query.trim().isNotEmpty()
+                        enabled = query.trim().isNotEmpty(),
                     ) {
                         Text("Save")
                     }

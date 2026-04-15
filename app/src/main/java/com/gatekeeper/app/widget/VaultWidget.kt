@@ -20,19 +20,23 @@ import androidx.glance.unit.ColorProvider
 import com.gatekeeper.app.VaultCaptureActivity
 
 class VaultWidget : GlanceAppWidget() {
-    override suspend fun provideGlance(context: Context, id: GlanceId) {
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId,
+    ) {
         provideContent {
             Box(
-                modifier = GlanceModifier
-                    .fillMaxSize()
-                    .background(Color(0xFF1E1E1E))
-                    .padding(12.dp)
-                    .clickable(actionStartActivity<VaultCaptureActivity>()),
-                contentAlignment = Alignment.CenterStart
+                modifier =
+                    GlanceModifier
+                        .fillMaxSize()
+                        .background(Color(0xFF1E1E1E))
+                        .padding(12.dp)
+                        .clickable(actionStartActivity(VaultCaptureActivity::class.java)),
+                contentAlignment = Alignment.CenterStart,
             ) {
                 Text(
                     text = "🔍 Save to Lookup Vault...",
-                    style = TextStyle(color = ColorProvider(Color.White))
+                    style = TextStyle(color = ColorProvider(Color.White)),
                 )
             }
         }
