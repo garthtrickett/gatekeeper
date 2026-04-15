@@ -35,20 +35,22 @@ class CleanYouTubeScreenTest {
     @Test
     fun testSearchResultsRenderedCorrectly() {
         // Arrange: Seed the state manager with mock YouTube results
-        val mockResults = listOf(
-            YoutubeSearchItem(
-                id = ItemId("mock_video_id"),
-                snippet = YoutubeSnippet(
-                    title = "Deep Work Soundtrack",
-                    channelTitle = "Focus Channel",
-                    thumbnails = Thumbnails(high = ThumbnailInfo("https://example.com/thumb.jpg"))
-                )
+        val mockResults =
+            listOf(
+                YoutubeSearchItem(
+                    id = ItemId("mock_video_id"),
+                    snippet =
+                        YoutubeSnippet(
+                            title = "Deep Work Soundtrack",
+                            channelTitle = "Focus Channel",
+                            thumbnails = Thumbnails(high = ThumbnailInfo("https://example.com/thumb.jpg")),
+                        ),
+                ),
             )
-        )
 
         // Dispatching the completed action skips the loading phase and immediately updates the state.
         GatekeeperStateManager.dispatch(
-            GatekeeperAction.YouTubeSearchCompleted(mockResults)
+            GatekeeperAction.YouTubeSearchCompleted(mockResults),
         )
 
         // Act
