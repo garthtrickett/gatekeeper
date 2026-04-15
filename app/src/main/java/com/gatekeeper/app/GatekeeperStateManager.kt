@@ -106,6 +106,36 @@ object GatekeeperStateManager {
                     db.vaultItemQueries.markAsResolved(id = action.id)
                 }
 
+                is GatekeeperAction.SaveToContentBank -> {
+                    val newItem = (newState.contentItems - oldState.contentItems.toSet()).firstOrNull()
+                    newItem?.let {
+                        Log.i("Gatekeeper", "DB: Inserting new ContentItem: ${it.title}")
+                        db.contentItemQueries.insert(
+                            id = it.id,
+                            videoId = it.videoId,
+                            title = it.title,
+                            source = it.source,
+                            type = it.type,
+                            rank = it.rank,
+                            capturedAtTimestamp = it.capturedAtTimestamp
+                        )
+                    }
+                }
+
+                is GatekeeperAction.ReorderContentBank -> {
+                    Log.i("Gatekeeper", "DB: Reordering Content Bank")
+                    db.transaction {
+                        newState.contentItems.forEach { item ->
+                            db.contentItemQueries.updateRank(rank = item.rank, id = item.id)
+                        }
+                    }
+                }
+
+                is GatekeeperAction.RemoveFromContentBank -> {
+                    Log.i("Gatekeeper", "DB: Removing ContentItem: ${action.id}")
+                    db.contentItemQueries.delete(id = action.id)
+                }
+
                 is GatekeeperAction.LogSessionMetacognition -> {
                     val newLog = (newState.sessionLogs - oldState.sessionLogs.toSet()).firstOrNull()
                     newLog?.let {

@@ -38,6 +38,24 @@ sealed interface GatekeeperAction {
         val id: String,
     ) : GatekeeperAction
 
+    // --- Layer 3: The Content Bank ---
+    data class SaveToContentBank(
+        val videoId: String,
+        val title: String,
+        val source: ContentSource,
+        val type: ContentType,
+        val currentTimestamp: Long,
+    ) : GatekeeperAction
+
+    data class ReorderContentBank(
+        val fromIndex: Int,
+        val toIndex: Int,
+    ) : GatekeeperAction
+
+    data class RemoveFromContentBank(
+        val id: String,
+    ) : GatekeeperAction
+
     // --- Layer 5: Clean Room Media Engines ---
     data class SearchYouTubeRequested(
         val query: String,

@@ -179,6 +179,52 @@ class GatekeeperReducerTest {
         assertThat(savedItem.isResolved).isFalse()
     }
 
+    // --- Content Bank Reducer Tests ---
+
+    @Test
+    fun testSaveToContentBank_AppendsItemWithCorrectRank() {
+         val action = GatekeeperAction.SaveToContentBank("vid1", "Test Title", ContentSource.YOUTUBE, ContentType.VIDEO, 1000L)
+         val newState = reduce(initialState, action)
+         assertThat(newState.contentItems).hasSize(1)
+         assertThat(newState.contentItems.first().rank).isEqualTo(0L)
+
+         val action2 = GatekeeperAction.SaveToContentBank("vid2", "Test 2", ContentSource.YOUTUBE, ContentType.VIDEO, 2000L)
+         val finalState = reduce(newState, action2)
+         assertThat(finalState.contentItems).hasSize(2)
+         assertThat(finalState.contentItems[1].rank).isEqualTo(1L)
+    }
+
+    @Test
+    fun testReorderContentBank_UpdatesRanks() {
+        val item1 = ContentItem(id="1", videoId="v1", title="T1", source=ContentSource.YOUTUBE, type=ContentType.VIDEO, rank=0L, capturedAtTimestamp=1L)
+        val item2 = ContentItem(id="2", videoId="v2", title="T2", source=ContentSource.YOUTUBE, type=ContentType.VIDEO, rank=1L, capturedAtTimestamp=2L)
+        val item3 = ContentItem(id="3", videoId="v3", title="T3", source=ContentSource.YOUTUBE, type=ContentType.VIDEO, rank=2L, capturedAtTimestamp=3L)
+
+        val state = initialState.copy(contentItems = listOf(item1, item2, item3))
+
+        // Move item at index 0 to index 2 (Bottom of the list)
+        val action = GatekeeperAction.ReorderContentBank(fromIndex = 0, toIndex = 2)
+        val newState = reduce(state, action)
+
+        assertThat(newState.contentItems[0].id).isEqualTo("2")
+        assertThat(newState.contentItems[0].rank).isEqualTo(0L)
+
+        assertThat(newState.contentItems[1].id).isEqualTo("3")
+        assertThat(newState.contentItems[1].rank).isEqualTo(1L)
+
+        assertThat(newState.contentItems[2].id).isEqualTo("1")
+        assertThat(newState.contentItems[2].rank).isEqualTo(2L)
+    }
+
+    @Test
+    fun testRemoveFromContentBank_RemovesItem() {
+        val item1 = ContentItem(id="1", videoId="v1", title="T1", source=ContentSource.YOUTUBE, type=ContentType.VIDEO, rank=0L, capturedAtTimestamp=1L)
+        val state = initialState.copy(contentItems = listOf(item1))
+
+        val newState = reduce(state, GatekeeperAction.RemoveFromContentBank("1"))
+        assertThat(newState.contentItems).isEmpty()
+    }
+
     // --- YouTube Reducer Tests ---
 
     @Test
