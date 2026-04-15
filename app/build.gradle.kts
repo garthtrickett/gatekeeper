@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("plugin.compose")
+    kotlin("plugin.serialization")
     id("app.cash.sqldelight")
 }
 
@@ -76,6 +77,12 @@ dependencies {
 
     // SQLDelight Database Driver
     implementation("app.cash.sqldelight:android-driver:2.0.2")
+
+    // Ktor Networking Client
+    implementation("io.ktor:ktor-client-core:2.3.12")
+    implementation("io.ktor:ktor-client-okhttp:2.3.12") // Proven JVM engine
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
 
     // --- Automated Testing Dependencies ---
 
