@@ -97,20 +97,10 @@ class YoutubeApiClientTest {
             val client = createMockClient(mockEngine)
 
             // Act
-            val apiClient =
-                object : Any() {
-                    suspend fun searchVideos(query: String) =
-                        YoutubeApiClient.run {
-                            val originalClient = this.javaClass.getDeclaredField("client").apply { isAccessible = true }
-                            val originalValue = originalClient.get(this)
-                            originalClient.set(this, client)
-                            val result = searchVideos(query)
-                            originalClient.set(this, originalValue)
-                            result
-                        }
-                }
-
-            val result = apiClient.searchVideos("kotlin")
+            val originalClient = YoutubeApiClient.client
+            YoutubeApiClient.client = client
+            val result = YoutubeApiClient.searchVideos("kotlin")
+            YoutubeApiClient.client = originalClient
 
             // Assert
             assertThat(result.isFailure).isTrue()
