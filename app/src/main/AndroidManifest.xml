@@ -7,11 +7,21 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Layer Alpha: Required to poll foreground app state as a fallback to Accessibility -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+    
+    <!-- Required to prompt the user to disable OEM battery optimizations for the background interceptor -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    
+    <!-- Required for Mission Control to list installed apps -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
     <!-- THE FIX: Register our custom App class -->
     <application
         android:name=".App"
         android:allowBackup="false"
         android:label="@string/app_name"
+        android:usesCleartextTraffic="true"
         android:supportsRtl="true">
 
         <activity
@@ -19,7 +29,7 @@
             android:exported="true"
             android:showWhenLocked="true"
             android:turnScreenOn="true"
-            android:theme="@android:style/Theme.DeviceDefault">
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -78,6 +88,13 @@
             </intent-filter>
         </service>
 
+        <receiver android:name=".services.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
         <!-- The Home Screen Access Point -->
         <receiver
             android:name=".widget.VaultWidgetReceiver"
@@ -89,6 +106,25 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/vault_widget_info" />
         </receiver>
+
+        <!-- FCM Service for Real-time Sync Pokes -->
+        <service
+            android:name=".GatekeeperFcmService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Layer Gamma: System-Wide Domain Blocker -->
+        <service
+            android:name=".GatekeeperVpnService"
+            android:permission="android.permission.BIND_VPN_SERVICE"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
 
     </application>
 </manifest>

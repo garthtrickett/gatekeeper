@@ -1,0 +1,93 @@
+CREATE TABLE IF NOT EXISTS Users (
+    id TEXT NOT NULL PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS VaultItems (
+    id TEXT NOT NULL PRIMARY KEY,
+    userId TEXT NOT NULL,
+    query TEXT NOT NULL,
+    capturedAtTimestamp BIGINT NOT NULL,
+    isResolved BOOLEAN NOT NULL DEFAULT FALSE,
+    lastModified BIGINT NOT NULL,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS ContentItems (
+    id TEXT NOT NULL PRIMARY KEY,
+    userId TEXT NOT NULL,
+    videoId TEXT NOT NULL,
+    title TEXT NOT NULL,
+    source TEXT NOT NULL,
+    type TEXT NOT NULL,
+    rank BIGINT NOT NULL,
+    capturedAtTimestamp BIGINT NOT NULL,
+    durationSeconds BIGINT,
+    lastModified BIGINT NOT NULL,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS UserDevices (
+    userId TEXT NOT NULL,
+    fcmToken TEXT NOT NULL PRIMARY KEY,
+    FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE
+);
+
+-- Queries --
+
+findUserByEmail:
+SELECT * FROM Users WHERE email = :email;
+
+insertUser:
+INSERT INTO Users(id, email) VALUES (:id, :email) RETURNING id;
+
+getVaultItem:
+SELECT * FROM VaultItems WHERE id = :id AND userId = :userId;
+
+insertVaultItem:
+INSERT INTO VaultItems(id, userId, query, capturedAtTimestamp, isResolved, lastModified, isDeleted)
+VALUES (:id, :userId, :query, :capturedAtTimestamp, :isResolved, :lastModified, :isDeleted);
+
+updateVaultItem:
+UPDATE VaultItems SET
+    query = :query,
+    capturedAtTimestamp = :capturedAtTimestamp,
+    isResolved = :isResolved,
+    lastModified = :lastModified,
+    isDeleted = :isDeleted
+WHERE id = :id AND userId = :userId;
+
+getVaultItemsSince:
+SELECT * FROM VaultItems WHERE userId = :userId AND lastModified > :since;
+
+getContentItem:
+SELECT * FROM ContentItems WHERE id = :id AND userId = :userId;
+
+insertContentItem:
+INSERT INTO ContentItems(id, userId, videoId, title, source, type, rank, capturedAtTimestamp, durationSeconds, lastModified, isDeleted)
+VALUES (:id, :userId, :videoId, :title, :source, :type, :rank, :capturedAtTimestamp, :durationSeconds, :lastModified, :isDeleted);
+
+updateContentItem:
+UPDATE ContentItems SET
+    videoId = :videoId,
+    title = :title,
+    source = :source,
+    type = :type,
+    rank = :rank,
+    capturedAtTimestamp = :capturedAtTimestamp,
+    durationSeconds = :durationSeconds,
+    lastModified = :lastModified,
+    isDeleted = :isDeleted
+WHERE id = :id AND userId = :userId;
+
+getContentItemsSince:
+SELECT * FROM ContentItems WHERE userId = :userId AND lastModified > :since;
+
+insertDeviceToken:
+INSERT INTO UserDevices(userId, fcmToken) VALUES (:userId, :fcmToken)
+ON CONFLICT (fcmToken) DO UPDATE SET userId = :userId;
+
+getTokensForUser:
+SELECT fcmToken FROM UserDevices WHERE userId = :userId;

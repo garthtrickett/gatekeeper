@@ -1,0 +1,11 @@
+CREATE TABLE GiveUpLog (
+    id TEXT NOT NULL PRIMARY KEY,
+    packageName TEXT NOT NULL,
+    timestamp INTEGER NOT NULL
+);
+
+insert:
+INSERT INTO GiveUpLog(id, packageName, timestamp) VALUES (:id, :packageName, :timestamp);
+
+selectAll:
+SELECT * FROM GiveUpLog ORDER BY timestamp DESC;

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# 42069-1418
 # Define the output file name
 OUTPUT_FILE="a.txt"
 
@@ -7,7 +8,8 @@ OUTPUT_FILE="a.txt"
 echo "--- GATEKEEPER PROJECT SNAPSHOT (Created: $(date)) ---" >"$OUTPUT_FILE"
 
 # Define the directories and file patterns to include
-# We exclude build directories, .gradle, and .git to keep the file clean
+# Added *.nix to capture flake.nix and NixOS modules.
+# Depth remains 10 which is plenty for KMP nested src folders.
 find . -maxdepth 10 \
     -not -path '*/.*' \
     -not -path '*/build/*' \
@@ -18,8 +20,8 @@ find . -maxdepth 10 \
     -name "*.kts" -o \
     -name "*.xml" -o \
     -name "*.properties" -o \
-    -name "GEMINI.md" -o \
-    -name "flake.nix" \
+    -name "*.nix" -o \
+    -name "GEMINI.md" \
     \) | sort | while read -r file; do
 
     # Print a clear header for each file

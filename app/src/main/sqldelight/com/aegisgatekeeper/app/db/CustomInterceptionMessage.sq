@@ -1,0 +1,13 @@
+CREATE TABLE CustomInterceptionMessage (
+    packageName TEXT NOT NULL PRIMARY KEY,
+    message TEXT NOT NULL
+);
+
+selectAll:
+SELECT * FROM CustomInterceptionMessage;
+
+insert:
+INSERT OR REPLACE INTO CustomInterceptionMessage(packageName, message) VALUES (:packageName, :message);
+
+delete:
+DELETE FROM CustomInterceptionMessage WHERE packageName = :packageName;

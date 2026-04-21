@@ -1,0 +1,13 @@
+CREATE TABLE MissionControlApp (
+    packageName TEXT NOT NULL PRIMARY KEY,
+    rank INTEGER NOT NULL
+);
+
+selectAll:
+SELECT * FROM MissionControlApp ORDER BY rank ASC;
+
+insert:
+INSERT INTO MissionControlApp(packageName, rank) VALUES (:packageName, :rank);
+
+deleteAll:
+DELETE FROM MissionControlApp;

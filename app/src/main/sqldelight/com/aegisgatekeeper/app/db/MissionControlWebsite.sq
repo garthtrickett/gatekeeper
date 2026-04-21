@@ -1,0 +1,15 @@
+CREATE TABLE MissionControlWebsite (
+    id TEXT NOT NULL PRIMARY KEY,
+    label TEXT NOT NULL,
+    url TEXT NOT NULL,
+    rank INTEGER NOT NULL
+);
+
+selectAll:
+SELECT * FROM MissionControlWebsite ORDER BY rank ASC;
+
+insert:
+INSERT INTO MissionControlWebsite(id, label, url, rank) VALUES (:id, :label, :url, :rank);
+
+delete:
+DELETE FROM MissionControlWebsite WHERE id = :id;

@@ -1,0 +1,16 @@
+CREATE TABLE NotificationDigest (
+    id TEXT NOT NULL PRIMARY KEY,
+    packageName TEXT NOT NULL,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    timestamp INTEGER NOT NULL
+);
+
+selectAll:
+SELECT * FROM NotificationDigest ORDER BY timestamp DESC;
+
+insert:
+INSERT INTO NotificationDigest(id, packageName, title, content, timestamp) VALUES (?, ?, ?, ?, ?);
+
+deleteAll:
+DELETE FROM NotificationDigest;

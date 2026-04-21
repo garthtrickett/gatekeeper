@@ -7,9 +7,14 @@ Captures/
 *.aar
 *.jks
 *.keystore
+app/kcef-bundle/
 
 # --- Local Config --- 
 local.properties
+
+backend/*.db
+backend/service-account.json
+app/google-services.json
 
 # --- IDE - IntelliJ / Android Studio --- 
 .idea/

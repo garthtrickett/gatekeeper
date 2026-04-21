@@ -1,0 +1,10 @@
+CREATE TABLE MediaPosition (
+    mediaId TEXT NOT NULL PRIMARY KEY,
+    positionSeconds REAL NOT NULL
+);
+
+selectAll:
+SELECT * FROM MediaPosition;
+
+insert:
+INSERT OR REPLACE INTO MediaPosition(mediaId, positionSeconds) VALUES (:mediaId, :positionSeconds);

@@ -1,0 +1,46 @@
+import kotlin.Boolean;
+import com.aegisgatekeeper.app.domain.ContentSource;
+import com.aegisgatekeeper.app.domain.ContentType;
+
+-- The Content Bank table for curated media that has been captured and ranked.
+CREATE TABLE ContentItem (
+    id TEXT NOT NULL PRIMARY KEY,
+    videoId TEXT NOT NULL,
+    title TEXT NOT NULL,
+    source TEXT AS ContentSource NOT NULL,
+    type TEXT AS ContentType NOT NULL,
+    rank INTEGER NOT NULL,
+    capturedAtTimestamp INTEGER NOT NULL,
+    durationSeconds INTEGER,
+    lastModified INTEGER NOT NULL,
+    isSynced INTEGER AS Boolean NOT NULL DEFAULT 0,
+    isDeleted INTEGER AS Boolean NOT NULL DEFAULT 0
+);
+
+selectAllByRank:
+SELECT * FROM ContentItem WHERE isDeleted = 0 ORDER BY rank ASC;
+
+selectAllByRankAndType:
+SELECT * FROM ContentItem WHERE type = :type AND isDeleted = 0 ORDER BY rank ASC;
+
+selectAllByRankLimit:
+SELECT * FROM ContentItem WHERE isDeleted = 0 ORDER BY rank ASC LIMIT :limit;
+
+selectAllByRankAndTypeLimit:
+SELECT * FROM ContentItem WHERE type = :type AND isDeleted = 0 ORDER BY rank ASC LIMIT :limit;
+
+countAll:
+SELECT COUNT(*) FROM ContentItem WHERE isDeleted = 0;
+
+countAllByType:
+SELECT COUNT(*) FROM ContentItem WHERE type = :type AND isDeleted = 0;
+
+insert:
+INSERT OR REPLACE INTO ContentItem(id, videoId, title, source, type, rank, capturedAtTimestamp, durationSeconds, lastModified, isSynced, isDeleted)
+VALUES (:id, :videoId, :title, :source, :type, :rank, :capturedAtTimestamp, :durationSeconds, :lastModified, :isSynced, :isDeleted);
+
+updateRank:
+UPDATE ContentItem SET rank = :rank, isSynced = 0, lastModified = :lastModified WHERE id = :id;
+
+delete:
+UPDATE ContentItem SET isDeleted = 1, isSynced = 0, lastModified = :lastModified WHERE id = :id;

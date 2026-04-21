@@ -85,6 +85,26 @@ Do not use Exceptions for control flow.
 
 ---
 
+## 6. Logging Standards: Grug-Brained Visibility
+To ensure debuggability across all layers of the system (UI, background services, state logic), all log entries MUST use a single, consistent tag and be prefixed with an emoji to denote the log's category. This allows for rapid visual parsing in Logcat.
+
+*   **Log Tag:** Always use `"Gatekeeper"`.
+*   **Log Level:** Use `Log.d` for state changes and routine events. Use `Log.i` for major lifecycle events (service started). Use `Log.w` for recoverable errors. Use `Log.e` for fatal crashes or unrecoverable states.
+*   **Visibility:** Logs are automatically mirrored to the host terminal during both `test-unit` (via shadow Log class) and `test-ui` (via auto-piped Logcat in the Nix alias).
+
+### Emoji Legend
+*   `📥` **Action Dispatched:** An action was sent to the `GatekeeperStateManager`.
+*   `🔄` **State Updated:** The `reduce` function produced a new state different from the previous one.
+*   `⚙️` **Side-Effect Triggered:** An impure action (e.g., scheduling a delayed task) was initiated in response to a state change.
+*   `🗄️` **Database I/O:** A read from or write to the SQLDelight database occurred.
+*   `📡` **Network Call:** An HTTP request was made (e.g., to the YouTube API).
+*   `📺` **UI Event:** A significant UI change happened (e.g., overlay shown/removed, screen navigation).
+*   `✅` **Success / Lifecycle:** A process completed successfully or a major component (like a service) was connected/started.
+*   `❌` **Failure / Error:** An error was caught, a process failed, or a service was unexpectedly destroyed.
+*   `👁️` **Observation:** A background service is actively observing system state (e.g., a heartbeat tick, an accessibility event).
+
+---
+
 ## Example: The SAM Loop
 
 ```kotlin
@@ -127,3 +147,5 @@ class FrictionViewModel : ViewModel() {
         }
     }
 }
+
+

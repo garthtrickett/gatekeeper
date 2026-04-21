@@ -1,0 +1,24 @@
+import kotlin.Boolean;
+import com.aegisgatekeeper.app.domain.FrictionGame;
+
+CREATE TABLE AppSettings (
+    id INTEGER NOT NULL PRIMARY KEY DEFAULT 1,
+    isProTier INTEGER AS Boolean NOT NULL DEFAULT 0,
+    activeFrictionGame TEXT AS FrictionGame NOT NULL DEFAULT 'GAUNTLET',
+    isManualLockdownActive INTEGER AS Boolean NOT NULL DEFAULT 0
+);
+
+getSettings:
+SELECT * FROM AppSettings WHERE id = 1;
+
+insertDefault:
+INSERT OR IGNORE INTO AppSettings(id, isProTier, activeFrictionGame, isManualLockdownActive) VALUES (1, 0, 'GAUNTLET', 0);
+
+updateProStatus:
+UPDATE AppSettings SET isProTier = :isProTier WHERE id = 1;
+
+updateFrictionGame:
+UPDATE AppSettings SET activeFrictionGame = :game WHERE id = 1;
+
+updateManualLockdown:
+UPDATE AppSettings SET isManualLockdownActive = :isActive WHERE id = 1;

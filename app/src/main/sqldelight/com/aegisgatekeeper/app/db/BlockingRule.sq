@@ -1,0 +1,73 @@
+import kotlin.Boolean;
+
+CREATE TABLE BlockingRule (
+    id TEXT NOT NULL PRIMARY KEY,
+    groupId TEXT NOT NULL,
+    ruleType TEXT NOT NULL,
+    isEnabled INTEGER AS Boolean NOT NULL DEFAULT 1,
+    FOREIGN KEY (groupId) REFERENCES AppGroup(id) ON DELETE CASCADE
+);
+
+CREATE TABLE TimeLimitRule (
+    ruleId TEXT NOT NULL PRIMARY KEY,
+    timeLimitMinutes INTEGER NOT NULL,
+    FOREIGN KEY (ruleId) REFERENCES BlockingRule(id) ON DELETE CASCADE
+);
+
+CREATE TABLE ScheduledBlockRule (
+    ruleId TEXT NOT NULL PRIMARY KEY,
+    timeSlots TEXT NOT NULL,
+    daysOfWeek TEXT NOT NULL,
+    FOREIGN KEY (ruleId) REFERENCES BlockingRule(id) ON DELETE CASCADE
+);
+
+CREATE TABLE CheckInRule (
+    ruleId TEXT NOT NULL PRIMARY KEY,
+    checkInTimes TEXT NOT NULL,
+    durationMinutes INTEGER NOT NULL,
+    daysOfWeek TEXT NOT NULL,
+    FOREIGN KEY (ruleId) REFERENCES BlockingRule(id) ON DELETE CASCADE
+);
+
+CREATE TABLE ConsumedCheckIn (
+    id TEXT NOT NULL PRIMARY KEY,
+    groupId TEXT NOT NULL,
+    timeMinutes INTEGER NOT NULL,
+    timestamp INTEGER NOT NULL
+);
+
+selectAllRules:
+SELECT * FROM BlockingRule;
+
+selectAllTimeLimitRules:
+SELECT * FROM TimeLimitRule;
+
+selectAllScheduledBlockRules:
+SELECT * FROM ScheduledBlockRule;
+
+insertBlockingRule:
+INSERT INTO BlockingRule(id, groupId, ruleType, isEnabled) VALUES (:id, :groupId, :ruleType, :isEnabled);
+
+deleteBlockingRule:
+DELETE FROM BlockingRule WHERE id = :id;
+
+updateRuleEnabled:
+UPDATE BlockingRule SET isEnabled = :isEnabled WHERE id = :id;
+
+insertTimeLimitRule:
+INSERT OR REPLACE INTO TimeLimitRule(ruleId, timeLimitMinutes) VALUES (:ruleId, :timeLimitMinutes);
+
+insertScheduledBlockRule:
+INSERT OR REPLACE INTO ScheduledBlockRule(ruleId, timeSlots, daysOfWeek) VALUES (:ruleId, :timeSlots, :daysOfWeek);
+
+selectAllCheckInRules:
+SELECT * FROM CheckInRule;
+
+insertCheckInRule:
+INSERT OR REPLACE INTO CheckInRule(ruleId, checkInTimes, durationMinutes, daysOfWeek) VALUES (:ruleId, :checkInTimes, :durationMinutes, :daysOfWeek);
+
+selectAllConsumedCheckIns:
+SELECT * FROM ConsumedCheckIn ORDER BY timestamp DESC;
+
+insertConsumedCheckIn:
+INSERT INTO ConsumedCheckIn(id, groupId, timeMinutes, timestamp) VALUES (:id, :groupId, :timeMinutes, :timestamp);

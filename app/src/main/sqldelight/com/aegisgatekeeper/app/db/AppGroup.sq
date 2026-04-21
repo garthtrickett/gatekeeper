@@ -1,0 +1,41 @@
+import com.aegisgatekeeper.app.domain.RuleCombinator;
+
+CREATE TABLE AppGroup (
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    ruleCombinator TEXT AS RuleCombinator NOT NULL DEFAULT 'ANY'
+);
+
+CREATE TABLE GroupedApp (
+    groupId TEXT NOT NULL,
+    packageName TEXT NOT NULL,
+    PRIMARY KEY (groupId, packageName),
+    FOREIGN KEY (groupId) REFERENCES AppGroup(id) ON DELETE CASCADE
+);
+
+selectAllGroups:
+SELECT * FROM AppGroup;
+
+selectAllGroupedApps:
+SELECT * FROM GroupedApp;
+
+selectAppsForGroup:
+SELECT packageName FROM GroupedApp WHERE groupId = :groupId;
+
+insertGroup:
+INSERT INTO AppGroup(id, name, ruleCombinator) VALUES (:id, :name, :ruleCombinator);
+
+updateCombinator:
+UPDATE AppGroup SET ruleCombinator = :ruleCombinator WHERE id = :id;
+
+deleteGroup:
+DELETE FROM AppGroup WHERE id = :id;
+
+insertGroupedApp:
+INSERT INTO GroupedApp(groupId, packageName) VALUES (:groupId, :packageName);
+
+deleteGroupedApp:
+DELETE FROM GroupedApp WHERE groupId = :groupId AND packageName = :packageName;
+
+deleteAllAppsForGroup:
+DELETE FROM GroupedApp WHERE groupId = :groupId;
