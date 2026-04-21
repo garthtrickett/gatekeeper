@@ -26,16 +26,19 @@ suspend fun handleMediaAndSystemEffects(
             val videoId = pattern.find(action.url)?.value
 
             if (videoId != null) {
-                val metadataResult = UrlMetadataClient.fetchMetadata(action.url)
-                val title = metadataResult.fold({ "YouTube Video" }, { it.title })
+                var title: String? = null
+                var durationSeconds: Long? = null
 
                 val detailsResult = YoutubeApiClient.getVideoDetails(videoId)
-                var durationSeconds: Long? = null
                 detailsResult.fold(
                     ifLeft = { error ->
-                        Log.e("Gatekeeper", "❌ Failed to fetch video details: $error")
+                        Log.w("Gatekeeper", "⚠️ YouTube API failed, falling back to HTML scrape: $error")
+                        // Fallback to HTML scraping
+                        val metadataResult = UrlMetadataClient.fetchMetadata(action.url)
+                        title = metadataResult.fold({ "YouTube Video" }, { it.title })
                     },
                     ifRight = { response ->
+                        title = response.items.firstOrNull()?.snippet?.title
                         val isoDuration =
                             response.items
                                 .firstOrNull()
@@ -52,7 +55,7 @@ suspend fun handleMediaAndSystemEffects(
                 dispatch(
                     GatekeeperAction.SaveToContentBank(
                         videoId = videoId,
-                        title = title,
+                        title = title ?: "YouTube Video",
                         source = ContentSource.YOUTUBE,
                         type = ContentType.VIDEO,
                         currentTimestamp = action.currentTimestamp,
