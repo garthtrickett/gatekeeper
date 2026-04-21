@@ -290,7 +290,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                 onDismiss = { showAddDialog = false },
                 onSave = { url ->
                     GatekeeperStateManager.dispatch(
-                        GatekeeperAction.ProcessSharedLink(url, System.currentTimeMillis()),
+                        GatekeeperAction.ProcessSharedLink(url = url, currentTimestamp = System.currentTimeMillis()),
                     )
                     showAddDialog = false
                 },
