@@ -229,7 +229,7 @@ class GatekeeperReducerTest {
 
     @Test
     fun testProcessSharedLink_SetsIsProcessingLinkToTrue() {
-        val action = GatekeeperAction.ProcessSharedLink("https://youtu.be/dQw4w9WgXcQ", 1000L)
+        val action = GatekeeperAction.ProcessSharedLink(url = "https://youtu.be/dQw4w9WgXcQ", currentTimestamp = 1000L)
         val newState = reduce(initialState, action)
         assertThat(newState.isProcessingLink).isTrue()
     }
