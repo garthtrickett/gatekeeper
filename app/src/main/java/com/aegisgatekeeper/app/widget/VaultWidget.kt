@@ -58,9 +58,7 @@ class UnmaskAction : ActionCallback {
         parameters: ActionParameters,
     ) {
         androidx.glance.appwidget.state.updateAppWidgetState(context, glanceId) { prefs ->
-            prefs.toMutablePreferences().apply {
-                this[booleanPreferencesKey("isUnmasked")] = true
-            }
+            prefs[booleanPreferencesKey("isUnmasked")] = true
         }
         VaultWidget().update(context, glanceId)
     }

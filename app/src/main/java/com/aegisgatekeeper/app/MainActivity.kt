@@ -204,9 +204,7 @@ class MainActivity : ComponentActivity() {
                         .getGlanceIds(VaultWidget::class.java)
                         .forEach { glanceId ->
                             updateAppWidgetState(this@MainActivity, glanceId) { prefs ->
-                                prefs.toMutablePreferences().apply {
-                                    set(booleanPreferencesKey("isUnmasked"), false)
-                                }
+                                prefs[booleanPreferencesKey("isUnmasked")] = false
                             }
                             VaultWidget().update(this@MainActivity, glanceId)
                         }
