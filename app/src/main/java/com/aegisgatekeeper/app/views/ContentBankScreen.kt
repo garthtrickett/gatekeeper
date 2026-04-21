@@ -410,8 +410,15 @@ private fun ContentItemCard(
 
                 // Content Details
                 Column(modifier = Modifier.weight(1f)) {
+                    val decodedTitle = item.title
+                        .replace("&amp;", "&")
+                        .replace("&#39;", "'")
+                        .replace("&quot;", "\"")
+                        .replace("&lt;", "<")
+                        .replace("&gt;", ">")
+                        
                     Text(
-                        text = item.title,
+                        text = decodedTitle,
                         style = MaterialTheme.typography.titleMedium,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,

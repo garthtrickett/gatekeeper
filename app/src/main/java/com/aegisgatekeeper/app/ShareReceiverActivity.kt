@@ -18,10 +18,12 @@ class ShareReceiverActivity : ComponentActivity() {
                 // Extract URL if the shared text contains extra words
                 val urlRegex = """(https?://[^\s"'<>]+)""".toRegex()
                 val url = urlRegex.find(sharedText)?.value ?: sharedText
+                val fallbackTitle = sharedText.replace(url, "").trim().ifEmpty { null }
 
                 GatekeeperStateManager.dispatch(
                     GatekeeperAction.ProcessSharedLink(
                         url = url,
+                        providedTitle = fallbackTitle,
                         currentTimestamp = System.currentTimeMillis(),
                     ),
                 )

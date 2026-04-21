@@ -484,7 +484,7 @@ class GatekeeperStateManagerTest {
                     }
 
                     is GatekeeperAction.SaveToContentBank -> {
-                        val newItem = (newState.contentItems - oldState.contentItems.toSet()).first()
+                        val newItem = newState.contentItems.find { it.videoId == action.videoId && it.source == action.source }!!
                         db.contentItemQueries.insert(
                             id = newItem.id,
                             videoId = newItem.videoId,

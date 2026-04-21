@@ -39,9 +39,9 @@ fun handleDatabaseEffects(
         }
 
         is GatekeeperAction.SaveToContentBank -> {
-            val newItem = (newState.contentItems - oldState.contentItems.toSet()).firstOrNull()
-            newItem?.let {
-                Log.i("Gatekeeper", "DB: Inserting new ContentItem: ${it.title}")
+            val updatedOrNewItem = newState.contentItems.find { it.videoId == action.videoId && it.source == action.source }
+            updatedOrNewItem?.let {
+                Log.i("Gatekeeper", "DB: Upserting ContentItem: ${it.title}")
                 db.contentItemQueries.insert(
                     id = it.id,
                     videoId = it.videoId,

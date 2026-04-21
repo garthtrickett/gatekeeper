@@ -106,8 +106,15 @@ fun IntentionalContentScreen() {
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
+                                val decodedTitle = item?.contentItem?.title
+                                    ?.replace("&amp;", "&")
+                                    ?.replace("&#39;", "'")
+                                    ?.replace("&quot;", "\"")
+                                    ?.replace("&lt;", "<")
+                                    ?.replace("&gt;", ">")
+
                                 Text(
-                                    text = item?.contentItem?.title ?: "Empty Slot ${i + 1}",
+                                    text = decodedTitle ?: "Empty Slot ${i + 1}",
                                     style = MaterialTheme.typography.titleMedium,
                                     maxLines = 1,
                                 )

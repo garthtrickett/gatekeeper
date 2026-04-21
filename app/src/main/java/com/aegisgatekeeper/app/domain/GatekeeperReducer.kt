@@ -389,22 +389,39 @@ private fun reduceContentAndVault(
         }
 
         is GatekeeperAction.SaveToContentBank -> {
-            val newRank = state.contentItems.size.toLong()
-            val newItem =
-                ContentItem(
-                    videoId = action.videoId,
+            val existing = state.contentItems.find { it.videoId == action.videoId && it.source == action.source }
+            if (existing != null) {
+                val updatedItem = existing.copy(
                     title = action.title,
-                    source = action.source,
-                    type = action.type,
-                    rank = newRank,
-                    capturedAtTimestamp = action.currentTimestamp,
-                    durationSeconds = action.durationSeconds,
+                    durationSeconds = action.durationSeconds ?: existing.durationSeconds,
                     lastModified = action.currentTimestamp,
+                    isDeleted = false
                 )
-            state.copy(
-                contentItems = state.contentItems + newItem,
-                isProcessingLink = false,
-            )
+                state.copy(
+                    contentItems = state.contentItems.map { if (it.id == existing.id) updatedItem else it },
+                    intentionalSlots = state.intentionalSlots.map { slot ->
+                        if (slot.contentItem.id == existing.id) slot.copy(contentItem = updatedItem) else slot
+                    },
+                    isProcessingLink = false
+                )
+            } else {
+                val newRank = state.contentItems.size.toLong()
+                val newItem =
+                    ContentItem(
+                        videoId = action.videoId,
+                        title = action.title,
+                        source = action.source,
+                        type = action.type,
+                        rank = newRank,
+                        capturedAtTimestamp = action.currentTimestamp,
+                        durationSeconds = action.durationSeconds,
+                        lastModified = action.currentTimestamp,
+                    )
+                state.copy(
+                    contentItems = state.contentItems + newItem,
+                    isProcessingLink = false,
+                )
+            }
         }
 
         is GatekeeperAction.ReorderContentBank -> {
@@ -596,9 +613,16 @@ private fun reduceSyncAndAuth(
                     }
                 }
 
+            val newContentMap = mergedContentItems.associateBy { it.id }
+            val updatedSlots = state.intentionalSlots.map { slot ->
+                val newContent = newContentMap[slot.contentItem.id]
+                if (newContent != null) slot.copy(contentItem = newContent) else slot
+            }
+
             state.copy(
                 vaultItems = mergedVaultItems,
                 contentItems = mergedContentItems,
+                intentionalSlots = updatedSlots,
             )
         }
 

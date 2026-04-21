@@ -26,19 +26,21 @@ suspend fun handleMediaAndSystemEffects(
             val videoId = pattern.find(action.url)?.value
 
             if (videoId != null) {
-                var title: String? = null
+                var title: String? = action.providedTitle
                 var durationSeconds: Long? = null
 
                 val detailsResult = YoutubeApiClient.getVideoDetails(videoId)
                 detailsResult.fold(
                     ifLeft = { error ->
                         Log.w("Gatekeeper", "⚠️ YouTube API failed, falling back to HTML scrape: $error")
-                        // Fallback to HTML scraping
-                        val metadataResult = UrlMetadataClient.fetchMetadata(action.url)
-                        title = metadataResult.fold({ "YouTube Video" }, { it.title })
+                        if (title == null) {
+                            val metadataResult = UrlMetadataClient.fetchMetadata(action.url)
+                            title = metadataResult.fold({ "YouTube Video" }, { it.title })
+                        }
                     },
                     ifRight = { response ->
-                        title = response.items.firstOrNull()?.snippet?.title
+                        // Prefer the API title over the fallback text
+                        title = response.items.firstOrNull()?.snippet?.title ?: title
                         val isoDuration =
                             response.items
                                 .firstOrNull()
@@ -64,7 +66,7 @@ suspend fun handleMediaAndSystemEffects(
                 )
             } else if (action.url.contains("soundcloud.com", ignoreCase = true)) {
                 val metadataResult = UrlMetadataClient.fetchMetadata(action.url, isSoundCloud = true)
-                val title = metadataResult.fold({ "SoundCloud Audio" }, { it.title })
+                val title = metadataResult.fold({ action.providedTitle ?: "SoundCloud Audio" }, { it.title })
                 val durationSeconds = metadataResult.getOrNull()?.durationSeconds
                 var resolvedUrl = metadataResult.getOrNull()?.resolvedUrl ?: action.url
                 resolvedUrl = resolvedUrl.replace("m.soundcloud.com", "soundcloud.com", ignoreCase = true)
@@ -85,7 +87,7 @@ suspend fun handleMediaAndSystemEffects(
             } else {
                 // Generic link handling
                 val metadataResult = UrlMetadataClient.fetchMetadata(action.url, isGeneric = true)
-                val title = metadataResult.fold({ "Saved Link" }, { it.title })
+                val title = metadataResult.fold({ action.providedTitle ?: "Saved Link" }, { it.title })
                 val durationSeconds = metadataResult.getOrNull()?.durationSeconds
                 val resolvedUrl = metadataResult.getOrNull()?.resolvedUrl ?: action.url
 

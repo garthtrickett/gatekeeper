@@ -69,6 +69,7 @@ sealed interface GatekeeperAction {
     // --- Layer 3: The Content Bank ---
     data class ProcessSharedLink(
         val url: String,
+        val providedTitle: String? = null,
         val currentTimestamp: Long,
     ) : GatekeeperAction
 
