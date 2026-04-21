@@ -47,6 +47,24 @@ object GatekeeperStateManager {
             }
         }
 
+        // --- Heal Intentional Slots (Point to freshest content item and remove deleted) ---
+        db.transaction {
+            val allContent = db.contentItemQueries.selectAllByRank().executeAsList()
+            val allSlots = db.intentionalSlotQueries.selectAll().executeAsList()
+            
+            allSlots.forEach { slot ->
+                val freshest = allContent
+                    .filter { it.videoId == slot.videoId && it.isDeleted != true }
+                    .maxByOrNull { it.lastModified }
+                    
+                if (freshest != null && freshest.id != slot.id) {
+                    db.intentionalSlotQueries.insert(slot.slotIndex, freshest.id)
+                } else if (slot.isDeleted == true || freshest == null) {
+                    db.intentionalSlotQueries.delete(slot.slotIndex)
+                }
+            }
+        }
+
         // --- Load initial state from database ---
         val groupsFromDb = db.appGroupQueries.selectAllGroups().executeAsList()
         val groupedApps = db.appGroupQueries.selectAllGroupedApps().executeAsList()

@@ -447,6 +447,7 @@ private fun reduceContentAndVault(
                     state.contentItems.map {
                         if (it.id == action.id) it.copy(isDeleted = true, lastModified = action.currentTimestamp) else it
                     },
+                intentionalSlots = state.intentionalSlots.filter { it.contentItem.id != action.id }
             )
         }
 

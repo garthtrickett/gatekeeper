@@ -69,7 +69,15 @@ fun handleDatabaseEffects(
 
         is GatekeeperAction.RemoveFromContentBank -> {
             Log.i("Gatekeeper", "DB: Removing ContentItem: ${action.id}")
-            db.contentItemQueries.delete(lastModified = action.currentTimestamp, id = action.id)
+            db.transaction {
+                db.contentItemQueries.delete(lastModified = action.currentTimestamp, id = action.id)
+                val slots = db.intentionalSlotQueries.selectAll().executeAsList()
+                slots.forEach { slot ->
+                    if (slot.id == action.id) {
+                        db.intentionalSlotQueries.delete(slot.slotIndex)
+                    }
+                }
+            }
         }
 
         is GatekeeperAction.SaveIntentionalSlot -> {
