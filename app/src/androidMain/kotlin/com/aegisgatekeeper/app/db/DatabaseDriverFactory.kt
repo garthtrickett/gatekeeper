@@ -16,6 +16,33 @@ actual class DatabaseDriverFactory actual constructor() {
                     override fun onOpen(db: androidx.sqlite.db.SupportSQLiteDatabase) {
                         db.setForeignKeyConstraintsEnabled(true)
                     }
+
+                    override fun onUpgrade(
+                        db: androidx.sqlite.db.SupportSQLiteDatabase,
+                        oldVersion: Int,
+                        newVersion: Int
+                    ) {
+                        try {
+                            super.onUpgrade(db, oldVersion, newVersion)
+                        } catch (e: Exception) {
+                            android.util.Log.e("Gatekeeper", "Migration failed, dropping tables and recreating...", e)
+                            db.query("SELECT name FROM sqlite_master WHERE type='table'").use { cursor ->
+                                val tables = mutableListOf<String>()
+                                while (cursor.moveToNext()) {
+                                    tables.add(cursor.getString(0))
+                                }
+
+                                db.execSQL("PRAGMA foreign_keys=OFF;")
+                                for (tableName in tables) {
+                                    if (tableName != "android_metadata" && tableName != "sqlite_sequence") {
+                                        db.execSQL("DROP TABLE IF EXISTS $tableName")
+                                    }
+                                }
+                                db.execSQL("PRAGMA foreign_keys=ON;")
+                            }
+                            super.onCreate(db)
+                        }
+                    }
                 },
         )
 }
