@@ -296,7 +296,6 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }
-                            }
 
                             androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
                             Row(
