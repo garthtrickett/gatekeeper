@@ -226,6 +226,12 @@
           rm -f gatekeeper_backend.db
           adb shell pm clear com.aegisgatekeeper.app || true
 
+          # Force local sync server URL for the Android emulator/device via adb reverse
+          touch local.properties
+          grep -v "^SYNC_SERVER_URL=" local.properties > local.properties.tmp || true
+          echo "SYNC_SERVER_URL=http://localhost:8081" >> local.properties.tmp
+          mv local.properties.tmp local.properties
+
           export DEV_MODE=true
           gradle :backend:run -Dio.ktor.development=true &
 
@@ -263,6 +269,12 @@
 
           # Clean up previous backend database to avoid duplicate items
           rm -f gatekeeper_backend.db
+
+          # Force local sync server URL for the Android emulator/device via adb reverse
+          touch local.properties
+          grep -v "^SYNC_SERVER_URL=" local.properties > local.properties.tmp || true
+          echo "SYNC_SERVER_URL=http://localhost:8081" >> local.properties.tmp
+          mv local.properties.tmp local.properties
 
           export DEV_MODE=true
           gradle :backend:run -Dio.ktor.development=true &
