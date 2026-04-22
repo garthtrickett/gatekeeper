@@ -347,4 +347,57 @@ class ContentBankUiTest {
         // Assert: The modal UI should be visible
         composeTestRule.onNodeWithText("Close Audio").assertIsDisplayed()
     }
+
+    @Test
+    fun testContentBank_SearchBar_FiltersListAndClears() {
+        // Arrange: Seed State
+        val title1 = "Kotlin Coroutines Guide"
+        val title2 = "Espresso Test Framework"
+        GatekeeperStateManager.dispatch(
+            GatekeeperAction.SaveToContentBank(
+                videoId = "vid1",
+                title = title1,
+                source = ContentSource.YOUTUBE,
+                type = ContentType.VIDEO,
+                currentTimestamp = 1000L,
+            ),
+        )
+        GatekeeperStateManager.dispatch(
+            GatekeeperAction.SaveToContentBank(
+                videoId = "vid2",
+                title = title2,
+                source = ContentSource.YOUTUBE,
+                type = ContentType.VIDEO,
+                currentTimestamp = 2000L,
+            ),
+        )
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
+            }
+        }
+
+        // Assert initial state
+        composeTestRule.onNodeWithText(title1).assertIsDisplayed()
+        composeTestRule.onNodeWithText(title2).assertIsDisplayed()
+
+        // Act 1: Type into search bar
+        composeTestRule.onNodeWithText("Search bank...").performTextInput("Kotlin")
+        composeTestRule.waitForIdle()
+
+        // Assert 1: List is filtered
+        composeTestRule.onNodeWithText(title1).assertIsDisplayed()
+        composeTestRule.onNodeWithText(title2).assertDoesNotExist()
+        composeTestRule.onNodeWithText("Clear").assertIsDisplayed()
+
+        // Act 2: Clear the search
+        composeTestRule.onNodeWithText("Clear").performClick()
+        composeTestRule.waitForIdle()
+
+        // Assert 2: List is restored
+        composeTestRule.onNodeWithText(title1).assertIsDisplayed()
+        composeTestRule.onNodeWithText(title2).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Clear").assertDoesNotExist()
+    }
 }
