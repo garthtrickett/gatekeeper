@@ -19,6 +19,9 @@ actual class DatabaseDriverFactory actual constructor() {
                         db.execSQL(
                             "CREATE TABLE IF NOT EXISTS MediaPosition (mediaId TEXT NOT NULL PRIMARY KEY, positionSeconds REAL NOT NULL);",
                         )
+                        db.execSQL(
+                            "CREATE TABLE IF NOT EXISTS AlternativeActivity (id TEXT NOT NULL PRIMARY KEY, description TEXT NOT NULL, createdAtTimestamp INTEGER NOT NULL);",
+                        )
                     }
                 },
         )
