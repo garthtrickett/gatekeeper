@@ -33,6 +33,9 @@ android {
 
         val youtubeKey = properties.getProperty("YOUTUBE_API_KEY") ?: "REPLACE_WITH_YOUR_YOUTUBE_API_KEY"
         buildConfigField("String", "YOUTUBE_API_KEY", "\"$youtubeKey\"")
+
+        val syncUrl = properties.getProperty("SYNC_SERVER_URL") ?: "http://10.0.2.2:8081"
+        buildConfigField("String", "SYNC_SERVER_URL", "\"$syncUrl\"")
     }
 
     compileOptions {
