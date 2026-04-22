@@ -237,10 +237,11 @@ class GatekeeperReducerTest {
     @Test
     fun testSaveToContentBank_AppendsItemWithCorrectRankAndClearsLoading() {
         val stateWithLoading = initialState.copy(isProcessingLink = true)
-        val action = GatekeeperAction.SaveToContentBank("vid1", "Test Title", ContentSource.YOUTUBE, ContentType.VIDEO, 1000L)
+        val action = GatekeeperAction.SaveToContentBank("vid1", "Test Title", ContentSource.YOUTUBE, ContentType.VIDEO, 1000L, channelName = "Test Channel")
         val newState = reduce(stateWithLoading, action)
         assertThat(newState.contentItems).hasSize(1)
         assertThat(newState.contentItems.first().rank).isEqualTo(0L)
+        assertThat(newState.contentItems.first().channelName).isEqualTo("Test Channel")
         assertThat(newState.isProcessingLink).isFalse()
 
         val action2 = GatekeeperAction.SaveToContentBank("vid2", "Test 2", ContentSource.YOUTUBE, ContentType.VIDEO, 2000L)

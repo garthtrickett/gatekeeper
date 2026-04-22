@@ -112,6 +112,7 @@ class ContentBankUiTest {
                 type = ContentType.VIDEO,
                 currentTimestamp = 1000L,
                 durationSeconds = 600L,
+                channelName = "Rick Astley",
             ),
         )
 
@@ -123,6 +124,7 @@ class ContentBankUiTest {
 
         // Verify item data renders
         composeTestRule.onNodeWithText("Never Gonna Give You Up").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Rick Astley").assertIsDisplayed()
         composeTestRule.onAllNodesWithText("YOUTUBE • 10m")[0].assertIsDisplayed()
         composeTestRule.onAllNodesWithText("#1")[0].assertIsDisplayed() // Rank 0 renders as #1
     }
@@ -346,6 +348,47 @@ class ContentBankUiTest {
 
         // Assert: The modal UI should be visible
         composeTestRule.onNodeWithText("Close Audio").assertIsDisplayed()
+    }
+
+    @Test
+    fun testContentBank_SearchBar_FiltersByChannelName() {
+        // Arrange: Seed State
+        val title1 = "Kotlin Coroutines Guide"
+        val title2 = "Espresso Test Framework"
+        GatekeeperStateManager.dispatch(
+            GatekeeperAction.SaveToContentBank(
+                videoId = "vid1",
+                title = title1,
+                channelName = "Google Developers",
+                source = ContentSource.YOUTUBE,
+                type = ContentType.VIDEO,
+                currentTimestamp = 1000L,
+            ),
+        )
+        GatekeeperStateManager.dispatch(
+            GatekeeperAction.SaveToContentBank(
+                videoId = "vid2",
+                title = title2,
+                channelName = "Android Developers",
+                source = ContentSource.YOUTUBE,
+                type = ContentType.VIDEO,
+                currentTimestamp = 2000L,
+            ),
+        )
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
+            }
+        }
+
+        // Act: Search for a channel name
+        composeTestRule.onNodeWithText("Search bank...").performTextInput("Android")
+        composeTestRule.waitForIdle()
+
+        // Assert: Only the item from that channel is visible
+        composeTestRule.onNodeWithText(title1).assertDoesNotExist()
+        composeTestRule.onNodeWithText(title2).assertIsDisplayed()
     }
 
     @Test
