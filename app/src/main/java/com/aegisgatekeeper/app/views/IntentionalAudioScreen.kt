@@ -119,6 +119,15 @@ fun IntentionalContentScreen() {
                                     maxLines = 2,
                                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                 )
+                                if (item?.contentItem?.channelName != null) {
+                                    Text(
+                                        text = item.contentItem.channelName,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                    )
+                                }
                                 if (item != null) {
                                     Spacer(modifier = Modifier.height(4.dp))
                                     val durationText = item.contentItem.durationSeconds?.let { " • ${it / 60}m" } ?: ""

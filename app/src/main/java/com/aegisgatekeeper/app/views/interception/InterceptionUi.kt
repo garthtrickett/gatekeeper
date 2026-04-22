@@ -356,12 +356,23 @@ fun InterceptionChoiceUi(
                                                 fontWeight = FontWeight.Bold,
                                             )
                                             Spacer(modifier = Modifier.width(16.dp))
-                                            Text(
-                                                item.title,
-                                                color = Color.White,
-                                                maxLines = 2,
-                                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                                            )
+                                            Column {
+                                                Text(
+                                                    item.title,
+                                                    color = Color.White,
+                                                    maxLines = 2,
+                                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                                )
+                                                if (item.channelName != null) {
+                                                    Text(
+                                                        item.channelName,
+                                                        color = Color.Gray,
+                                                        fontSize = 12.sp,
+                                                        maxLines = 1,
+                                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                                    )
+                                                }
+                                            }
                                         }
                                         val savedPosition = state.savedMediaPositions[item.videoId]
                                         if (savedPosition != null && savedPosition > 0f && item.durationSeconds != null &&
@@ -473,7 +484,12 @@ fun TimeBoxSwapUi(
                                     val durationStr = if (item.durationSeconds != null) "${item.durationSeconds / 60}m" else "Unknown"
                                     Text("⏱️ $durationStr", color = Color.Cyan, fontWeight = FontWeight.Bold)
                                     Spacer(modifier = Modifier.width(16.dp))
-                                    Text(item.title, color = Color.White, maxLines = 2)
+                                    Column {
+                                        Text(item.title, color = Color.White, maxLines = 2)
+                                        if (item.channelName != null) {
+                                            Text(item.channelName, color = Color.Gray, fontSize = 12.sp, maxLines = 1)
+                                        }
+                                    }
                                 }
                                 val savedPosition = state.savedMediaPositions[item.videoId]
                                 if (savedPosition != null && savedPosition > 0f && item.durationSeconds != null &&

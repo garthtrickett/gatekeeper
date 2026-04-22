@@ -44,6 +44,7 @@ fun handleSyncAndAuthEffects(
                         id = it.id,
                         videoId = it.videoId,
                         title = it.title,
+                        channelName = it.channelName,
                         source = it.source,
                         type = it.type,
                         rank = it.rank,

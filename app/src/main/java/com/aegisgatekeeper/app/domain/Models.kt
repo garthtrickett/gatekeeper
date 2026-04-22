@@ -79,6 +79,7 @@ data class ContentItem(
     val id: String = UUID.randomUUID().toString(),
     val videoId: String,
     val title: String,
+    val channelName: String? = null,
     val source: ContentSource,
     val type: ContentType,
     val rank: Long,

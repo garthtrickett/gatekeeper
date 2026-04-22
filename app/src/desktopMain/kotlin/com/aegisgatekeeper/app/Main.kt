@@ -137,6 +137,7 @@ fun main() =
                                                 it.id,
                                                 it.videoId,
                                                 it.title,
+                                                it.channelName,
                                                 it.source.name,
                                                 it.type.name,
                                                 it.rank,
@@ -176,6 +177,7 @@ fun main() =
                                                 it.id,
                                                 it.videoId,
                                                 it.title,
+                                                it.channelName,
                                                 com.aegisgatekeeper.app.domain.ContentSource
                                                     .valueOf(it.source),
                                                 com.aegisgatekeeper.app.domain.ContentType

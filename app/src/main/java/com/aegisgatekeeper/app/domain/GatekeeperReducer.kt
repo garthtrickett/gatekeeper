@@ -405,6 +405,7 @@ private fun reduceContentAndVault(
             if (existing != null) {
                 val updatedItem = existing.copy(
                     title = action.title,
+                    channelName = action.channelName ?: existing.channelName,
                     durationSeconds = action.durationSeconds ?: existing.durationSeconds,
                     lastModified = action.currentTimestamp,
                     isDeleted = false
@@ -422,6 +423,7 @@ private fun reduceContentAndVault(
                     ContentItem(
                         videoId = action.videoId,
                         title = action.title,
+                        channelName = action.channelName,
                         source = action.source,
                         type = action.type,
                         rank = newRank,

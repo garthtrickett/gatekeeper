@@ -69,6 +69,7 @@ data class VideoDetailItem(
 @Serializable
 data class VideoSnippet(
     @SerialName("title") val title: String? = null,
+    @SerialName("channelTitle") val channelTitle: String? = null,
 )
 
 @Serializable

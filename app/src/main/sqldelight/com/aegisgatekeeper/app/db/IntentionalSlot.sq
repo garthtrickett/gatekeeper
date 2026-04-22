@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS IntentionalSlot (
 );
 
 selectAll:
-SELECT IntentionalSlot.slotIndex, ContentItem.id, ContentItem.videoId, ContentItem.title, ContentItem.source, ContentItem.type, ContentItem.rank, ContentItem.capturedAtTimestamp, ContentItem.durationSeconds, ContentItem.lastModified, ContentItem.isSynced, ContentItem.isDeleted
+SELECT IntentionalSlot.slotIndex, ContentItem.id, ContentItem.videoId, ContentItem.title, ContentItem.channelName, ContentItem.source, ContentItem.type, ContentItem.rank, ContentItem.capturedAtTimestamp, ContentItem.durationSeconds, ContentItem.lastModified, ContentItem.isSynced, ContentItem.isDeleted
 FROM IntentionalSlot
 INNER JOIN ContentItem ON IntentionalSlot.contentItemId = ContentItem.id
 ORDER BY IntentionalSlot.slotIndex ASC;

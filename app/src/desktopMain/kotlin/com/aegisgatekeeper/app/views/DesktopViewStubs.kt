@@ -61,7 +61,10 @@ fun ContentBankScreen() {
     val items =
         state.contentItems
             .filter { !it.isDeleted }
-            .filter { it.title.contains(searchQuery, ignoreCase = true) }
+            .filter { 
+                it.title.contains(searchQuery, ignoreCase = true) ||
+                (it.channelName?.contains(searchQuery, ignoreCase = true) == true)
+            }
             .sortedBy { it.rank }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {

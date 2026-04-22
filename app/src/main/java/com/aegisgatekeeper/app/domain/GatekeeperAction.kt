@@ -80,6 +80,7 @@ sealed interface GatekeeperAction {
         val type: ContentType,
         val currentTimestamp: Long,
         val durationSeconds: Long? = null,
+        val channelName: String? = null,
     ) : GatekeeperAction
 
     data class ReorderContentBank(

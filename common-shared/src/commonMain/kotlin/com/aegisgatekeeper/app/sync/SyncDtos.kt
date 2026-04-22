@@ -23,6 +23,7 @@ data class ContentItemDto(
     val id: String,
     val videoId: String,
     val title: String,
+    val channelName: String? = null,
     val source: String, // Enums become strings for serialization
     val type: String,
     val rank: Long,

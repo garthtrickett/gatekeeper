@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS ContentItems (
     userId TEXT NOT NULL,
     videoId TEXT NOT NULL,
     title TEXT NOT NULL,
+    channelName TEXT,
     source TEXT NOT NULL,
     type TEXT NOT NULL,
     rank BIGINT NOT NULL,
@@ -66,13 +67,14 @@ getContentItem:
 SELECT * FROM ContentItems WHERE id = :id AND userId = :userId;
 
 insertContentItem:
-INSERT INTO ContentItems(id, userId, videoId, title, source, type, rank, capturedAtTimestamp, durationSeconds, lastModified, isDeleted)
-VALUES (:id, :userId, :videoId, :title, :source, :type, :rank, :capturedAtTimestamp, :durationSeconds, :lastModified, :isDeleted);
+INSERT INTO ContentItems(id, userId, videoId, title, channelName, source, type, rank, capturedAtTimestamp, durationSeconds, lastModified, isDeleted)
+VALUES (:id, :userId, :videoId, :title, :channelName, :source, :type, :rank, :capturedAtTimestamp, :durationSeconds, :lastModified, :isDeleted);
 
 updateContentItem:
 UPDATE ContentItems SET
     videoId = :videoId,
     title = :title,
+    channelName = :channelName,
     source = :source,
     type = :type,
     rank = :rank,

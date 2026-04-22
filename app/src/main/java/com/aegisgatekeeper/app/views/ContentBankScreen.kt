@@ -72,7 +72,10 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
     val items =
         state.contentItems
             .filter { (state.activeContentFilter == null || it.type == state.activeContentFilter) && !it.isDeleted }
-            .filter { it.title.contains(searchQuery, ignoreCase = true) }
+            .filter { 
+                it.title.contains(searchQuery, ignoreCase = true) || 
+                (it.channelName?.contains(searchQuery, ignoreCase = true) == true)
+            }
             .sortedBy { it.rank }
 
     val lazyListState = rememberLazyListState()
@@ -455,6 +458,15 @@ private fun ContentItemCard(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
+                    if (item.channelName != null) {
+                        Text(
+                            text = item.channelName,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                     Spacer(modifier = Modifier.height(4.dp))
                     val durationText = item.durationSeconds?.let { " • ${it / 60}m" } ?: ""
                     Text(

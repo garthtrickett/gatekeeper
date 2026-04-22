@@ -27,6 +27,7 @@ suspend fun handleMediaAndSystemEffects(
 
             if (videoId != null) {
                 var title: String? = action.providedTitle
+                var channelName: String? = null
                 var durationSeconds: Long? = null
 
                 val detailsResult = YoutubeApiClient.getVideoDetails(videoId)
@@ -40,7 +41,9 @@ suspend fun handleMediaAndSystemEffects(
                     },
                     ifRight = { response ->
                         // Prefer the API title over the fallback text
-                        title = response.items.firstOrNull()?.snippet?.title ?: title
+                        val snippet = response.items.firstOrNull()?.snippet
+                        title = snippet?.title ?: title
+                        channelName = snippet?.channelTitle
                         val isoDuration =
                             response.items
                                 .firstOrNull()
@@ -58,6 +61,7 @@ suspend fun handleMediaAndSystemEffects(
                     GatekeeperAction.SaveToContentBank(
                         videoId = videoId,
                         title = title ?: "YouTube Video",
+                        channelName = channelName,
                         source = ContentSource.YOUTUBE,
                         type = ContentType.VIDEO,
                         currentTimestamp = action.currentTimestamp,
