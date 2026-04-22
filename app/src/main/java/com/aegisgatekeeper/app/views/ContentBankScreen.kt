@@ -67,12 +67,13 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
         return
     }
 
-    val items =
-        state.contentItems
     var searchQuery by remember { mutableStateOf("") }
 
-    val items =_        state.contentItems
-            .filter { (state.activeContentFilter == null || it.type == state.activeContentFilter) && !it.isDeleted }_            .filter { it.title.contains(searchQuery, ignoreCase = true) }_            .sortedBy { it.rank }
+    val items =
+        state.contentItems
+            .filter { (state.activeContentFilter == null || it.type == state.activeContentFilter) && !it.isDeleted }
+            .filter { it.title.contains(searchQuery, ignoreCase = true) }
+            .sortedBy { it.rank }
 
     val lazyListState = rememberLazyListState()
     var draggedItemIndex by remember { mutableStateOf<Int?>(null) }
