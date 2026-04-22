@@ -243,7 +243,6 @@ class MainActivity : ComponentActivity() {
                                 "Slots" to (if (state.isProTier) "🎯" else "🔒"),
                                 "Web" to "🌐",
                                 "Rules" to "🛡️",
-                                "Rules" to "🛡️",
                                 "Habits" to "🏃",
                                 "Insights" to (if (state.isProTier) "📊" else "🔒"),
                                 "Account" to "👤",
