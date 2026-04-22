@@ -643,6 +643,19 @@ class GatekeeperStateManagerTest {
                         db.missionControlWebsiteQueries.delete(id = action.id)
                     }
 
+                    is GatekeeperAction.AddAlternativeActivity -> {
+                        val newActivity = (newState.alternativeActivities - oldState.alternativeActivities.toSet()).first()
+                        db.alternativeActivityQueries.insert(
+                            id = newActivity.id,
+                            description = newActivity.description,
+                            createdAtTimestamp = newActivity.createdAtTimestamp,
+                        )
+                    }
+
+                    is GatekeeperAction.RemoveAlternativeActivity -> {
+                        db.alternativeActivityQueries.delete(action.id)
+                    }
+
                     else -> { /* Other side effects not under test */ }
                 }
             }

@@ -452,6 +452,25 @@ class GatekeeperReducerTest {
         assertThat(newState.currentSurgicalUrl).isEqualTo(url)
     }
 
+    // --- Alternative Activities Reducer Tests ---
+
+    @Test
+    fun testAddAlternativeActivity_AppendsToState() {
+        val action = GatekeeperAction.AddAlternativeActivity("Go for a walk", 1000L)
+        val newState = reduce(initialState, action)
+        assertThat(newState.alternativeActivities).hasSize(1)
+        assertThat(newState.alternativeActivities.first().description).isEqualTo("Go for a walk")
+    }
+
+    @Test
+    fun testRemoveAlternativeActivity_RemovesFromState() {
+        val activity = AlternativeActivity("1", "Go for a walk", 1000L)
+        val state = initialState.copy(alternativeActivities = listOf(activity))
+        val action = GatekeeperAction.RemoveAlternativeActivity("1")
+        val newState = reduce(state, action)
+        assertThat(newState.alternativeActivities).isEmpty()
+    }
+
     // --- YouTube Reducer Tests ---
 
     @Test
