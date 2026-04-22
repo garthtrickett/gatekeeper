@@ -79,6 +79,10 @@ Do not use Exceptions for control flow.
 *   **UI:** Strict Jetpack Compose. No XML. 
 *   **Zero Web-Jank:** NEVER suggest or use web wrappers (WebView, Capacitor, React Native) for core UI. The Interceptor must run natively to prevent RAM spikes and OS deprioritization. Headless WebViews are ONLY permitted for the Audio Engine.
 *   **Persistence:** Use **SQLDelight** ONLY. Do not use Room, SQLiteOpenHelper, or SharedPreferences for core data. All schemas and queries must be written in raw `.sq` files to guarantee compile-time safety and zero-reflection. Do not use LocalStorage.
+
+    *   **Migrations (Dev vs Prod):** We use environment-aware schema evolution in `DatabaseDriverFactory`. 
+        *   **In DEBUG mode (`BuildConfig.DEBUG == true`):** If a migration fails (schema mismatch), the database is permitted to destructively recreate tables (wipe data) to allow rapid iteration.
+        *   **In RELEASE mode (`BuildConfig.DEBUG == false`):** Destructive fallbacks are STRICTLY FORBIDDEN. Migration failures must throw exceptions to trigger crash reporting. Production schema changes must use `.sqm` files.
 *   **Concurrency:** Strict Structured Concurrency using Kotlin Coroutines and `Flow`/`StateFlow`. Ensure all long-running background tasks are tied to specific `CoroutineScopes` to prevent memory leaks in the Interceptor.
 *   **Hardware Sensors:** Code interfacing with hardware (e.g., Gyroscope for the Friction Engine) must talk directly to Android native APIs.
 *   **Next-Action Predicates (NAPs):** Use Compose `LaunchedEffect` to observe state and trigger automatic side-effects (e.g., automatically unlocking an app when `State.frictionProgress == 1.0`).
