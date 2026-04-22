@@ -1,0 +1,5 @@
+CREATE TABLE AlternativeActivity (
+    id TEXT NOT NULL PRIMARY KEY,
+    description TEXT NOT NULL,
+    createdAtTimestamp INTEGER NOT NULL
+);

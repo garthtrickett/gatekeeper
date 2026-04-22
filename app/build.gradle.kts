@@ -57,6 +57,7 @@ sqldelight {
     create("GatekeeperDatabase") {
       packageName.set("com.aegisgatekeeper.app.db")
       srcDirs.setFrom("src/main/sqldelight")
+      verifyMigrations.set(true)
     }
   }
 }
