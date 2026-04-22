@@ -260,9 +260,15 @@ def apply_diffs(json_str):
         print(f"📄 Processing {path} ({len(blocks)} blocks)...", flush=True)
 
         for i, (search_part, replacement) in enumerate(blocks, 1):
+            # If the file is new/empty and search is non-empty, treat it as a creation
+            if not content.strip() and search_part.strip():
+                content = replacement
+                print(f"  ✨ [SUCCESS] Block {i} (Initial file creation)", flush=True)
+                continue
+
             new_content, strategy = replace_most_similar_chunk(content, search_part, replacement)
             
-            if new_content:
+            if new_content is not None:
                 content = new_content
                 print(f"  ✨ [SUCCESS] Block {i} ({strategy})", flush=True)
             else:
