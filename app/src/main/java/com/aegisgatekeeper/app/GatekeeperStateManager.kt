@@ -195,6 +195,8 @@ object GatekeeperStateManager {
                 .selectAll()
                 .executeAsList()
                 .associate { it.packageName to it.message }
+
+        val alternativeActivitiesFromDb = db.alternativeActivityQueries.selectAll().executeAsList()
         val vaultItemsFromDb = db.vaultItemQueries.selectAll().executeAsList()
         val contentItemsFromDb = db.contentItemQueries.selectAllByRank().executeAsList()
         val sessionLogsFromDb = db.sessionLogQueries.selectAll().executeAsList()
@@ -226,6 +228,9 @@ object GatekeeperStateManager {
             appGroups = appGroupsList,
             customMessages = customMessagesFromDb,
             consumedCheckIns = consumedCheckInsList,
+            alternativeActivities = alternativeActivitiesFromDb.map {
+                com.aegisgatekeeper.app.domain.AlternativeActivity(it.id, it.description, it.createdAtTimestamp)
+            },
             vaultItems =
                 vaultItemsFromDb.map {
                     VaultItem(it.id, it.query, it.capturedAtTimestamp, it.isResolved, it.lastModified, it.isSynced, it.isDeleted)

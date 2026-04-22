@@ -56,6 +56,7 @@ data class GatekeeperState(
     val hasUsageAccessPermission: Boolean = false,
     val hasAccessibilityPermission: Boolean = false,
     val isBatteryOptimizationDisabled: Boolean = false,
+    val alternativeActivities: List<AlternativeActivity> = emptyList(),
 ) {
     val isDualMoatEnabled: Boolean
         get() = hasOverlayPermission && hasUsageAccessPermission && hasAccessibilityPermission && isBatteryOptimizationDisabled

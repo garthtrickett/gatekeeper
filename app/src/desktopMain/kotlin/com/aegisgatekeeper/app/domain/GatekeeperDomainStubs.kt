@@ -16,12 +16,19 @@ data class GatekeeperState(
     val savedMediaPositions: Map<String, Float> = emptyMap(),
     val activePinnedWebsiteUrl: String? = null,
     val missionControlWebsites: List<PinnedWebsite> = emptyList(),
+    val alternativeActivities: List<AlternativeActivity> = emptyList(),
 )
 
 data class PinnedWebsite(
     val id: String,
     val label: String,
     val url: String,
+)
+
+data class AlternativeActivity(
+    val id: String = java.util.UUID.randomUUID().toString(),
+    val description: String,
+    val createdAtTimestamp: Long = System.currentTimeMillis()
 )
 
 data class VaultItem(

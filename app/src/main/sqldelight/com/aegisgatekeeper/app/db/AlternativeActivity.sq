@@ -1,0 +1,15 @@
+CREATE TABLE AlternativeActivity (
+    id TEXT NOT NULL PRIMARY KEY,
+    description TEXT NOT NULL,
+    createdAtTimestamp INTEGER NOT NULL
+);
+
+selectAll:
+SELECT * FROM AlternativeActivity ORDER BY createdAtTimestamp ASC;
+
+insert:
+INSERT OR REPLACE INTO AlternativeActivity(id, description, createdAtTimestamp)
+VALUES (:id, :description, :createdAtTimestamp);
+
+delete:
+DELETE FROM AlternativeActivity WHERE id = :id;

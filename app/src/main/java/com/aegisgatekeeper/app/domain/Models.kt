@@ -125,6 +125,12 @@ data class IntentionalSlotItem(
     val contentItem: ContentItem,
 )
 
+data class AlternativeActivity(
+    val id: String = UUID.randomUUID().toString(),
+    val description: String,
+    val createdAtTimestamp: Long = System.currentTimeMillis(),
+)
+
 /**
  * Represents an active "Emergency Bypass" or completed Friction task.
  */
