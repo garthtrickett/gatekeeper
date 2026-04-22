@@ -116,18 +116,23 @@ fun IntentionalContentScreen() {
                                 Text(
                                     text = decodedTitle ?: "Empty Slot ${i + 1}",
                                     style = MaterialTheme.typography.titleMedium,
-                                    maxLines = 1,
+                                    maxLines = 2,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                 )
                                 if (item != null) {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    val durationText = item.contentItem.durationSeconds?.let { " • ${it / 60}m" } ?: ""
                                     Text(
-                                        text = "${item.contentItem.type.name} • ${item.contentItem.source.name}",
-                                        style = MaterialTheme.typography.bodySmall,
+                                        text = "${item.contentItem.type.name} • ${item.contentItem.source.name}$durationText",
+                                        style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.primary,
                                     )
                                 }
                             }
 
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            Column(horizontalAlignment = Alignment.End) {
                                 if (item != null) {
                                     IndustrialButton(
                                         onClick = {
@@ -165,7 +170,6 @@ fun IntentionalContentScreen() {
                                                 "Play"
                                             },
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
                                 }
                                 IndustrialButton(
                                     onClick = {
