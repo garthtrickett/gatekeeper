@@ -1,12 +1,12 @@
 import com.aegisgatekeeper.app.domain.RuleCombinator;
 
-CREATE TABLE AppGroup (
+CREATE TABLE IF NOT EXISTS AppGroup (
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
     ruleCombinator TEXT AS RuleCombinator NOT NULL DEFAULT 'ANY'
 );
 
-CREATE TABLE GroupedApp (
+CREATE TABLE IF NOT EXISTS GroupedApp (
     groupId TEXT NOT NULL,
     packageName TEXT NOT NULL,
     PRIMARY KEY (groupId, packageName),

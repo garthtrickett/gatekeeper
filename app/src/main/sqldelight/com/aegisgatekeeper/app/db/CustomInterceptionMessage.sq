@@ -1,4 +1,4 @@
-CREATE TABLE CustomInterceptionMessage (
+CREATE TABLE IF NOT EXISTS CustomInterceptionMessage (
     packageName TEXT NOT NULL PRIMARY KEY,
     message TEXT NOT NULL
 );

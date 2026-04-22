@@ -1,4 +1,4 @@
-CREATE TABLE EmergencyBypassLog (
+CREATE TABLE IF NOT EXISTS EmergencyBypassLog (
     id TEXT NOT NULL PRIMARY KEY,
     packageName TEXT NOT NULL,
     reason TEXT NOT NULL,

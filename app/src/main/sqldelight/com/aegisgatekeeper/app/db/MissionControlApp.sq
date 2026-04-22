@@ -1,4 +1,4 @@
-CREATE TABLE MissionControlApp (
+CREATE TABLE IF NOT EXISTS MissionControlApp (
     packageName TEXT NOT NULL PRIMARY KEY,
     rank INTEGER NOT NULL
 );

@@ -1,4 +1,4 @@
-CREATE TABLE AlternativeActivity (
+CREATE TABLE IF NOT EXISTS AlternativeActivity (
     id TEXT NOT NULL PRIMARY KEY,
     description TEXT NOT NULL,
     createdAtTimestamp INTEGER NOT NULL

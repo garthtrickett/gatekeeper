@@ -3,7 +3,7 @@ import com.aegisgatekeeper.app.domain.ContentSource;
 import com.aegisgatekeeper.app.domain.ContentType;
 
 -- The Content Bank table for curated media that has been captured and ranked.
-CREATE TABLE ContentItem (
+CREATE TABLE IF NOT EXISTS ContentItem (
     id TEXT NOT NULL PRIMARY KEY,
     videoId TEXT NOT NULL,
     title TEXT NOT NULL,

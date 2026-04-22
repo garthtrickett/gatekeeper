@@ -1,4 +1,4 @@
-CREATE TABLE MediaPosition (
+CREATE TABLE IF NOT EXISTS MediaPosition (
     mediaId TEXT NOT NULL PRIMARY KEY,
     positionSeconds REAL NOT NULL
 );

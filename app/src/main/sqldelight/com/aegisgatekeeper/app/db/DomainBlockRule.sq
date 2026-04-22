@@ -1,4 +1,4 @@
-CREATE TABLE DomainBlockRule (
+CREATE TABLE IF NOT EXISTS DomainBlockRule (
     ruleId TEXT NOT NULL PRIMARY KEY,
     domains TEXT NOT NULL,
     FOREIGN KEY (ruleId) REFERENCES BlockingRule(id) ON DELETE CASCADE

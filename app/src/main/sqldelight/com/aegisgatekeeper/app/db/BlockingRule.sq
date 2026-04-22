@@ -1,6 +1,6 @@
 import kotlin.Boolean;
 
-CREATE TABLE BlockingRule (
+CREATE TABLE IF NOT EXISTS BlockingRule (
     id TEXT NOT NULL PRIMARY KEY,
     groupId TEXT NOT NULL,
     ruleType TEXT NOT NULL,
@@ -8,20 +8,20 @@ CREATE TABLE BlockingRule (
     FOREIGN KEY (groupId) REFERENCES AppGroup(id) ON DELETE CASCADE
 );
 
-CREATE TABLE TimeLimitRule (
+CREATE TABLE IF NOT EXISTS TimeLimitRule (
     ruleId TEXT NOT NULL PRIMARY KEY,
     timeLimitMinutes INTEGER NOT NULL,
     FOREIGN KEY (ruleId) REFERENCES BlockingRule(id) ON DELETE CASCADE
 );
 
-CREATE TABLE ScheduledBlockRule (
+CREATE TABLE IF NOT EXISTS ScheduledBlockRule (
     ruleId TEXT NOT NULL PRIMARY KEY,
     timeSlots TEXT NOT NULL,
     daysOfWeek TEXT NOT NULL,
     FOREIGN KEY (ruleId) REFERENCES BlockingRule(id) ON DELETE CASCADE
 );
 
-CREATE TABLE CheckInRule (
+CREATE TABLE IF NOT EXISTS CheckInRule (
     ruleId TEXT NOT NULL PRIMARY KEY,
     checkInTimes TEXT NOT NULL,
     durationMinutes INTEGER NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE CheckInRule (
     FOREIGN KEY (ruleId) REFERENCES BlockingRule(id) ON DELETE CASCADE
 );
 
-CREATE TABLE ConsumedCheckIn (
+CREATE TABLE IF NOT EXISTS ConsumedCheckIn (
     id TEXT NOT NULL PRIMARY KEY,
     groupId TEXT NOT NULL,
     timeMinutes INTEGER NOT NULL,

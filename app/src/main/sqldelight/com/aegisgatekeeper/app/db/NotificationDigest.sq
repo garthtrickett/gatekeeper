@@ -1,4 +1,4 @@
-CREATE TABLE NotificationDigest (
+CREATE TABLE IF NOT EXISTS NotificationDigest (
     id TEXT NOT NULL PRIMARY KEY,
     packageName TEXT NOT NULL,
     title TEXT NOT NULL,

@@ -2,7 +2,7 @@ import com.aegisgatekeeper.app.domain.Emotion;
 
 -- The `emotion` column is stored as TEXT, and we provide a custom adapter
 -- to map it to and from our `Emotion` enum class.
-CREATE TABLE SessionLog (
+CREATE TABLE IF NOT EXISTS SessionLog (
     id TEXT NOT NULL PRIMARY KEY,
     packageName TEXT NOT NULL,
     durationMillis INTEGER NOT NULL,

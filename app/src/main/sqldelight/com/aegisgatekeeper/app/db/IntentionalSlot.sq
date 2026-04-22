@@ -1,6 +1,6 @@
 import kotlin.Boolean;
 
-CREATE TABLE IntentionalSlot (
+CREATE TABLE IF NOT EXISTS IntentionalSlot (
     slotIndex INTEGER NOT NULL PRIMARY KEY,
     contentItemId TEXT NOT NULL,
     FOREIGN KEY (contentItemId) REFERENCES ContentItem(id) ON DELETE CASCADE
