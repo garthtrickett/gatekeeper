@@ -284,6 +284,13 @@ fun main() =
                         }
                     }
 
+                            6 -> {
+                                com.aegisgatekeeper.app.views
+                                    .AccountScreen()
+                            }
+                        }
+                    }
+
                     androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
                     Row(
                         modifier =

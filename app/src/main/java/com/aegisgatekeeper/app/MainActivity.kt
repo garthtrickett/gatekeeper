@@ -243,6 +243,7 @@ class MainActivity : ComponentActivity() {
                                 "Slots" to (if (state.isProTier) "🎯" else "🔒"),
                                 "Web" to "🌐",
                                 "Rules" to "🛡️",
+                                "Rules" to "🛡️",
                                 "Habits" to "🏃",
                                 "Insights" to (if (state.isProTier) "📊" else "🔒"),
                                 "Account" to "👤",
@@ -294,6 +295,7 @@ class MainActivity : ComponentActivity() {
                                             .AccountScreen()
                                     }
                                 }
+                            }
                             }
 
                             androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
