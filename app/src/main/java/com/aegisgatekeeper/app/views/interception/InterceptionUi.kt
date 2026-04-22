@@ -111,6 +111,7 @@ fun InterceptionScreen() {
                     selectedTimeMillis = time
                     screen = "FRICTION"
                 },
+                onHabits = { screen = "HABITS" },
                 onPlayContent = { item ->
                     if (item.type == com.aegisgatekeeper.app.domain.ContentType.VIDEO) {
                         val intent =
@@ -163,6 +164,17 @@ fun InterceptionScreen() {
                 },
             )
         }
+
+        "HABITS" -> {
+            AlternativeSuggestionUi(
+                activities = state.alternativeActivities,
+                onSelectActivity = { _ ->
+                    GatekeeperStateManager.dispatch(GatekeeperAction.LogGiveUp(interceptedPackage, System.currentTimeMillis()))
+                    GatekeeperStateManager.dispatch(GatekeeperAction.DismissOverlay)
+                },
+                onCancel = { screen = "CHOICE" }
+            )
+        }
     }
 }
 
@@ -174,6 +186,7 @@ fun InterceptionChoiceUi(
     contentItems: List<ContentItem> = emptyList(),
     onBypass: (Long) -> Unit,
     onFriction: (Long) -> Unit,
+    onHabits: () -> Unit = {},
     onPlayContent: (ContentItem) -> Unit = {},
 ) {
     val state by GatekeeperStateManager.state.collectAsState()
@@ -251,6 +264,14 @@ fun InterceptionChoiceUi(
                             step = "CURATED"
                         },
                         text = "Consume curated content instead",
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    IndustrialButton(
+                        onClick = onHabits,
+                        text = "Choose a positive habit",
                         modifier = Modifier.fillMaxWidth(),
                     )
 
@@ -536,6 +557,64 @@ fun EmergencyBypassUi(
                 enabled = reason.trim().isNotBlank(),
                 text = "Unlock for ${allocatedTimeMillis / 60000} minutes",
             )
+        }
+    }
+}
+
+@Suppress("FunctionName")
+@Composable
+fun AlternativeSuggestionUi(
+    activities: List<com.aegisgatekeeper.app.domain.AlternativeActivity>,
+    onSelectActivity: (com.aegisgatekeeper.app.domain.AlternativeActivity) -> Unit,
+    onCancel: () -> Unit,
+) {
+    Surface(modifier = Modifier.fillMaxSize(), color = Color.Transparent) {
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background.copy(alpha = 0.95f)),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(32.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                if (activities.isEmpty()) {
+                    Text(
+                        "No alternative activities configured.",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Go to the Habits tab to add some.", color = Color.Gray, textAlign = TextAlign.Center)
+                    Spacer(modifier = Modifier.height(32.dp))
+                    IndustrialButton(onClick = onCancel, text = "Go Back")
+                } else {
+                    Text("Positive Habits", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Do one of these instead:", color = Color.Gray)
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f, fill = false)) {
+                        items(activities) { activity ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth().clickable {
+                                    onSelectActivity(activity)
+                                },
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                            ) {
+                                Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Text("🏃", fontSize = 24.sp)
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    Text(activity.description, color = Color.White, style = MaterialTheme.typography.titleMedium)
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(32.dp))
+                    IndustrialButton(onClick = onCancel, text = "Cancel", isWarning = true)
+                }
+            }
         }
     }
 }

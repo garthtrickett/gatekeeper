@@ -54,6 +54,7 @@ class InterceptionUiTest {
         composeTestRule.onNodeWithText("Take a breath.").assertExists()
         composeTestRule.onNodeWithText("You are about to open Interceptedapp.").assertExists()
         composeTestRule.onNodeWithText("Consume curated content instead").assertExists()
+        composeTestRule.onNodeWithText("Choose a positive habit").assertExists()
         composeTestRule.onNodeWithText("Continue to Interceptedapp").assertExists()
         composeTestRule.onNodeWithText("Give Up").assertExists()
     }
