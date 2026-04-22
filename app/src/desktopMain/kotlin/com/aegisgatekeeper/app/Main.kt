@@ -234,6 +234,7 @@ fun main() =
                         "Search" to "🎯",
                         "Digest" to "🔔",
                         "Web" to "🌐",
+                        "Habits" to "🏃",
                         "Account" to "👤",
                     )
 
@@ -272,6 +273,11 @@ fun main() =
                             }
 
                             5 -> {
+                                com.aegisgatekeeper.app.views
+                                    .AlternativeActivitiesScreen()
+                            }
+
+                            6 -> {
                                 com.aegisgatekeeper.app.views
                                     .AccountScreen()
                             }

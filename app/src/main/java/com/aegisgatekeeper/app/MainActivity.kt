@@ -243,6 +243,7 @@ class MainActivity : ComponentActivity() {
                                 "Slots" to (if (state.isProTier) "🎯" else "🔒"),
                                 "Web" to "🌐",
                                 "Rules" to "🛡️",
+                                "Habits" to "🏃",
                                 "Insights" to (if (state.isProTier) "📊" else "🔒"),
                                 "Account" to "👤",
                             )
@@ -280,10 +281,15 @@ class MainActivity : ComponentActivity() {
 
                                     6 -> {
                                         com.aegisgatekeeper.app.views
-                                            .AnalyticsScreen()
+                                            .AlternativeActivitiesScreen()
                                     }
 
                                     7 -> {
+                                        com.aegisgatekeeper.app.views
+                                            .AnalyticsScreen()
+                                    }
+
+                                    8 -> {
                                         com.aegisgatekeeper.app.views
                                             .AccountScreen()
                                     }
