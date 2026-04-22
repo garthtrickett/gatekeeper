@@ -25,7 +25,7 @@ actual class DatabaseDriverFactory actual constructor() {
                         try {
                             super.onUpgrade(db, oldVersion, newVersion)
                         } catch (e: Exception) {
-                            android.util.Log.e("Gatekeeper", "Migration failed, dropping tables and recreating...", e)
+                            android.util.Log.i("Gatekeeper", "DB: Migration failed (expected during dev). Destructively recreating tables...")
                             db.query("SELECT name FROM sqlite_master WHERE type='table'").use { cursor ->
                                 val tables = mutableListOf<String>()
                                 while (cursor.moveToNext()) {
