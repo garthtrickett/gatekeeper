@@ -179,8 +179,15 @@ class InterceptionUiTest {
     fun testInterceptionChoiceUi_NavigateToHabits_AndSelect() {
         // Arrange: Seed state with a habit
         val habitDesc = "Doing Pushups"
+        val testPkg = "com.test.app"
+
         GatekeeperStateManager.dispatch(
             com.aegisgatekeeper.app.domain.GatekeeperAction.AddAlternativeActivity(habitDesc, System.currentTimeMillis())
+        )
+
+        // CRITICAL: Trigger an interception so InterceptionScreen doesn't return early
+        GatekeeperStateManager.dispatch(
+            com.aegisgatekeeper.app.domain.GatekeeperAction.RuleViolationDetected(testPkg, "Test Reason", System.currentTimeMillis())
         )
 
         composeTestRule.setContent {
