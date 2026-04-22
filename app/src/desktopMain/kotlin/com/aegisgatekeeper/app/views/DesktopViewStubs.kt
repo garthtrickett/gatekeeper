@@ -56,14 +56,48 @@ actual fun PinnedWebModal(
 @Composable
 fun ContentBankScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
+
+    val items =
+        state.contentItems
+            .filter { !it.isDeleted }
+            .filter { it.title.contains(searchQuery, ignoreCase = true) }
+            .sortedBy { it.rank }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text("Content Bank (Desktop MVP)", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(state.contentItems) { item ->
-                val durationText = item.durationSeconds?.let { " (${it / 60}m)" } ?: ""
-                Text("- ${item.title} [${item.type.name}]$durationText", color = MaterialTheme.colorScheme.onSurface)
+
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            com.aegisgatekeeper.app.domain.IndustrialTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier.weight(1f),
+                label = { Text("Search bank...") },
+                singleLine = true,
+            )
+            if (searchQuery.isNotEmpty()) {
+                com.aegisgatekeeper.app.domain.IndustrialButton(onClick = { searchQuery = "" }, text = "Clear")
+            }
+        }
+
+        if (items.isEmpty()) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Text(
+                    if (state.contentItems.isEmpty()) "Bank is empty." else "No content matches your search.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(items) { item ->
+                    val durationText = item.durationSeconds?.let { " (${it / 60}m)" } ?: ""
+                    Text("- ${item.title} [${item.type.name}]$durationText", color = MaterialTheme.colorScheme.onSurface)
+                }
             }
         }
     }

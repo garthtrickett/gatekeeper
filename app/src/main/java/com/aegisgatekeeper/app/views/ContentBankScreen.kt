@@ -68,8 +68,10 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
 
     val items =
         state.contentItems
-            .filter { (state.activeContentFilter == null || it.type == state.activeContentFilter) && !it.isDeleted }
-            .sortedBy { it.rank }
+    var searchQuery by remember { mutableStateOf("") }
+
+    val items =_        state.contentItems
+            .filter { (state.activeContentFilter == null || it.type == state.activeContentFilter) && !it.isDeleted }_            .filter { it.title.contains(searchQuery, ignoreCase = true) }_            .sortedBy { it.rank }
 
     val lazyListState = rememberLazyListState()
     var draggedItemIndex by remember { mutableStateOf<Int?>(null) }
@@ -98,6 +100,24 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
+
+                // Search Bar
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    IndustrialTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier.weight(1f),
+                        label = { Text("Search bank...") },
+                        singleLine = true,
+                    )
+                    if (searchQuery.isNotEmpty()) {
+                        IndustrialButton(onClick = { searchQuery = "" }, text = "Clear")
+                    }
+                }
 
                 // Filtering Chips
                 Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -133,10 +153,20 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     }
                 }
 
-                if (items.isEmpty()) {
+                if (state.contentItems.none { !it.isDeleted }) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
                             "Bank is empty. Share a link to Gatekeeper to capture it.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        )
+                    }
+                } else if (items.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            "No content matches your search.",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
