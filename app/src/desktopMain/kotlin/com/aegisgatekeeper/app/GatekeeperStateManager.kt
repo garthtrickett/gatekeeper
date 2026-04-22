@@ -116,6 +116,19 @@ object GatekeeperStateManager {
                 _state.value = _state.value.copy(missionControlWebsites = _state.value.missionControlWebsites.filter { it.id != action.id })
             }
 
+            is GatekeeperAction.AddAlternativeActivity -> {
+                val newActivity =
+                    com.aegisgatekeeper.app.domain.AlternativeActivity(
+                        description = action.description,
+                        createdAtTimestamp = action.currentTimestamp,
+                    )
+                _state.value = _state.value.copy(alternativeActivities = _state.value.alternativeActivities + newActivity)
+            }
+
+            is GatekeeperAction.RemoveAlternativeActivity -> {
+                _state.value = _state.value.copy(alternativeActivities = _state.value.alternativeActivities.filter { it.id != action.id })
+            }
+
             else -> { /* Not all actions are handled on desktop */ }
         }
     }

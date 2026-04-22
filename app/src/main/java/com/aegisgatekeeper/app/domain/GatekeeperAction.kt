@@ -274,6 +274,15 @@ sealed interface GatekeeperAction {
         val id: String,
     ) : GatekeeperAction
 
+    data class AddAlternativeActivity(
+        val description: String,
+        val currentTimestamp: Long,
+    ) : GatekeeperAction
+
+    data class RemoveAlternativeActivity(
+        val id: String,
+    ) : GatekeeperAction
+
     data class OpenPinnedWebsite(
         val url: String,
     ) : GatekeeperAction

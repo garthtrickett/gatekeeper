@@ -308,6 +308,23 @@ fun handleDatabaseEffects(
             db.missionControlWebsiteQueries.delete(id = action.id)
         }
 
+        is GatekeeperAction.AddAlternativeActivity -> {
+            val newActivity = (newState.alternativeActivities - oldState.alternativeActivities.toSet()).firstOrNull()
+            newActivity?.let {
+                Log.i("Gatekeeper", "DB: Inserting new AlternativeActivity: ${it.description}")
+                db.alternativeActivityQueries.insert(
+                    id = it.id,
+                    description = it.description,
+                    createdAtTimestamp = it.createdAtTimestamp,
+                )
+            }
+        }
+
+        is GatekeeperAction.RemoveAlternativeActivity -> {
+            Log.i("Gatekeeper", "DB: Removing AlternativeActivity: ${action.id}")
+            db.alternativeActivityQueries.delete(action.id)
+        }
+
         else -> { /* Other actions don't interact directly with DB in this handler */ }
     }
 }

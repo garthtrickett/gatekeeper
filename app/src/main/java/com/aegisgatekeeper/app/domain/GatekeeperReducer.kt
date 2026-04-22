@@ -327,6 +327,18 @@ private fun reduceRulesAndIntercepts(
             state.copy(missionControlApps = action.packageNames)
         }
 
+        is GatekeeperAction.AddAlternativeActivity -> {
+            val newActivity = AlternativeActivity(
+                description = action.description,
+                createdAtTimestamp = action.currentTimestamp,
+            )
+            state.copy(alternativeActivities = state.alternativeActivities + newActivity)
+        }
+
+        is GatekeeperAction.RemoveAlternativeActivity -> {
+            state.copy(alternativeActivities = state.alternativeActivities.filter { it.id != action.id })
+        }
+
         // --- Metacognition Logic ---
         is GatekeeperAction.LogSessionMetacognition -> {
             val newLog =
