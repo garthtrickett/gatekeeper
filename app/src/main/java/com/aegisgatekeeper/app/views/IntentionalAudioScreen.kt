@@ -132,7 +132,10 @@ fun IntentionalContentScreen() {
 
                             Spacer(modifier = Modifier.width(16.dp))
 
-                            Column(horizontalAlignment = Alignment.End) {
+                            Column(
+                                horizontalAlignment = Alignment.End,
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
                                 if (item != null) {
                                     IndustrialButton(
                                         onClick = {
@@ -169,6 +172,7 @@ fun IntentionalContentScreen() {
                                             } else {
                                                 "Play"
                                             },
+                                        modifier = Modifier.width(90.dp)
                                     )
                                 }
                                 IndustrialButton(
@@ -177,6 +181,7 @@ fun IntentionalContentScreen() {
                                     },
                                     text = if (item != null) "Eject" else "Insert",
                                     isWarning = item != null,
+                                    modifier = Modifier.width(90.dp)
                                 )
                             }
                         }
