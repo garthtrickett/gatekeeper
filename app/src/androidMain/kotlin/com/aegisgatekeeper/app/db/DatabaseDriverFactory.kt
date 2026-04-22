@@ -25,22 +25,28 @@ actual class DatabaseDriverFactory actual constructor() {
                         try {
                             super.onUpgrade(db, oldVersion, newVersion)
                         } catch (e: Exception) {
-                            android.util.Log.i("Gatekeeper", "DB: Migration failed (expected during dev). Destructively recreating tables...")
-                            db.query("SELECT name FROM sqlite_master WHERE type='table'").use { cursor ->
-                                val tables = mutableListOf<String>()
-                                while (cursor.moveToNext()) {
-                                    tables.add(cursor.getString(0))
-                                }
-
-                                db.execSQL("PRAGMA foreign_keys=OFF;")
-                                for (tableName in tables) {
-                                    if (tableName != "android_metadata" && tableName != "sqlite_sequence") {
-                                        db.execSQL("DROP TABLE IF EXISTS $tableName")
+                            if (com.aegisgatekeeper.app.BuildConfig.DEBUG) {
+                                android.util.Log.i("Gatekeeper", "DB: Migration failed (expected during dev). Destructively recreating tables...")
+                                db.query("SELECT name FROM sqlite_master WHERE type='table'").use { cursor ->
+                                    val tables = mutableListOf<String>()
+                                    while (cursor.moveToNext()) {
+                                        tables.add(cursor.getString(0))
                                     }
+
+                                    db.execSQL("PRAGMA foreign_keys=OFF;")
+                                    for (tableName in tables) {
+                                        if (tableName != "android_metadata" && tableName != "sqlite_sequence") {
+                                            db.execSQL("DROP TABLE IF EXISTS $tableName")
+                                        }
+                                    }
+                                    db.execSQL("PRAGMA foreign_keys=ON;")
                                 }
-                                db.execSQL("PRAGMA foreign_keys=ON;")
+                                super.onCreate(db)
+                            } else {
+                                // PRODUCTION: Never wipe user data. Throw to Crashlytics/Sentry.
+                                android.util.Log.e("Gatekeeper", "CRITICAL: Database migration failed in Production!", e)
+                                throw e
                             }
-                            super.onCreate(db)
                         }
                     }
                 },
