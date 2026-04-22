@@ -175,6 +175,38 @@ class InterceptionUiTest {
     }
 
     @Test
+    fun testInterceptionChoiceUi_NavigateToHabits_AndSelect() {
+        // Arrange: Seed state with a habit
+        val habitDesc = "Doing Pushups"
+        GatekeeperStateManager.dispatch(
+            com.aegisgatekeeper.app.domain.GatekeeperAction.AddAlternativeActivity(habitDesc, System.currentTimeMillis())
+        )
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                // We test the top-level InterceptionScreen which handles the navigation logic
+                com.aegisgatekeeper.app.views.interception.InterceptionScreen()
+            }
+        }
+
+        // 1. Click "Choose a positive habit"
+        composeTestRule.onNodeWithText("Choose a positive habit").performClick()
+        composeTestRule.waitForIdle()
+
+        // 2. Verify habit list is shown
+        composeTestRule.onNodeWithText("Do one of these instead:").assertExists()
+        composeTestRule.onNodeWithText(habitDesc).assertIsDisplayed()
+
+        // 3. Select the habit
+        composeTestRule.onNodeWithText(habitDesc).performClick()
+        composeTestRule.waitForIdle()
+
+        // 4. Verify state: Moat should be closed (Dismissed) and GiveUp logged
+        assertThat(GatekeeperStateManager.state.value.isOverlayActive).isFalse()
+        assertThat(GatekeeperStateManager.state.value.analyticsGiveUps).isEqualTo(1)
+    }
+
+    @Test
     fun testEmergencyBypassUiRendering() {
         // Arrange
         composeTestRule.setContent {
