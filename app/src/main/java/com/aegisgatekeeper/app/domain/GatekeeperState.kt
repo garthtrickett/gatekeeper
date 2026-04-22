@@ -1,5 +1,6 @@
 package com.aegisgatekeeper.app.domain
 
+import com.aegisgatekeeper.app.BuildConfig
 import com.aegisgatekeeper.app.api.YoutubeSearchItem
 
 /**
@@ -50,7 +51,7 @@ data class GatekeeperState(
     val currentSurgicalUrl: String? = null,
     val activeFacebookUrl: String? = null,
     val activePinnedWebsiteUrl: String? = null,
-    val syncServerUrl: String = "http://localhost:8081",
+    val syncServerUrl: String = BuildConfig.SYNC_SERVER_URL,
     // --- Permissions State (Dual-Moat Onboarding) ---
     val hasOverlayPermission: Boolean = false,
     val hasUsageAccessPermission: Boolean = false,
