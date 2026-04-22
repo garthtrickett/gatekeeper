@@ -15,13 +15,6 @@ actual class DatabaseDriverFactory actual constructor() {
                 object : AndroidSqliteDriver.Callback(GatekeeperDatabase.Schema) {
                     override fun onOpen(db: androidx.sqlite.db.SupportSQLiteDatabase) {
                         db.setForeignKeyConstraintsEnabled(true)
-                        // Development fallback to ensure the new table exists without requiring a clean install
-                        db.execSQL(
-                            "CREATE TABLE IF NOT EXISTS MediaPosition (mediaId TEXT NOT NULL PRIMARY KEY, positionSeconds REAL NOT NULL);",
-                        )
-                        db.execSQL(
-                            "CREATE TABLE IF NOT EXISTS AlternativeActivity (id TEXT NOT NULL PRIMARY KEY, description TEXT NOT NULL, createdAtTimestamp INTEGER NOT NULL);",
-                        )
                     }
                 },
         )
