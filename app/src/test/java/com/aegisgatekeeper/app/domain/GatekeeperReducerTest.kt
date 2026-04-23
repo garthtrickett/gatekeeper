@@ -711,13 +711,15 @@ class GatekeeperReducerTest {
     fun testOpenCleanAudioPlayer_SetsActiveAudioUrl() {
         val newState = reduce(initialState, GatekeeperAction.OpenCleanAudioPlayer("https://soundcloud.com/test"))
         assertThat(newState.activeAudioUrl).isEqualTo("https://soundcloud.com/test")
+        assertThat(newState.isAudioPlayerModalVisible).isTrue()
     }
 
     @Test
-    fun testCloseCleanAudioPlayer_ClearsActiveAudioUrl() {
-        val activeState = initialState.copy(activeAudioUrl = "https://soundcloud.com/test")
-        val newState = reduce(activeState, GatekeeperAction.CloseCleanAudioPlayer)
+    fun testStopCleanAudioPlayer_ClearsActiveAudioUrl() {
+        val activeState = initialState.copy(activeAudioUrl = "https://soundcloud.com/test", isAudioPlayerModalVisible = true)
+        val newState = reduce(activeState, GatekeeperAction.StopCleanAudioPlayer)
         assertThat(newState.activeAudioUrl).isNull()
+        assertThat(newState.isAudioPlayerModalVisible).isFalse()
     }
 
     // --- Unified Policy & Check-In Reducer Tests ---

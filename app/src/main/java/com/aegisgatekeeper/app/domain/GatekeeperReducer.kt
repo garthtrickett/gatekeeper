@@ -490,11 +490,15 @@ private fun reduceContentAndVault(
         }
 
         is GatekeeperAction.OpenCleanPlayer -> {
-            state.copy(activeVideoId = action.videoId)
+            state.copy(activeVideoId = action.videoId, isPlayerModalVisible = true)
         }
 
-        GatekeeperAction.CloseCleanPlayer -> {
-            state.copy(activeVideoId = null)
+        GatekeeperAction.MinimizeCleanPlayer -> {
+            state.copy(isPlayerModalVisible = false)
+        }
+
+        GatekeeperAction.StopCleanPlayer -> {
+            state.copy(activeVideoId = null, isPlayerModalVisible = false)
         }
 
         // --- Intentional Content Slots ---
@@ -509,11 +513,15 @@ private fun reduceContentAndVault(
         }
 
         is GatekeeperAction.OpenCleanAudioPlayer -> {
-            state.copy(activeAudioUrl = action.url)
+            state.copy(activeAudioUrl = action.url, isAudioPlayerModalVisible = true)
         }
 
-        GatekeeperAction.CloseCleanAudioPlayer -> {
-            state.copy(activeAudioUrl = null)
+        GatekeeperAction.MinimizeCleanAudioPlayer -> {
+            state.copy(isAudioPlayerModalVisible = false)
+        }
+
+        GatekeeperAction.StopCleanAudioPlayer -> {
+            state.copy(activeAudioUrl = null, isAudioPlayerModalVisible = false)
         }
 
         is GatekeeperAction.OpenNativePlayer -> {

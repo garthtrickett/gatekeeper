@@ -84,7 +84,7 @@ class CleanAudioPlayerModalTest {
             val isVisible = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(true) }
             GatekeeperTheme {
                 if (isVisible.value) {
-                    CleanAudioPlayerModal(url = "https://soundcloud.com/test", onClose = {
+                    CleanAudioPlayerModal(url = "https://soundcloud.com/test", isVisible = true, onMinimize = {}, onStop = {
                         closed = true
                         isVisible.value = false
                     })
@@ -92,8 +92,8 @@ class CleanAudioPlayerModalTest {
             }
         }
 
-        // Click Close Audio
-        composeTestRule.onNodeWithText("Close Audio").performClick()
+        // Click End Session
+        composeTestRule.onNodeWithText("End Session").performClick()
         composeTestRule.waitForIdle()
 
         // Click Happy

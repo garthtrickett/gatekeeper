@@ -329,7 +329,9 @@ class ContentBankUiTest {
                 if (state.activeAudioUrl != null) {
                     com.aegisgatekeeper.app.views.CleanAudioPlayerModal(
                         url = state.activeAudioUrl!!,
-                        onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseCleanAudioPlayer) },
+                        isVisible = state.isAudioPlayerModalVisible,
+                        onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanAudioPlayer) },
+                        onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
                     )
                 }
             }

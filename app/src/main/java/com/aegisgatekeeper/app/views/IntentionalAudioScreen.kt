@@ -541,7 +541,7 @@ fun CleanAudioPlayerModal(
                                         currentTimestamp = System.currentTimeMillis(),
                                     ),
                                 )
-                                onClose()
+                                onStop()
                             },
                             text = "Happy",
                         )
@@ -556,7 +556,7 @@ fun CleanAudioPlayerModal(
                                         currentTimestamp = System.currentTimeMillis(),
                                     ),
                                 )
-                                onClose()
+                                onStop()
                             },
                             text = "Anxious",
                         )
@@ -571,7 +571,7 @@ fun CleanAudioPlayerModal(
                                         currentTimestamp = System.currentTimeMillis(),
                                     ),
                                 )
-                                onClose()
+                                onStop()
                             },
                             text = "Drained",
                         )
@@ -590,23 +590,29 @@ fun CleanAudioPlayerModal(
                                 currentTimestamp = System.currentTimeMillis(),
                             ),
                         )
-                        onClose()
+                        onStop()
                     },
                     text = "Skip",
                     isWarning = true,
                 )
             }
+            } // Close Surface
         } else {
-            Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .background(Color.DarkGray)
-                            .padding(8.dp),
-                    contentAlignment = Alignment.TopEnd,
-                ) {
-                    IndustrialButton(onClick = { showMetacognition = true }, text = "Close Audio", isWarning = true)
+            Column(modifier = if (isVisible) Modifier.fillMaxSize().systemBarsPadding() else Modifier.fillMaxSize()) {
+                if (isVisible) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .background(Color.DarkGray)
+                                .padding(8.dp),
+                        contentAlignment = Alignment.TopEnd,
+                    ) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            IndustrialButton(onClick = onMinimize, text = "Minimize")
+                            IndustrialButton(onClick = { showMetacognition = true }, text = "End Session", isWarning = true)
+                        }
+                    }
                 }
 
                 if (resolvedUrl == null) {
@@ -690,7 +696,7 @@ fun CleanAudioPlayerModal(
                                         </style>
                                     </head>
                                     <body>
-                                        <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=$encodedUrl&color=%23ff5500&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=true" allow="autoplay"></iframe>
+                                        <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=$encodedUrl&color=%23ff5500&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false" allow="autoplay"></iframe>
                                         <script src="https://w.soundcloud.com/player/api.js" type="text/javascript"></script>
                                         <script>
                                             var widgetIframe = document.getElementById('sc-widget');

@@ -146,7 +146,9 @@ sealed interface GatekeeperAction {
         val videoId: String,
     ) : GatekeeperAction
 
-    object CloseCleanPlayer : GatekeeperAction
+    object MinimizeCleanPlayer : GatekeeperAction
+    
+    object StopCleanPlayer : GatekeeperAction
 
     // --- Intentional Content Slots ---
     data class SaveIntentionalSlot(
@@ -162,7 +164,9 @@ sealed interface GatekeeperAction {
         val url: String,
     ) : GatekeeperAction
 
-    object CloseCleanAudioPlayer : GatekeeperAction
+    object MinimizeCleanAudioPlayer : GatekeeperAction
+    
+    object StopCleanAudioPlayer : GatekeeperAction
 
     data class OpenNativePlayer(
         val contentItem: ContentItem,

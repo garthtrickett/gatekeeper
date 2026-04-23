@@ -274,7 +274,7 @@ actual fun CleanPlayerModal(
                                     currentTimestamp = System.currentTimeMillis(),
                                 ),
                             )
-                            onClose()
+                            onStop()
                         }, text = "Happy")
                         IndustrialButton(onClick = {
                             val duration = System.currentTimeMillis() - sessionStartTime
@@ -286,7 +286,7 @@ actual fun CleanPlayerModal(
                                     currentTimestamp = System.currentTimeMillis(),
                                 ),
                             )
-                            onClose()
+                            onStop()
                         }, text = "Anxious")
                         IndustrialButton(onClick = {
                             val duration = System.currentTimeMillis() - sessionStartTime
@@ -298,7 +298,7 @@ actual fun CleanPlayerModal(
                                     currentTimestamp = System.currentTimeMillis(),
                                 ),
                             )
-                            onClose()
+                            onStop()
                         }, text = "Drained")
                     }
                 }
@@ -314,21 +314,27 @@ actual fun CleanPlayerModal(
                             currentTimestamp = System.currentTimeMillis(),
                         ),
                     )
-                    onClose()
+                    onStop()
                 }, text = "Skip", isWarning = true)
             }
+            } // Close Surface
         } else {
-            Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
-                // Header with Close Button
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .background(Color.Black)
-                            .padding(8.dp),
-                    contentAlignment = Alignment.TopEnd,
-                ) {
-                    IndustrialButton(onClick = { showMetacognition = true }, text = "Close Video", isWarning = true)
+            Column(modifier = if (isVisible) Modifier.fillMaxSize().systemBarsPadding() else Modifier.fillMaxSize()) {
+                // Header with Buttons
+                if (isVisible) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .background(Color.DarkGray)
+                                .padding(8.dp),
+                        contentAlignment = Alignment.TopEnd,
+                    ) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            IndustrialButton(onClick = onMinimize, text = "Minimize")
+                            IndustrialButton(onClick = { showMetacognition = true }, text = "End Session", isWarning = true)
+                        }
+                    }
                 }
 
                 // The WebView Player injected strictly with an iframe

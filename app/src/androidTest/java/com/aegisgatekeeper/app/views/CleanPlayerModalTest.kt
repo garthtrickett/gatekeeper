@@ -72,7 +72,7 @@ class CleanPlayerModalTest {
             val isVisible = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(true) }
             GatekeeperTheme {
                 if (isVisible.value) {
-                    CleanPlayerModal(videoId = "test1234", onClose = {
+                    CleanPlayerModal(videoId = "test1234", isVisible = true, onMinimize = {}, onStop = {
                         closed = true
                         isVisible.value = false
                     })
@@ -80,8 +80,8 @@ class CleanPlayerModalTest {
             }
         }
 
-        // Click Close Video
-        composeTestRule.onNodeWithText("Close Video").performClick()
+        // Click End Session
+        composeTestRule.onNodeWithText("End Session").performClick()
         composeTestRule.waitForIdle()
 
         // Click Happy

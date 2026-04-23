@@ -332,14 +332,18 @@ class MainActivity : ComponentActivity() {
                         if (state.activeVideoId != null) {
                             com.aegisgatekeeper.app.views.CleanPlayerModal(
                                 videoId = state.activeVideoId!!,
-                                onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseCleanPlayer) },
+                                isVisible = state.isPlayerModalVisible,
+                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },
+                                onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) },
                             )
                         }
 
                         if (state.activeAudioUrl != null) {
                             com.aegisgatekeeper.app.views.CleanAudioPlayerModal(
                                 url = state.activeAudioUrl!!,
-                                onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseCleanAudioPlayer) },
+                                isVisible = state.isAudioPlayerModalVisible,
+                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanAudioPlayer) },
+                                onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
                             )
                         }
 

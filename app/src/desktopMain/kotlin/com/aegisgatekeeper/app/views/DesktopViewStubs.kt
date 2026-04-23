@@ -29,14 +29,21 @@ import com.aegisgatekeeper.app.GatekeeperStateManager
 @Composable
 actual fun CleanPlayerModal(
     videoId: String,
-    onClose: () -> Unit,
+    isVisible: Boolean,
+    onMinimize: () -> Unit,
+    onStop: () -> Unit,
 ) {
+    if (!isVisible) return
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("Clean Player (Desktop MVP)")
             Spacer(modifier = Modifier.height(16.dp))
-            com.aegisgatekeeper.app.domain
-                .IndustrialButton(onClick = onClose, text = "Close Video")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                com.aegisgatekeeper.app.domain
+                    .IndustrialButton(onClick = onMinimize, text = "Minimize")
+                com.aegisgatekeeper.app.domain
+                    .IndustrialButton(onClick = onStop, text = "End Session", isWarning = true)
+            }
         }
     }
 }
