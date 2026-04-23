@@ -2,6 +2,7 @@ package com.aegisgatekeeper.app.views
 
 import android.content.ComponentName
 import androidx.compose.foundation.background
+import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -61,6 +62,8 @@ import kotlinx.coroutines.delay
 @Composable
 fun NativeAudioPlayerModal(
     contentItem: ContentItem,
+    isVisible: Boolean,
+    onMinimize: () -> Unit,
     onClose: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -140,162 +143,167 @@ fun NativeAudioPlayerModal(
         }
     }
 
-    androidx.activity.compose.BackHandler {
-        if (!showMetacognition) {
-            showMetacognition = true
-        } else {
-            val sessionDuration = System.currentTimeMillis() - sessionStartTime
-            GatekeeperStateManager.dispatch(
-                GatekeeperAction.LogSessionMetacognition(
-                    packageName = "NativeAudio: Podcast",
-                    durationMillis = sessionDuration,
-                    emotion = Emotion.SKIPPED,
-                    currentTimestamp = System.currentTimeMillis(),
-                ),
-            )
-            onClose()
-        }
+    androidx.activity.compose.BackHandler(enabled = isVisible) {
+        GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(contentItem.videoId, currentPosition / 1000f))
+        onMinimize()
     }
 
-    Surface(
+    Box(
         modifier =
-            Modifier
-                .fillMaxSize()
-                .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {}
-                .background(Color.Black),
-        color = Color.Black,
+            if (isVisible) {
+                Modifier
+                    .fillMaxSize()
+                    .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {}
+            } else {
+                Modifier
+                    .size(1.dp)
+                    .alpha(0.01f)
+            },
     ) {
-        if (showMetacognition) {
-            Column(
-                modifier = Modifier.fillMaxSize().systemBarsPadding().padding(32.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+        if (isVisible) {
+            Surface(
+                modifier = Modifier.fillMaxSize().background(Color.Black),
+                color = Color.Black,
             ) {
-                Text("Was this worth it?", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(32.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    IndustrialButton(onClick = {
-                        GatekeeperStateManager.dispatch(
-                            GatekeeperAction.LogSessionMetacognition(
-                                "NativeAudio: Podcast",
-                                System.currentTimeMillis() - sessionStartTime,
-                                Emotion.HAPPY,
-                                System.currentTimeMillis(),
-                            ),
-                        )
-                        onClose()
-                    }, text = "Happy")
-                    IndustrialButton(onClick = {
-                        GatekeeperStateManager.dispatch(
-                            GatekeeperAction.LogSessionMetacognition(
-                                "NativeAudio: Podcast",
-                                System.currentTimeMillis() - sessionStartTime,
-                                Emotion.ANXIOUS,
-                                System.currentTimeMillis(),
-                            ),
-                        )
-                        onClose()
-                    }, text = "Anxious")
-                    IndustrialButton(onClick = {
-                        GatekeeperStateManager.dispatch(
-                            GatekeeperAction.LogSessionMetacognition(
-                                "NativeAudio: Podcast",
-                                System.currentTimeMillis() - sessionStartTime,
-                                Emotion.DRAINED,
-                                System.currentTimeMillis(),
-                            ),
-                        )
-                        onClose()
-                    }, text = "Drained")
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-                IndustrialButton(onClick = {
-                    GatekeeperStateManager.dispatch(
-                        GatekeeperAction.LogSessionMetacognition(
-                            "NativeAudio: Podcast",
-                            System.currentTimeMillis() - sessionStartTime,
-                            Emotion.SKIPPED,
-                            System.currentTimeMillis(),
-                        ),
-                    )
-                    onClose()
-                }, text = "Skip", isWarning = true)
-            }
-        } else {
-            Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().background(Color.DarkGray).padding(8.dp),
-                    contentAlignment = Alignment.TopEnd,
-                ) {
-                    IndustrialButton(onClick = { showMetacognition = true }, text = "Close", isWarning = true)
-                }
-
-                Column(
-                    modifier = Modifier.fillMaxSize().padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    artworkUrl?.let { url ->
-                        Card(modifier = Modifier.size(240.dp), shape = MaterialTheme.shapes.medium) {
-                            KamelImage(
-                                resource = asyncPainterResource(data = url),
-                                contentDescription = "Podcast Artwork",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop,
-                            )
-                        }
+                if (showMetacognition) {
+                    Column(
+                        modifier = Modifier.fillMaxSize().systemBarsPadding().padding(32.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text("Was this worth it?", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(32.dp))
-                    }
-                    Text(
-                        contentItem.title,
-                        color = Color.White,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 2,
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(contentItem.channelName ?: "Podcast", color = Color.Gray, fontSize = 16.sp, maxLines = 1)
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    Slider(
-                        value = if (duration > 0) currentPosition.toFloat() / duration else 0f,
-                        onValueChange = { controller?.seekTo((it * duration).toLong()) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors =
-                            SliderDefaults.colors(
-                                thumbColor = MaterialTheme.colorScheme.primary,
-                                activeTrackColor = MaterialTheme.colorScheme.primary,
-                            ),
-                    )
-
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(formatTime(currentPosition), color = Color.Gray, fontSize = 12.sp)
-                        Text(formatTime(duration), color = Color.Gray, fontSize = 12.sp)
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            IndustrialButton(onClick = {
+                                GatekeeperStateManager.dispatch(
+                                    GatekeeperAction.LogSessionMetacognition(
+                                        "NativeAudio: Podcast",
+                                        System.currentTimeMillis() - sessionStartTime,
+                                        Emotion.HAPPY,
+                                        System.currentTimeMillis(),
+                                    ),
+                                )
+                                onClose()
+                            }, text = "Happy")
+                            IndustrialButton(onClick = {
+                                GatekeeperStateManager.dispatch(
+                                    GatekeeperAction.LogSessionMetacognition(
+                                        "NativeAudio: Podcast",
+                                        System.currentTimeMillis() - sessionStartTime,
+                                        Emotion.ANXIOUS,
+                                        System.currentTimeMillis(),
+                                    ),
+                                )
+                                onClose()
+                            }, text = "Anxious")
+                            IndustrialButton(onClick = {
+                                GatekeeperStateManager.dispatch(
+                                    GatekeeperAction.LogSessionMetacognition(
+                                        "NativeAudio: Podcast",
+                                        System.currentTimeMillis() - sessionStartTime,
+                                        Emotion.DRAINED,
+                                        System.currentTimeMillis(),
+                                    ),
+                                )
+                                onClose()
+                            }, text = "Drained")
+                        }
+                        Spacer(modifier = Modifier.height(24.dp))
                         IndustrialButton(onClick = {
-                            val speeds = listOf(1.0f, 1.2f, 1.5f, 2.0f)
-                            val nextIndex = (speeds.indexOf(playbackSpeed) + 1) % speeds.size
-                            playbackSpeed = speeds[nextIndex]
-                            controller?.setPlaybackSpeed(playbackSpeed)
-                        }, text = "${playbackSpeed}x")
+                            GatekeeperStateManager.dispatch(
+                                GatekeeperAction.LogSessionMetacognition(
+                                    "NativeAudio: Podcast",
+                                    System.currentTimeMillis() - sessionStartTime,
+                                    Emotion.SKIPPED,
+                                    System.currentTimeMillis(),
+                                ),
+                            )
+                            onClose()
+                        }, text = "Skip", isWarning = true)
+                    }
+                } else {
+                    Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().background(Color.DarkGray).padding(8.dp),
+                            contentAlignment = Alignment.TopEnd,
+                        ) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                IndustrialButton(onClick = {
+                                    GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(contentItem.videoId, currentPosition / 1000f))
+                                    onMinimize()
+                                }, text = "Minimize")
+                                IndustrialButton(onClick = { showMetacognition = true }, text = "End Session", isWarning = true)
+                            }
+                        }
 
-                        IndustrialButton(onClick = { controller?.seekTo(currentPosition - 15000) }, text = "-15s")
+                        Column(
+                            modifier = Modifier.fillMaxSize().padding(32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            artworkUrl?.let { url ->
+                                Card(modifier = Modifier.size(240.dp), shape = MaterialTheme.shapes.medium) {
+                                    KamelImage(
+                                        resource = asyncPainterResource(data = url),
+                                        contentDescription = "Podcast Artwork",
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop,
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(32.dp))
+                            }
+                            Text(
+                                contentItem.title,
+                                color = Color.White,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 2,
+                                textAlign = TextAlign.Center,
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(contentItem.channelName ?: "Podcast", color = Color.Gray, fontSize = 16.sp, maxLines = 1)
 
-                        IndustrialButton(
-                            onClick = {
-                                if (isPlaying) controller?.pause() else controller?.play()
-                            },
-                            text = if (isPlaying) "Pause" else "Play",
-                            isWarning = isPlaying,
-                        )
+                            Spacer(modifier = Modifier.height(32.dp))
 
-                        IndustrialButton(onClick = { controller?.seekTo(currentPosition + 30000) }, text = "+30s")
+                            Slider(
+                                value = if (duration > 0) currentPosition.toFloat() / duration else 0f,
+                                onValueChange = { controller?.seekTo((it * duration).toLong()) },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors =
+                                    SliderDefaults.colors(
+                                        thumbColor = MaterialTheme.colorScheme.primary,
+                                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                                    ),
+                            )
+
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text(formatTime(currentPosition), color = Color.Gray, fontSize = 12.sp)
+                                Text(formatTime(duration), color = Color.Gray, fontSize = 12.sp)
+                            }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                                IndustrialButton(onClick = {
+                                    val speeds = listOf(1.0f, 1.2f, 1.5f, 2.0f)
+                                    val nextIndex = (speeds.indexOf(playbackSpeed) + 1) % speeds.size
+                                    playbackSpeed = speeds[nextIndex]
+                                    controller?.setPlaybackSpeed(playbackSpeed)
+                                }, text = "${playbackSpeed}x")
+
+                                IndustrialButton(onClick = { controller?.seekTo(currentPosition - 15000) }, text = "-15s")
+
+                                IndustrialButton(
+                                    onClick = {
+                                        if (isPlaying) controller?.pause() else controller?.play()
+                                    },
+                                    text = if (isPlaying) "Pause" else "Play",
+                                    isWarning = isPlaying,
+                                )
+
+                                IndustrialButton(onClick = { controller?.seekTo(currentPosition + 30000) }, text = "+30s")
+                            }
+                        }
                     }
                 }
             }

@@ -646,6 +646,7 @@ class GatekeeperReducerTest {
         val newState = reduce(initialState, action)
 
         assertThat(newState.activeNativeMediaItem).isEqualTo(ep)
+        assertThat(newState.isNativeAudioPlayerModalVisible).isTrue()
     }
 
     @Test
@@ -660,11 +661,32 @@ class GatekeeperReducerTest {
                 rank = 0,
                 capturedAtTimestamp = 0,
             )
-        val activeState = initialState.copy(activeNativeMediaItem = ep)
+        val activeState = initialState.copy(activeNativeMediaItem = ep, isNativeAudioPlayerModalVisible = true)
         val action = GatekeeperAction.CloseNativePlayer
         val newState = reduce(activeState, action)
 
         assertThat(newState.activeNativeMediaItem).isNull()
+        assertThat(newState.isNativeAudioPlayerModalVisible).isFalse()
+    }
+
+    @Test
+    fun testMinimizeNativePlayer_HidesModalButKeepsItem() {
+        val ep =
+            ContentItem(
+                id = "ep1",
+                videoId = "v1",
+                title = "T1",
+                source = ContentSource.GENERIC,
+                type = ContentType.AUDIO,
+                rank = 0,
+                capturedAtTimestamp = 0,
+            )
+        val activeState = initialState.copy(activeNativeMediaItem = ep, isNativeAudioPlayerModalVisible = true)
+        val action = GatekeeperAction.MinimizeNativePlayer
+        val newState = reduce(activeState, action)
+
+        assertThat(newState.activeNativeMediaItem).isEqualTo(ep)
+        assertThat(newState.isNativeAudioPlayerModalVisible).isFalse()
     }
 
     // --- Intentional Content Reducer Tests ---

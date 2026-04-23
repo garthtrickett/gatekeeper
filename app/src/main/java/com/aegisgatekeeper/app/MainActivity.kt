@@ -357,6 +357,8 @@ class MainActivity : ComponentActivity() {
                         if (state.activeNativeMediaItem != null) {
                             com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
                                 contentItem = state.activeNativeMediaItem!!,
+                                isVisible = state.isNativeAudioPlayerModalVisible,
+                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeNativePlayer) },
                                 onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
                             )
                         }

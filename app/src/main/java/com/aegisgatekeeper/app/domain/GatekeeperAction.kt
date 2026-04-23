@@ -190,6 +190,8 @@ sealed interface GatekeeperAction {
         val contentItem: ContentItem,
     ) : GatekeeperAction
 
+    object MinimizeNativePlayer : GatekeeperAction
+
     object CloseNativePlayer : GatekeeperAction
 
     data class OpenSurgicalFacebook(

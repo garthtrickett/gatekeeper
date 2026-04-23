@@ -55,6 +55,7 @@ data class GatekeeperState(
     val activeVideoId: String? = null,
     val isPlayerModalVisible: Boolean = false,
     val isAudioPlayerModalVisible: Boolean = false,
+    val isNativeAudioPlayerModalVisible: Boolean = false,
     val activeNativeMediaItem: ContentItem? = null,
     // --- Surgical Web Engine State ---
     val isWebEngineReady: Boolean = false,

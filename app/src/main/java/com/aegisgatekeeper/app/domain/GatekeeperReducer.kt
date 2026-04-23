@@ -535,11 +535,15 @@ private fun reduceContentAndVault(
         }
 
         is GatekeeperAction.OpenNativePlayer -> {
-            state.copy(activeNativeMediaItem = action.contentItem)
+            state.copy(activeNativeMediaItem = action.contentItem, isNativeAudioPlayerModalVisible = true)
+        }
+
+        GatekeeperAction.MinimizeNativePlayer -> {
+            state.copy(isNativeAudioPlayerModalVisible = false)
         }
 
         GatekeeperAction.CloseNativePlayer -> {
-            state.copy(activeNativeMediaItem = null)
+            state.copy(activeNativeMediaItem = null, isNativeAudioPlayerModalVisible = false)
         }
 
         is GatekeeperAction.ProcessPodcastUrl -> {
