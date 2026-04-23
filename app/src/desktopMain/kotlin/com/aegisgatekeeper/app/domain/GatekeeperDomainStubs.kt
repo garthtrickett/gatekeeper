@@ -18,6 +18,12 @@ data class GatekeeperState(
     val missionControlWebsites: List<PinnedWebsite> = emptyList(),
     val alternativeActivities: List<AlternativeActivity> = emptyList(),
     val podcastSubscriptions: List<PodcastSubscription> = emptyList(),
+    val pendingMetacognition: MetacognitionRequest? = null,
+)
+
+data class MetacognitionRequest(
+    val packageName: String,
+    val durationMillis: Long,
 )
 
 data class PodcastSubscription(
