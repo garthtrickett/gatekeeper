@@ -343,6 +343,13 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
+                        if (state.activeNativeMediaItem != null) {
+                            com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
+                                contentItem = state.activeNativeMediaItem!!,
+                                onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
+                            )
+                        }
+
                         if (state.activeFacebookUrl != null) {
                             com.aegisgatekeeper.app.views.SurgicalFacebookScreen(
                                 url = state.activeFacebookUrl!!,

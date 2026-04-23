@@ -48,6 +48,7 @@ data class GatekeeperState(
     val isLoadingYouTube: Boolean = false,
     val youtubeSearchResults: List<YoutubeSearchItem> = emptyList(),
     val activeVideoId: String? = null,
+    val activeNativeMediaItem: ContentItem? = null,
     // --- Surgical Web Engine State ---
     val isWebEngineReady: Boolean = false,
     val currentSurgicalUrl: String? = null,

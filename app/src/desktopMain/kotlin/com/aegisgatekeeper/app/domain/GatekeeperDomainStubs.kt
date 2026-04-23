@@ -112,6 +112,9 @@ sealed interface GatekeeperAction {
     data class PodcastSyncCompleted(val newEpisodes: List<ContentItem>) : GatekeeperAction
     data class PodcastSyncFailed(val error: String) : GatekeeperAction
 
+    data class OpenNativePlayer(val contentItem: ContentItem) : GatekeeperAction
+    object CloseNativePlayer : GatekeeperAction
+
     data class SaveMediaPosition(
         val mediaId: String,
         val positionSeconds: Float,

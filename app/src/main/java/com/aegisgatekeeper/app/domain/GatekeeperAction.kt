@@ -157,6 +157,12 @@ sealed interface GatekeeperAction {
 
     object CloseCleanAudioPlayer : GatekeeperAction
 
+    data class OpenNativePlayer(
+        val contentItem: ContentItem,
+    ) : GatekeeperAction
+
+    object CloseNativePlayer : GatekeeperAction
+
     data class OpenSurgicalFacebook(
         val url: String = "https://m.facebook.com/groups/",
     ) : GatekeeperAction

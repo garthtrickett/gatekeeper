@@ -107,6 +107,15 @@
                 android:resource="@xml/vault_widget_info" />
         </receiver>
 
+        <service
+            android:name=".services.PodcastMediaService"
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
+
         <!-- FCM Service for Real-time Sync Pokes -->
         <service
             android:name=".GatekeeperFcmService"
