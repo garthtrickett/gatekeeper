@@ -390,11 +390,15 @@ fun CleanAudioPlayerModal(
 
         playerStateCallback = { playerState ->
             val isPlaying = playerState == 1
-            val updateIntent = Intent("com.aegisgatekeeper.app.SERVICE_UPDATE").apply {
-                setPackage(context.packageName)
+            val updateIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
+                action = "com.aegisgatekeeper.app.SERVICE_UPDATE"
                 putExtra("EXTRA_IS_PLAYING", isPlaying)
             }
-            context.sendBroadcast(updateIntent)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(updateIntent)
+            } else {
+                context.startService(updateIntent)
+            }
         }
 
         onDispose {
