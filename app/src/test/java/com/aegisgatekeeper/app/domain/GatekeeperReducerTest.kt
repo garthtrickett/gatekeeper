@@ -715,6 +715,14 @@ class GatekeeperReducerTest {
     }
 
     @Test
+    fun testMinimizeCleanAudioPlayer_HidesModalButKeepsUrl() {
+        val activeState = initialState.copy(activeAudioUrl = "https://soundcloud.com/test", isAudioPlayerModalVisible = true)
+        val newState = reduce(activeState, GatekeeperAction.MinimizeCleanAudioPlayer)
+        assertThat(newState.activeAudioUrl).isEqualTo("https://soundcloud.com/test")
+        assertThat(newState.isAudioPlayerModalVisible).isFalse()
+    }
+
+    @Test
     fun testStopCleanAudioPlayer_ClearsActiveAudioUrl() {
         val activeState = initialState.copy(activeAudioUrl = "https://soundcloud.com/test", isAudioPlayerModalVisible = true)
         val newState = reduce(activeState, GatekeeperAction.StopCleanAudioPlayer)

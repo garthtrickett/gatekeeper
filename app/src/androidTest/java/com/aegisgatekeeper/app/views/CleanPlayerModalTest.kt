@@ -65,4 +65,38 @@ class CleanPlayerModalTest {
         assertThat(state.pendingMetacognition).isNotNull()
         assertThat(state.pendingMetacognition!!.packageName).isEqualTo("CleanPlayer: YouTube")
     }
+
+    @Test
+    fun testModalMinimizes_DoesNotTriggerMetacognition() {
+        var minimized = false
+
+        composeTestRule.setContent {
+            val isVisible = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(true) }
+            GatekeeperTheme {
+                CleanPlayerModal(
+                    videoId = "test1234",
+                    isVisible = isVisible.value,
+                    onMinimize = { 
+                        minimized = true
+                        isVisible.value = false 
+                    },
+                    onStop = { }
+                )
+            }
+        }
+
+        // Assert the minimize button exists
+        composeTestRule.onNodeWithText("Minimize").assertExists()
+
+        // Perform click to minimize session
+        composeTestRule.onNodeWithText("Minimize").performClick()
+        composeTestRule.waitForIdle()
+
+        // Verify callback was triggered
+        assertThat(minimized).isTrue()
+
+        // Verify state manager did NOT get the TriggerMetacognition action
+        val state = GatekeeperStateManager.state.value
+        assertThat(state.pendingMetacognition).isNull()
+    }
 }

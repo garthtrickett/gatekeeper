@@ -67,4 +67,38 @@ class CleanAudioPlayerModalTest {
         assertThat(state.pendingMetacognition).isNotNull()
         assertThat(state.pendingMetacognition!!.packageName).isEqualTo("CleanAudio: Player")
     }
+
+    @Test
+    fun testModalMinimizes_DoesNotTriggerMetacognition() {
+        var minimized = false
+
+        composeTestRule.setContent {
+            val isVisible = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(true) }
+            GatekeeperTheme {
+                CleanAudioPlayerModal(
+                    url = "https://soundcloud.com/test",
+                    isVisible = isVisible.value,
+                    onMinimize = { 
+                        minimized = true
+                        isVisible.value = false 
+                    },
+                    onStop = { }
+                )
+            }
+        }
+
+        // Assert the minimize button exists
+        composeTestRule.onNodeWithText("Minimize").assertExists()
+
+        // Perform click to minimize session
+        composeTestRule.onNodeWithText("Minimize").performClick()
+        composeTestRule.waitForIdle()
+
+        // Verify callback was triggered
+        assertThat(minimized).isTrue()
+
+        // Verify state manager did NOT get the TriggerMetacognition action
+        val state = GatekeeperStateManager.state.value
+        assertThat(state.pendingMetacognition).isNull()
+    }
 }
