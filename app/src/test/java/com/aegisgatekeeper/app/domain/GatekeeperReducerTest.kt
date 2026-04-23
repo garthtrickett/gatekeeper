@@ -705,8 +705,6 @@ class GatekeeperReducerTest {
 
         val state2 = reduce(state1, GatekeeperAction.ClearIntentionalSlot(slotIndex = 2))
         assertThat(state2.intentionalSlots).isEmpty()
-    }
-
     @Test
     fun testOpenCleanAudioPlayer_SetsActiveAudioUrl() {
         val newState = reduce(initialState, GatekeeperAction.OpenCleanAudioPlayer("https://soundcloud.com/test"))
@@ -715,6 +713,12 @@ class GatekeeperReducerTest {
     }
 
     @Test
+    fun testStopCleanAudioPlayer_ClearsActiveAudioUrl() {
+        val activeState = initialState.copy(activeAudioUrl = "https://soundcloud.com/test", isAudioPlayerModalVisible = true)
+        val newState = reduce(activeState, GatekeeperAction.StopCleanAudioPlayer)
+        assertThat(newState.activeAudioUrl).isNull()
+        assertThat(newState.isAudioPlayerModalVisible).isFalse()
+    }
     fun testStopCleanAudioPlayer_ClearsActiveAudioUrl() {
         val activeState = initialState.copy(activeAudioUrl = "https://soundcloud.com/test", isAudioPlayerModalVisible = true)
         val newState = reduce(activeState, GatekeeperAction.StopCleanAudioPlayer)
