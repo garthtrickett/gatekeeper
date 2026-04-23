@@ -391,7 +391,7 @@ class ContentBankUiTest {
         com.google.common.truth.Truth.assertThat(state.activeNativeMediaItem!!.title).isEqualTo("Test Podcast Episode")
 
         // Assert: The native modal UI should be visible
-        composeTestRule.onNodeWithText("Close").assertIsDisplayed()
+        composeTestRule.onNodeWithText("End Session").assertIsDisplayed()
     }
 
     @Test
