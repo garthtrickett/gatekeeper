@@ -118,7 +118,7 @@ fun GroupDetailScreen(
                                 uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 uncheckedTrackColor = MaterialTheme.colorScheme.surface,
                             ),
-                        modifier = Modifier.padding(end = 16.dp)
+                        modifier = Modifier.padding(end = 16.dp),
                     )
                 }
                 IndustrialButton(onClick = { showDomainBlockDialog = true }, text = "Edit Domains")
@@ -126,11 +126,12 @@ fun GroupDetailScreen(
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = if (blockedDomains.isEmpty()) {
-                "No domains blocked."
-            } else {
-                blockedDomains.take(5).joinToString(", ") + if (blockedDomains.size > 5) "..." else ""
-            },
+            text =
+                if (blockedDomains.isEmpty()) {
+                    "No domains blocked."
+                } else {
+                    blockedDomains.take(5).joinToString(", ") + if (blockedDomains.size > 5) "..." else ""
+                },
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
@@ -292,7 +293,7 @@ fun GroupDetailScreen(
             onSelectCheckIn = {
                 showRuleChoice = false
                 showCheckInDialog = true
-            }
+            },
         )
     }
 

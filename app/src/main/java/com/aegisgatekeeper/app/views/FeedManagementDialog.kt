@@ -1,11 +1,28 @@
 package com.aegisgatekeeper.app.views
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,7 +43,7 @@ fun FeedManagementDialog(onDismiss: () -> Unit) {
         Surface(
             shape = MaterialTheme.shapes.medium,
             color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.fillMaxWidth().height(500.dp).padding(16.dp)
+            modifier = Modifier.fillMaxWidth().height(500.dp).padding(16.dp),
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("Manage Podcast Feeds", style = MaterialTheme.typography.titleLarge)
@@ -38,7 +55,7 @@ fun FeedManagementDialog(onDismiss: () -> Unit) {
                         onValueChange = { url = it },
                         label = { Text("RSS Feed URL") },
                         modifier = Modifier.weight(1f),
-                        singleLine = true
+                        singleLine = true,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     IndustrialButton(
@@ -49,7 +66,7 @@ fun FeedManagementDialog(onDismiss: () -> Unit) {
                             }
                         },
                         enabled = url.isNotBlank(),
-                        text = "Add"
+                        text = "Add",
                     )
                 }
 
@@ -64,23 +81,32 @@ fun FeedManagementDialog(onDismiss: () -> Unit) {
                         items(state.podcastSubscriptions, key = { it.id }) { sub ->
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                             ) {
                                 Row(
                                     modifier = Modifier.padding(12.dp).fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                                    verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(sub.showTitle, style = MaterialTheme.typography.titleMedium, maxLines = 1)
-                                        Text(sub.feedUrl, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                                        Text(
+                                            sub.feedUrl,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 1,
+                                        )
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         "🗑️",
-                                        modifier = Modifier.clickable {
-                                            GatekeeperStateManager.dispatch(GatekeeperAction.RemovePodcastSubscription(sub.id, System.currentTimeMillis()))
-                                        }.padding(8.dp)
+                                        modifier =
+                                            Modifier
+                                                .clickable {
+                                                    GatekeeperStateManager.dispatch(
+                                                        GatekeeperAction.RemovePodcastSubscription(sub.id, System.currentTimeMillis()),
+                                                    )
+                                                }.padding(8.dp),
                                     )
                                 }
                             }

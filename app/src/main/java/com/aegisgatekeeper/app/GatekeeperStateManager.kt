@@ -51,12 +51,13 @@ object GatekeeperStateManager {
         db.transaction {
             val allContent = db.contentItemQueries.selectAllByRank().executeAsList()
             val allSlots = db.intentionalSlotQueries.selectAll().executeAsList()
-            
+
             allSlots.forEach { slot ->
-                val freshest = allContent
-                    .filter { it.videoId == slot.videoId && it.isDeleted != true }
-                    .maxByOrNull { it.lastModified }
-                    
+                val freshest =
+                    allContent
+                        .filter { it.videoId == slot.videoId && it.isDeleted != true }
+                        .maxByOrNull { it.lastModified }
+
                 if (freshest != null && freshest.id != slot.id) {
                     db.intentionalSlotQueries.insert(slot.slotIndex, freshest.id)
                 } else if (slot.isDeleted == true || freshest == null) {
@@ -221,17 +222,18 @@ object GatekeeperStateManager {
 
         GatekeeperState(
             isProTier = appSettings?.isProTier ?: false,
-            podcastSubscriptions = podcastSubscriptionsFromDb.map {
-                com.aegisgatekeeper.app.domain.PodcastSubscription(
-                    id = it.id,
-                    feedUrl = it.feedUrl,
-                    showTitle = it.showTitle,
-                    artworkUrl = it.artworkUrl,
-                    lastModified = System.currentTimeMillis(),
-                    isSynced = false,
-                    isDeleted = false
-                )
-            },
+            podcastSubscriptions =
+                podcastSubscriptionsFromDb.map {
+                    com.aegisgatekeeper.app.domain.PodcastSubscription(
+                        id = it.id,
+                        feedUrl = it.feedUrl,
+                        showTitle = it.showTitle,
+                        artworkUrl = it.artworkUrl,
+                        lastModified = System.currentTimeMillis(),
+                        isSynced = false,
+                        isDeleted = false,
+                    )
+                },
             isAuthenticated = token != null,
             jwtToken = token,
             isManualLockdownActive = appSettings?.isManualLockdownActive ?: false,
@@ -240,9 +242,11 @@ object GatekeeperStateManager {
             appGroups = appGroupsList,
             customMessages = customMessagesFromDb,
             consumedCheckIns = consumedCheckInsList,
-            alternativeActivities = alternativeActivitiesFromDb.map {
-                com.aegisgatekeeper.app.domain.AlternativeActivity(it.id, it.description, it.createdAtTimestamp)
-            },
+            alternativeActivities =
+                alternativeActivitiesFromDb.map {
+                    com.aegisgatekeeper.app.domain
+                        .AlternativeActivity(it.id, it.description, it.createdAtTimestamp)
+                },
             vaultItems =
                 vaultItemsFromDb.map {
                     VaultItem(it.id, it.query, it.capturedAtTimestamp, it.isResolved, it.lastModified, it.isSynced, it.isDeleted)

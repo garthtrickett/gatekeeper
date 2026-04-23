@@ -21,13 +21,16 @@ data class GatekeeperState(
 )
 
 data class PodcastSubscription(
-    val id: String = java.util.UUID.randomUUID().toString(),
+    val id: String =
+        java.util.UUID
+            .randomUUID()
+            .toString(),
     val feedUrl: String,
     val showTitle: String,
     val artworkUrl: String?,
     val lastModified: Long = System.currentTimeMillis(),
     val isSynced: Boolean = false,
-    val isDeleted: Boolean = false
+    val isDeleted: Boolean = false,
 )
 
 data class PinnedWebsite(
@@ -37,9 +40,12 @@ data class PinnedWebsite(
 )
 
 data class AlternativeActivity(
-    val id: String = java.util.UUID.randomUUID().toString(),
+    val id: String =
+        java.util.UUID
+            .randomUUID()
+            .toString(),
     val description: String,
-    val createdAtTimestamp: Long = System.currentTimeMillis()
+    val createdAtTimestamp: Long = System.currentTimeMillis(),
 )
 
 data class VaultItem(
@@ -116,15 +122,36 @@ sealed interface GatekeeperAction {
         val newContentItems: List<ContentItem>,
     ) : GatekeeperAction
 
-    data class ProcessPodcastUrl(val url: String) : GatekeeperAction
-    data class SavePodcastSubscription(val subscription: PodcastSubscription, val initialEpisodes: List<ContentItem>) : GatekeeperAction
-    data class RemovePodcastSubscription(val id: String, val currentTimestamp: Long) : GatekeeperAction
-    object RefreshAllFeedsRequested : GatekeeperAction
-    object PodcastSyncStarted : GatekeeperAction
-    data class PodcastSyncCompleted(val newEpisodes: List<ContentItem>) : GatekeeperAction
-    data class PodcastSyncFailed(val error: String) : GatekeeperAction
+    data class ProcessPodcastUrl(
+        val url: String,
+    ) : GatekeeperAction
 
-    data class OpenNativePlayer(val contentItem: ContentItem) : GatekeeperAction
+    data class SavePodcastSubscription(
+        val subscription: PodcastSubscription,
+        val initialEpisodes: List<ContentItem>,
+    ) : GatekeeperAction
+
+    data class RemovePodcastSubscription(
+        val id: String,
+        val currentTimestamp: Long,
+    ) : GatekeeperAction
+
+    object RefreshAllFeedsRequested : GatekeeperAction
+
+    object PodcastSyncStarted : GatekeeperAction
+
+    data class PodcastSyncCompleted(
+        val newEpisodes: List<ContentItem>,
+    ) : GatekeeperAction
+
+    data class PodcastSyncFailed(
+        val error: String,
+    ) : GatekeeperAction
+
+    data class OpenNativePlayer(
+        val contentItem: ContentItem,
+    ) : GatekeeperAction
+
     object CloseNativePlayer : GatekeeperAction
 
     data class SaveMediaPosition(

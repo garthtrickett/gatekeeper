@@ -328,10 +328,11 @@ private fun reduceRulesAndIntercepts(
         }
 
         is GatekeeperAction.AddAlternativeActivity -> {
-            val newActivity = AlternativeActivity(
-                description = action.description,
-                createdAtTimestamp = action.currentTimestamp,
-            )
+            val newActivity =
+                AlternativeActivity(
+                    description = action.description,
+                    createdAtTimestamp = action.currentTimestamp,
+                )
             state.copy(alternativeActivities = state.alternativeActivities + newActivity)
         }
 
@@ -403,19 +404,21 @@ private fun reduceContentAndVault(
         is GatekeeperAction.SaveToContentBank -> {
             val existing = state.contentItems.find { it.videoId == action.videoId && it.source == action.source }
             if (existing != null) {
-                val updatedItem = existing.copy(
-                    title = action.title,
-                    channelName = action.channelName ?: existing.channelName,
-                    durationSeconds = action.durationSeconds ?: existing.durationSeconds,
-                    lastModified = action.currentTimestamp,
-                    isDeleted = false
-                )
+                val updatedItem =
+                    existing.copy(
+                        title = action.title,
+                        channelName = action.channelName ?: existing.channelName,
+                        durationSeconds = action.durationSeconds ?: existing.durationSeconds,
+                        lastModified = action.currentTimestamp,
+                        isDeleted = false,
+                    )
                 state.copy(
                     contentItems = state.contentItems.map { if (it.id == existing.id) updatedItem else it },
-                    intentionalSlots = state.intentionalSlots.map { slot ->
-                        if (slot.contentItem.id == existing.id) slot.copy(contentItem = updatedItem) else slot
-                    },
-                    isProcessingLink = false
+                    intentionalSlots =
+                        state.intentionalSlots.map { slot ->
+                            if (slot.contentItem.id == existing.id) slot.copy(contentItem = updatedItem) else slot
+                        },
+                    isProcessingLink = false,
                 )
             } else {
                 val newRank = state.contentItems.size.toLong()
@@ -461,7 +464,7 @@ private fun reduceContentAndVault(
                     state.contentItems.map {
                         if (it.id == action.id) it.copy(isDeleted = true, lastModified = action.currentTimestamp) else it
                     },
-                intentionalSlots = state.intentionalSlots.filter { it.contentItem.id != action.id }
+                intentionalSlots = state.intentionalSlots.filter { it.contentItem.id != action.id },
             )
         }
 
@@ -524,20 +527,22 @@ private fun reduceContentAndVault(
         is GatekeeperAction.SavePodcastSubscription -> {
             state.copy(
                 podcastSubscriptions = state.podcastSubscriptions + action.subscription,
-                contentItems = state.contentItems + action.initialEpisodes
+                contentItems = state.contentItems + action.initialEpisodes,
             )
         }
 
         is GatekeeperAction.RemovePodcastSubscription -> {
             state.copy(
                 podcastSubscriptions = state.podcastSubscriptions.filter { it.id != action.id },
-                contentItems = state.contentItems.map { 
-                    if (it.podcastId == action.id) it.copy(isDeleted = true, lastModified = action.currentTimestamp) else it 
-                },
-                intentionalSlots = state.intentionalSlots.filter { slot ->
-                    val isFromDeletedPodcast = state.contentItems.find { it.id == slot.contentItem.id }?.podcastId == action.id
-                    !isFromDeletedPodcast
-                }
+                contentItems =
+                    state.contentItems.map {
+                        if (it.podcastId == action.id) it.copy(isDeleted = true, lastModified = action.currentTimestamp) else it
+                    },
+                intentionalSlots =
+                    state.intentionalSlots.filter { slot ->
+                        val isFromDeletedPodcast = state.contentItems.find { it.id == slot.contentItem.id }?.podcastId == action.id
+                        !isFromDeletedPodcast
+                    },
             )
         }
 
@@ -548,7 +553,7 @@ private fun reduceContentAndVault(
         is GatekeeperAction.PodcastSyncCompleted -> {
             state.copy(
                 isSyncingPodcasts = false,
-                contentItems = state.contentItems + action.newEpisodes
+                contentItems = state.contentItems + action.newEpisodes,
             )
         }
 
@@ -672,10 +677,11 @@ private fun reduceSyncAndAuth(
                 }
 
             val newContentMap = mergedContentItems.associateBy { it.id }
-            val updatedSlots = state.intentionalSlots.map { slot ->
-                val newContent = newContentMap[slot.contentItem.id]
-                if (newContent != null) slot.copy(contentItem = newContent) else slot
-            }
+            val updatedSlots =
+                state.intentionalSlots.map { slot ->
+                    val newContent = newContentMap[slot.contentItem.id]
+                    if (newContent != null) slot.copy(contentItem = newContent) else slot
+                }
 
             state.copy(
                 vaultItems = mergedVaultItems,

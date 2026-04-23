@@ -63,8 +63,8 @@ fun AlternativeActivitiesScreen() {
                             GatekeeperStateManager.dispatch(
                                 GatekeeperAction.AddAlternativeActivity(
                                     description = newActivityDescription.trim(),
-                                    currentTimestamp = System.currentTimeMillis()
-                                )
+                                    currentTimestamp = System.currentTimeMillis(),
+                                ),
                             )
                             newActivityDescription = ""
                         }
@@ -96,13 +96,14 @@ fun AlternativeActivitiesScreen() {
                                 Text(
                                     text = activity.description,
                                     style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f),
                                 )
                                 Text(
                                     text = "🗑️",
-                                    modifier = Modifier.clickable {
-                                        GatekeeperStateManager.dispatch(GatekeeperAction.RemoveAlternativeActivity(activity.id))
-                                    }
+                                    modifier =
+                                        Modifier.clickable {
+                                            GatekeeperStateManager.dispatch(GatekeeperAction.RemoveAlternativeActivity(activity.id))
+                                        },
                                 )
                             }
                         }

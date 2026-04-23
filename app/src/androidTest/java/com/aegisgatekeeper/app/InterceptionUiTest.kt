@@ -182,18 +182,21 @@ class InterceptionUiTest {
         val testPkg = "com.test.app"
 
         GatekeeperStateManager.dispatch(
-            com.aegisgatekeeper.app.domain.GatekeeperAction.AddAlternativeActivity(habitDesc, System.currentTimeMillis())
+            com.aegisgatekeeper.app.domain.GatekeeperAction
+                .AddAlternativeActivity(habitDesc, System.currentTimeMillis()),
         )
 
         // CRITICAL: Trigger an interception so InterceptionScreen doesn't return early
         GatekeeperStateManager.dispatch(
-            com.aegisgatekeeper.app.domain.GatekeeperAction.RuleViolationDetected(testPkg, "Test Reason", System.currentTimeMillis())
+            com.aegisgatekeeper.app.domain.GatekeeperAction
+                .RuleViolationDetected(testPkg, "Test Reason", System.currentTimeMillis()),
         )
 
         composeTestRule.setContent {
             GatekeeperTheme {
                 // We test the top-level InterceptionScreen which handles the navigation logic
-                com.aegisgatekeeper.app.views.interception.InterceptionScreen()
+                com.aegisgatekeeper.app.views.interception
+                    .InterceptionScreen()
             }
         }
 

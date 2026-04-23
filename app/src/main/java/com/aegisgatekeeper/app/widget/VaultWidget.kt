@@ -131,13 +131,14 @@ class VaultWidget : GlanceAppWidget() {
                             LazyColumn(modifier = GlanceModifier.defaultWeight()) {
                                 items(displayItems) {
                                     Column(modifier = GlanceModifier.fillMaxWidth().padding(bottom = 12.dp)) {
-                                        val decodedTitle = it.title
-                                            .replace("&amp;", "&")
-                                            .replace("&#39;", "'")
-                                            .replace("&quot;", "\"")
-                                            .replace("&lt;", "<")
-                                            .replace("&gt;", ">")
-                                            
+                                        val decodedTitle =
+                                            it.title
+                                                .replace("&amp;", "&")
+                                                .replace("&#39;", "'")
+                                                .replace("&quot;", "\"")
+                                                .replace("&lt;", "<")
+                                                .replace("&gt;", ">")
+
                                         Text(
                                             text = "Slot ${it.slotIndex + 1}: $decodedTitle",
                                             style =

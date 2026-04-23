@@ -72,11 +72,10 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
     val items =
         state.contentItems
             .filter { (state.activeContentFilter == null || it.type == state.activeContentFilter) && !it.isDeleted }
-            .filter { 
-                it.title.contains(searchQuery, ignoreCase = true) || 
-                (it.channelName?.contains(searchQuery, ignoreCase = true) == true)
-            }
-            .sortedBy { it.rank }
+            .filter {
+                it.title.contains(searchQuery, ignoreCase = true) ||
+                    (it.channelName?.contains(searchQuery, ignoreCase = true) == true)
+            }.sortedBy { it.rank }
 
     val lazyListState = rememberLazyListState()
     var draggedItemIndex by remember { mutableStateOf<Int?>(null) }
@@ -111,7 +110,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     IndustrialTextField(
                         value = searchQuery,
@@ -167,7 +166,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 32.dp)
+                            modifier = Modifier.padding(horizontal = 32.dp),
                         )
                     }
                 } else if (items.isEmpty()) {
@@ -333,7 +332,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                 },
             )
         }
-        
+
         if (showFeedManagement) {
             FeedManagementDialog(onDismiss = { showFeedManagement = false })
         }
@@ -451,13 +450,14 @@ private fun ContentItemCard(
 
                 // Content Details
                 Column(modifier = Modifier.weight(1f)) {
-                    val decodedTitle = item.title
-                        .replace("&amp;", "&")
-                        .replace("&#39;", "'")
-                        .replace("&quot;", "\"")
-                        .replace("&lt;", "<")
-                        .replace("&gt;", ">")
-                        
+                    val decodedTitle =
+                        item.title
+                            .replace("&amp;", "&")
+                            .replace("&#39;", "'")
+                            .replace("&quot;", "\"")
+                            .replace("&lt;", "<")
+                            .replace("&gt;", ">")
+
                     Text(
                         text = decodedTitle,
                         style = MaterialTheme.typography.titleMedium,
@@ -470,7 +470,7 @@ private fun ContentItemCard(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                     Spacer(modifier = Modifier.height(4.dp))

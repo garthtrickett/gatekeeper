@@ -82,7 +82,7 @@ data class PodcastSubscription(
     val artworkUrl: String?,
     val lastModified: Long = System.currentTimeMillis(),
     val isSynced: Boolean = false,
-    val isDeleted: Boolean = false
+    val isDeleted: Boolean = false,
 )
 
 /**

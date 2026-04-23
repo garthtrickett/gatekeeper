@@ -91,10 +91,11 @@ object GatekeeperStateManager {
             }
 
             is GatekeeperAction.SavePodcastSubscription -> {
-                _state.value = _state.value.copy(
-                    podcastSubscriptions = _state.value.podcastSubscriptions + action.subscription,
-                    contentItems = _state.value.contentItems + action.initialEpisodes
-                )
+                _state.value =
+                    _state.value.copy(
+                        podcastSubscriptions = _state.value.podcastSubscriptions + action.subscription,
+                        contentItems = _state.value.contentItems + action.initialEpisodes,
+                    )
             }
 
             is GatekeeperAction.PodcastSyncCompleted -> {

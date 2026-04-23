@@ -237,7 +237,15 @@ class GatekeeperReducerTest {
     @Test
     fun testSaveToContentBank_AppendsItemWithCorrectRankAndClearsLoading() {
         val stateWithLoading = initialState.copy(isProcessingLink = true)
-        val action = GatekeeperAction.SaveToContentBank("vid1", "Test Title", ContentSource.YOUTUBE, ContentType.VIDEO, 1000L, channelName = "Test Channel")
+        val action =
+            GatekeeperAction.SaveToContentBank(
+                "vid1",
+                "Test Title",
+                ContentSource.YOUTUBE,
+                ContentType.VIDEO,
+                1000L,
+                channelName = "Test Channel",
+            )
         val newState = reduce(stateWithLoading, action)
         assertThat(newState.contentItems).hasSize(1)
         assertThat(newState.contentItems.first().rank).isEqualTo(0L)
@@ -578,11 +586,20 @@ class GatekeeperReducerTest {
     @Test
     fun testSavePodcastSubscription_AddsSubscriptionAndEpisodes() {
         val sub = PodcastSubscription(id = "sub1", feedUrl = "url", showTitle = "Title", artworkUrl = null)
-        val ep = ContentItem(id = "ep1", videoId = "v1", title = "T1", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
-        
+        val ep =
+            ContentItem(
+                id = "ep1",
+                videoId = "v1",
+                title = "T1",
+                source = ContentSource.GENERIC,
+                type = ContentType.AUDIO,
+                rank = 0,
+                capturedAtTimestamp = 0,
+            )
+
         val action = GatekeeperAction.SavePodcastSubscription(sub, listOf(ep))
         val newState = reduce(initialState, action)
-        
+
         assertThat(newState.podcastSubscriptions).hasSize(1)
         assertThat(newState.podcastSubscriptions.first().id).isEqualTo("sub1")
         assertThat(newState.contentItems).hasSize(1)
@@ -591,20 +608,38 @@ class GatekeeperReducerTest {
 
     @Test
     fun testOpenNativePlayer_SetsActiveNativeMediaItem() {
-        val ep = ContentItem(id = "ep1", videoId = "v1", title = "T1", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val ep =
+            ContentItem(
+                id = "ep1",
+                videoId = "v1",
+                title = "T1",
+                source = ContentSource.GENERIC,
+                type = ContentType.AUDIO,
+                rank = 0,
+                capturedAtTimestamp = 0,
+            )
         val action = GatekeeperAction.OpenNativePlayer(ep)
         val newState = reduce(initialState, action)
-        
+
         assertThat(newState.activeNativeMediaItem).isEqualTo(ep)
     }
 
     @Test
     fun testCloseNativePlayer_ClearsActiveNativeMediaItem() {
-        val ep = ContentItem(id = "ep1", videoId = "v1", title = "T1", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val ep =
+            ContentItem(
+                id = "ep1",
+                videoId = "v1",
+                title = "T1",
+                source = ContentSource.GENERIC,
+                type = ContentType.AUDIO,
+                rank = 0,
+                capturedAtTimestamp = 0,
+            )
         val activeState = initialState.copy(activeNativeMediaItem = ep)
         val action = GatekeeperAction.CloseNativePlayer
         val newState = reduce(activeState, action)
-        
+
         assertThat(newState.activeNativeMediaItem).isNull()
     }
 

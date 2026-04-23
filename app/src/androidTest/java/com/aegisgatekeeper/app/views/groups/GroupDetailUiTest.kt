@@ -34,17 +34,19 @@ class GroupDetailUiTest {
 
     @Test
     fun testDomainBlockSection_rendersAndOpensDialog() {
-        val mockGroup = AppGroup(
-            id = "test-group",
-            name = "Test Group",
-            rules = listOf(
-                BlockingRule.DomainBlock(
-                    id = "rule1",
-                    groupId = "test-group",
-                    domains = setOf("reddit.com")
-                )
+        val mockGroup =
+            AppGroup(
+                id = "test-group",
+                name = "Test Group",
+                rules =
+                    listOf(
+                        BlockingRule.DomainBlock(
+                            id = "rule1",
+                            groupId = "test-group",
+                            domains = setOf("reddit.com"),
+                        ),
+                    ),
             )
-        )
 
         composeTestRule.setContent {
             GatekeeperTheme {
@@ -59,7 +61,7 @@ class GroupDetailUiTest {
         // Verify clicking Edit Domains opens the dialog
         composeTestRule.onNodeWithText("Edit Domains").performClick()
         composeTestRule.waitForIdle()
-        
+
         composeTestRule.onNodeWithText("Domain Block").assertIsDisplayed() // Dialog title
     }
 

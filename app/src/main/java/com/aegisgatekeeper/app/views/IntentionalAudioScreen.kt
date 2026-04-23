@@ -106,12 +106,15 @@ fun IntentionalContentScreen() {
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                val decodedTitle = item?.contentItem?.title
-                                    ?.replace("&amp;", "&")
-                                    ?.replace("&#39;", "'")
-                                    ?.replace("&quot;", "\"")
-                                    ?.replace("&lt;", "<")
-                                    ?.replace("&gt;", ">")
+                                val decodedTitle =
+                                    item
+                                        ?.contentItem
+                                        ?.title
+                                        ?.replace("&amp;", "&")
+                                        ?.replace("&#39;", "'")
+                                        ?.replace("&quot;", "\"")
+                                        ?.replace("&lt;", "<")
+                                        ?.replace("&gt;", ">")
 
                                 Text(
                                     text = decodedTitle ?: "Empty Slot ${i + 1}",
@@ -125,7 +128,7 @@ fun IntentionalContentScreen() {
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         maxLines = 1,
-                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                     )
                                 }
                                 if (item != null) {
@@ -143,7 +146,7 @@ fun IntentionalContentScreen() {
 
                             Column(
                                 horizontalAlignment = Alignment.End,
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
                             ) {
                                 if (item != null) {
                                     IndustrialButton(
@@ -181,7 +184,7 @@ fun IntentionalContentScreen() {
                                             } else {
                                                 "Play"
                                             },
-                                        modifier = Modifier.width(90.dp)
+                                        modifier = Modifier.width(90.dp),
                                     )
                                 }
                                 IndustrialButton(
@@ -190,7 +193,7 @@ fun IntentionalContentScreen() {
                                     },
                                     text = if (item != null) "Eject" else "Insert",
                                     isWarning = item != null,
-                                    modifier = Modifier.width(90.dp)
+                                    modifier = Modifier.width(90.dp),
                                 )
                             }
                         }

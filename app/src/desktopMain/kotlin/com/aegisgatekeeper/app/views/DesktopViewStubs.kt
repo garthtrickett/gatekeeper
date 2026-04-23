@@ -66,11 +66,10 @@ fun ContentBankScreen() {
     val items =
         state.contentItems
             .filter { !it.isDeleted }
-            .filter { 
+            .filter {
                 it.title.contains(searchQuery, ignoreCase = true) ||
-                (it.channelName?.contains(searchQuery, ignoreCase = true) == true)
-            }
-            .sortedBy { it.rank }
+                    (it.channelName?.contains(searchQuery, ignoreCase = true) == true)
+            }.sortedBy { it.rank }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text("Content Bank (Desktop MVP)", style = MaterialTheme.typography.headlineMedium)
@@ -79,7 +78,7 @@ fun ContentBankScreen() {
         Row(
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             com.aegisgatekeeper.app.domain.IndustrialTextField(
                 value = searchQuery,
@@ -89,7 +88,8 @@ fun ContentBankScreen() {
                 singleLine = true,
             )
             if (searchQuery.isNotEmpty()) {
-                com.aegisgatekeeper.app.domain.IndustrialButton(onClick = { searchQuery = "" }, text = "Clear")
+                com.aegisgatekeeper.app.domain
+                    .IndustrialButton(onClick = { searchQuery = "" }, text = "Clear")
             }
         }
 
@@ -97,7 +97,7 @@ fun ContentBankScreen() {
             Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
                     if (state.contentItems.isEmpty()) "Bank is empty." else "No content matches your search.",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         } else {

@@ -88,9 +88,16 @@ sealed interface GatekeeperAction {
     ) : GatekeeperAction
 
     object RefreshAllFeedsRequested : GatekeeperAction
+
     object PodcastSyncStarted : GatekeeperAction
-    data class PodcastSyncCompleted(val newEpisodes: List<ContentItem>) : GatekeeperAction
-    data class PodcastSyncFailed(val error: String) : GatekeeperAction
+
+    data class PodcastSyncCompleted(
+        val newEpisodes: List<ContentItem>,
+    ) : GatekeeperAction
+
+    data class PodcastSyncFailed(
+        val error: String,
+    ) : GatekeeperAction
 
     data class SaveToContentBank(
         val videoId: String,

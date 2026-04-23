@@ -20,13 +20,16 @@ actual class DatabaseDriverFactory actual constructor() {
                     override fun onUpgrade(
                         db: androidx.sqlite.db.SupportSQLiteDatabase,
                         oldVersion: Int,
-                        newVersion: Int
+                        newVersion: Int,
                     ) {
                         try {
                             super.onUpgrade(db, oldVersion, newVersion)
                         } catch (e: Exception) {
                             if (com.aegisgatekeeper.app.BuildConfig.DEBUG) {
-                                android.util.Log.i("Gatekeeper", "DB: Migration failed (expected during dev). Destructively recreating tables...")
+                                android.util.Log.i(
+                                    "Gatekeeper",
+                                    "DB: Migration failed (expected during dev). Destructively recreating tables...",
+                                )
                                 db.query("SELECT name FROM sqlite_master WHERE type='table'").use { cursor ->
                                     val tables = mutableListOf<String>()
                                     while (cursor.moveToNext()) {

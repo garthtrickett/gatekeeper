@@ -49,7 +49,10 @@ class AlternativeActivitiesUiTest {
 
         // 2. Verify it appears in the list
         composeTestRule.onNodeWithText(habitDescription).assertIsDisplayed()
-        assertThat(GatekeeperStateManager.state.value.alternativeActivities.any { it.description == habitDescription }).isTrue()
+        assertThat(
+            GatekeeperStateManager.state.value.alternativeActivities
+                .any { it.description == habitDescription },
+        ).isTrue()
 
         // 3. Remove the habit
         composeTestRule.onNodeWithText("🗑️").performClick()

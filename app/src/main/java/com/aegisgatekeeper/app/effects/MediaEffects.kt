@@ -4,18 +4,18 @@ import android.content.Intent
 import android.util.Log
 import com.aegisgatekeeper.app.App
 import com.aegisgatekeeper.app.GatekeeperStateManager
+import com.aegisgatekeeper.app.api.RssClient
 import com.aegisgatekeeper.app.api.UrlMetadataClient
 import com.aegisgatekeeper.app.api.YoutubeApiClient
+import com.aegisgatekeeper.app.domain.ContentItem
 import com.aegisgatekeeper.app.domain.ContentSource
 import com.aegisgatekeeper.app.domain.ContentType
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.GatekeeperState
+import com.aegisgatekeeper.app.domain.PodcastSubscription
 import com.aegisgatekeeper.app.widget.VaultWidget
 import com.aegisgatekeeper.app.widget.updateAll
 import kotlinx.coroutines.delay
-import com.aegisgatekeeper.app.api.RssClient
-import com.aegisgatekeeper.app.domain.PodcastSubscription
-import com.aegisgatekeeper.app.domain.ContentItem
 
 suspend fun handleMediaAndSystemEffects(
     action: GatekeeperAction,
@@ -32,31 +32,36 @@ suspend fun handleMediaAndSystemEffects(
                     dispatch(GatekeeperAction.PodcastSyncFailed("Failed to parse RSS"))
                 },
                 ifRight = { data ->
-                    val podcastId = java.util.UUID.randomUUID().toString()
-                    val sub = PodcastSubscription(
-                        id = podcastId,
-                        feedUrl = action.url,
-                        showTitle = data.title,
-                        artworkUrl = data.artworkUrl,
-                        lastModified = System.currentTimeMillis()
-                    )
-                    // Take only the first 10 episodes initially to not overwhelm
-                    val episodes = data.episodes.take(10).map { ep ->
-                        ContentItem(
-                            podcastId = podcastId,
-                            videoId = ep.audioUrl,
-                            title = ep.title,
-                            channelName = data.title,
-                            source = ContentSource.GENERIC,
-                            type = ContentType.AUDIO,
-                            rank = 0, 
-                            capturedAtTimestamp = System.currentTimeMillis(),
-                            durationSeconds = ep.durationSeconds,
-                            lastModified = System.currentTimeMillis()
+                    val podcastId =
+                        java.util.UUID
+                            .randomUUID()
+                            .toString()
+                    val sub =
+                        PodcastSubscription(
+                            id = podcastId,
+                            feedUrl = action.url,
+                            showTitle = data.title,
+                            artworkUrl = data.artworkUrl,
+                            lastModified = System.currentTimeMillis(),
                         )
-                    }
+                    // Take only the first 10 episodes initially to not overwhelm
+                    val episodes =
+                        data.episodes.take(10).map { ep ->
+                            ContentItem(
+                                podcastId = podcastId,
+                                videoId = ep.audioUrl,
+                                title = ep.title,
+                                channelName = data.title,
+                                source = ContentSource.GENERIC,
+                                type = ContentType.AUDIO,
+                                rank = 0,
+                                capturedAtTimestamp = System.currentTimeMillis(),
+                                durationSeconds = ep.durationSeconds,
+                                lastModified = System.currentTimeMillis(),
+                            )
+                        }
                     dispatch(GatekeeperAction.SavePodcastSubscription(sub, episodes))
-                }
+                },
             )
         }
 
@@ -68,20 +73,21 @@ suspend fun handleMediaAndSystemEffects(
             for (sub in state.podcastSubscriptions) {
                 val result = RssClient.fetchFeed(sub.feedUrl)
                 result.getOrNull()?.let { data ->
-                    val freshEpisodes = data.episodes.filter { it.audioUrl !in existingUrls }.take(5).map { ep ->
-                        ContentItem(
-                            podcastId = sub.id,
-                            videoId = ep.audioUrl,
-                            title = ep.title,
-                            channelName = data.title,
-                            source = ContentSource.GENERIC,
-                            type = ContentType.AUDIO,
-                            rank = 0,
-                            capturedAtTimestamp = System.currentTimeMillis(),
-                            durationSeconds = ep.durationSeconds,
-                            lastModified = System.currentTimeMillis()
-                        )
-                    }
+                    val freshEpisodes =
+                        data.episodes.filter { it.audioUrl !in existingUrls }.take(5).map { ep ->
+                            ContentItem(
+                                podcastId = sub.id,
+                                videoId = ep.audioUrl,
+                                title = ep.title,
+                                channelName = data.title,
+                                source = ContentSource.GENERIC,
+                                type = ContentType.AUDIO,
+                                rank = 0,
+                                capturedAtTimestamp = System.currentTimeMillis(),
+                                durationSeconds = ep.durationSeconds,
+                                lastModified = System.currentTimeMillis(),
+                            )
+                        }
                     newItems.addAll(freshEpisodes)
                 }
             }

@@ -180,10 +180,12 @@ fun main() =
                                                 videoId = it.videoId,
                                                 title = it.title,
                                                 channelName = it.channelName,
-                                                source = com.aegisgatekeeper.app.domain.ContentSource
-                                                    .valueOf(it.source),
-                                                type = com.aegisgatekeeper.app.domain.ContentType
-                                                    .valueOf(it.type),
+                                                source =
+                                                    com.aegisgatekeeper.app.domain.ContentSource
+                                                        .valueOf(it.source),
+                                                type =
+                                                    com.aegisgatekeeper.app.domain.ContentType
+                                                        .valueOf(it.type),
                                                 rank = it.rank,
                                                 capturedAtTimestamp = it.capturedAtTimestamp,
                                                 durationSeconds = it.durationSeconds,

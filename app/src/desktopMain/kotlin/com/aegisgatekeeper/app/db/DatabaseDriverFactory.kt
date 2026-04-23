@@ -14,11 +14,16 @@ actual class DatabaseDriverFactory actual constructor() {
                 osName.contains("win") -> {
                     System.getenv("APPDATA") + File.separator + "gatekeeper" + File.separator + "data"
                 }
+
                 osName.contains("mac") -> {
-                    userHome + File.separator + "Library" + File.separator + "Application Support" + File.separator + "gatekeeper" + File.separator + "data"
+                    userHome + File.separator + "Library" + File.separator + "Application Support" + File.separator + "gatekeeper" +
+                        File.separator +
+                        "data"
                 }
+
                 else -> {
-                    userHome + File.separator + ".local" + File.separator + "share" + File.separator + "gatekeeper" + File.separator + "data"
+                    userHome + File.separator + ".local" + File.separator + "share" + File.separator + "gatekeeper" + File.separator +
+                        "data"
                 }
             }
         val dataDir = File(dataDirPath).apply { mkdirs() }
@@ -31,7 +36,7 @@ actual class DatabaseDriverFactory actual constructor() {
         } catch (e: Exception) {
             // Ignore if already created
         }
-        
+
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0)
         return driver
     }

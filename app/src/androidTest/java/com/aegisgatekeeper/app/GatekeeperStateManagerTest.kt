@@ -676,7 +676,7 @@ class GatekeeperStateManagerTest {
                                 id = action.subscription.id,
                                 feedUrl = action.subscription.feedUrl,
                                 showTitle = action.subscription.showTitle,
-                                artworkUrl = action.subscription.artworkUrl
+                                artworkUrl = action.subscription.artworkUrl,
                             )
                             action.initialEpisodes.forEach { item ->
                                 db.contentItemQueries.insert(
@@ -701,7 +701,7 @@ class GatekeeperStateManagerTest {
                     is GatekeeperAction.RemovePodcastSubscription -> {
                         db.podcastSubscriptionQueries.delete(action.id)
                         val itemsToDelete = oldState.contentItems.filter { it.podcastId == action.id }
-                        itemsToDelete.forEach { 
+                        itemsToDelete.forEach {
                             db.contentItemQueries.delete(lastModified = action.currentTimestamp, id = it.id)
                         }
                     }

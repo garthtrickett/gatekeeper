@@ -45,7 +45,7 @@ fun handleDatabaseEffects(
                     id = action.subscription.id,
                     feedUrl = action.subscription.feedUrl,
                     showTitle = action.subscription.showTitle,
-                    artworkUrl = action.subscription.artworkUrl
+                    artworkUrl = action.subscription.artworkUrl,
                 )
                 action.initialEpisodes.forEach { item ->
                     val finalItem = newState.contentItems.find { it.id == item.id } ?: item

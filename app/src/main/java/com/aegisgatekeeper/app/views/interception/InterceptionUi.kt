@@ -172,7 +172,7 @@ fun InterceptionScreen() {
                     GatekeeperStateManager.dispatch(GatekeeperAction.LogGiveUp(interceptedPackage, System.currentTimeMillis()))
                     GatekeeperStateManager.dispatch(GatekeeperAction.DismissOverlay)
                 },
-                onCancel = { screen = "CHOICE" }
+                onCancel = { screen = "CHOICE" },
             )
         }
     }
@@ -614,9 +614,10 @@ fun AlternativeSuggestionUi(
                     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f, fill = false)) {
                         items(activities) { activity ->
                             Card(
-                                modifier = Modifier.fillMaxWidth().clickable {
-                                    onSelectActivity(activity)
-                                },
+                                modifier =
+                                    Modifier.fillMaxWidth().clickable {
+                                        onSelectActivity(activity)
+                                    },
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                             ) {
                                 Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
