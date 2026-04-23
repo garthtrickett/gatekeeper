@@ -49,13 +49,32 @@ fun CleanYouTubeScreen() {
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            Text("Surgical Search", style = MaterialTheme.typography.headlineLarge)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "Find exactly what you need. No rabbit holes.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Surgical Search", style = MaterialTheme.typography.headlineLarge)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Find exactly what you need. No rabbit holes.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    IndustrialButton(
+                        onClick = {
+                            GatekeeperStateManager.dispatch(GatekeeperAction.OpenPinnedWebsite("https://accounts.google.com/ServiceLogin?service=youtube&continue=https://www.youtube.com"))
+                        },
+                        text = "Authenticate",
+                        isWarning = true
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        "Login to stop Bot checks",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(24.dp))
 
             IndustrialTextField(
