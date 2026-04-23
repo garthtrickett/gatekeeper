@@ -487,7 +487,7 @@ private fun ContentItemCard(
                 // Action Buttons
                 Column(horizontalAlignment = Alignment.End) {
                     if (item.source == ContentSource.YOUTUBE || item.source == ContentSource.SOUNDCLOUD ||
-                        item.type == ContentType.READING
+                        item.type == ContentType.READING || item.type == ContentType.AUDIO
                     ) {
                         IndustrialButton(
                             onClick = {
@@ -501,14 +501,18 @@ private fun ContentItemCard(
                                     }
 
                                     ContentSource.SUBSTACK, ContentSource.GENERIC -> {
-                                        val intent =
-                                            android.content.Intent(
-                                                android.content.Intent.ACTION_VIEW,
-                                                android.net.Uri.parse(item.videoId),
-                                            )
-                                        intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-                                        com.aegisgatekeeper.app.App.instance
-                                            .startActivity(intent)
+                                        if (item.type == ContentType.AUDIO) {
+                                            GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
+                                        } else {
+                                            val intent =
+                                                android.content.Intent(
+                                                    android.content.Intent.ACTION_VIEW,
+                                                    android.net.Uri.parse(item.videoId),
+                                                )
+                                            intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                                            com.aegisgatekeeper.app.App.instance
+                                                .startActivity(intent)
+                                        }
                                     }
                                 }
                             },

@@ -163,9 +163,15 @@ fun IntentionalContentScreen() {
                                                 }
 
                                                 com.aegisgatekeeper.app.domain.ContentType.AUDIO -> {
-                                                    GatekeeperStateManager.dispatch(
-                                                        GatekeeperAction.OpenCleanAudioPlayer(item.contentItem.videoId),
-                                                    )
+                                                    if (item.contentItem.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
+                                                        GatekeeperStateManager.dispatch(
+                                                            GatekeeperAction.OpenCleanAudioPlayer(item.contentItem.videoId),
+                                                        )
+                                                    } else {
+                                                        GatekeeperStateManager.dispatch(
+                                                            GatekeeperAction.OpenNativePlayer(item.contentItem),
+                                                        )
+                                                    }
                                                 }
 
                                                 com.aegisgatekeeper.app.domain.ContentType.READING -> {

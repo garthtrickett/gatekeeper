@@ -161,7 +161,11 @@ class VaultWidget : GlanceAppWidget() {
                                                 if (it.type == ContentType.VIDEO) {
                                                     putExtra("OPEN_CLEAN_PLAYER_VIDEO_ID", it.videoId)
                                                 } else if (it.type == ContentType.AUDIO) {
-                                                    putExtra("OPEN_CLEAN_AUDIO_URL", it.videoId)
+                                                    if (it.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
+                                                        putExtra("OPEN_CLEAN_AUDIO_URL", it.videoId)
+                                                    } else {
+                                                        putExtra("OPEN_NATIVE_AUDIO_ID", it.id)
+                                                    }
                                                 }
                                                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                             }

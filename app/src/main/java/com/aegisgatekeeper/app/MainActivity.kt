@@ -119,6 +119,7 @@ class MainActivity : ComponentActivity() {
         // Handle Deep Link from Widget
         val videoIdToPlay = intent.getStringExtra("OPEN_CLEAN_PLAYER_VIDEO_ID")
         val audioUrlToPlay = intent.getStringExtra("OPEN_CLEAN_AUDIO_URL")
+        val nativeAudioIdToPlay = intent.getStringExtra("OPEN_NATIVE_AUDIO_ID")
 
         // E2E Programmatic State Injection (Debug Only)
         if (BuildConfig.DEBUG) {
@@ -194,9 +195,15 @@ class MainActivity : ComponentActivity() {
         } else if (audioUrlToPlay != null) {
             android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Clean Audio Player (URL: $audioUrlToPlay)")
             GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanAudioPlayer(audioUrlToPlay))
+        } else if (nativeAudioIdToPlay != null) {
+            android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Native Audio Player (ID: $nativeAudioIdToPlay)")
+            val item = GatekeeperStateManager.state.value.contentItems.find { it.id == nativeAudioIdToPlay }
+            if (item != null) {
+                GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
+            }
         }
 
-        if (videoIdToPlay != null || audioUrlToPlay != null) {
+        if (videoIdToPlay != null || audioUrlToPlay != null || nativeAudioIdToPlay != null) {
             // Reset unmask state
             lifecycleScope.launch {
                 try {

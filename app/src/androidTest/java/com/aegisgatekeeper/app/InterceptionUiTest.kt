@@ -255,9 +255,7 @@ class InterceptionUiTest {
                 TimeBoxSwapUi(
                     maxMinutes = 10,
                     items = mockItems,
-                    onPlayVideo = { },
-                    onPlayAudio = { },
-                    onOpenLink = { },
+                    onPlayContent = { },
                     onCancel = { },
                 )
             }
@@ -276,9 +274,7 @@ class InterceptionUiTest {
                 TimeBoxSwapUi(
                     maxMinutes = 10,
                     items = emptyList(),
-                    onPlayVideo = { },
-                    onPlayAudio = { },
-                    onOpenLink = { },
+                    onPlayContent = { },
                     onCancel = { },
                 )
             }

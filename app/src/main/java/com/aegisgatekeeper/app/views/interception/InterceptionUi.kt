@@ -67,31 +67,33 @@ fun InterceptionScreen() {
             TimeBoxSwapUi(
                 maxMinutes = maxMins,
                 items = state.contentItems,
-                onPlayVideo = { videoId ->
-                    val intent =
-                        android.content.Intent(com.aegisgatekeeper.app.App.instance, MainActivity::class.java).apply {
-                            putExtra("OPEN_CLEAN_PLAYER_VIDEO_ID", videoId)
-                            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        }
-                    com.aegisgatekeeper.app.App.instance
-                        .startActivity(intent)
-                    GatekeeperStateManager.dispatch(GatekeeperAction.DismissOverlay)
-                },
-                onPlayAudio = { audioUrl ->
-                    val intent =
-                        android.content.Intent(com.aegisgatekeeper.app.App.instance, MainActivity::class.java).apply {
-                            putExtra("OPEN_CLEAN_AUDIO_URL", audioUrl)
-                            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        }
-                    com.aegisgatekeeper.app.App.instance
-                        .startActivity(intent)
-                    GatekeeperStateManager.dispatch(GatekeeperAction.DismissOverlay)
-                },
-                onOpenLink = { url ->
-                    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
-                    intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-                    com.aegisgatekeeper.app.App.instance
-                        .startActivity(intent)
+                onPlayContent = { item ->
+                    if (item.type == com.aegisgatekeeper.app.domain.ContentType.VIDEO) {
+                        val intent =
+                            android.content.Intent(com.aegisgatekeeper.app.App.instance, MainActivity::class.java).apply {
+                                putExtra("OPEN_CLEAN_PLAYER_VIDEO_ID", item.videoId)
+                                flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            }
+                        com.aegisgatekeeper.app.App.instance
+                            .startActivity(intent)
+                    } else if (item.type == com.aegisgatekeeper.app.domain.ContentType.AUDIO) {
+                        val intent =
+                            android.content.Intent(com.aegisgatekeeper.app.App.instance, MainActivity::class.java).apply {
+                                if (item.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
+                                    putExtra("OPEN_CLEAN_AUDIO_URL", item.videoId)
+                                } else {
+                                    putExtra("OPEN_NATIVE_AUDIO_ID", item.id)
+                                }
+                                flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            }
+                        com.aegisgatekeeper.app.App.instance
+                            .startActivity(intent)
+                    } else {
+                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(item.videoId))
+                        intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                        com.aegisgatekeeper.app.App.instance
+                            .startActivity(intent)
+                    }
                     GatekeeperStateManager.dispatch(GatekeeperAction.DismissOverlay)
                 },
                 onCancel = { screen = "CHOICE" },
@@ -124,7 +126,11 @@ fun InterceptionScreen() {
                     } else if (item.type == com.aegisgatekeeper.app.domain.ContentType.AUDIO) {
                         val intent =
                             android.content.Intent(com.aegisgatekeeper.app.App.instance, MainActivity::class.java).apply {
-                                putExtra("OPEN_CLEAN_AUDIO_URL", item.videoId)
+                                if (item.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
+                                    putExtra("OPEN_CLEAN_AUDIO_URL", item.videoId)
+                                } else {
+                                    putExtra("OPEN_NATIVE_AUDIO_ID", item.id)
+                                }
                                 flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
                             }
                         com.aegisgatekeeper.app.App.instance
@@ -423,9 +429,7 @@ fun InterceptionChoiceUi(
 fun TimeBoxSwapUi(
     maxMinutes: Int,
     items: List<ContentItem>,
-    onPlayVideo: (String) -> Unit,
-    onPlayAudio: (String) -> Unit,
-    onOpenLink: (String) -> Unit = {},
+    onPlayContent: (ContentItem) -> Unit,
     onCancel: () -> Unit,
 ) {
     val state by GatekeeperStateManager.state.collectAsState()
@@ -467,13 +471,7 @@ fun TimeBoxSwapUi(
                         Card(
                             modifier =
                                 Modifier.fillMaxWidth().padding(vertical = 8.dp).clickable {
-                                    if (item.type == com.aegisgatekeeper.app.domain.ContentType.VIDEO) {
-                                        onPlayVideo(item.videoId)
-                                    } else if (item.type == com.aegisgatekeeper.app.domain.ContentType.AUDIO) {
-                                        onPlayAudio(item.videoId)
-                                    } else if (item.type == com.aegisgatekeeper.app.domain.ContentType.READING) {
-                                        onOpenLink(item.videoId)
-                                    }
+                                    onPlayContent(item)
                                 },
                             colors =
                                 CardDefaults
