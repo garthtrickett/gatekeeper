@@ -443,6 +443,7 @@ fun CleanAudioPlayerModal(
     }
 
     androidx.activity.compose.BackHandler(enabled = isVisible) {
+        GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(url, currentPosition))
         onMinimize()
     }
 
@@ -472,7 +473,10 @@ fun CleanAudioPlayerModal(
                     contentAlignment = Alignment.TopEnd,
                 ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        IndustrialButton(onClick = onMinimize, text = "Minimize")
+                        IndustrialButton(onClick = {
+                            GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(url, currentPosition))
+                            onMinimize()
+                        }, text = "Minimize")
                         IndustrialButton(onClick = {
                             val duration = System.currentTimeMillis() - sessionStartTime
                             GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanAudio: Player", duration))
@@ -563,7 +567,12 @@ fun CleanAudioPlayerModal(
                                         )
                                         onStop()
                                     },
-                                    onStateChangeCallback = { state -> playerStateCallback(state) },
+                                    onStateChangeCallback = { state -> 
+                                        playerStateCallback(state)
+                                        if (state == 2 || state == 0) { // PAUSED or ENDED
+                                            GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(url, currentPosition))
+                                        }
+                                    },
                                     onTimeUpdateCallback = { time -> currentPosition = time },
                                 ),
                                 "Android",

@@ -73,6 +73,7 @@ actual fun CleanPlayerModal(
 
     // Intercept the native system back button instead of relying on the Dialog's onDismissRequest
     androidx.activity.compose.BackHandler(enabled = isVisible) {
+        GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(videoId, currentPosition))
         onMinimize()
     }
 
@@ -208,7 +209,10 @@ actual fun CleanPlayerModal(
                     contentAlignment = Alignment.TopEnd,
                 ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        IndustrialButton(onClick = onMinimize, text = "Minimize")
+                        IndustrialButton(onClick = {
+                            GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(videoId, currentPosition))
+                            onMinimize()
+                        }, text = "Minimize")
                         IndustrialButton(onClick = {
                             val duration = System.currentTimeMillis() - sessionStartTime
                             GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanPlayer: YouTube", duration))
@@ -303,7 +307,12 @@ actual fun CleanPlayerModal(
                                     GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanPlayer: YouTube", duration))
                                     onStop()
                                 },
-                                onStateChangeCallback = { state -> playerStateCallback(state) },
+                                onStateChangeCallback = { state -> 
+                                    playerStateCallback(state)
+                                    if (state == 2 || state == 0) { // PAUSED or ENDED
+                                        GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(videoId, currentPosition))
+                                    }
+                                },
                                 onTimeUpdateCallback = { time -> currentPosition = time },
                             ),
                             "Android",
@@ -355,6 +364,9 @@ actual fun CleanPlayerModal(
                                     var lastState = -1;
                                     function onPlayerStateChange(event) {
                                         if (typeof Android !== "undefined" && Android !== null) {
+                                            if (player && player.getCurrentTime) {
+                                                Android.onTimeUpdate(player.getCurrentTime().toString());
+                                            }
                                             lastState = event.data;
                                             Android.onStateChange(event.data);
                                         }
@@ -362,11 +374,9 @@ actual fun CleanPlayerModal(
                                     setInterval(function() {
                                         if (player && player.getCurrentTime) {
                                             var state = player.getPlayerState();
-                                            if (state === 1) {
-                                                var time = player.getCurrentTime();
-                                                if (typeof Android !== "undefined" && Android !== null) {
-                                                    Android.onTimeUpdate(time.toString());
-                                                }
+                                            var time = player.getCurrentTime();
+                                            if (typeof Android !== "undefined" && Android !== null) {
+                                                Android.onTimeUpdate(time.toString());
                                             }
                                             if (state !== lastState && (state === 1 || state === 2 || state === 0)) {
                                                 lastState = state;
