@@ -118,6 +118,11 @@ data class NotificationLog(
 /**
  * An immutable log of a completed session in a blacklisted app.
  */
+data class MetacognitionRequest(
+    val packageName: String,
+    val durationMillis: Long,
+)
+
 data class SessionLog(
     val id: String = UUID.randomUUID().toString(),
     val packageName: String,

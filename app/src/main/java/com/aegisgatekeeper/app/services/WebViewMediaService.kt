@@ -52,6 +52,11 @@ class WebViewMediaService : Service() {
                 updateNotification()
             }
             "com.aegisgatekeeper.app.SERVICE_STOP" -> {
+                val launchIntent = Intent(this, com.aegisgatekeeper.app.MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+                startActivity(launchIntent)
+                sendBroadcast(Intent("com.aegisgatekeeper.app.WEB_STOP"))
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }

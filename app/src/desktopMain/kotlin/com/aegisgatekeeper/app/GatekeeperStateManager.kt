@@ -141,6 +141,14 @@ object GatekeeperStateManager {
                 _state.value = _state.value.copy(alternativeActivities = _state.value.alternativeActivities.filter { it.id != action.id })
             }
 
+            is GatekeeperAction.TriggerMetacognition -> {
+                _state.value = _state.value.copy(pendingMetacognition = com.aegisgatekeeper.app.domain.MetacognitionRequest(action.packageName, action.durationMillis))
+            }
+            
+            GatekeeperAction.ClearMetacognition -> {
+                _state.value = _state.value.copy(pendingMetacognition = null)
+            }
+
             else -> { /* Not all actions are handled on desktop */ }
         }
     }

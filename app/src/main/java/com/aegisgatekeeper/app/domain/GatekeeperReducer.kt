@@ -341,6 +341,14 @@ private fun reduceRulesAndIntercepts(
         }
 
         // --- Metacognition Logic ---
+        is GatekeeperAction.TriggerMetacognition -> {
+            state.copy(pendingMetacognition = MetacognitionRequest(action.packageName, action.durationMillis))
+        }
+
+        GatekeeperAction.ClearMetacognition -> {
+            state.copy(pendingMetacognition = null)
+        }
+
         is GatekeeperAction.LogSessionMetacognition -> {
             val newLog =
                 SessionLog(

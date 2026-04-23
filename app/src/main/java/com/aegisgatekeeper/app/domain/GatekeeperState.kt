@@ -44,6 +44,7 @@ data class GatekeeperState(
     val exportData: String? = null,
     val notificationDigest: List<NotificationLog> = emptyList(),
     val savedMediaPositions: Map<String, Float> = emptyMap(),
+    val pendingMetacognition: MetacognitionRequest? = null,
     // --- Clean Room Media Engine State ---
     val isLoadingYouTube: Boolean = false,
     val youtubeSearchResults: List<YoutubeSearchItem> = emptyList(),

@@ -178,6 +178,13 @@ sealed interface GatekeeperAction {
         val id: String,
     ) : GatekeeperAction
 
+    data class TriggerMetacognition(
+        val packageName: String,
+        val durationMillis: Long,
+    ) : GatekeeperAction
+
+    object ClearMetacognition : GatekeeperAction
+
     data class OpenPinnedWebsite(
         val url: String,
     ) : GatekeeperAction

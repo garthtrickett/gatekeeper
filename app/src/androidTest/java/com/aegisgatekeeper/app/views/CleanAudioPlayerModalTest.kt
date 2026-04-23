@@ -52,64 +52,16 @@ class CleanAudioPlayerModalTest {
         // Assert the close button exists
         composeTestRule.onNodeWithText("Close Audio").assertExists()
 
-        // Perform click to show metacognition UI
-        composeTestRule.onNodeWithText("Close Audio").performClick()
-
-        // Wait for UI to change and assert elements
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("Was this worth it?").assertExists()
-
-        // Skip to close
-        composeTestRule.onNodeWithText("Skip").performClick()
+        // Perform click to stop session
+        composeTestRule.onNodeWithText("End Session").performClick()
         composeTestRule.waitForIdle()
 
         // Verify callback was triggered
         assertThat(closed).isTrue()
 
-        // Verify state manager got the SKIPPED action
+        // Verify state manager got the TriggerMetacognition action
         val state = GatekeeperStateManager.state.value
-        assertThat(state.sessionLogs).hasSize(1)
-        assertThat(state.sessionLogs.first().emotion).isEqualTo(Emotion.SKIPPED)
-        assertThat(state.sessionLogs.first().packageName).isEqualTo("CleanAudio: Player")
-
-        // Verify media position was saved
-        assertThat(state.savedMediaPositions["https://soundcloud.com/test"]).isEqualTo(0f)
-    }
-
-    @Test
-    fun testModal_ClicksEmotion_LogsAndCloses() {
-        var closed = false
-
-        composeTestRule.setContent {
-            val isVisible = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(true) }
-            GatekeeperTheme {
-                if (isVisible.value) {
-                    CleanAudioPlayerModal(url = "https://soundcloud.com/test", isVisible = true, onMinimize = {}, onStop = {
-                        closed = true
-                        isVisible.value = false
-                    })
-                }
-            }
-        }
-
-        // Click End Session
-        composeTestRule.onNodeWithText("End Session").performClick()
-        composeTestRule.waitForIdle()
-
-        // Click Happy
-        composeTestRule.onNodeWithText("Happy").performClick()
-        composeTestRule.waitForIdle()
-
-        // Verify callback
-        assertThat(closed).isTrue()
-
-        // Verify state manager got the action
-        val state = GatekeeperStateManager.state.value
-        assertThat(state.sessionLogs).hasSize(1)
-        assertThat(state.sessionLogs.first().emotion).isEqualTo(Emotion.HAPPY)
-        assertThat(state.sessionLogs.first().packageName).isEqualTo("CleanAudio: Player")
-
-        // Verify media position was saved
-        assertThat(state.savedMediaPositions["https://soundcloud.com/test"]).isEqualTo(0f)
+        assertThat(state.pendingMetacognition).isNotNull()
+        assertThat(state.pendingMetacognition!!.packageName).isEqualTo("CleanAudio: Player")
     }
 }
