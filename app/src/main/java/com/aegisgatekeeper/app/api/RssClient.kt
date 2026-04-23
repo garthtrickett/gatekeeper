@@ -71,7 +71,7 @@ object RssClient {
 
                 val imageMatch =
                     Regex("<image>.*?<url>(.*?)</url>.*?</image>", RegexOption.DOT_MATCHES_ALL).find(xml)
-                        ?: Regex("<itunes:image href=\"([^"]+)\"", RegexOption.IGNORE_CASE).find(xml)
+                        ?: Regex("<itunes:image href=\"([^\"]+)\"", RegexOption.IGNORE_CASE).find(xml)
                 val artworkUrl = imageMatch?.groupValues?.get(1)
 
                 val items = Regex("<item[^>]*>(.*?)</item>", RegexOption.DOT_MATCHES_ALL).findAll(xml)
