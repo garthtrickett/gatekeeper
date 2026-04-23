@@ -21,6 +21,9 @@ data class GatekeeperState(
     val pendingMetacognition: MetacognitionRequest? = null,
     val isSyncingPodcasts: Boolean = false,
     val podcastSyncError: String? = null,
+    val activePodcastEpisodes: List<com.aegisgatekeeper.app.api.RssEpisode>? = null,
+    val activePodcastId: String? = null,
+    val isLoadingEpisodes: Boolean = false,
 )
 
 data class MetacognitionRequest(
@@ -136,7 +139,6 @@ sealed interface GatekeeperAction {
 
     data class SavePodcastSubscription(
         val subscription: PodcastSubscription,
-        val initialEpisodes: List<ContentItem>,
     ) : GatekeeperAction
 
     data class RemovePodcastSubscription(
@@ -148,15 +150,31 @@ sealed interface GatekeeperAction {
 
     object PodcastSyncStarted : GatekeeperAction
 
-    data class PodcastSyncCompleted(
-        val newEpisodes: List<ContentItem>,
-    ) : GatekeeperAction
+    object PodcastSyncCompleted : GatekeeperAction
 
     data class PodcastSyncFailed(
         val error: String,
     ) : GatekeeperAction
 
     object ClearPodcastSyncError : GatekeeperAction
+
+    data class LoadPodcastEpisodes(
+        val feedUrl: String,
+        val podcastId: String,
+    ) : GatekeeperAction
+
+    data class PodcastEpisodesLoaded(
+        val episodes: List<com.aegisgatekeeper.app.api.RssEpisode>,
+        val podcastId: String,
+    ) : GatekeeperAction
+
+    object ClearPodcastEpisodes : GatekeeperAction
+
+    data class AddEpisodeToBank(
+        val episode: com.aegisgatekeeper.app.api.RssEpisode,
+        val podcastId: String,
+        val podcastTitle: String,
+    ) : GatekeeperAction
 
     data class OpenNativePlayer(
         val contentItem: ContentItem,

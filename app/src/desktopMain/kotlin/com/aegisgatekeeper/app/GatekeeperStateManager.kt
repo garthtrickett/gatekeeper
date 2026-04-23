@@ -106,13 +106,36 @@ object GatekeeperStateManager {
                 _state.value =
                     _state.value.copy(
                         podcastSubscriptions = _state.value.podcastSubscriptions + action.subscription,
-                        contentItems = _state.value.contentItems + action.initialEpisodes,
                         isSyncingPodcasts = false,
                     )
             }
 
-            is GatekeeperAction.PodcastSyncCompleted -> {
-                _state.value = _state.value.copy(contentItems = _state.value.contentItems + action.newEpisodes)
+            GatekeeperAction.PodcastSyncCompleted -> {
+                _state.value = _state.value.copy(isSyncingPodcasts = false)
+            }
+
+            is GatekeeperAction.LoadPodcastEpisodes -> {
+                _state.value = _state.value.copy(
+                    isLoadingEpisodes = true,
+                    activePodcastEpisodes = null,
+                    activePodcastId = action.podcastId,
+                )
+            }
+
+            is GatekeeperAction.PodcastEpisodesLoaded -> {
+                _state.value = _state.value.copy(
+                    isLoadingEpisodes = false,
+                    activePodcastEpisodes = action.episodes,
+                    activePodcastId = action.podcastId,
+                )
+            }
+
+            GatekeeperAction.ClearPodcastEpisodes -> {
+                _state.value = _state.value.copy(
+                    isLoadingEpisodes = false,
+                    activePodcastEpisodes = null,
+                    activePodcastId = null,
+                )
             }
 
             is GatekeeperAction.SaveMediaPosition -> {

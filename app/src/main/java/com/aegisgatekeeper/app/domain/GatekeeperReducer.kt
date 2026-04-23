@@ -417,6 +417,7 @@ private fun reduceContentAndVault(
                         title = action.title,
                         channelName = action.channelName ?: existing.channelName,
                         durationSeconds = action.durationSeconds ?: existing.durationSeconds,
+                        podcastId = action.podcastId ?: existing.podcastId,
                         lastModified = action.currentTimestamp,
                         isDeleted = false,
                     )
@@ -440,6 +441,7 @@ private fun reduceContentAndVault(
                         rank = newRank,
                         capturedAtTimestamp = action.currentTimestamp,
                         durationSeconds = action.durationSeconds,
+                        podcastId = action.podcastId,
                         lastModified = action.currentTimestamp,
                     )
                 state.copy(
@@ -547,7 +549,6 @@ private fun reduceContentAndVault(
         is GatekeeperAction.SavePodcastSubscription -> {
             state.copy(
                 podcastSubscriptions = state.podcastSubscriptions + action.subscription,
-                contentItems = state.contentItems + action.initialEpisodes,
                 isSyncingPodcasts = false,
                 podcastSyncError = null,
             )
@@ -576,11 +577,34 @@ private fun reduceContentAndVault(
             state.copy(isSyncingPodcasts = true, podcastSyncError = null)
         }
 
-        is GatekeeperAction.PodcastSyncCompleted -> {
+        GatekeeperAction.PodcastSyncCompleted -> {
             state.copy(
                 isSyncingPodcasts = false,
-                contentItems = state.contentItems + action.newEpisodes,
                 podcastSyncError = null,
+            )
+        }
+
+        is GatekeeperAction.LoadPodcastEpisodes -> {
+            state.copy(
+                isLoadingEpisodes = true,
+                activePodcastEpisodes = null,
+                activePodcastId = action.podcastId,
+            )
+        }
+
+        is GatekeeperAction.PodcastEpisodesLoaded -> {
+            state.copy(
+                isLoadingEpisodes = false,
+                activePodcastEpisodes = action.episodes,
+                activePodcastId = action.podcastId,
+            )
+        }
+
+        GatekeeperAction.ClearPodcastEpisodes -> {
+            state.copy(
+                isLoadingEpisodes = false,
+                activePodcastEpisodes = null,
+                activePodcastId = null,
             )
         }
 

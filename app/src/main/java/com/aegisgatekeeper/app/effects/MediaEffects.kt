@@ -44,54 +44,45 @@ suspend fun handleMediaAndSystemEffects(
                             artworkUrl = data.artworkUrl,
                             lastModified = System.currentTimeMillis(),
                         )
-                    // Take only the first 10 episodes initially to not overwhelm
-                    val episodes =
-                        data.episodes.take(10).map { ep ->
-                            ContentItem(
-                                podcastId = podcastId,
-                                videoId = ep.audioUrl,
-                                title = ep.title,
-                                channelName = data.title,
-                                source = ContentSource.GENERIC,
-                                type = ContentType.AUDIO,
-                                rank = 0,
-                                capturedAtTimestamp = System.currentTimeMillis(),
-                                durationSeconds = ep.durationSeconds,
-                                lastModified = System.currentTimeMillis(),
-                            )
-                        }
-                    dispatch(GatekeeperAction.SavePodcastSubscription(sub, episodes))
+                    dispatch(GatekeeperAction.SavePodcastSubscription(sub))
                 },
+            )
+        }
+
+        is GatekeeperAction.LoadPodcastEpisodes -> {
+            Log.i("Gatekeeper", "📡 Loading Podcast Episodes from RSS: ${action.feedUrl}")
+            val result = RssClient.fetchFeed(action.feedUrl)
+            result.fold(
+                ifLeft = { error ->
+                    Log.e("Gatekeeper", "❌ Failed to load podcast episodes: $error")
+                    dispatch(GatekeeperAction.ClearPodcastEpisodes)
+                },
+                ifRight = { data ->
+                    dispatch(GatekeeperAction.PodcastEpisodesLoaded(data.episodes, action.podcastId))
+                }
+            )
+        }
+
+        is GatekeeperAction.AddEpisodeToBank -> {
+            Log.i("Gatekeeper", "🎬 Adding episode to bank: ${action.episode.title}")
+            dispatch(
+                GatekeeperAction.SaveToContentBank(
+                    videoId = action.episode.audioUrl,
+                    title = action.episode.title,
+                    source = ContentSource.GENERIC,
+                    type = ContentType.AUDIO,
+                    currentTimestamp = System.currentTimeMillis(),
+                    durationSeconds = action.episode.durationSeconds,
+                    channelName = action.podcastTitle,
+                    podcastId = action.podcastId,
+                )
             )
         }
 
         GatekeeperAction.RefreshAllFeedsRequested -> {
             dispatch(GatekeeperAction.PodcastSyncStarted)
-            val newItems = mutableListOf<ContentItem>()
-            val existingUrls = state.contentItems.map { it.videoId }.toSet()
-
-            for (sub in state.podcastSubscriptions) {
-                val result = RssClient.fetchFeed(sub.feedUrl)
-                result.getOrNull()?.let { data ->
-                    val freshEpisodes =
-                        data.episodes.filter { it.audioUrl !in existingUrls }.take(5).map { ep ->
-                            ContentItem(
-                                podcastId = sub.id,
-                                videoId = ep.audioUrl,
-                                title = ep.title,
-                                channelName = data.title,
-                                source = ContentSource.GENERIC,
-                                type = ContentType.AUDIO,
-                                rank = 0,
-                                capturedAtTimestamp = System.currentTimeMillis(),
-                                durationSeconds = ep.durationSeconds,
-                                lastModified = System.currentTimeMillis(),
-                            )
-                        }
-                    newItems.addAll(freshEpisodes)
-                }
-            }
-            dispatch(GatekeeperAction.PodcastSyncCompleted(newItems))
+            // Auto-dumping logic has been removed. We just finish sync.
+            dispatch(GatekeeperAction.PodcastSyncCompleted)
         }
 
         is GatekeeperAction.ProcessSharedLink -> {

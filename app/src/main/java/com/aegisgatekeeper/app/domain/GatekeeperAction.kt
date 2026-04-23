@@ -79,7 +79,6 @@ sealed interface GatekeeperAction {
 
     data class SavePodcastSubscription(
         val subscription: PodcastSubscription,
-        val initialEpisodes: List<ContentItem>,
     ) : GatekeeperAction
 
     data class RemovePodcastSubscription(
@@ -91,15 +90,31 @@ sealed interface GatekeeperAction {
 
     object PodcastSyncStarted : GatekeeperAction
 
-    data class PodcastSyncCompleted(
-        val newEpisodes: List<ContentItem>,
-    ) : GatekeeperAction
+    object PodcastSyncCompleted : GatekeeperAction
 
     data class PodcastSyncFailed(
         val error: String,
     ) : GatekeeperAction
 
     object ClearPodcastSyncError : GatekeeperAction
+
+    data class LoadPodcastEpisodes(
+        val feedUrl: String,
+        val podcastId: String,
+    ) : GatekeeperAction
+
+    data class PodcastEpisodesLoaded(
+        val episodes: List<com.aegisgatekeeper.app.api.RssEpisode>,
+        val podcastId: String,
+    ) : GatekeeperAction
+
+    object ClearPodcastEpisodes : GatekeeperAction
+
+    data class AddEpisodeToBank(
+        val episode: com.aegisgatekeeper.app.api.RssEpisode,
+        val podcastId: String,
+        val podcastTitle: String,
+    ) : GatekeeperAction
 
     data class SaveToContentBank(
         val videoId: String,
@@ -109,6 +124,7 @@ sealed interface GatekeeperAction {
         val currentTimestamp: Long,
         val durationSeconds: Long? = null,
         val channelName: String? = null,
+        val podcastId: String? = null,
     ) : GatekeeperAction
 
     data class ReorderContentBank(
