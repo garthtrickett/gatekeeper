@@ -40,32 +40,12 @@ fun handleDatabaseEffects(
 
         is GatekeeperAction.SavePodcastSubscription -> {
             Log.i("Gatekeeper", "DB: Inserting PodcastSubscription: ${action.subscription.showTitle}")
-            db.transaction {
-                db.podcastSubscriptionQueries.insert(
-                    id = action.subscription.id,
-                    feedUrl = action.subscription.feedUrl,
-                    showTitle = action.subscription.showTitle,
-                    artworkUrl = action.subscription.artworkUrl,
-                )
-                action.initialEpisodes.forEach { item ->
-                    val finalItem = newState.contentItems.find { it.id == item.id } ?: item
-                    db.contentItemQueries.insert(
-                        id = finalItem.id,
-                        podcastId = finalItem.podcastId,
-                        videoId = finalItem.videoId,
-                        title = finalItem.title,
-                        channelName = finalItem.channelName,
-                        source = finalItem.source,
-                        type = finalItem.type,
-                        rank = finalItem.rank,
-                        capturedAtTimestamp = finalItem.capturedAtTimestamp,
-                        durationSeconds = finalItem.durationSeconds,
-                        lastModified = finalItem.lastModified,
-                        isSynced = finalItem.isSynced,
-                        isDeleted = finalItem.isDeleted,
-                    )
-                }
-            }
+            db.podcastSubscriptionQueries.insert(
+                id = action.subscription.id,
+                feedUrl = action.subscription.feedUrl,
+                showTitle = action.subscription.showTitle,
+                artworkUrl = action.subscription.artworkUrl,
+            )
         }
 
         is GatekeeperAction.RemovePodcastSubscription -> {
@@ -85,28 +65,8 @@ fun handleDatabaseEffects(
             }
         }
 
-        is GatekeeperAction.PodcastSyncCompleted -> {
-            Log.i("Gatekeeper", "DB: Inserting ${action.newEpisodes.size} new podcast episodes")
-            db.transaction {
-                action.newEpisodes.forEach { item ->
-                    val finalItem = newState.contentItems.find { it.id == item.id } ?: item
-                    db.contentItemQueries.insert(
-                        id = finalItem.id,
-                        podcastId = finalItem.podcastId,
-                        videoId = finalItem.videoId,
-                        title = finalItem.title,
-                        channelName = finalItem.channelName,
-                        source = finalItem.source,
-                        type = finalItem.type,
-                        rank = finalItem.rank,
-                        capturedAtTimestamp = finalItem.capturedAtTimestamp,
-                        durationSeconds = finalItem.durationSeconds,
-                        lastModified = finalItem.lastModified,
-                        isSynced = finalItem.isSynced,
-                        isDeleted = finalItem.isDeleted,
-                    )
-                }
-            }
+        GatekeeperAction.PodcastSyncCompleted -> {
+            Log.i("Gatekeeper", "DB: Podcast sync completed")
         }
 
         is GatekeeperAction.SaveToContentBank -> {

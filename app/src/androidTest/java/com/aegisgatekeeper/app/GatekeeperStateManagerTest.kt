@@ -671,31 +671,12 @@ class GatekeeperStateManagerTest {
                     }
 
                     is GatekeeperAction.SavePodcastSubscription -> {
-                        db.transaction {
-                            db.podcastSubscriptionQueries.insert(
-                                id = action.subscription.id,
-                                feedUrl = action.subscription.feedUrl,
-                                showTitle = action.subscription.showTitle,
-                                artworkUrl = action.subscription.artworkUrl,
-                            )
-                            action.initialEpisodes.forEach { item ->
-                                db.contentItemQueries.insert(
-                                    id = item.id,
-                                    podcastId = item.podcastId,
-                                    videoId = item.videoId,
-                                    title = item.title,
-                                    channelName = item.channelName,
-                                    source = item.source,
-                                    type = item.type,
-                                    rank = item.rank,
-                                    capturedAtTimestamp = item.capturedAtTimestamp,
-                                    durationSeconds = item.durationSeconds,
-                                    lastModified = item.lastModified,
-                                    isSynced = item.isSynced,
-                                    isDeleted = item.isDeleted,
-                                )
-                            }
-                        }
+                        db.podcastSubscriptionQueries.insert(
+                            id = action.subscription.id,
+                            feedUrl = action.subscription.feedUrl,
+                            showTitle = action.subscription.showTitle,
+                            artworkUrl = action.subscription.artworkUrl,
+                        )
                     }
 
                     is GatekeeperAction.RemovePodcastSubscription -> {

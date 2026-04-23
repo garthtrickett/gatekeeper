@@ -584,26 +584,50 @@ class GatekeeperReducerTest {
     // --- Podcast Reducer Tests ---
 
     @Test
-    fun testSavePodcastSubscription_AddsSubscriptionAndEpisodes() {
+    fun testSavePodcastSubscription_AddsSubscription() {
         val sub = PodcastSubscription(id = "sub1", feedUrl = "url", showTitle = "Title", artworkUrl = null)
-        val ep =
-            ContentItem(
-                id = "ep1",
-                videoId = "v1",
-                title = "T1",
-                source = ContentSource.GENERIC,
-                type = ContentType.AUDIO,
-                rank = 0,
-                capturedAtTimestamp = 0,
-            )
 
-        val action = GatekeeperAction.SavePodcastSubscription(sub, listOf(ep))
+        val action = GatekeeperAction.SavePodcastSubscription(sub)
         val newState = reduce(initialState, action)
 
         assertThat(newState.podcastSubscriptions).hasSize(1)
         assertThat(newState.podcastSubscriptions.first().id).isEqualTo("sub1")
-        assertThat(newState.contentItems).hasSize(1)
-        assertThat(newState.contentItems.first().id).isEqualTo("ep1")
+    }
+
+    @Test
+    fun testLoadPodcastEpisodes_setsLoadingAndClearsActive() {
+        val action = GatekeeperAction.LoadPodcastEpisodes("url", "podcast1")
+        val newState = reduce(initialState, action)
+
+        assertThat(newState.isLoadingEpisodes).isTrue()
+        assertThat(newState.activePodcastEpisodes).isNull()
+        assertThat(newState.activePodcastId).isEqualTo("podcast1")
+    }
+
+    @Test
+    fun testPodcastEpisodesLoaded_setsActiveEpisodes() {
+        val stateWithLoading = initialState.copy(isLoadingEpisodes = true)
+        val mockEpisodes = listOf(com.aegisgatekeeper.app.api.RssEpisode("Ep 1", "audio_url", 1000L, "2023-01-01"))
+        val action = GatekeeperAction.PodcastEpisodesLoaded(mockEpisodes, "podcast1")
+        val newState = reduce(stateWithLoading, action)
+
+        assertThat(newState.isLoadingEpisodes).isFalse()
+        assertThat(newState.activePodcastEpisodes).isEqualTo(mockEpisodes)
+        assertThat(newState.activePodcastId).isEqualTo("podcast1")
+    }
+
+    @Test
+    fun testClearPodcastEpisodes_clearsActive() {
+        val stateWithActive = initialState.copy(
+            isLoadingEpisodes = true,
+            activePodcastEpisodes = listOf(),
+            activePodcastId = "podcast1"
+        )
+        val newState = reduce(stateWithActive, GatekeeperAction.ClearPodcastEpisodes)
+
+        assertThat(newState.isLoadingEpisodes).isFalse()
+        assertThat(newState.activePodcastEpisodes).isNull()
+        assertThat(newState.activePodcastId).isNull()
     }
 
     @Test
