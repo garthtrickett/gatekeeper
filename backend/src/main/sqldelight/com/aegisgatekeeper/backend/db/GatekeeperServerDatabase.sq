@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS VaultItems (
 CREATE TABLE IF NOT EXISTS ContentItems (
     id TEXT NOT NULL PRIMARY KEY,
     userId TEXT NOT NULL,
+    podcastId TEXT,
     videoId TEXT NOT NULL,
     title TEXT NOT NULL,
     channelName TEXT,
