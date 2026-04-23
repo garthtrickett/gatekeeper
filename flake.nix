@@ -204,6 +204,7 @@
                     alias adb="${pkgs.android-tools}/bin/adb"
                     alias desktop='gradle :app:run'
                     alias backend='./gradlew :backend:run -Dio.ktor.development=true'
+                    alias apk='./gradlew :app:assembleDebug'
 
 
                     alias logs='adb logcat | grep -iE "Gatekeeper|AndroidRuntime|WindowManager|FATAL"'
