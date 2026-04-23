@@ -151,10 +151,11 @@ actual fun CleanPlayerModal(
 
         playerStateCallback = { playerState ->
             val isPlaying = playerState == 1
-            val updateIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-                action = "com.aegisgatekeeper.app.SERVICE_UPDATE"
-                putExtra("EXTRA_IS_PLAYING", isPlaying)
-            }
+            val updateIntent =
+                Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
+                    action = "com.aegisgatekeeper.app.SERVICE_UPDATE"
+                    putExtra("EXTRA_IS_PLAYING", isPlaying)
+                }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(updateIntent)
             } else {
@@ -225,10 +226,15 @@ actual fun CleanPlayerModal(
                         override fun onWindowVisibilityChanged(visibility: Int) {
                             super.onWindowVisibilityChanged(android.view.View.VISIBLE)
                         }
+
                         override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
                             super.onWindowFocusChanged(true)
                         }
-                        override fun onVisibilityChanged(changedView: android.view.View, visibility: Int) {
+
+                        override fun onVisibilityChanged(
+                            changedView: android.view.View,
+                            visibility: Int,
+                        ) {
                             super.onVisibilityChanged(changedView, android.view.View.VISIBLE)
                         }
                     }.apply {

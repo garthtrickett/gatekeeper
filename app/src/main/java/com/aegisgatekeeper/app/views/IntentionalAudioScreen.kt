@@ -351,11 +351,12 @@ fun CleanAudioPlayerModal(
             context.startService(startIntent)
         }
 
-        val filter = IntentFilter().apply {
-            addAction("com.aegisgatekeeper.app.WEB_PLAY")
-            addAction("com.aegisgatekeeper.app.WEB_PAUSE")
-            addAction("com.aegisgatekeeper.app.WEB_STOP")
-        }
+        val filter =
+            IntentFilter().apply {
+                addAction("com.aegisgatekeeper.app.WEB_PLAY")
+                addAction("com.aegisgatekeeper.app.WEB_PAUSE")
+                addAction("com.aegisgatekeeper.app.WEB_STOP")
+            }
         val receiver =
             object : BroadcastReceiver() {
                 override fun onReceive(
@@ -388,10 +389,11 @@ fun CleanAudioPlayerModal(
 
         playerStateCallback = { playerState ->
             val isPlaying = playerState == 1
-            val updateIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-                action = "com.aegisgatekeeper.app.SERVICE_UPDATE"
-                putExtra("EXTRA_IS_PLAYING", isPlaying)
-            }
+            val updateIntent =
+                Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
+                    action = "com.aegisgatekeeper.app.SERVICE_UPDATE"
+                    putExtra("EXTRA_IS_PLAYING", isPlaying)
+                }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(updateIntent)
             } else {
@@ -492,10 +494,15 @@ fun CleanAudioPlayerModal(
                             override fun onWindowVisibilityChanged(visibility: Int) {
                                 super.onWindowVisibilityChanged(android.view.View.VISIBLE)
                             }
+
                             override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
                                 super.onWindowFocusChanged(true)
                             }
-                            override fun onVisibilityChanged(changedView: android.view.View, visibility: Int) {
+
+                            override fun onVisibilityChanged(
+                                changedView: android.view.View,
+                                visibility: Int,
+                            ) {
                                 super.onVisibilityChanged(changedView, android.view.View.VISIBLE)
                             }
                         }.apply {

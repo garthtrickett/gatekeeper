@@ -116,14 +116,15 @@ class WebViewMediaService : Service() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-        val contentIntent = PendingIntent.getActivity(
-            this,
-            0,
-            Intent(this, com.aegisgatekeeper.app.MainActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val contentIntent =
+            PendingIntent.getActivity(
+                this,
+                0,
+                Intent(this, com.aegisgatekeeper.app.MainActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
 
         val builder =
             Notification
@@ -157,7 +158,7 @@ class WebViewMediaService : Service() {
             startForeground(
                 1005,
                 builder.build(),
-                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
             )
         } else {
             startForeground(1005, builder.build())
