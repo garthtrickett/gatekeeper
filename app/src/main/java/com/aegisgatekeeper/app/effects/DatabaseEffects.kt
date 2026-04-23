@@ -70,10 +70,18 @@ fun handleDatabaseEffects(
 
         is GatekeeperAction.RemovePodcastSubscription -> {
             Log.i("Gatekeeper", "DB: Deleting PodcastSubscription: ${action.id}")
-            db.podcastSubscriptionQueries.delete(action.id)
-            val itemsToDelete = oldState.contentItems.filter { it.podcastId == action.id }
-            itemsToDelete.forEach { 
-                db.contentItemQueries.delete(lastModified = action.currentTimestamp, id = it.id)
+            db.transaction {
+                db.podcastSubscriptionQueries.delete(action.id)
+                val itemsToDelete = oldState.contentItems.filter { it.podcastId == action.id }
+                val slots = db.intentionalSlotQueries.selectAll().executeAsList()
+                itemsToDelete.forEach { item ->
+                    db.contentItemQueries.delete(lastModified = action.currentTimestamp, id = item.id)
+                    slots.forEach { slot ->
+                        if (slot.id == item.id) {
+                            db.intentionalSlotQueries.delete(slot.slotIndex)
+                        }
+                    }
+                }
             }
         }
 

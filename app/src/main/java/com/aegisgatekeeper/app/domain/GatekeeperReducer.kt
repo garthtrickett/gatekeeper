@@ -521,12 +521,39 @@ private fun reduceContentAndVault(
             state.copy(activeNativeMediaItem = null)
         }
 
-        is GatekeeperAction.OpenNativePlayer -> {
-            state.copy(activeNativeMediaItem = action.contentItem)
+        is GatekeeperAction.SavePodcastSubscription -> {
+            state.copy(
+                podcastSubscriptions = state.podcastSubscriptions + action.subscription,
+                contentItems = state.contentItems + action.initialEpisodes
+            )
         }
 
-        GatekeeperAction.CloseNativePlayer -> {
-            state.copy(activeNativeMediaItem = null)
+        is GatekeeperAction.RemovePodcastSubscription -> {
+            state.copy(
+                podcastSubscriptions = state.podcastSubscriptions.filter { it.id != action.id },
+                contentItems = state.contentItems.map { 
+                    if (it.podcastId == action.id) it.copy(isDeleted = true, lastModified = action.currentTimestamp) else it 
+                },
+                intentionalSlots = state.intentionalSlots.filter { slot ->
+                    val isFromDeletedPodcast = state.contentItems.find { it.id == slot.contentItem.id }?.podcastId == action.id
+                    !isFromDeletedPodcast
+                }
+            )
+        }
+
+        GatekeeperAction.PodcastSyncStarted -> {
+            state.copy(isSyncingPodcasts = true)
+        }
+
+        is GatekeeperAction.PodcastSyncCompleted -> {
+            state.copy(
+                isSyncingPodcasts = false,
+                contentItems = state.contentItems + action.newEpisodes
+            )
+        }
+
+        is GatekeeperAction.PodcastSyncFailed -> {
+            state.copy(isSyncingPodcasts = false)
         }
 
         is GatekeeperAction.OpenSurgicalFacebook -> {
