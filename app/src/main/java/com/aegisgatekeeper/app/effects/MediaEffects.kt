@@ -27,9 +27,9 @@ suspend fun handleMediaAndSystemEffects(
             Log.i("Gatekeeper", "📡 Fetching Podcast RSS: ${action.url}")
             val result = RssClient.fetchFeed(action.url)
             result.fold(
-                ifLeft = {
-                    Log.e("Gatekeeper", "❌ Failed to parse RSS")
-                    dispatch(GatekeeperAction.PodcastSyncFailed("Failed to parse RSS"))
+                ifLeft = { error ->
+                    Log.e("Gatekeeper", "❌ Failed to parse RSS: $error")
+                    dispatch(GatekeeperAction.PodcastSyncFailed("Failed to parse RSS: $error"))
                 },
                 ifRight = { data ->
                     val podcastId =
