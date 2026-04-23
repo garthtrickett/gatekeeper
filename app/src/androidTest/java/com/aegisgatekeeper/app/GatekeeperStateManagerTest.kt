@@ -231,6 +231,7 @@ class GatekeeperStateManagerTest {
             // Arrange
             db.contentItemQueries.insert(
                 "1",
+                null,
                 "vid1",
                 "Video 1",
                 null,
@@ -245,6 +246,7 @@ class GatekeeperStateManagerTest {
             )
             db.contentItemQueries.insert(
                 "2",
+                null,
                 "aud1",
                 "Audio 1",
                 null,
@@ -292,6 +294,7 @@ class GatekeeperStateManagerTest {
             // Arrange
             db.contentItemQueries.insert(
                 "1",
+                null,
                 "vid1",
                 "Video 1",
                 null,
@@ -306,6 +309,7 @@ class GatekeeperStateManagerTest {
             )
             db.contentItemQueries.insert(
                 "2",
+                null,
                 "aud1",
                 "Audio 1",
                 null,
@@ -320,6 +324,7 @@ class GatekeeperStateManagerTest {
             )
             db.contentItemQueries.insert(
                 "3",
+                null,
                 "vid2",
                 "Video 2",
                 null,
@@ -494,6 +499,7 @@ class GatekeeperStateManagerTest {
                         val newItem = newState.contentItems.find { it.videoId == action.videoId && it.source == action.source }!!
                         db.contentItemQueries.insert(
                             id = newItem.id,
+                            podcastId = newItem.podcastId,
                             videoId = newItem.videoId,
                             title = newItem.title,
                             channelName = newItem.channelName,

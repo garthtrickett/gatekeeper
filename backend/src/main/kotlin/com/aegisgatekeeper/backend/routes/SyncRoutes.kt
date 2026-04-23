@@ -70,6 +70,7 @@ fun Routing.syncRouting() {
                             queries.insertContentItem(
                                 id = item.id,
                                 userId = userId,
+                                podcastId = item.podcastId,
                                 videoId = item.videoId,
                                 title = item.title,
                                 channelName = item.channelName,
@@ -85,6 +86,7 @@ fun Routing.syncRouting() {
                             queries.updateContentItem(
                                 id = item.id,
                                 userId = userId,
+                                podcastId = item.podcastId,
                                 videoId = item.videoId,
                                 title = item.title,
                                 channelName = item.channelName,
@@ -137,6 +139,7 @@ fun Routing.syncRouting() {
                 val contentItems = queries.getContentItemsSince(userId, since).executeAsList().map { row ->
                     ContentItemDto(
                         id = row.id,
+                        podcastId = row.podcastId,
                         videoId = row.videoId,
                         title = row.title,
                         channelName = row.channelName,
@@ -154,7 +157,7 @@ fun Routing.syncRouting() {
                     SyncPullPayload(
                         vaultItems = vaultItems,
                         contentItems = contentItems,
-                        podcastSubscriptions = podcastSubscriptions,
+                        podcastSubscriptions = emptyList(), // Not synced right now
                         serverTimestamp = System.currentTimeMillis()
                     )
                 )

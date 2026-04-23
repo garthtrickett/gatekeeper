@@ -134,17 +134,18 @@ fun main() =
                                     contentItems =
                                         state.contentItems.map {
                                             com.aegisgatekeeper.app.sync.ContentItemDto(
-                                                it.id,
-                                                it.videoId,
-                                                it.title,
-                                                it.channelName,
-                                                it.source.name,
-                                                it.type.name,
-                                                it.rank,
-                                                it.capturedAtTimestamp,
-                                                it.durationSeconds,
-                                                it.lastModified,
-                                                it.isDeleted,
+                                                id = it.id,
+                                                podcastId = it.podcastId,
+                                                videoId = it.videoId,
+                                                title = it.title,
+                                                channelName = it.channelName,
+                                                source = it.source.name,
+                                                type = it.type.name,
+                                                rank = it.rank,
+                                                capturedAtTimestamp = it.capturedAtTimestamp,
+                                                durationSeconds = it.durationSeconds,
+                                                lastModified = it.lastModified,
+                                                isDeleted = it.isDeleted,
                                             )
                                         },
                                 )
@@ -174,21 +175,21 @@ fun main() =
                                     val newContents =
                                         payload.contentItems.map {
                                             com.aegisgatekeeper.app.domain.ContentItem(
-                                                it.id,
-                                                it.podcastId,
-                                                it.videoId,
-                                                it.title,
-                                                it.channelName,
-                                                com.aegisgatekeeper.app.domain.ContentSource
+                                                id = it.id,
+                                                podcastId = it.podcastId,
+                                                videoId = it.videoId,
+                                                title = it.title,
+                                                channelName = it.channelName,
+                                                source = com.aegisgatekeeper.app.domain.ContentSource
                                                     .valueOf(it.source),
-                                                com.aegisgatekeeper.app.domain.ContentType
+                                                type = com.aegisgatekeeper.app.domain.ContentType
                                                     .valueOf(it.type),
-                                                it.rank,
-                                                it.capturedAtTimestamp,
-                                                it.durationSeconds,
-                                                it.lastModified,
-                                                true,
-                                                it.isDeleted,
+                                                rank = it.rank,
+                                                capturedAtTimestamp = it.capturedAtTimestamp,
+                                                durationSeconds = it.durationSeconds,
+                                                lastModified = it.lastModified,
+                                                isSynced = true,
+                                                isDeleted = it.isDeleted,
                                             )
                                         }
                                     GatekeeperStateManager.dispatch(

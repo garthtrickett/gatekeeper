@@ -41,17 +41,18 @@ class SyncWorker(
             val contentDtos =
                 db.contentItemQueries.selectAllByRank().executeAsList().map {
                     ContentItemDto(
-                        it.id,
-                        it.videoId,
-                        it.title,
-                        it.channelName,
-                        it.source.name,
-                        it.type.name,
-                        it.rank,
-                        it.capturedAtTimestamp,
-                        it.durationSeconds,
-                        it.lastModified,
-                        it.isDeleted,
+                        id = it.id,
+                        podcastId = it.podcastId,
+                        videoId = it.videoId,
+                        title = it.title,
+                        channelName = it.channelName,
+                        source = it.source.name,
+                        type = it.type.name,
+                        rank = it.rank,
+                        capturedAtTimestamp = it.capturedAtTimestamp,
+                        durationSeconds = it.durationSeconds,
+                        lastModified = it.lastModified,
+                        isDeleted = it.isDeleted,
                     )
                 }
 
@@ -83,19 +84,19 @@ class SyncWorker(
                     val newContentItems =
                         payload.contentItems.map {
                             ContentItem(
-                                it.id,
-                                it.podcastId,
-                                it.videoId,
-                                it.title,
-                                it.channelName,
-                                ContentSource.valueOf(it.source),
-                                ContentType.valueOf(it.type),
-                                it.rank,
-                                it.capturedAtTimestamp,
-                                it.durationSeconds,
-                                it.lastModified,
-                                true,
-                                it.isDeleted,
+                                id = it.id,
+                                podcastId = it.podcastId,
+                                videoId = it.videoId,
+                                title = it.title,
+                                channelName = it.channelName,
+                                source = ContentSource.valueOf(it.source),
+                                type = ContentType.valueOf(it.type),
+                                rank = it.rank,
+                                capturedAtTimestamp = it.capturedAtTimestamp,
+                                durationSeconds = it.durationSeconds,
+                                lastModified = it.lastModified,
+                                isSynced = true,
+                                isDeleted = it.isDeleted,
                             )
                         }
 

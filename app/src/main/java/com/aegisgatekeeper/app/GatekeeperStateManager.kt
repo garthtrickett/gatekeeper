@@ -201,6 +201,7 @@ object GatekeeperStateManager {
         val contentItemsFromDb = db.contentItemQueries.selectAllByRank().executeAsList()
         val sessionLogsFromDb = db.sessionLogQueries.selectAll().executeAsList()
         val slotsFromDb = db.intentionalSlotQueries.selectAll().executeAsList()
+        val podcastSubscriptionsFromDb = db.podcastSubscriptionQueries.selectAll().executeAsList()
 
         val mediaPositionsFromDb =
             db.mediaPositionQueries
@@ -220,6 +221,17 @@ object GatekeeperStateManager {
 
         GatekeeperState(
             isProTier = appSettings?.isProTier ?: false,
+            podcastSubscriptions = podcastSubscriptionsFromDb.map {
+                com.aegisgatekeeper.app.domain.PodcastSubscription(
+                    id = it.id,
+                    feedUrl = it.feedUrl,
+                    showTitle = it.showTitle,
+                    artworkUrl = it.artworkUrl,
+                    lastModified = System.currentTimeMillis(),
+                    isSynced = false,
+                    isDeleted = false
+                )
+            },
             isAuthenticated = token != null,
             jwtToken = token,
             isManualLockdownActive = appSettings?.isManualLockdownActive ?: false,
@@ -238,18 +250,19 @@ object GatekeeperStateManager {
             contentItems =
                 contentItemsFromDb.map {
                     ContentItem(
-                        it.id,
-                        it.videoId,
-                        it.title,
-                        it.channelName,
-                        it.source,
-                        it.type,
-                        it.rank,
-                        it.capturedAtTimestamp,
-                        it.durationSeconds,
-                        it.lastModified,
-                        it.isSynced,
-                        it.isDeleted,
+                        id = it.id,
+                        podcastId = it.podcastId,
+                        videoId = it.videoId,
+                        title = it.title,
+                        channelName = it.channelName,
+                        source = it.source,
+                        type = it.type,
+                        rank = it.rank,
+                        capturedAtTimestamp = it.capturedAtTimestamp,
+                        durationSeconds = it.durationSeconds,
+                        lastModified = it.lastModified,
+                        isSynced = it.isSynced,
+                        isDeleted = it.isDeleted,
                     )
                 },
             savedMediaPositions = mediaPositionsFromDb,
@@ -269,19 +282,19 @@ object GatekeeperStateManager {
                         slotIndex = it.slotIndex.toInt(),
                         contentItem =
                             com.aegisgatekeeper.app.domain.ContentItem(
-                                it.id,
-                                it.podcastId,
-                                it.videoId,
-                                it.title,
-                                it.channelName,
-                                it.source,
-                                it.type,
-                                it.rank,
-                                it.capturedAtTimestamp,
-                                it.durationSeconds,
-                                it.lastModified,
-                                it.isSynced,
-                                it.isDeleted,
+                                id = it.id,
+                                podcastId = it.podcastId,
+                                videoId = it.videoId,
+                                title = it.title,
+                                channelName = it.channelName,
+                                source = it.source,
+                                type = it.type,
+                                rank = it.rank,
+                                capturedAtTimestamp = it.capturedAtTimestamp,
+                                durationSeconds = it.durationSeconds,
+                                lastModified = it.lastModified,
+                                isSynced = it.isSynced,
+                                isDeleted = it.isDeleted,
                             ),
                     )
                 },

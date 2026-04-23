@@ -93,6 +93,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
     var showFriction by remember { mutableStateOf(false) }
     var pendingFilterAction by remember { mutableStateOf<(() -> Unit)?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
+    var showFeedManagement by remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -122,6 +123,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     if (searchQuery.isNotEmpty()) {
                         IndustrialButton(onClick = { searchQuery = "" }, text = "Clear")
                     }
+                    IndustrialButton(onClick = { showFeedManagement = true }, text = "Podcasts")
                 }
 
                 // Filtering Chips
