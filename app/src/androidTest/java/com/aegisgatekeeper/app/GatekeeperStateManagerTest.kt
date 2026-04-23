@@ -670,6 +670,42 @@ class GatekeeperStateManagerTest {
                         db.alternativeActivityQueries.delete(action.id)
                     }
 
+                    is GatekeeperAction.SavePodcastSubscription -> {
+                        db.transaction {
+                            db.podcastSubscriptionQueries.insert(
+                                id = action.subscription.id,
+                                feedUrl = action.subscription.feedUrl,
+                                showTitle = action.subscription.showTitle,
+                                artworkUrl = action.subscription.artworkUrl
+                            )
+                            action.initialEpisodes.forEach { item ->
+                                db.contentItemQueries.insert(
+                                    id = item.id,
+                                    podcastId = item.podcastId,
+                                    videoId = item.videoId,
+                                    title = item.title,
+                                    channelName = item.channelName,
+                                    source = item.source,
+                                    type = item.type,
+                                    rank = item.rank,
+                                    capturedAtTimestamp = item.capturedAtTimestamp,
+                                    durationSeconds = item.durationSeconds,
+                                    lastModified = item.lastModified,
+                                    isSynced = item.isSynced,
+                                    isDeleted = item.isDeleted,
+                                )
+                            }
+                        }
+                    }
+
+                    is GatekeeperAction.RemovePodcastSubscription -> {
+                        db.podcastSubscriptionQueries.delete(action.id)
+                        val itemsToDelete = oldState.contentItems.filter { it.podcastId == action.id }
+                        itemsToDelete.forEach { 
+                            db.contentItemQueries.delete(lastModified = action.currentTimestamp, id = it.id)
+                        }
+                    }
+
                     else -> { /* Other side effects not under test */ }
                 }
             }
