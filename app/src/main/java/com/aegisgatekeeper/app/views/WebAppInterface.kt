@@ -13,9 +13,10 @@ class WebAppInterface(
     private val onTimeUpdateCallback: (Float) -> Unit = {},
 ) {
     @JavascriptInterface
-    fun onTimeUpdate(time: Float) {
+    fun onTimeUpdate(time: String) {
+        val parsedTime = time.toFloatOrNull() ?: 0f
         Handler(Looper.getMainLooper()).post {
-            onTimeUpdateCallback(time)
+            onTimeUpdateCallback(parsedTime)
         }
     }
 

@@ -365,7 +365,7 @@ actual fun CleanPlayerModal(
                                             if (state === 1) {
                                                 var time = player.getCurrentTime();
                                                 if (typeof Android !== "undefined" && Android !== null) {
-                                                    Android.onTimeUpdate(time);
+                                                    Android.onTimeUpdate(time.toString());
                                                 }
                                             }
                                             if (state !== lastState && (state === 1 || state === 2 || state === 0)) {

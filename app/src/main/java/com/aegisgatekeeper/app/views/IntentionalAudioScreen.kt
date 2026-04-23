@@ -599,7 +599,7 @@ fun CleanAudioPlayerModal(
                                         setInterval(function() {
                                             widget.getPosition(function(position) {
                                                 if (typeof Android !== "undefined" && Android !== null) {
-                                                    Android.onTimeUpdate(position / 1000.0);
+                                                    Android.onTimeUpdate((position / 1000.0).toString());
                                                 }
                                             });
                                             widget.isPaused(function(isPaused) {

@@ -69,7 +69,7 @@ class WebAppInterfaceTest {
             )
 
         // Act
-        webAppInterface.onTimeUpdate(15.5f)
+        webAppInterface.onTimeUpdate("15.5")
 
         // Assert: Wait for the main looper to execute the callback
         val success = latch.await(2, TimeUnit.SECONDS)
