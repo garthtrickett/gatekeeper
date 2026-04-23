@@ -268,7 +268,7 @@
           trap 'echo "🛑 Stopping E2E flow..."; kill 0; adb reverse --remove tcp:8081' EXIT
 
           # Clean up previous backend database to avoid duplicate items
-          rm -f gatekeeper_backend.db
+          rm -f gatekeeper_backend.db backend/gatekeeper_backend.db
 
           # Force local sync server URL for the Android emulator/device via adb reverse
           touch local.properties
