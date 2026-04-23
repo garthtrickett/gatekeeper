@@ -353,6 +353,48 @@ class ContentBankUiTest {
     }
 
     @Test
+    fun testContentBank_PodcastItem_PlaysInNativePlayer() {
+        // Arrange
+        val podcastUrl = "https://example.com/audio.mp3"
+        GatekeeperStateManager.dispatch(
+            GatekeeperAction.SaveToContentBank(
+                videoId = podcastUrl,
+                title = "Test Podcast Episode",
+                source = ContentSource.GENERIC,
+                type = ContentType.AUDIO,
+                currentTimestamp = 1000L,
+            ),
+        )
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                val state by GatekeeperStateManager.state.collectAsState()
+                ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
+                if (state.activeNativeMediaItem != null) {
+                    com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
+                        contentItem = state.activeNativeMediaItem!!,
+                        isVisible = state.isNativeAudioPlayerModalVisible,
+                        onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeNativePlayer) },
+                        onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
+                    )
+                }
+            }
+        }
+
+        // Act: Click the play button for our new item.
+        composeTestRule.onNodeWithText("Play").performClick()
+        composeTestRule.waitForIdle()
+
+        // Assert: The state manager should now have an active native media item
+        val state = GatekeeperStateManager.state.value
+        com.google.common.truth.Truth.assertThat(state.activeNativeMediaItem).isNotNull()
+        com.google.common.truth.Truth.assertThat(state.activeNativeMediaItem!!.title).isEqualTo("Test Podcast Episode")
+
+        // Assert: The native modal UI should be visible
+        composeTestRule.onNodeWithText("Close").assertIsDisplayed()
+    }
+
+    @Test
     fun testContentBank_SearchBar_FiltersByChannelName() {
         // Arrange: Seed State
         val title1 = "Kotlin Coroutines Guide"
