@@ -30,9 +30,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -340,10 +340,11 @@ fun CleanAudioPlayerModal(
     val startSeconds = state.savedMediaPositions[url] ?: 0f
 
     DisposableEffect(url) {
-        val startIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-            action = "com.aegisgatekeeper.app.SERVICE_START"
-            putExtra("EXTRA_TITLE", audioTitle)
-        }
+        val startIntent =
+            Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
+                action = "com.aegisgatekeeper.app.SERVICE_START"
+                putExtra("EXTRA_TITLE", audioTitle)
+            }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(startIntent)
         } else {
@@ -360,8 +361,14 @@ fun CleanAudioPlayerModal(
                     intent: Intent?,
                 ) {
                     when (intent?.action) {
-                        "com.aegisgatekeeper.app.WEB_PLAY" -> webViewRef?.evaluateJavascript("widget.play();", null)
-                        "com.aegisgatekeeper.app.WEB_PAUSE" -> webViewRef?.evaluateJavascript("widget.pause();", null)
+                        "com.aegisgatekeeper.app.WEB_PLAY" -> {
+                            webViewRef?.evaluateJavascript("widget.play();", null)
+                        }
+
+                        "com.aegisgatekeeper.app.WEB_PAUSE" -> {
+                            webViewRef?.evaluateJavascript("widget.pause();", null)
+                        }
+
                         "com.aegisgatekeeper.app.WEB_STOP" -> {
                             val duration = System.currentTimeMillis() - sessionStartTime
                             GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanAudio: Player", duration))
@@ -383,22 +390,26 @@ fun CleanAudioPlayerModal(
 
         playerStateCallback = { playerState ->
             val isPlaying = playerState == 1
-            val updateIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-                setAction("com.aegisgatekeeper.app.SERVICE_UPDATE")
-                putExtra("EXTRA_IS_PLAYING", isPlaying)
-            }
+            val updateIntent =
+                Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
+                    setAction("com.aegisgatekeeper.app.SERVICE_UPDATE")
+                    putExtra("EXTRA_IS_PLAYING", isPlaying)
+                }
             context.startService(updateIntent)
         }
 
         onDispose {
-            android.webkit.CookieManager.getInstance().flush()
+            android.webkit.CookieManager
+                .getInstance()
+                .flush()
             GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(url, currentPosition))
-            
-            val stopIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-                setAction("com.aegisgatekeeper.app.SERVICE_STOP")
-            }
+
+            val stopIntent =
+                Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
+                    setAction("com.aegisgatekeeper.app.SERVICE_STOP")
+                }
             context.startService(stopIntent)
-            
+
             try {
                 context.unregisterReceiver(receiver)
             } catch (e: Exception) {
@@ -436,15 +447,19 @@ fun CleanAudioPlayerModal(
     }
 
     Box(
-        modifier = if (isVisible) Modifier
-            .fillMaxSize()
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-            ) {}
-        else Modifier
-            .size(1.dp)
-            .alpha(0.01f)
+        modifier =
+            if (isVisible) {
+                Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) {}
+            } else {
+                Modifier
+                    .size(1.dp)
+                    .alpha(0.01f)
+            },
     ) {
         Column(modifier = if (isVisible) Modifier.fillMaxSize().systemBarsPadding() else Modifier.fillMaxSize()) {
             if (isVisible) {
@@ -458,10 +473,10 @@ fun CleanAudioPlayerModal(
                 ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         IndustrialButton(onClick = onMinimize, text = "Minimize")
-                        IndustrialButton(onClick = { 
+                        IndustrialButton(onClick = {
                             val duration = System.currentTimeMillis() - sessionStartTime
                             GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanAudio: Player", duration))
-                            onStop() 
+                            onStop()
                         }, text = "End Session", isWarning = true)
                     }
                 }
@@ -526,10 +541,12 @@ fun CleanAudioPlayerModal(
 
                             addJavascriptInterface(
                                 WebAppInterface(
-                                    onVideoEnded = { 
+                                    onVideoEnded = {
                                         val duration = System.currentTimeMillis() - sessionStartTime
-                                        GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanAudio: Player", duration))
-                                        onStop() 
+                                        GatekeeperStateManager.dispatch(
+                                            GatekeeperAction.TriggerMetacognition("CleanAudio: Player", duration),
+                                        )
+                                        onStop()
                                     },
                                     onStateChangeCallback = { state -> playerStateCallback(state) },
                                     onTimeUpdateCallback = { time -> currentPosition = time },

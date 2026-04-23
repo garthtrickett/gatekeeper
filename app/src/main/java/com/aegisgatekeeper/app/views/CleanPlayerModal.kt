@@ -33,8 +33,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -101,10 +101,11 @@ actual fun CleanPlayerModal(
     val startSeconds = state.savedMediaPositions[videoId] ?: 0f
 
     DisposableEffect(videoId) {
-        val startIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-            action = "com.aegisgatekeeper.app.SERVICE_START"
-            putExtra("EXTRA_TITLE", videoTitle)
-        }
+        val startIntent =
+            Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
+                action = "com.aegisgatekeeper.app.SERVICE_START"
+                putExtra("EXTRA_TITLE", videoTitle)
+            }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(startIntent)
         } else {
@@ -121,8 +122,14 @@ actual fun CleanPlayerModal(
                     intent: Intent?,
                 ) {
                     when (intent?.action) {
-                        "com.aegisgatekeeper.app.WEB_PLAY" -> webViewRef?.evaluateJavascript("player.playVideo();", null)
-                        "com.aegisgatekeeper.app.WEB_PAUSE" -> webViewRef?.evaluateJavascript("player.pauseVideo();", null)
+                        "com.aegisgatekeeper.app.WEB_PLAY" -> {
+                            webViewRef?.evaluateJavascript("player.playVideo();", null)
+                        }
+
+                        "com.aegisgatekeeper.app.WEB_PAUSE" -> {
+                            webViewRef?.evaluateJavascript("player.pauseVideo();", null)
+                        }
+
                         "com.aegisgatekeeper.app.WEB_STOP" -> {
                             val duration = System.currentTimeMillis() - sessionStartTime
                             GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanPlayer: YouTube", duration))
@@ -144,22 +151,26 @@ actual fun CleanPlayerModal(
 
         playerStateCallback = { playerState ->
             val isPlaying = playerState == 1
-            val updateIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-                setAction("com.aegisgatekeeper.app.SERVICE_UPDATE")
-                putExtra("EXTRA_IS_PLAYING", isPlaying)
-            }
+            val updateIntent =
+                Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
+                    setAction("com.aegisgatekeeper.app.SERVICE_UPDATE")
+                    putExtra("EXTRA_IS_PLAYING", isPlaying)
+                }
             context.startService(updateIntent)
         }
 
         onDispose {
-            android.webkit.CookieManager.getInstance().flush()
+            android.webkit.CookieManager
+                .getInstance()
+                .flush()
             GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(videoId, currentPosition))
-            
-            val stopIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-                setAction("com.aegisgatekeeper.app.SERVICE_STOP")
-            }
+
+            val stopIntent =
+                Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
+                    setAction("com.aegisgatekeeper.app.SERVICE_STOP")
+                }
             context.startService(stopIntent)
-            
+
             try {
                 context.unregisterReceiver(receiver)
             } catch (e: Exception) {
@@ -169,16 +180,20 @@ actual fun CleanPlayerModal(
     }
 
     Box(
-        modifier = if (isVisible) Modifier
-            .fillMaxSize()
-            // Absorbs all touch events so they don't fall through to the underlying Main UI
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-            ) {}
-        else Modifier
-            .size(1.dp)
-            .alpha(0.01f)
+        modifier =
+            if (isVisible) {
+                Modifier
+                    .fillMaxSize()
+                    // Absorbs all touch events so they don't fall through to the underlying Main UI
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) {}
+            } else {
+                Modifier
+                    .size(1.dp)
+                    .alpha(0.01f)
+            },
     ) {
         Column(modifier = if (isVisible) Modifier.fillMaxSize().systemBarsPadding() else Modifier.fillMaxSize()) {
             // Header with Buttons
@@ -267,10 +282,10 @@ actual fun CleanPlayerModal(
                         webViewRef = this
                         addJavascriptInterface(
                             WebAppInterface(
-                                onVideoEnded = { 
+                                onVideoEnded = {
                                     val duration = System.currentTimeMillis() - sessionStartTime
                                     GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanPlayer: YouTube", duration))
-                                    onStop() 
+                                    onStop()
                                 },
                                 onStateChangeCallback = { state -> playerStateCallback(state) },
                                 onTimeUpdateCallback = { time -> currentPosition = time },

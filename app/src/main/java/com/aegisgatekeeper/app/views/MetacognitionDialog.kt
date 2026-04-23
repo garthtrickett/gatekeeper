@@ -3,7 +3,15 @@ package com.aegisgatekeeper.app.views
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -16,29 +24,31 @@ import androidx.compose.ui.unit.sp
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.domain.Emotion
 import com.aegisgatekeeper.app.domain.GatekeeperAction
-import com.aegisgatekeeper.app.domain.MetacognitionRequest
 import com.aegisgatekeeper.app.domain.IndustrialButton
+import com.aegisgatekeeper.app.domain.MetacognitionRequest
 
 @Suppress("FunctionName")
 @Composable
 fun MetacognitionDialog(
     request: MetacognitionRequest,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.95f))
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) {}
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.95f))
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                ) {},
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .systemBarsPadding()
-                .padding(32.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .systemBarsPadding()
+                    .padding(32.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -57,7 +67,7 @@ fun MetacognitionDialog(
                                 durationMillis = request.durationMillis,
                                 emotion = Emotion.HAPPY,
                                 currentTimestamp = System.currentTimeMillis(),
-                            )
+                            ),
                         )
                         onDismiss()
                     }, text = "Happy")
@@ -68,7 +78,7 @@ fun MetacognitionDialog(
                                 durationMillis = request.durationMillis,
                                 emotion = Emotion.ANXIOUS,
                                 currentTimestamp = System.currentTimeMillis(),
-                            )
+                            ),
                         )
                         onDismiss()
                     }, text = "Anxious")
@@ -79,7 +89,7 @@ fun MetacognitionDialog(
                                 durationMillis = request.durationMillis,
                                 emotion = Emotion.DRAINED,
                                 currentTimestamp = System.currentTimeMillis(),
-                            )
+                            ),
                         )
                         onDismiss()
                     }, text = "Drained")
@@ -94,7 +104,7 @@ fun MetacognitionDialog(
                         durationMillis = request.durationMillis,
                         emotion = Emotion.SKIPPED,
                         currentTimestamp = System.currentTimeMillis(),
-                    )
+                    ),
                 )
                 onDismiss()
             }, text = "Skip", isWarning = true)

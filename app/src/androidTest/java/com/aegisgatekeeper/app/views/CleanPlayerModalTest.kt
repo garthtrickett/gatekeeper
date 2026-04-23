@@ -45,7 +45,7 @@ class CleanPlayerModalTest {
                     onStop = {
                         closed = true
                         isVisible.value = false
-                    }
+                    },
                 )
             }
         }
@@ -76,11 +76,11 @@ class CleanPlayerModalTest {
                 CleanPlayerModal(
                     videoId = "test1234",
                     isVisible = isVisible.value,
-                    onMinimize = { 
+                    onMinimize = {
                         minimized = true
-                        isVisible.value = false 
+                        isVisible.value = false
                     },
-                    onStop = { }
+                    onStop = { },
                 )
             }
         }

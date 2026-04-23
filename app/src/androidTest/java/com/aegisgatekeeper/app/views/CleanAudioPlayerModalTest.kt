@@ -45,7 +45,7 @@ class CleanAudioPlayerModalTest {
                     onStop = {
                         closed = true
                         isVisible.value = false
-                    }
+                    },
                 )
             }
         }
@@ -78,11 +78,11 @@ class CleanAudioPlayerModalTest {
                 CleanAudioPlayerModal(
                     url = "https://soundcloud.com/test",
                     isVisible = isVisible.value,
-                    onMinimize = { 
+                    onMinimize = {
                         minimized = true
-                        isVisible.value = false 
+                        isVisible.value = false
                     },
-                    onStop = { }
+                    onStop = { },
                 )
             }
         }

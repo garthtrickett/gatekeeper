@@ -147,7 +147,7 @@ sealed interface GatekeeperAction {
     ) : GatekeeperAction
 
     object MinimizeCleanPlayer : GatekeeperAction
-    
+
     object StopCleanPlayer : GatekeeperAction
 
     // --- Intentional Content Slots ---
@@ -165,7 +165,7 @@ sealed interface GatekeeperAction {
     ) : GatekeeperAction
 
     object MinimizeCleanAudioPlayer : GatekeeperAction
-    
+
     object StopCleanAudioPlayer : GatekeeperAction
 
     data class OpenNativePlayer(

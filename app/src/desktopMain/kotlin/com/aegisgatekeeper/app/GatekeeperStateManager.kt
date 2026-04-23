@@ -142,9 +142,16 @@ object GatekeeperStateManager {
             }
 
             is GatekeeperAction.TriggerMetacognition -> {
-                _state.value = _state.value.copy(pendingMetacognition = com.aegisgatekeeper.app.domain.MetacognitionRequest(action.packageName, action.durationMillis))
+                _state.value =
+                    _state.value.copy(
+                        pendingMetacognition =
+                            com.aegisgatekeeper.app.domain.MetacognitionRequest(
+                                action.packageName,
+                                action.durationMillis,
+                            ),
+                    )
             }
-            
+
             GatekeeperAction.ClearMetacognition -> {
                 _state.value = _state.value.copy(pendingMetacognition = null)
             }

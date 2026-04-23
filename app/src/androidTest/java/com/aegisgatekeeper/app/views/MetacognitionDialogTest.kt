@@ -41,7 +41,7 @@ class MetacognitionDialogTest {
             GatekeeperTheme {
                 MetacognitionDialog(
                     request = request,
-                    onDismiss = { dismissed = true }
+                    onDismiss = { dismissed = true },
                 )
             }
         }

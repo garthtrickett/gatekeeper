@@ -367,11 +367,11 @@ class MainActivity : ComponentActivity() {
                                 onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.ClosePinnedWebsite) },
                             )
                         }
-                        
+
                         if (state.pendingMetacognition != null) {
                             com.aegisgatekeeper.app.views.MetacognitionDialog(
                                 request = state.pendingMetacognition!!,
-                                onDismiss = { GatekeeperStateManager.dispatch(GatekeeperAction.ClearMetacognition) }
+                                onDismiss = { GatekeeperStateManager.dispatch(GatekeeperAction.ClearMetacognition) },
                             )
                         }
                     }
