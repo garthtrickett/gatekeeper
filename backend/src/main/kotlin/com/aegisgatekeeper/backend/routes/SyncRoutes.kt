@@ -154,6 +154,7 @@ fun Routing.syncRouting() {
                     SyncPullPayload(
                         vaultItems = vaultItems,
                         contentItems = contentItems,
+                        podcastSubscriptions = podcastSubscriptions,
                         serverTimestamp = System.currentTimeMillis()
                     )
                 )

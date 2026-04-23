@@ -270,6 +270,7 @@ object GatekeeperStateManager {
                         contentItem =
                             com.aegisgatekeeper.app.domain.ContentItem(
                                 it.id,
+                                it.podcastId,
                                 it.videoId,
                                 it.title,
                                 it.channelName,

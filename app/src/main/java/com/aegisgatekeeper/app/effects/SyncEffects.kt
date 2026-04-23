@@ -42,6 +42,7 @@ fun handleSyncAndAuthEffects(
                 newState.contentItems.forEach {
                     db.contentItemQueries.insert(
                         id = it.id,
+                        podcastId = it.podcastId,
                         videoId = it.videoId,
                         title = it.title,
                         channelName = it.channelName,

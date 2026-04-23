@@ -259,6 +259,7 @@ class GatekeeperStateManagerTest {
             )
             db.contentItemQueries.insert(
                 "3",
+                null,
                 "vid2",
                 "Video 2",
                 null,

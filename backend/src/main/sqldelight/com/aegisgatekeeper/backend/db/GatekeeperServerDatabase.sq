@@ -67,11 +67,12 @@ getContentItem:
 SELECT * FROM ContentItems WHERE id = :id AND userId = :userId;
 
 insertContentItem:
-INSERT INTO ContentItems(id, userId, videoId, title, channelName, source, type, rank, capturedAtTimestamp, durationSeconds, lastModified, isDeleted)
-VALUES (:id, :userId, :videoId, :title, :channelName, :source, :type, :rank, :capturedAtTimestamp, :durationSeconds, :lastModified, :isDeleted);
+INSERT INTO ContentItems(id, userId, podcastId, videoId, title, channelName, source, type, rank, capturedAtTimestamp, durationSeconds, lastModified, isDeleted)
+VALUES (:id, :userId, :podcastId, :videoId, :title, :channelName, :source, :type, :rank, :capturedAtTimestamp, :durationSeconds, :lastModified, :isDeleted);
 
 updateContentItem:
 UPDATE ContentItems SET
+    podcastId = :podcastId,
     videoId = :videoId,
     title = :title,
     channelName = :channelName,

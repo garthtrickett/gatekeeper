@@ -90,6 +90,17 @@ object GatekeeperStateManager {
                 }
             }
 
+            is GatekeeperAction.SavePodcastSubscription -> {
+                _state.value = _state.value.copy(
+                    podcastSubscriptions = _state.value.podcastSubscriptions + action.subscription,
+                    contentItems = _state.value.contentItems + action.initialEpisodes
+                )
+            }
+
+            is GatekeeperAction.PodcastSyncCompleted -> {
+                _state.value = _state.value.copy(contentItems = _state.value.contentItems + action.newEpisodes)
+            }
+
             is GatekeeperAction.SaveMediaPosition -> {
                 _state.value =
                     _state.value.copy(

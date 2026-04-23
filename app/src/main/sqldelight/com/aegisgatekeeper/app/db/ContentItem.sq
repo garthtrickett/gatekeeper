@@ -37,8 +37,8 @@ countAllByType:
 SELECT COUNT(*) FROM ContentItem WHERE type = :type AND isDeleted = 0;
 
 insert:
-INSERT OR REPLACE INTO ContentItem(id, videoId, title, channelName, source, type, rank, capturedAtTimestamp, durationSeconds, lastModified, isSynced, isDeleted)
-VALUES (:id, :videoId, :title, :channelName, :source, :type, :rank, :capturedAtTimestamp, :durationSeconds, :lastModified, :isSynced, :isDeleted);
+INSERT OR REPLACE INTO ContentItem(id, podcastId, videoId, title, channelName, source, type, rank, capturedAtTimestamp, durationSeconds, lastModified, isSynced, isDeleted)
+VALUES (:id, :podcastId, :videoId, :title, :channelName, :source, :type, :rank, :capturedAtTimestamp, :durationSeconds, :lastModified, :isSynced, :isDeleted);
 
 updateRank:
 UPDATE ContentItem SET rank = :rank, isSynced = 0, lastModified = :lastModified WHERE id = :id;

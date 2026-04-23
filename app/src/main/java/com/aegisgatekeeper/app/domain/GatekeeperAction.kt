@@ -73,6 +73,25 @@ sealed interface GatekeeperAction {
         val currentTimestamp: Long,
     ) : GatekeeperAction
 
+    data class ProcessPodcastUrl(
+        val url: String,
+    ) : GatekeeperAction
+
+    data class SavePodcastSubscription(
+        val subscription: PodcastSubscription,
+        val initialEpisodes: List<ContentItem>,
+    ) : GatekeeperAction
+
+    data class RemovePodcastSubscription(
+        val id: String,
+        val currentTimestamp: Long,
+    ) : GatekeeperAction
+
+    object RefreshAllFeedsRequested : GatekeeperAction
+    object PodcastSyncStarted : GatekeeperAction
+    data class PodcastSyncCompleted(val newEpisodes: List<ContentItem>) : GatekeeperAction
+    data class PodcastSyncFailed(val error: String) : GatekeeperAction
+
     data class SaveToContentBank(
         val videoId: String,
         val title: String,

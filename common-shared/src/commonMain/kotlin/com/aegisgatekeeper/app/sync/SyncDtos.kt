@@ -41,12 +41,14 @@ data class DeviceRegistrationRequest(
 @Serializable
 data class SyncPushPayload(
     val vaultItems: List<VaultItemDto>,
-    val contentItems: List<ContentItemDto>
+    val contentItems: List<ContentItemDto>,
+    val podcastSubscriptions: List<PodcastSubscriptionDto> = emptyList()
 )
 
 @Serializable
 data class SyncPullPayload(
     val vaultItems: List<VaultItemDto>,
     val contentItems: List<ContentItemDto>,
+    val podcastSubscriptions: List<PodcastSubscriptionDto> = emptyList(),
     val serverTimestamp: Long
 )

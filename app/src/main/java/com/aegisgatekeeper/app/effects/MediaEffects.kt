@@ -20,6 +20,71 @@ suspend fun handleMediaAndSystemEffects(
     dispatch: (GatekeeperAction) -> Unit,
 ) {
     when (action) {
+        is GatekeeperAction.ProcessPodcastUrl -> {
+            Log.i("Gatekeeper", "📡 Fetching Podcast RSS: ${action.url}")
+            val result = RssClient.fetchFeed(action.url)
+            result.fold(
+                ifLeft = {
+                    Log.e("Gatekeeper", "❌ Failed to parse RSS")
+                    dispatch(GatekeeperAction.PodcastSyncFailed("Failed to parse RSS"))
+                },
+                ifRight = { data ->
+                    val podcastId = java.util.UUID.randomUUID().toString()
+                    val sub = PodcastSubscription(
+                        id = podcastId,
+                        feedUrl = action.url,
+                        showTitle = data.title,
+                        artworkUrl = data.artworkUrl,
+                        lastModified = System.currentTimeMillis()
+                    )
+                    // Take only the first 10 episodes initially to not overwhelm
+                    val episodes = data.episodes.take(10).map { ep ->
+                        ContentItem(
+                            podcastId = podcastId,
+                            videoId = ep.audioUrl,
+                            title = ep.title,
+                            channelName = data.title,
+                            source = ContentSource.GENERIC,
+                            type = ContentType.AUDIO,
+                            rank = 0, 
+                            capturedAtTimestamp = System.currentTimeMillis(),
+                            durationSeconds = ep.durationSeconds,
+                            lastModified = System.currentTimeMillis()
+                        )
+                    }
+                    dispatch(GatekeeperAction.SavePodcastSubscription(sub, episodes))
+                }
+            )
+        }
+
+        GatekeeperAction.RefreshAllFeedsRequested -> {
+            dispatch(GatekeeperAction.PodcastSyncStarted)
+            val newItems = mutableListOf<ContentItem>()
+            val existingUrls = state.contentItems.map { it.videoId }.toSet()
+
+            for (sub in state.podcastSubscriptions) {
+                val result = RssClient.fetchFeed(sub.feedUrl)
+                result.getOrNull()?.let { data ->
+                    val freshEpisodes = data.episodes.filter { it.audioUrl !in existingUrls }.take(5).map { ep ->
+                        ContentItem(
+                            podcastId = sub.id,
+                            videoId = ep.audioUrl,
+                            title = ep.title,
+                            channelName = data.title,
+                            source = ContentSource.GENERIC,
+                            type = ContentType.AUDIO,
+                            rank = 0,
+                            capturedAtTimestamp = System.currentTimeMillis(),
+                            durationSeconds = ep.durationSeconds,
+                            lastModified = System.currentTimeMillis()
+                        )
+                    }
+                    newItems.addAll(freshEpisodes)
+                }
+            }
+            dispatch(GatekeeperAction.PodcastSyncCompleted(newItems))
+        }
+
         is GatekeeperAction.ProcessSharedLink -> {
             Log.i("Gatekeeper", "Processing shared link: ${action.url}")
             val pattern = """(?<=youtu\.be/|watch\?v=|/shorts/)([a-zA-Z0-9_-]{11})""".toRegex()

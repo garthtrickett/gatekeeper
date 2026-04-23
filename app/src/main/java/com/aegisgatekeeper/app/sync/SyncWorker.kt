@@ -78,10 +78,13 @@ class SyncWorker(
                         payload.vaultItems.map {
                             VaultItem(it.id, it.query, it.capturedAtTimestamp, it.isResolved, it.lastModified, true, it.isDeleted)
                         }
+                    // Temporary simplification for PodcastSubscriptions until fully managed in RemoteSyncCompleted
+                    
                     val newContentItems =
                         payload.contentItems.map {
                             ContentItem(
                                 it.id,
+                                it.podcastId,
                                 it.videoId,
                                 it.title,
                                 it.channelName,

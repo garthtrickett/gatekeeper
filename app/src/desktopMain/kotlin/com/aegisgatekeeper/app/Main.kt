@@ -175,6 +175,7 @@ fun main() =
                                         payload.contentItems.map {
                                             com.aegisgatekeeper.app.domain.ContentItem(
                                                 it.id,
+                                                it.podcastId,
                                                 it.videoId,
                                                 it.title,
                                                 it.channelName,

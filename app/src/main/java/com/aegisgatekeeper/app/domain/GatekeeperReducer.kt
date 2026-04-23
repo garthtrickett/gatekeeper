@@ -637,6 +637,7 @@ private fun reduceSyncAndAuth(
             state.copy(
                 vaultItems = mergedVaultItems,
                 contentItems = mergedContentItems,
+                podcastSubscriptions = mergedPodcasts,
                 intentionalSlots = updatedSlots,
             )
         }

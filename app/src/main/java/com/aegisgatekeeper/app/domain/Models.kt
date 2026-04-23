@@ -75,8 +75,22 @@ data class VaultItem(
 /**
  * Represents a piece of curated media saved to the Content Bank.
  */
+data class PodcastSubscription(
+    val id: String = UUID.randomUUID().toString(),
+    val feedUrl: String,
+    val showTitle: String,
+    val artworkUrl: String?,
+    val lastModified: Long = System.currentTimeMillis(),
+    val isSynced: Boolean = false,
+    val isDeleted: Boolean = false
+)
+
+/**
+ * Represents a piece of curated media saved to the Content Bank.
+ */
 data class ContentItem(
     val id: String = UUID.randomUUID().toString(),
+    val podcastId: String? = null,
     val videoId: String,
     val title: String,
     val channelName: String? = null,

@@ -12,6 +12,18 @@ fun isDeepWorkHours(currentTime: LocalTime): Boolean {
     return !currentTime.isBefore(start) && currentTime.isBefore(end)
 }
 
+fun parseItunesDuration(duration: String): Long {
+    if (duration.isBlank()) return 0L
+    if (duration.contains("H") || duration.contains("M")) return parseIso8601Duration(duration)
+    val parts = duration.split(":")
+    return when (parts.size) {
+        3 -> (parts[0].toLongOrNull() ?: 0L) * 3600 + (parts[1].toLongOrNull() ?: 0L) * 60 + (parts[2].toLongOrNull() ?: 0L)
+        2 -> (parts[0].toLongOrNull() ?: 0L) * 60 + (parts[1].toLongOrNull() ?: 0L)
+        1 -> parts[0].toLongOrNull() ?: 0L
+        else -> 0L
+    }
+}
+
 fun parseIso8601Duration(duration: String): Long {
     var hours = 0L
     var minutes = 0L

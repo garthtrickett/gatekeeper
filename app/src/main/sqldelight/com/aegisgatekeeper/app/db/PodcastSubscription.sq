@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS PodcastSubscription (
+    id TEXT NOT NULL PRIMARY KEY,
+    feedUrl TEXT NOT NULL UNIQUE,
+    showTitle TEXT NOT NULL,
+    artworkUrl TEXT
+);
+
+selectAll:
+SELECT * FROM PodcastSubscription;
+
+insert:
+INSERT OR REPLACE INTO PodcastSubscription(id, feedUrl, showTitle, artworkUrl)
+VALUES (:id, :feedUrl, :showTitle, :artworkUrl);
+
+delete:
+DELETE FROM PodcastSubscription WHERE id = :id;

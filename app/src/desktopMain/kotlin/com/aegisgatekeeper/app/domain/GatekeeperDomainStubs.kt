@@ -104,6 +104,14 @@ sealed interface GatekeeperAction {
         val newContentItems: List<ContentItem>,
     ) : GatekeeperAction
 
+    data class ProcessPodcastUrl(val url: String) : GatekeeperAction
+    data class SavePodcastSubscription(val subscription: PodcastSubscription, val initialEpisodes: List<ContentItem>) : GatekeeperAction
+    data class RemovePodcastSubscription(val id: String, val currentTimestamp: Long) : GatekeeperAction
+    object RefreshAllFeedsRequested : GatekeeperAction
+    object PodcastSyncStarted : GatekeeperAction
+    data class PodcastSyncCompleted(val newEpisodes: List<ContentItem>) : GatekeeperAction
+    data class PodcastSyncFailed(val error: String) : GatekeeperAction
+
     data class SaveMediaPosition(
         val mediaId: String,
         val positionSeconds: Float,
