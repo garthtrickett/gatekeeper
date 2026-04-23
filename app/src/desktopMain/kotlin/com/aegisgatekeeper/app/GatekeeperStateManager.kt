@@ -65,6 +65,14 @@ object GatekeeperStateManager {
                 _state.value = _state.value.copy(syncServerUrl = action.url)
             }
 
+            is GatekeeperAction.ProcessPodcastUrl -> {
+                _state.value = _state.value.copy(isSyncingPodcasts = true)
+            }
+
+            is GatekeeperAction.PodcastSyncFailed -> {
+                _state.value = _state.value.copy(isSyncingPodcasts = false)
+            }
+
             is GatekeeperAction.RemoteSyncCompleted -> {
                 val oldVaults = _state.value.vaultItems
                 val oldContents = _state.value.contentItems
@@ -95,6 +103,7 @@ object GatekeeperStateManager {
                     _state.value.copy(
                         podcastSubscriptions = _state.value.podcastSubscriptions + action.subscription,
                         contentItems = _state.value.contentItems + action.initialEpisodes,
+                        isSyncingPodcasts = false,
                     )
             }
 

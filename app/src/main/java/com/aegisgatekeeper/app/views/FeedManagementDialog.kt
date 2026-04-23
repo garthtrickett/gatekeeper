@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -58,16 +59,26 @@ fun FeedManagementDialog(onDismiss: () -> Unit) {
                         singleLine = true,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    IndustrialButton(
-                        onClick = {
-                            if (url.isNotBlank()) {
-                                GatekeeperStateManager.dispatch(GatekeeperAction.ProcessPodcastUrl(url))
-                                url = ""
-                            }
-                        },
-                        enabled = url.isNotBlank(),
-                        text = "Add",
-                    )
+                    if (state.isSyncingPodcasts) {
+                        androidx.compose.material3.CircularProgressIndicator(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .size(24.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            strokeWidth = 2.dp,
+                        )
+                    } else {
+                        IndustrialButton(
+                            onClick = {
+                                if (url.isNotBlank()) {
+                                    GatekeeperStateManager.dispatch(GatekeeperAction.ProcessPodcastUrl(url))
+                                    url = ""
+                                }
+                            },
+                            enabled = url.isNotBlank(),
+                            text = "Add",
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))

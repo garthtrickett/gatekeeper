@@ -540,10 +540,15 @@ private fun reduceContentAndVault(
             state.copy(activeNativeMediaItem = null)
         }
 
+        is GatekeeperAction.ProcessPodcastUrl -> {
+            state.copy(isSyncingPodcasts = true)
+        }
+
         is GatekeeperAction.SavePodcastSubscription -> {
             state.copy(
                 podcastSubscriptions = state.podcastSubscriptions + action.subscription,
                 contentItems = state.contentItems + action.initialEpisodes,
+                isSyncingPodcasts = false,
             )
         }
 
