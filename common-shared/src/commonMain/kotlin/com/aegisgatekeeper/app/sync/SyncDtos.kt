@@ -19,8 +19,19 @@ data class VaultItemDto(
 )
 
 @Serializable
+data class PodcastSubscriptionDto(
+    val id: String,
+    val feedUrl: String,
+    val showTitle: String,
+    val artworkUrl: String?,
+    val lastModified: Long,
+    val isDeleted: Boolean
+)
+
+@Serializable
 data class ContentItemDto(
     val id: String,
+    val podcastId: String? = null,
     val videoId: String,
     val title: String,
     val channelName: String? = null,
