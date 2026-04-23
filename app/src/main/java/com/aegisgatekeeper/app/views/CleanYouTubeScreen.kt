@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.api.YoutubeSearchItem
 import com.aegisgatekeeper.app.domain.GatekeeperAction
+import com.aegisgatekeeper.app.domain.IndustrialButton
 import com.aegisgatekeeper.app.domain.IndustrialTextField
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
