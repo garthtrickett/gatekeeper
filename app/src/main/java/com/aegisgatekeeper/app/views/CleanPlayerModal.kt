@@ -221,7 +221,17 @@ actual fun CleanPlayerModal(
             AndroidView(
                 modifier = Modifier.weight(1f).fillMaxWidth(),
                 factory = { context ->
-                    WebView(context).apply {
+                    object : WebView(context) {
+                        override fun onWindowVisibilityChanged(visibility: Int) {
+                            super.onWindowVisibilityChanged(android.view.View.VISIBLE)
+                        }
+                        override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+                            super.onWindowFocusChanged(true)
+                        }
+                        override fun onVisibilityChanged(changedView: android.view.View, visibility: Int) {
+                            super.onVisibilityChanged(changedView, android.view.View.VISIBLE)
+                        }
+                    }.apply {
                         // Enforce match parent so it correctly sizes without the Dialog wrapper interference
                         layoutParams =
                             android.view.ViewGroup.LayoutParams(

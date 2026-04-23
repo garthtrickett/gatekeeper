@@ -351,9 +351,11 @@ fun CleanAudioPlayerModal(
             context.startService(startIntent)
         }
 
-        val playFilter = IntentFilter("com.aegisgatekeeper.app.WEB_PLAY")
-        val pauseFilter = IntentFilter("com.aegisgatekeeper.app.WEB_PAUSE")
-        val stopFilter = IntentFilter("com.aegisgatekeeper.app.WEB_STOP")
+        val filter = IntentFilter().apply {
+            addAction("com.aegisgatekeeper.app.WEB_PLAY")
+            addAction("com.aegisgatekeeper.app.WEB_PAUSE")
+            addAction("com.aegisgatekeeper.app.WEB_STOP")
+        }
         val receiver =
             object : BroadcastReceiver() {
                 override fun onReceive(
@@ -379,13 +381,9 @@ fun CleanAudioPlayerModal(
             }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.registerReceiver(receiver, playFilter, Context.RECEIVER_NOT_EXPORTED)
-            context.registerReceiver(receiver, pauseFilter, Context.RECEIVER_NOT_EXPORTED)
-            context.registerReceiver(receiver, stopFilter, Context.RECEIVER_NOT_EXPORTED)
+            context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
         } else {
-            context.registerReceiver(receiver, playFilter)
-            context.registerReceiver(receiver, pauseFilter)
-            context.registerReceiver(receiver, stopFilter)
+            context.registerReceiver(receiver, filter)
         }
 
         playerStateCallback = { playerState ->
@@ -490,7 +488,17 @@ fun CleanAudioPlayerModal(
                 AndroidView(
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                     factory = { context ->
-                        WebView(context).apply {
+                        object : WebView(context) {
+                            override fun onWindowVisibilityChanged(visibility: Int) {
+                                super.onWindowVisibilityChanged(android.view.View.VISIBLE)
+                            }
+                            override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+                                super.onWindowFocusChanged(true)
+                            }
+                            override fun onVisibilityChanged(changedView: android.view.View, visibility: Int) {
+                                super.onVisibilityChanged(changedView, android.view.View.VISIBLE)
+                            }
+                        }.apply {
                             layoutParams =
                                 android.view.ViewGroup.LayoutParams(
                                     android.view.ViewGroup.LayoutParams.MATCH_PARENT,
@@ -574,6 +582,7 @@ fun CleanAudioPlayerModal(
                                     <script>
                                         var widgetIframe = document.getElementById('sc-widget');
                                         var widget = SC.Widget(widgetIframe);
+                                        var lastState = -1;
 
                                         widget.bind(SC.Widget.Events.READY, function() {
                                             widget.seekTo(${startSeconds.toInt() * 1000});
@@ -584,6 +593,15 @@ fun CleanAudioPlayerModal(
                                             widget.getPosition(function(position) {
                                                 if (typeof Android !== "undefined" && Android !== null) {
                                                     Android.onTimeUpdate(position / 1000.0);
+                                                }
+                                            });
+                                            widget.isPaused(function(isPaused) {
+                                                var currentState = isPaused ? 2 : 1;
+                                                if (currentState !== lastState) {
+                                                    lastState = currentState;
+                                                    if (typeof Android !== "undefined" && Android !== null) {
+                                                        Android.onStateChange(currentState);
+                                                    }
                                                 }
                                             });
                                         }, 1000);
