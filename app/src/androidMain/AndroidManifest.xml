@@ -117,5 +117,29 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".services.PodcastMediaService"
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".services.WebViewMediaService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <!-- Layer Gamma: System-Wide Domain Blocker -->
+        <service
+            android:name=".GatekeeperVpnService"
+            android:permission="android.permission.BIND_VPN_SERVICE"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
+
     </application>
 </manifest>

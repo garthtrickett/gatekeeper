@@ -168,6 +168,7 @@ class WebViewMediaService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        unregisterReceiver(updateReceiver)
         mediaSession?.isActive = false
         mediaSession?.release()
     }

@@ -151,12 +151,11 @@ actual fun CleanPlayerModal(
 
         playerStateCallback = { playerState ->
             val isPlaying = playerState == 1
-            val updateIntent =
-                Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-                    setAction("com.aegisgatekeeper.app.SERVICE_UPDATE")
-                    putExtra("EXTRA_IS_PLAYING", isPlaying)
-                }
-            context.startService(updateIntent)
+            val updateIntent = Intent("com.aegisgatekeeper.app.SERVICE_UPDATE").apply {
+                setPackage(context.packageName)
+                putExtra("EXTRA_IS_PLAYING", isPlaying)
+            }
+            context.sendBroadcast(updateIntent)
         }
 
         onDispose {
@@ -165,11 +164,8 @@ actual fun CleanPlayerModal(
                 .flush()
             GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(videoId, currentPosition))
 
-            val stopIntent =
-                Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-                    setAction("com.aegisgatekeeper.app.SERVICE_STOP")
-                }
-            context.startService(stopIntent)
+            val stopIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java)
+            context.stopService(stopIntent)
 
             try {
                 context.unregisterReceiver(receiver)
