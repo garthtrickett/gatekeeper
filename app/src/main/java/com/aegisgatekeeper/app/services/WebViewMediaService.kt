@@ -31,15 +31,15 @@ class WebViewMediaService : Service() {
                 setCallback(
                     object : MediaSession.Callback() {
                         override fun onPlay() {
-                            sendBroadcast(Intent("com.aegisgatekeeper.app.WEB_PLAY"))
+                            sendBroadcast(Intent("com.aegisgatekeeper.app.WEB_PLAY").setPackage(packageName))
                         }
 
                         override fun onPause() {
-                            sendBroadcast(Intent("com.aegisgatekeeper.app.WEB_PAUSE"))
+                            sendBroadcast(Intent("com.aegisgatekeeper.app.WEB_PAUSE").setPackage(packageName))
                         }
 
                         override fun onStop() {
-                            sendBroadcast(Intent("com.aegisgatekeeper.app.WEB_STOP"))
+                            sendBroadcast(Intent("com.aegisgatekeeper.app.WEB_STOP").setPackage(packageName))
                         }
                     },
                 )

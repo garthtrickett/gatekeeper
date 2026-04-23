@@ -336,16 +336,27 @@ actual fun CleanPlayerModal(
                                         });
                                     }
 
+                                    var lastState = -1;
                                     function onPlayerStateChange(event) {
                                         if (typeof Android !== "undefined" && Android !== null) {
+                                            lastState = event.data;
                                             Android.onStateChange(event.data);
                                         }
                                     }
                                     setInterval(function() {
-                                        if (player && player.getCurrentTime && player.getPlayerState() === 1) {
-                                            var time = player.getCurrentTime();
-                                            if (typeof Android !== "undefined" && Android !== null) {
-                                                Android.onTimeUpdate(time);
+                                        if (player && player.getCurrentTime) {
+                                            var state = player.getPlayerState();
+                                            if (state === 1) {
+                                                var time = player.getCurrentTime();
+                                                if (typeof Android !== "undefined" && Android !== null) {
+                                                    Android.onTimeUpdate(time);
+                                                }
+                                            }
+                                            if (state !== lastState && (state === 1 || state === 2 || state === 0)) {
+                                                lastState = state;
+                                                if (typeof Android !== "undefined" && Android !== null) {
+                                                    Android.onStateChange(state);
+                                                }
                                             }
                                         }
                                     }, 1000);
