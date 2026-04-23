@@ -207,7 +207,7 @@
 
 
                     alias logs='adb logcat | grep -iE "Gatekeeper|AndroidRuntime|WindowManager|FATAL"'
-                    alias deploy='adb reverse tcp:8081 tcp:8081 && gradle installDebug && adb logcat -c && echo "✅ Deployed & Port 8081 Reversed. Waiting for logs..." && logs'
+                    alias deploy='adb reverse tcp:8081 tcp:8081 && gradle installDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app/.MainActivity && echo "✅ Deployed & Port 8081 Reversed. Waiting for logs..." && logs'
                     alias backend-logs='docker-compose logs -f'
                     alias lint='ktlint "app/src/**/*.kt"'
                     alias format='ktlint --format "app/src/**/*.kt"'
