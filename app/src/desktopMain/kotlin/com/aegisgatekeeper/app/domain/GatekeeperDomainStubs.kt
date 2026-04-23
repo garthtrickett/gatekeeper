@@ -17,6 +17,17 @@ data class GatekeeperState(
     val activePinnedWebsiteUrl: String? = null,
     val missionControlWebsites: List<PinnedWebsite> = emptyList(),
     val alternativeActivities: List<AlternativeActivity> = emptyList(),
+    val podcastSubscriptions: List<PodcastSubscription> = emptyList(),
+)
+
+data class PodcastSubscription(
+    val id: String = java.util.UUID.randomUUID().toString(),
+    val feedUrl: String,
+    val showTitle: String,
+    val artworkUrl: String?,
+    val lastModified: Long = System.currentTimeMillis(),
+    val isSynced: Boolean = false,
+    val isDeleted: Boolean = false
 )
 
 data class PinnedWebsite(
@@ -49,6 +60,7 @@ data class ContentItem(
         java.util.UUID
             .randomUUID()
             .toString(),
+    val podcastId: String? = null,
     val videoId: String,
     val title: String,
     val channelName: String? = null,
