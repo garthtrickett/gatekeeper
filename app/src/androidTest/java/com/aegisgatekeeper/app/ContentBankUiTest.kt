@@ -349,7 +349,7 @@ class ContentBankUiTest {
             .isEqualTo(soundcloudUrl)
 
         // Assert: The modal UI should be visible
-        composeTestRule.onNodeWithText("Close Audio").assertIsDisplayed()
+        composeTestRule.onNodeWithText("End Session").assertIsDisplayed()
     }
 
     @Test

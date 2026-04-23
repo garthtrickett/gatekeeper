@@ -36,13 +36,22 @@ class CleanPlayerModalTest {
         var closed = false
 
         composeTestRule.setContent {
+            val isVisible = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(true) }
             GatekeeperTheme {
-                CleanPlayerModal(videoId = "test1234", onClose = { closed = true })
+                CleanPlayerModal(
+                    videoId = "test1234",
+                    isVisible = isVisible.value,
+                    onMinimize = { isVisible.value = false },
+                    onStop = {
+                        closed = true
+                        isVisible.value = false
+                    }
+                )
             }
         }
 
-        // Assert the close button exists
-        composeTestRule.onNodeWithText("Close Video").assertExists()
+        // Assert the stop button exists
+        composeTestRule.onNodeWithText("End Session").assertExists()
 
         // Perform click to stop session
         composeTestRule.onNodeWithText("End Session").performClick()
