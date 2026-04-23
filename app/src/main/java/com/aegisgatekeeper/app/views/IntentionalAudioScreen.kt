@@ -1,3 +1,5 @@
+// app/src/main/java/com/aegisgatekeeper/app/views/IntentionalAudioScreen.kt
+
 package com.aegisgatekeeper.app.views
 
 import android.annotation.SuppressLint
@@ -30,6 +32,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -48,6 +51,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -309,9 +313,10 @@ fun IntentionalContentScreen() {
 @Composable
 fun CleanAudioPlayerModal(
     url: String,
-    onClose: () -> Unit,
+    isVisible: Boolean,
+    onMinimize: () -> Unit,
+    onStop: () -> Unit,
 ) {
-    var showMetacognition by remember { mutableStateOf(false) }
     val sessionStartTime by remember { mutableStateOf(System.currentTimeMillis()) }
     var resolvedUrl by remember { mutableStateOf<String?>(null) }
     var currentPosition by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
@@ -357,7 +362,11 @@ fun CleanAudioPlayerModal(
                     when (intent?.action) {
                         "com.aegisgatekeeper.app.WEB_PLAY" -> webViewRef?.evaluateJavascript("widget.play();", null)
                         "com.aegisgatekeeper.app.WEB_PAUSE" -> webViewRef?.evaluateJavascript("widget.pause();", null)
-                        "com.aegisgatekeeper.app.WEB_STOP" -> onStop()
+                        "com.aegisgatekeeper.app.WEB_STOP" -> {
+                            val duration = System.currentTimeMillis() - sessionStartTime
+                            GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanAudio: Player", duration))
+                            onStop()
+                        }
                     }
                 }
             }
@@ -375,7 +384,7 @@ fun CleanAudioPlayerModal(
         playerStateCallback = { playerState ->
             val isPlaying = playerState == 1
             val updateIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-                action = "com.aegisgatekeeper.app.SERVICE_UPDATE"
+                setAction("com.aegisgatekeeper.app.SERVICE_UPDATE")
                 putExtra("EXTRA_IS_PLAYING", isPlaying)
             }
             context.startService(updateIntent)
@@ -386,7 +395,7 @@ fun CleanAudioPlayerModal(
             GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(url, currentPosition))
             
             val stopIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-                action = "com.aegisgatekeeper.app.SERVICE_STOP"
+                setAction("com.aegisgatekeeper.app.SERVICE_STOP")
             }
             context.startService(stopIntent)
             
@@ -422,267 +431,176 @@ fun CleanAudioPlayerModal(
         }
     }
 
-    androidx.activity.compose.BackHandler {
-        if (!showMetacognition) {
-            showMetacognition = true
-        } else {
-            val duration = System.currentTimeMillis() - sessionStartTime
-            GatekeeperStateManager.dispatch(
-                GatekeeperAction.LogSessionMetacognition(
-                    packageName = "CleanAudio: Player",
-                    durationMillis = duration,
-                    emotion = Emotion.SKIPPED,
-                    currentTimestamp = System.currentTimeMillis(),
-                ),
-            )
-            onClose()
-        }
+    androidx.activity.compose.BackHandler(enabled = isVisible) {
+        onMinimize()
     }
 
-    Surface(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                ) {},
-        color = Color.Black,
+    Box(
+        modifier = if (isVisible) Modifier
+            .fillMaxSize()
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+            ) {}
+        else Modifier
+            .size(1.dp)
+            .alpha(0.01f)
     ) {
-        if (showMetacognition) {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .systemBarsPadding()
-                        .padding(32.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text("Was this worth it?", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+        Column(modifier = if (isVisible) Modifier.fillMaxSize().systemBarsPadding() else Modifier.fillMaxSize()) {
+            if (isVisible) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .background(Color.DarkGray)
+                            .padding(8.dp),
+                    contentAlignment = Alignment.TopEnd,
                 ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        IndustrialButton(
-                            onClick = {
-                                val duration = System.currentTimeMillis() - sessionStartTime
-                                GatekeeperStateManager.dispatch(
-                                    GatekeeperAction.LogSessionMetacognition(
-                                        packageName = "CleanAudio: Player",
-                                        durationMillis = duration,
-                                        emotion = Emotion.HAPPY,
-                                        currentTimestamp = System.currentTimeMillis(),
-                                    ),
-                                )
-                                onStop()
-                            },
-                            text = "Happy",
-                        )
-                        IndustrialButton(
-                            onClick = {
-                                val duration = System.currentTimeMillis() - sessionStartTime
-                                GatekeeperStateManager.dispatch(
-                                    GatekeeperAction.LogSessionMetacognition(
-                                        packageName = "CleanAudio: Player",
-                                        durationMillis = duration,
-                                        emotion = Emotion.ANXIOUS,
-                                        currentTimestamp = System.currentTimeMillis(),
-                                    ),
-                                )
-                                onStop()
-                            },
-                            text = "Anxious",
-                        )
-                        IndustrialButton(
-                            onClick = {
-                                val duration = System.currentTimeMillis() - sessionStartTime
-                                GatekeeperStateManager.dispatch(
-                                    GatekeeperAction.LogSessionMetacognition(
-                                        packageName = "CleanAudio: Player",
-                                        durationMillis = duration,
-                                        emotion = Emotion.DRAINED,
-                                        currentTimestamp = System.currentTimeMillis(),
-                                    ),
-                                )
-                                onStop()
-                            },
-                            text = "Drained",
-                        )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        IndustrialButton(onClick = onMinimize, text = "Minimize")
+                        IndustrialButton(onClick = { 
+                            val duration = System.currentTimeMillis() - sessionStartTime
+                            GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanAudio: Player", duration))
+                            onStop() 
+                        }, text = "End Session", isWarning = true)
                     }
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
-                IndustrialButton(
-                    onClick = {
-                        val duration = System.currentTimeMillis() - sessionStartTime
-                        GatekeeperStateManager.dispatch(
-                            GatekeeperAction.LogSessionMetacognition(
-                                packageName = "CleanAudio: Player",
-                                durationMillis = duration,
-                                emotion = Emotion.SKIPPED,
-                                currentTimestamp = System.currentTimeMillis(),
-                            ),
-                        )
-                        onStop()
-                    },
-                    text = "Skip",
-                    isWarning = true,
-                )
             }
-            } // Close Surface
-        } else {
-            Column(modifier = if (isVisible) Modifier.fillMaxSize().systemBarsPadding() else Modifier.fillMaxSize()) {
-                if (isVisible) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .background(Color.DarkGray)
-                                .padding(8.dp),
-                        contentAlignment = Alignment.TopEnd,
-                    ) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            IndustrialButton(onClick = onMinimize, text = "Minimize")
-                            IndustrialButton(onClick = { showMetacognition = true }, text = "End Session", isWarning = true)
-                        }
-                    }
+
+            if (resolvedUrl == null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    androidx.compose.material3.CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
-
-                if (resolvedUrl == null) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        androidx.compose.material3.CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    }
-                } else {
-                    AndroidView(
-                        modifier = Modifier.weight(1f).fillMaxWidth(),
-                        factory = { context ->
-                            WebView(context).apply {
-                                layoutParams =
-                                    android.view.ViewGroup.LayoutParams(
-                                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                                    )
-                                settings.javaScriptEnabled = true
-                                settings.mediaPlaybackRequiresUserGesture = false
-                                settings.domStorageEnabled = true
-                                settings.userAgentString = settings.userAgentString.replace("; wv", "")
-
-                                val cookieManager = android.webkit.CookieManager.getInstance()
-                                cookieManager.setAcceptCookie(true)
-                                cookieManager.setAcceptThirdPartyCookies(this, true)
-
-                                webViewClient =
-                                    object : WebViewClient() {
-                                        override fun shouldOverrideUrlLoading(
-                                            view: WebView?,
-                                            request: android.webkit.WebResourceRequest?,
-                                        ): Boolean {
-                                            val urlStr = request?.url?.toString() ?: ""
-                                            if (urlStr.startsWith("intent://") || urlStr.startsWith("soundcloud://")) {
-                                                return true
-                                            }
-                                            val isAuthFlow =
-                                                urlStr.contains("accounts.google.com") ||
-                                                    urlStr.contains("myaccount.google.com") ||
-                                                    urlStr.contains("accounts.youtube.com")
-                                            if (isAuthFlow) {
-                                                return false
-                                            }
-                                            // Block navigation to avoid escaping the clean room iframe
-                                            return request?.isForMainFrame == true
-                                        }
-                                    }
-                                webChromeClient =
-                                    object : WebChromeClient() {
-                                        override fun onConsoleMessage(consoleMessage: android.webkit.ConsoleMessage?): Boolean {
-                                            android.util.Log.d(
-                                                "Gatekeeper",
-                                                "🎵 CleanAudioPlayer WebView Console: ${consoleMessage?.message()} -- From line ${consoleMessage?.lineNumber()} of ${consoleMessage?.sourceId()}",
-                                            )
-                                            return super.onConsoleMessage(consoleMessage)
-                                        }
-                                    }
-
-                                webViewRef = this
-
-                                addJavascriptInterface(
-                                    WebAppInterface(
-                                        onVideoEnded = { showMetacognition = true },
-                                        onStateChangeCallback = { state -> playerStateCallback(state) },
-                                        onTimeUpdateCallback = { time -> currentPosition = time },
-                                    ),
-                                    "Android",
+            } else {
+                AndroidView(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    factory = { context ->
+                        WebView(context).apply {
+                            layoutParams =
+                                android.view.ViewGroup.LayoutParams(
+                                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                                 )
+                            settings.javaScriptEnabled = true
+                            settings.mediaPlaybackRequiresUserGesture = false
+                            settings.domStorageEnabled = true
+                            settings.userAgentString = settings.userAgentString.replace("; wv", "")
 
-                                val finalUrl = resolvedUrl!!
-                                android.util.Log.d("Gatekeeper", "🎵 CleanAudioPlayerModal: Final Resolved URL -> $finalUrl")
-                                val encodedUrl = java.net.URLEncoder.encode(finalUrl, "UTF-8")
-                                val htmlData =
-                                    """
-                                    <!DOCTYPE html>
-                                    <html>
-                                    <head>
-                                        <meta name="viewport" content="width=device-width, initial-scale=1">
-                                        <style>
-                                            body, html { margin:0; padding:0; height:100%; overflow:hidden; background-color:#000; }
-                                            iframe { width:100%; height:100%; border:none; }
-                                        </style>
-                                    </head>
-                                    <body>
-                                        <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=$encodedUrl&color=%23ff5500&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false" allow="autoplay"></iframe>
-                                        <script src="https://w.soundcloud.com/player/api.js" type="text/javascript"></script>
-                                        <script>
-                                            var widgetIframe = document.getElementById('sc-widget');
-                                            var widget = SC.Widget(widgetIframe);
+                            val cookieManager = android.webkit.CookieManager.getInstance()
+                            cookieManager.setAcceptCookie(true)
+                            cookieManager.setAcceptThirdPartyCookies(this, true)
 
-                                            widget.bind(SC.Widget.Events.READY, function() {
-                                                widget.seekTo(${startSeconds.toInt() * 1000});
-                                                widget.play();
-                                            });
+                            webViewClient =
+                                object : WebViewClient() {
+                                    override fun shouldOverrideUrlLoading(
+                                        view: WebView?,
+                                        request: android.webkit.WebResourceRequest?,
+                                    ): Boolean {
+                                        val urlStr = request?.url?.toString() ?: ""
+                                        if (urlStr.startsWith("intent://") || urlStr.startsWith("soundcloud://")) {
+                                            return true
+                                        }
+                                        val isAuthFlow =
+                                            urlStr.contains("accounts.google.com") ||
+                                                urlStr.contains("myaccount.google.com") ||
+                                                urlStr.contains("accounts.youtube.com")
+                                        if (isAuthFlow) {
+                                            return false
+                                        }
+                                        // Block navigation to avoid escaping the clean room iframe
+                                        return request?.isForMainFrame == true
+                                    }
+                                }
+                            webChromeClient =
+                                object : WebChromeClient() {
+                                    override fun onConsoleMessage(consoleMessage: android.webkit.ConsoleMessage?): Boolean {
+                                        android.util.Log.d(
+                                            "Gatekeeper",
+                                            "🎵 CleanAudioPlayer WebView Console: ${consoleMessage?.message()} -- From line ${consoleMessage?.lineNumber()} of ${consoleMessage?.sourceId()}",
+                                        )
+                                        return super.onConsoleMessage(consoleMessage)
+                                    }
+                                }
 
-                                            setInterval(function() {
-                                                widget.getPosition(function(position) {
-                                                    if (typeof Android !== "undefined" && Android !== null) {
-                                                        Android.onTimeUpdate(position / 1000.0);
-                                                    }
-                                                });
-                                            }, 1000);
+                            webViewRef = this
 
-                                            widget.bind(SC.Widget.Events.FINISH, function() {
+                            addJavascriptInterface(
+                                WebAppInterface(
+                                    onVideoEnded = { 
+                                        val duration = System.currentTimeMillis() - sessionStartTime
+                                        GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanAudio: Player", duration))
+                                        onStop() 
+                                    },
+                                    onStateChangeCallback = { state -> playerStateCallback(state) },
+                                    onTimeUpdateCallback = { time -> currentPosition = time },
+                                ),
+                                "Android",
+                            )
+
+                            val finalUrl = resolvedUrl!!
+                            android.util.Log.d("Gatekeeper", "🎵 CleanAudioPlayerModal: Final Resolved URL -> $finalUrl")
+                            val encodedUrl = java.net.URLEncoder.encode(finalUrl, "UTF-8")
+                            val htmlData =
+                                """
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                                    <style>
+                                        body, html { margin:0; padding:0; height:100%; overflow:hidden; background-color:#000; }
+                                        iframe { width:100%; height:100%; border:none; }
+                                    </style>
+                                </head>
+                                <body>
+                                    <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=$encodedUrl&color=%23ff5500&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false" allow="autoplay"></iframe>
+                                    <script src="https://w.soundcloud.com/player/api.js" type="text/javascript"></script>
+                                    <script>
+                                        var widgetIframe = document.getElementById('sc-widget');
+                                        var widget = SC.Widget(widgetIframe);
+
+                                        widget.bind(SC.Widget.Events.READY, function() {
+                                            widget.seekTo(${startSeconds.toInt() * 1000});
+                                            widget.play();
+                                        });
+
+                                        setInterval(function() {
+                                            widget.getPosition(function(position) {
                                                 if (typeof Android !== "undefined" && Android !== null) {
-                                                    Android.onStateChange(0);
+                                                    Android.onTimeUpdate(position / 1000.0);
                                                 }
                                             });
+                                        }, 1000);
 
-                                            widget.bind(SC.Widget.Events.PLAY, function() {
-                                                if (typeof Android !== "undefined" && Android !== null) {
-                                                    Android.onStateChange(1);
-                                                }
-                                            });
+                                        widget.bind(SC.Widget.Events.FINISH, function() {
+                                            if (typeof Android !== "undefined" && Android !== null) {
+                                                Android.onStateChange(0);
+                                            }
+                                        });
 
-                                            widget.bind(SC.Widget.Events.PAUSE, function() {
-                                                if (typeof Android !== "undefined" && Android !== null) {
-                                                    Android.onStateChange(2);
-                                                }
-                                            });
-                                        </script>
-                                    </body>
-                                    </html>
-                                    """.trimIndent()
+                                        widget.bind(SC.Widget.Events.PLAY, function() {
+                                            if (typeof Android !== "undefined" && Android !== null) {
+                                                Android.onStateChange(1);
+                                            }
+                                        });
 
-                                loadDataWithBaseURL("https://app.aegisgatekeeper.com/", htmlData, "text/html", "UTF-8", null)
-                            }
-                        },
-                        onRelease = { webView ->
-                            webViewRef = null
-                            webView.destroy()
-                        },
-                    )
-                }
+                                        widget.bind(SC.Widget.Events.PAUSE, function() {
+                                            if (typeof Android !== "undefined" && Android !== null) {
+                                                Android.onStateChange(2);
+                                            }
+                                        });
+                                    </script>
+                                </body>
+                                </html>
+                                """.trimIndent()
+
+                            loadDataWithBaseURL("https://app.aegisgatekeeper.com/", htmlData, "text/html", "UTF-8", null)
+                        }
+                    },
+                    onRelease = { webView ->
+                        webViewRef = null
+                        webView.destroy()
+                    },
+                )
             }
         }
     }

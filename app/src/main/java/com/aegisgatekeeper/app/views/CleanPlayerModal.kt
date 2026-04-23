@@ -1,3 +1,5 @@
+// app/src/main/java/com/aegisgatekeeper/app/views/CleanPlayerModal.kt
+
 package com.aegisgatekeeper.app.views
 
 import android.annotation.SuppressLint
@@ -32,6 +34,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -60,28 +64,16 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 @Composable
 actual fun CleanPlayerModal(
     videoId: String,
-    onClose: () -> Unit,
+    isVisible: Boolean,
+    onMinimize: () -> Unit,
+    onStop: () -> Unit,
 ) {
-    var showMetacognition by remember { mutableStateOf(false) }
     val sessionStartTime by remember { mutableStateOf(System.currentTimeMillis()) }
     var currentPosition by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
 
     // Intercept the native system back button instead of relying on the Dialog's onDismissRequest
-    androidx.activity.compose.BackHandler {
-        if (!showMetacognition) {
-            showMetacognition = true
-        } else {
-            val duration = System.currentTimeMillis() - sessionStartTime
-            GatekeeperStateManager.dispatch(
-                GatekeeperAction.LogSessionMetacognition(
-                    packageName = "CleanPlayer: YouTube",
-                    durationMillis = duration,
-                    emotion = Emotion.SKIPPED,
-                    currentTimestamp = System.currentTimeMillis(),
-                ),
-            )
-            onClose()
-        }
+    androidx.activity.compose.BackHandler(enabled = isVisible) {
+        onMinimize()
     }
 
     val context = LocalContext.current
@@ -131,7 +123,11 @@ actual fun CleanPlayerModal(
                     when (intent?.action) {
                         "com.aegisgatekeeper.app.WEB_PLAY" -> webViewRef?.evaluateJavascript("player.playVideo();", null)
                         "com.aegisgatekeeper.app.WEB_PAUSE" -> webViewRef?.evaluateJavascript("player.pauseVideo();", null)
-                        "com.aegisgatekeeper.app.WEB_STOP" -> onStop()
+                        "com.aegisgatekeeper.app.WEB_STOP" -> {
+                            val duration = System.currentTimeMillis() - sessionStartTime
+                            GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanPlayer: YouTube", duration))
+                            onStop()
+                        }
                     }
                 }
             }
@@ -149,7 +145,7 @@ actual fun CleanPlayerModal(
         playerStateCallback = { playerState ->
             val isPlaying = playerState == 1
             val updateIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-                action = "com.aegisgatekeeper.app.SERVICE_UPDATE"
+                setAction("com.aegisgatekeeper.app.SERVICE_UPDATE")
                 putExtra("EXTRA_IS_PLAYING", isPlaying)
             }
             context.startService(updateIntent)
@@ -160,7 +156,7 @@ actual fun CleanPlayerModal(
             GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(videoId, currentPosition))
             
             val stopIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
-                action = "com.aegisgatekeeper.app.SERVICE_STOP"
+                setAction("com.aegisgatekeeper.app.SERVICE_STOP")
             }
             context.startService(stopIntent)
             
@@ -172,257 +168,193 @@ actual fun CleanPlayerModal(
         }
     }
 
-    Surface(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                // Absorbs all touch events so they don't fall through to the underlying Main UI
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                ) {},
-        color = Color.Black,
+    Box(
+        modifier = if (isVisible) Modifier
+            .fillMaxSize()
+            // Absorbs all touch events so they don't fall through to the underlying Main UI
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+            ) {}
+        else Modifier
+            .size(1.dp)
+            .alpha(0.01f)
     ) {
-        if (showMetacognition) {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .systemBarsPadding()
-                        .padding(32.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text("Was this worth it?", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+        Column(modifier = if (isVisible) Modifier.fillMaxSize().systemBarsPadding() else Modifier.fillMaxSize()) {
+            // Header with Buttons
+            if (isVisible) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .background(Color.DarkGray)
+                            .padding(8.dp),
+                    contentAlignment = Alignment.TopEnd,
                 ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        IndustrialButton(onClick = onMinimize, text = "Minimize")
                         IndustrialButton(onClick = {
                             val duration = System.currentTimeMillis() - sessionStartTime
-                            GatekeeperStateManager.dispatch(
-                                GatekeeperAction.LogSessionMetacognition(
-                                    packageName = "CleanPlayer: YouTube",
-                                    durationMillis = duration,
-                                    emotion = Emotion.HAPPY,
-                                    currentTimestamp = System.currentTimeMillis(),
-                                ),
-                            )
+                            GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanPlayer: YouTube", duration))
                             onStop()
-                        }, text = "Happy")
-                        IndustrialButton(onClick = {
-                            val duration = System.currentTimeMillis() - sessionStartTime
-                            GatekeeperStateManager.dispatch(
-                                GatekeeperAction.LogSessionMetacognition(
-                                    packageName = "CleanPlayer: YouTube",
-                                    durationMillis = duration,
-                                    emotion = Emotion.ANXIOUS,
-                                    currentTimestamp = System.currentTimeMillis(),
-                                ),
-                            )
-                            onStop()
-                        }, text = "Anxious")
-                        IndustrialButton(onClick = {
-                            val duration = System.currentTimeMillis() - sessionStartTime
-                            GatekeeperStateManager.dispatch(
-                                GatekeeperAction.LogSessionMetacognition(
-                                    packageName = "CleanPlayer: YouTube",
-                                    durationMillis = duration,
-                                    emotion = Emotion.DRAINED,
-                                    currentTimestamp = System.currentTimeMillis(),
-                                ),
-                            )
-                            onStop()
-                        }, text = "Drained")
+                        }, text = "End Session", isWarning = true)
                     }
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
-                IndustrialButton(onClick = {
-                    val duration = System.currentTimeMillis() - sessionStartTime
-                    GatekeeperStateManager.dispatch(
-                        GatekeeperAction.LogSessionMetacognition(
-                            packageName = "CleanPlayer: YouTube",
-                            durationMillis = duration,
-                            emotion = Emotion.SKIPPED,
-                            currentTimestamp = System.currentTimeMillis(),
-                        ),
-                    )
-                    onStop()
-                }, text = "Skip", isWarning = true)
             }
-            } // Close Surface
-        } else {
-            Column(modifier = if (isVisible) Modifier.fillMaxSize().systemBarsPadding() else Modifier.fillMaxSize()) {
-                // Header with Buttons
-                if (isVisible) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .background(Color.DarkGray)
-                                .padding(8.dp),
-                        contentAlignment = Alignment.TopEnd,
-                    ) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            IndustrialButton(onClick = onMinimize, text = "Minimize")
-                            IndustrialButton(onClick = { showMetacognition = true }, text = "End Session", isWarning = true)
-                        }
-                    }
-                }
 
-                // The WebView Player injected strictly with an iframe
-                AndroidView(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    factory = { context ->
-                        WebView(context).apply {
-                            // Enforce match parent so it correctly sizes without the Dialog wrapper interference
-                            layoutParams =
-                                android.view.ViewGroup.LayoutParams(
-                                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                                )
-                            settings.javaScriptEnabled = true
-                            settings.mediaPlaybackRequiresUserGesture = false // Allow autoplay
-                            settings.domStorageEnabled = true
-                            settings.userAgentString = settings.userAgentString.replace("; wv", "")
+            // The WebView Player injected strictly with an iframe
+            AndroidView(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                factory = { context ->
+                    WebView(context).apply {
+                        // Enforce match parent so it correctly sizes without the Dialog wrapper interference
+                        layoutParams =
+                            android.view.ViewGroup.LayoutParams(
+                                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                            )
+                        settings.javaScriptEnabled = true
+                        settings.mediaPlaybackRequiresUserGesture = false // Allow autoplay
+                        settings.domStorageEnabled = true
+                        settings.userAgentString = settings.userAgentString.replace("; wv", "")
 
-                            val cookieManager = android.webkit.CookieManager.getInstance()
-                            cookieManager.setAcceptCookie(true)
-                            cookieManager.setAcceptThirdPartyCookies(this, true)
+                        val cookieManager = android.webkit.CookieManager.getInstance()
+                        cookieManager.setAcceptCookie(true)
+                        cookieManager.setAcceptThirdPartyCookies(this, true)
 
-                            webChromeClient = WebChromeClient() // Required for HTML5 full-screen media
+                        webChromeClient = WebChromeClient() // Required for HTML5 full-screen media
 
-                            // Harden the WebView against external navigation
-                            webViewClient =
-                                object : WebViewClient() {
-                                    override fun shouldOverrideUrlLoading(
-                                        view: WebView?,
-                                        request: android.webkit.WebResourceRequest?,
-                                    ): Boolean {
-                                        val urlStr = request?.url?.toString() ?: ""
-                                        if (urlStr.startsWith("intent://") || urlStr.startsWith("vnd.youtube:")) {
-                                            return true
-                                        }
-                                        val isAuthFlow =
-                                            urlStr.contains("accounts.google.com") ||
-                                                urlStr.contains("myaccount.google.com") ||
-                                                urlStr.contains("accounts.youtube.com")
-                                        if (isAuthFlow) {
-                                            return false
-                                        }
-                                        // Allow iframe API sub-resource loads, but block main frame navigations
-                                        // to prevent the user from escaping into standard YouTube.
-                                        return request?.isForMainFrame == true
+                        // Harden the WebView against external navigation
+                        webViewClient =
+                            object : WebViewClient() {
+                                override fun shouldOverrideUrlLoading(
+                                    view: WebView?,
+                                    request: android.webkit.WebResourceRequest?,
+                                ): Boolean {
+                                    val urlStr = request?.url?.toString() ?: ""
+                                    if (urlStr.startsWith("intent://") || urlStr.startsWith("vnd.youtube:")) {
+                                        return true
                                     }
-
-                                    override fun onPageFinished(
-                                        view: WebView?,
-                                        url: String?,
-                                    ) {
-                                        super.onPageFinished(view, url)
-                                        // Inject CSS to hide the "Watch on YouTube" logo and other junk
-                                        val css =
-                                            ".ytp-impression-link, .ytp-watermark, " +
-                                                ".ytp-watch-later-button { display: none !important; }"
-                                        val js =
-                                            "var style = document.createElement('style'); " +
-                                                "style.innerHTML = '$css'; " +
-                                                "document.head.appendChild(style);"
-                                        view?.evaluateJavascript(js, null)
+                                    val isAuthFlow =
+                                        urlStr.contains("accounts.google.com") ||
+                                            urlStr.contains("myaccount.google.com") ||
+                                            urlStr.contains("accounts.youtube.com")
+                                    if (isAuthFlow) {
+                                        return false
                                     }
+                                    // Allow iframe API sub-resource loads, but block main frame navigations
+                                    // to prevent the user from escaping into standard YouTube.
+                                    return request?.isForMainFrame == true
                                 }
 
-                            webViewRef = this
-                            addJavascriptInterface(
-                                WebAppInterface(
-                                    onVideoEnded = { showMetacognition = true },
-                                    onStateChangeCallback = { state -> playerStateCallback(state) },
-                                    onTimeUpdateCallback = { time -> currentPosition = time },
-                                ),
-                                "Android",
-                            )
+                                override fun onPageFinished(
+                                    view: WebView?,
+                                    url: String?,
+                                ) {
+                                    super.onPageFinished(view, url)
+                                    // Inject CSS to hide the "Watch on YouTube" logo and other junk
+                                    val css =
+                                        ".ytp-impression-link, .ytp-watermark, " +
+                                            ".ytp-watch-later-button { display: none !important; }"
+                                    val js =
+                                        "var style = document.createElement('style'); " +
+                                            "style.innerHTML = '$css'; " +
+                                            "document.head.appendChild(style);"
+                                    view?.evaluateJavascript(js, null)
+                                }
+                            }
 
-                            val htmlData =
-                                """
-                                <!DOCTYPE html>
-                                <html>
-                                <head>
-                                    <style>
-                                        body, html { margin:0; padding:0; height:100%; overflow:hidden; background-color:#000; }
-                                        #player { height:100%; width:100%; }
-                                    </style>
-                                </head>
-                                <body>
-                                    <div id="player"></div>
-                                    <script>
-                                        var tag = document.createElement('script');
-                                        tag.src = "https://www.youtube.com/iframe_api";
-                                        var firstScriptTag = document.getElementsByTagName('script')[0];
-                                        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                        webViewRef = this
+                        addJavascriptInterface(
+                            WebAppInterface(
+                                onVideoEnded = { 
+                                    val duration = System.currentTimeMillis() - sessionStartTime
+                                    GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanPlayer: YouTube", duration))
+                                    onStop() 
+                                },
+                                onStateChangeCallback = { state -> playerStateCallback(state) },
+                                onTimeUpdateCallback = { time -> currentPosition = time },
+                            ),
+                            "Android",
+                        )
 
-                                        var player;
-                                        function onYouTubeIframeAPIReady() {
-                                            player = new YT.Player('player', {
-                                                height: '100%',
-                                                width: '100%',
-                                                videoId: '$videoId',
-                                                playerVars: {
-                                                    'start': ${startSeconds.toInt()},
-                                                    'autoplay': 1,
-                                                    'controls': 1,
-                                                    'rel': 0,
-                                                    'showinfo': 0,
-                                                    'modestbranding': 1,
-                                                    'iv_load_policy': 3,
-                                                    'playsinline': 1,
-                                                    'origin': 'https://app.aegisgatekeeper.com'
-                                                },
-                                                events: {
-                                                    'onReady': function(e) { e.target.playVideo(); },
-                                                    'onStateChange': onPlayerStateChange,
-                                                    'onError': onPlayerError
-                                                }
-                                            });
+                        val htmlData =
+                            """
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <style>
+                                    body, html { margin:0; padding:0; height:100%; overflow:hidden; background-color:#000; }
+                                    #player { height:100%; width:100%; }
+                                </style>
+                            </head>
+                            <body>
+                                <div id="player"></div>
+                                <script>
+                                    var tag = document.createElement('script');
+                                    tag.src = "https://www.youtube.com/iframe_api";
+                                    var firstScriptTag = document.getElementsByTagName('script')[0];
+                                    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+                                    var player;
+                                    function onYouTubeIframeAPIReady() {
+                                        player = new YT.Player('player', {
+                                            height: '100%',
+                                            width: '100%',
+                                            videoId: '$videoId',
+                                            playerVars: {
+                                                'start': ${startSeconds.toInt()},
+                                                'autoplay': 1,
+                                                'controls': 1,
+                                                'rel': 0,
+                                                'showinfo': 0,
+                                                'modestbranding': 1,
+                                                'iv_load_policy': 3,
+                                                'playsinline': 1,
+                                                'origin': 'https://app.aegisgatekeeper.com'
+                                            },
+                                            events: {
+                                                'onReady': function(e) { e.target.playVideo(); },
+                                                'onStateChange': onPlayerStateChange,
+                                                'onError': onPlayerError
+                                            }
+                                        });
+                                    }
+
+                                    function onPlayerStateChange(event) {
+                                        if (typeof Android !== "undefined" && Android !== null) {
+                                            Android.onStateChange(event.data);
                                         }
-
-                                        function onPlayerStateChange(event) {
+                                    }
+                                    setInterval(function() {
+                                        if (player && player.getCurrentTime && player.getPlayerState() === 1) {
+                                            var time = player.getCurrentTime();
                                             if (typeof Android !== "undefined" && Android !== null) {
-                                                Android.onStateChange(event.data);
+                                                Android.onTimeUpdate(time);
                                             }
                                         }
-                                        setInterval(function() {
-                                            if (player && player.getCurrentTime && player.getPlayerState() === 1) {
-                                                var time = player.getCurrentTime();
-                                                if (typeof Android !== "undefined" && Android !== null) {
-                                                    Android.onTimeUpdate(time);
-                                                }
-                                            }
-                                        }, 1000);
+                                    }, 1000);
 
-                                        function onPlayerError(event) {
-                                            // 2: invalid parameter. 5: HTML5 player error.
-                                            // 100: video not found. 101/150: not embeddable.
-                                            console.error('YouTube Player Error: ' + event.data);
-                                            if (typeof Android !== "undefined" && Android !== null) {
-                                                Android.logError(event.data);
-                                            }
+                                    function onPlayerError(event) {
+                                        // 2: invalid parameter. 5: HTML5 player error.
+                                        // 100: video not found. 101/150: not embeddable.
+                                        console.error('YouTube Player Error: ' + event.data);
+                                        if (typeof Android !== "undefined" && Android !== null) {
+                                            Android.logError(event.data);
                                         }
-                                    </script>
-                                </html>
-                                """.trimIndent()
+                                    }
+                                </script>
+                            </html>
+                            """.trimIndent()
 
-                            loadDataWithBaseURL("https://app.aegisgatekeeper.com/", htmlData, "text/html", "UTF-8", null)
-                        }
-                    },
-                    onRelease = { webView ->
-                        webView.destroy()
-                    },
-                )
-            }
+                        loadDataWithBaseURL("https://app.aegisgatekeeper.com/", htmlData, "text/html", "UTF-8", null)
+                    }
+                },
+                onRelease = { webView ->
+                    webViewRef = null
+                    webView.destroy()
+                },
+            )
         }
     }
 }
