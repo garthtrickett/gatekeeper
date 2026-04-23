@@ -335,31 +335,19 @@ fun CleanAudioPlayerModal(
     val startSeconds = state.savedMediaPositions[url] ?: 0f
 
     DisposableEffect(url) {
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channelId = "clean_audio_media"
+        val startIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
+            action = "com.aegisgatekeeper.app.SERVICE_START"
+            putExtra("EXTRA_TITLE", audioTitle)
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "Audio Player", NotificationManager.IMPORTANCE_LOW)
-            notificationManager.createNotificationChannel(channel)
+            context.startForegroundService(startIntent)
+        } else {
+            context.startService(startIntent)
         }
 
-        val mediaSession =
-            MediaSession(context, "CleanAudioSession").apply {
-                isActive = true
-                setCallback(
-                    object : MediaSession.Callback() {
-                        override fun onPlay() {
-                            webViewRef?.evaluateJavascript("widget.play();", null)
-                        }
-
-                        override fun onPause() {
-                            webViewRef?.evaluateJavascript("widget.pause();", null)
-                        }
-                    },
-                )
-            }
-
-        val playFilter = IntentFilter("com.aegisgatekeeper.app.AUDIO_PLAY")
-        val pauseFilter = IntentFilter("com.aegisgatekeeper.app.AUDIO_PAUSE")
+        val playFilter = IntentFilter("com.aegisgatekeeper.app.WEB_PLAY")
+        val pauseFilter = IntentFilter("com.aegisgatekeeper.app.WEB_PAUSE")
+        val stopFilter = IntentFilter("com.aegisgatekeeper.app.WEB_STOP")
         val receiver =
             object : BroadcastReceiver() {
                 override fun onReceive(
@@ -367,8 +355,9 @@ fun CleanAudioPlayerModal(
                     intent: Intent?,
                 ) {
                     when (intent?.action) {
-                        "com.aegisgatekeeper.app.AUDIO_PLAY" -> webViewRef?.evaluateJavascript("widget.play();", null)
-                        "com.aegisgatekeeper.app.AUDIO_PAUSE" -> webViewRef?.evaluateJavascript("widget.pause();", null)
+                        "com.aegisgatekeeper.app.WEB_PLAY" -> webViewRef?.evaluateJavascript("widget.play();", null)
+                        "com.aegisgatekeeper.app.WEB_PAUSE" -> webViewRef?.evaluateJavascript("widget.pause();", null)
+                        "com.aegisgatekeeper.app.WEB_STOP" -> onStop()
                     }
                 }
             }
@@ -376,83 +365,31 @@ fun CleanAudioPlayerModal(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             context.registerReceiver(receiver, playFilter, Context.RECEIVER_NOT_EXPORTED)
             context.registerReceiver(receiver, pauseFilter, Context.RECEIVER_NOT_EXPORTED)
+            context.registerReceiver(receiver, stopFilter, Context.RECEIVER_NOT_EXPORTED)
         } else {
             context.registerReceiver(receiver, playFilter)
             context.registerReceiver(receiver, pauseFilter)
+            context.registerReceiver(receiver, stopFilter)
         }
 
         playerStateCallback = { playerState ->
             val isPlaying = playerState == 1
-            val playbackState = if (isPlaying) PlaybackState.STATE_PLAYING else PlaybackState.STATE_PAUSED
-
-            mediaSession.setPlaybackState(
-                PlaybackState
-                    .Builder()
-                    .setState(playbackState, 0L, 1f)
-                    .setActions(PlaybackState.ACTION_PLAY or PlaybackState.ACTION_PAUSE)
-                    .build(),
-            )
-
-            mediaSession.setMetadata(
-                MediaMetadata
-                    .Builder()
-                    .putString(MediaMetadata.METADATA_KEY_TITLE, audioTitle)
-                    .putString(MediaMetadata.METADATA_KEY_ARTIST, "Aegis Gatekeeper")
-                    .build(),
-            )
-
-            val playIntent =
-                PendingIntent.getBroadcast(
-                    context,
-                    0,
-                    Intent("com.aegisgatekeeper.app.AUDIO_PLAY").setPackage(context.packageName),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-                )
-            val pauseIntent =
-                PendingIntent.getBroadcast(
-                    context,
-                    1,
-                    Intent("com.aegisgatekeeper.app.AUDIO_PAUSE").setPackage(context.packageName),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-                )
-            val builder =
-                Notification
-                    .Builder(context, channelId)
-                    .setSmallIcon(android.R.drawable.ic_media_play)
-                    .setContentTitle(audioTitle)
-                    .setContentText("Aegis Gatekeeper")
-                    .setStyle(
-                        Notification
-                            .MediaStyle()
-                            .setMediaSession(mediaSession.sessionToken)
-                            .setShowActionsInCompactView(0),
-                    ).setVisibility(Notification.VISIBILITY_PUBLIC)
-                    .setOngoing(isPlaying)
-
-            val pauseIcon =
-                android.graphics.drawable.Icon
-                    .createWithResource(context, android.R.drawable.ic_media_pause)
-            val playIcon =
-                android.graphics.drawable.Icon
-                    .createWithResource(context, android.R.drawable.ic_media_play)
-
-            if (isPlaying) {
-                builder.addAction(Notification.Action.Builder(pauseIcon, "Pause", pauseIntent).build())
-            } else {
-                builder.addAction(Notification.Action.Builder(playIcon, "Play", playIntent).build())
+            val updateIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
+                action = "com.aegisgatekeeper.app.SERVICE_UPDATE"
+                putExtra("EXTRA_IS_PLAYING", isPlaying)
             }
-
-            notificationManager.notify(1002, builder.build())
+            context.startService(updateIntent)
         }
 
         onDispose {
-            android.webkit.CookieManager
-                .getInstance()
-                .flush()
+            android.webkit.CookieManager.getInstance().flush()
             GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(url, currentPosition))
-            mediaSession.isActive = false
-            mediaSession.release()
-            notificationManager.cancel(1002)
+            
+            val stopIntent = Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
+                action = "com.aegisgatekeeper.app.SERVICE_STOP"
+            }
+            context.startService(stopIntent)
+            
             try {
                 context.unregisterReceiver(receiver)
             } catch (e: Exception) {

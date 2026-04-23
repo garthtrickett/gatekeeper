@@ -116,6 +116,11 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".services.WebViewMediaService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
         <!-- FCM Service for Real-time Sync Pokes -->
         <service
             android:name=".GatekeeperFcmService"
