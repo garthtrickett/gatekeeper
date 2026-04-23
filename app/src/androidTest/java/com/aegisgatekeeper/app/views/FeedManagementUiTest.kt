@@ -87,8 +87,7 @@ class FeedManagementUiTest {
             )
         )
         
-        // Force the drill-down state manually
-        GatekeeperStateManager.dispatch(GatekeeperAction.LoadPodcastEpisodes(sub.feedUrl, sub.id))
+        // Force the drill-down state manually without triggering network side-effects
         GatekeeperStateManager.dispatch(GatekeeperAction.PodcastEpisodesLoaded(mockEpisodes, sub.id))
 
         composeTestRule.setContent {
@@ -121,9 +120,9 @@ class FeedManagementUiTest {
     @Test
     fun testFeedManagement_BackButton_ClearsActivePodcast() {
         // Arrange: Start deep in the episodes view
-        val sub = PodcastSubscription(id = "podcast_123", feedUrl = "url", showTitle = "Title", artworkUrl = null)
+        val sub = PodcastSubscription(id = "podcast_123", feedUrl = "https://example.com/feed.xml", showTitle = "Title", artworkUrl = null)
         GatekeeperStateManager.dispatch(GatekeeperAction.SavePodcastSubscription(sub))
-        GatekeeperStateManager.dispatch(GatekeeperAction.LoadPodcastEpisodes(sub.feedUrl, sub.id))
+        // We directly dispatch PodcastEpisodesLoaded to set the state and avoid triggering an actual network request.
         GatekeeperStateManager.dispatch(GatekeeperAction.PodcastEpisodesLoaded(emptyList(), sub.id))
 
         composeTestRule.setContent {
