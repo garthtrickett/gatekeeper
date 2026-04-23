@@ -567,7 +567,7 @@ class GatekeeperReducerTest {
         val stateBefore = initialState.copy(activeVideoId = "testVideoId")
 
         // Act
-        val newState = reduce(stateBefore, GatekeeperAction.CloseCleanPlayer)
+        val newState = reduce(stateBefore, GatekeeperAction.StopCleanPlayer)
 
         // Assert
         assertThat(newState.activeVideoId).isNull()
