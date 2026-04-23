@@ -521,6 +521,14 @@ private fun reduceContentAndVault(
             state.copy(activeNativeMediaItem = null)
         }
 
+        is GatekeeperAction.OpenNativePlayer -> {
+            state.copy(activeNativeMediaItem = action.contentItem)
+        }
+
+        GatekeeperAction.CloseNativePlayer -> {
+            state.copy(activeNativeMediaItem = null)
+        }
+
         is GatekeeperAction.OpenSurgicalFacebook -> {
             state.copy(activeFacebookUrl = action.url)
         }
