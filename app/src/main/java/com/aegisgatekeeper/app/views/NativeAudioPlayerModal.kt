@@ -72,6 +72,7 @@ fun NativeAudioPlayerModal(
 
     var controller by remember { mutableStateOf<MediaController?>(null) }
     var isPlaying by remember { mutableStateOf(false) }
+    var isBuffering by remember { mutableStateOf(true) }
     var currentPosition by remember { mutableLongStateOf(0L) }
     var duration by remember { mutableLongStateOf(0L) }
     var playbackSpeed by remember { mutableFloatStateOf(1.0f) }
@@ -115,6 +116,9 @@ fun NativeAudioPlayerModal(
                         object : Player.Listener {
                             override fun onIsPlayingChanged(isPlayingState: Boolean) {
                                 isPlaying = isPlayingState
+                            }
+                            override fun onPlaybackStateChanged(playbackState: Int) {
+                                isBuffering = playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_IDLE
                             }
                         },
                     )
@@ -299,6 +303,7 @@ fun NativeAudioPlayerModal(
                                     },
                                     text = if (isPlaying) "Pause" else "Play",
                                     isWarning = isPlaying,
+                                    isLoading = isBuffering,
                                 )
 
                                 IndustrialButton(onClick = { controller?.seekTo(currentPosition + 30000) }, text = "+30s")

@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
@@ -206,6 +207,7 @@ fun IndustrialButton(
     isWarning: Boolean = false,
     enabled: Boolean = true,
     invertEnabledColor: Boolean = false,
+    isLoading: Boolean = false,
 ) {
     val backgroundColor =
         when {
@@ -230,20 +232,28 @@ fun IndustrialButton(
                 .shadow(elevation = 4.dp, shape = MaterialTheme.shapes.small)
                 .border(width = 1.dp, color = borderColor, shape = MaterialTheme.shapes.small)
                 .background(color = backgroundColor, shape = MaterialTheme.shapes.small)
-                .clickable(enabled = enabled, onClick = onClick)
+                .clickable(enabled = enabled && !isLoading, onClick = onClick)
                 .padding(horizontal = 16.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = buttonText.uppercase(),
-            modifier =
-                Modifier.clearAndSetSemantics {
-                    setOriginalText(buttonText)
-                },
-            color = contentColor,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-        )
+        if (isLoading) {
+            androidx.compose.material3.CircularProgressIndicator(
+                modifier = Modifier.size(20.dp),
+                color = contentColor,
+                strokeWidth = 2.dp,
+            )
+        } else {
+            Text(
+                text = buttonText.uppercase(),
+                modifier =
+                    Modifier.clearAndSetSemantics {
+                        setOriginalText(buttonText)
+                    },
+                color = contentColor,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+            )
+        }
     }
 }
 
