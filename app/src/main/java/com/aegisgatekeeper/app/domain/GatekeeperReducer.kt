@@ -541,7 +541,7 @@ private fun reduceContentAndVault(
         }
 
         is GatekeeperAction.ProcessPodcastUrl -> {
-            state.copy(isSyncingPodcasts = true)
+            state.copy(isSyncingPodcasts = true, podcastSyncError = null)
         }
 
         is GatekeeperAction.SavePodcastSubscription -> {
@@ -549,7 +549,12 @@ private fun reduceContentAndVault(
                 podcastSubscriptions = state.podcastSubscriptions + action.subscription,
                 contentItems = state.contentItems + action.initialEpisodes,
                 isSyncingPodcasts = false,
+                podcastSyncError = null,
             )
+        }
+
+        GatekeeperAction.ClearPodcastSyncError -> {
+            state.copy(podcastSyncError = null)
         }
 
         is GatekeeperAction.RemovePodcastSubscription -> {
@@ -568,18 +573,19 @@ private fun reduceContentAndVault(
         }
 
         GatekeeperAction.PodcastSyncStarted -> {
-            state.copy(isSyncingPodcasts = true)
+            state.copy(isSyncingPodcasts = true, podcastSyncError = null)
         }
 
         is GatekeeperAction.PodcastSyncCompleted -> {
             state.copy(
                 isSyncingPodcasts = false,
                 contentItems = state.contentItems + action.newEpisodes,
+                podcastSyncError = null,
             )
         }
 
         is GatekeeperAction.PodcastSyncFailed -> {
-            state.copy(isSyncingPodcasts = false)
+            state.copy(isSyncingPodcasts = false, podcastSyncError = action.error)
         }
 
         is GatekeeperAction.OpenSurgicalFacebook -> {

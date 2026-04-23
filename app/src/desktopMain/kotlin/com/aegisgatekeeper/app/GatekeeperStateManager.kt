@@ -66,11 +66,15 @@ object GatekeeperStateManager {
             }
 
             is GatekeeperAction.ProcessPodcastUrl -> {
-                _state.value = _state.value.copy(isSyncingPodcasts = true)
+                _state.value = _state.value.copy(isSyncingPodcasts = true, podcastSyncError = null)
             }
 
             is GatekeeperAction.PodcastSyncFailed -> {
-                _state.value = _state.value.copy(isSyncingPodcasts = false)
+                _state.value = _state.value.copy(isSyncingPodcasts = false, podcastSyncError = action.error)
+            }
+
+            GatekeeperAction.ClearPodcastSyncError -> {
+                _state.value = _state.value.copy(podcastSyncError = null)
             }
 
             is GatekeeperAction.RemoteSyncCompleted -> {

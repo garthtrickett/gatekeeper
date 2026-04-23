@@ -40,6 +40,12 @@ fun FeedManagementDialog(onDismiss: () -> Unit) {
     val state by GatekeeperStateManager.state.collectAsState()
     var url by remember { mutableStateOf("") }
 
+    androidx.compose.runtime.LaunchedEffect(url) {
+        if (url.isNotEmpty() && state.podcastSyncError != null) {
+            GatekeeperStateManager.dispatch(GatekeeperAction.ClearPodcastSyncError)
+        }
+    }
+
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             shape = MaterialTheme.shapes.medium,
@@ -79,6 +85,15 @@ fun FeedManagementDialog(onDismiss: () -> Unit) {
                             text = "Add",
                         )
                     }
+                }
+
+                if (state.podcastSyncError != null) {
+                    Text(
+                        text = state.podcastSyncError!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))

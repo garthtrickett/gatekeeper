@@ -99,6 +99,8 @@ sealed interface GatekeeperAction {
         val error: String,
     ) : GatekeeperAction
 
+    object ClearPodcastSyncError : GatekeeperAction
+
     data class SaveToContentBank(
         val videoId: String,
         val title: String,

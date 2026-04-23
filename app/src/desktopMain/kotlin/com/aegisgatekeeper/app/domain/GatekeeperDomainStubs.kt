@@ -19,6 +19,8 @@ data class GatekeeperState(
     val alternativeActivities: List<AlternativeActivity> = emptyList(),
     val podcastSubscriptions: List<PodcastSubscription> = emptyList(),
     val pendingMetacognition: MetacognitionRequest? = null,
+    val isSyncingPodcasts: Boolean = false,
+    val podcastSyncError: String? = null,
 )
 
 data class MetacognitionRequest(
@@ -153,6 +155,8 @@ sealed interface GatekeeperAction {
     data class PodcastSyncFailed(
         val error: String,
     ) : GatekeeperAction
+
+    object ClearPodcastSyncError : GatekeeperAction
 
     data class OpenNativePlayer(
         val contentItem: ContentItem,

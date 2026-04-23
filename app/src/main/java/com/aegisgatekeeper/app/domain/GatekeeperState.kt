@@ -35,6 +35,7 @@ data class GatekeeperState(
     val vaultItems: List<VaultItem> = emptyList(),
     val contentItems: List<ContentItem> = emptyList(),
     val isSyncingPodcasts: Boolean = false,
+    val podcastSyncError: String? = null,
     val activeContentFilter: ContentType? = null,
     val sessionLogs: List<SessionLog> = emptyList(),
     val intentionalSlots: List<IntentionalSlotItem> = emptyList(),
