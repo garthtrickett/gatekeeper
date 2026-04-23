@@ -116,12 +116,22 @@ class WebViewMediaService : Service() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
+        val contentIntent = PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, com.aegisgatekeeper.app.MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val builder =
             Notification
                 .Builder(this, "webview_media_channel")
                 .setSmallIcon(android.R.drawable.ic_media_play)
                 .setContentTitle(currentTitle)
                 .setContentText("Aegis Gatekeeper")
+                .setContentIntent(contentIntent)
                 .setStyle(Notification.MediaStyle().setMediaSession(mediaSession?.sessionToken).setShowActionsInCompactView(0, 1))
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setOngoing(isPlaying)
@@ -143,7 +153,15 @@ class WebViewMediaService : Service() {
         }
         builder.addAction(Notification.Action.Builder(stopIcon, "Stop", stopIntent).build())
 
-        startForeground(1005, builder.build())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                1005,
+                builder.build(),
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+            )
+        } else {
+            startForeground(1005, builder.build())
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
