@@ -18,19 +18,14 @@ class YoutubeApiClientTest {
     private val mockJsonResponse =
         """ 
         {
-            "items": [
+            "items":[
                 {
-                    "id": {
-                        "videoId": "testVideoId123"
-                    },
                     "snippet": {
                         "title": "Test Video Title",
-                        "channelTitle": "Test Channel",
-                        "thumbnails": {
-                            "high": {
-                                "url": "https://example.com/thumbnail.jpg"
-                            }
-                        }
+                        "channelTitle": "Test Channel"
+                    },
+                    "contentDetails": {
+                        "duration": "PT15M33S"
                     }
                 }
             ]
@@ -38,7 +33,7 @@ class YoutubeApiClientTest {
         """.trimIndent()
 
     @Test
-    fun testSearchVideos_SuccessfulResponse_ParsesCorrectly() =
+    fun testGetVideoDetails_SuccessfulResponse_ParsesCorrectly() =
         runTest {
             // Arrange
             val mockEngine =
@@ -49,23 +44,23 @@ class YoutubeApiClientTest {
                         headers = headersOf(HttpHeaders.ContentType, "application/json"),
                     )
                 }
-            val client = createMockClient(mockEngine)
+            val mockClient = createMockClient(mockEngine)
 
             // Act: We inject our mock client into a temporary test-only instance.
             val apiClient =
                 object : Any() {
-                    suspend fun searchVideos(query: String) =
+                    suspend fun getVideoDetails(videoId: String) =
                         YoutubeApiClient.run {
                             val originalClient = this.javaClass.getDeclaredField("client").apply { isAccessible = true }
                             val originalValue = originalClient.get(this)
-                            originalClient.set(this, client) // Overwrite client with mock
-                            val result = searchVideos(query) // Run the real function
+                            originalClient.set(this, mockClient) // Overwrite client with mock
+                            val result = getVideoDetails(videoId) // Run the real function
                             originalClient.set(this, originalValue) // Restore original client
                             result
                         }
                 }
 
-            val result = apiClient.searchVideos("kotlin")
+            val result = apiClient.getVideoDetails("testVideoId123")
 
             // Assert
             assertThat(result.isRight()).isTrue()
@@ -74,17 +69,17 @@ class YoutubeApiClientTest {
             assertThat(
                 response.items
                     .first()
-                    .id.videoId,
-            ).isEqualTo("testVideoId123")
+                    .snippet?.title,
+            ).isEqualTo("Test Video Title")
             assertThat(
                 response.items
                     .first()
-                    .snippet.title,
-            ).isEqualTo("Test Video Title")
+                    .contentDetails?.duration,
+            ).isEqualTo("PT15M33S")
         }
 
     @Test
-    fun testSearchVideos_ApiError_ReturnsFailure() =
+    fun testGetVideoDetails_ApiError_ReturnsFailure() =
         runTest {
             // Arrange
             val mockEngine =
@@ -95,29 +90,16 @@ class YoutubeApiClientTest {
                         headers = headersOf(HttpHeaders.ContentType, "application/json"),
                     )
                 }
-            val client = createMockClient(mockEngine)
+            val mockClient = createMockClient(mockEngine)
 
             // Act
             val originalClient = YoutubeApiClient.client
-            YoutubeApiClient.client = client
-            val result = YoutubeApiClient.searchVideos("kotlin")
+            YoutubeApiClient.client = mockClient
+            val result = YoutubeApiClient.getVideoDetails("testVideoId123")
             YoutubeApiClient.client = originalClient
 
             // Assert
             assertThat(result.isLeft()).isTrue()
-        }
-
-    @Test
-    fun testSearchVideos_BlankQuery_ReturnsSuccessWithEmptyList() =
-        runTest {
-            val result = YoutubeApiClient.searchVideos("  ")
-            assertThat(result.isRight()).isTrue()
-            result.fold(
-                ifLeft = { throw AssertionError("Expected Right but got Left: $it") },
-                ifRight = { response ->
-                    assertThat(response.items).isEmpty()
-                },
-            )
         }
 
     private fun createMockClient(engine: MockEngine): HttpClient =
