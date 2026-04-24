@@ -268,17 +268,18 @@ private fun PodcastEpisodesView(state: GatekeeperState, onDismiss: () -> Unit) {
                                         androidx.compose.material3.CircularProgressIndicator(progress = { progress / 100f }, color = MaterialTheme.colorScheme.primary)
                                     }
                                 } else if (status == com.aegisgatekeeper.app.domain.DownloadStatus.COMPLETED) {
-                                    IndustrialButton(
-                                        onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DeleteDownloadedMedia(contentItem.id)) },
-                                        text = "🗑️",
-                                        isWarning = true,
-                                        modifier = Modifier.width(64.dp)
-                                    )
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text("✅", modifier = Modifier.padding(end = 8.dp))
+                                        IndustrialButton(
+                                            onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DeleteDownloadedMedia(contentItem.id)) },
+                                            text = "Delete Offline File",
+                                            isWarning = true,
+                                        )
+                                    }
                                 } else {
                                     IndustrialButton(
                                         onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DownloadMediaRequested(contentItem.id)) },
-                                        text = "⬇️",
-                                        modifier = Modifier.width(64.dp)
+                                        text = "Download",
                                     )
                                 }
                             } else {

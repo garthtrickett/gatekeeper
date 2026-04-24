@@ -495,15 +495,16 @@ private fun ContentItemCard(
                                     androidx.compose.material3.CircularProgressIndicator(progress = { progress / 100f }, color = MaterialTheme.colorScheme.primary, strokeWidth = 2.dp)
                                 }
                             } else if (status == com.aegisgatekeeper.app.domain.DownloadStatus.COMPLETED) {
+                                Text("✅", modifier = Modifier.padding(end = 8.dp))
                                 IndustrialButton(
                                     onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DeleteDownloadedMedia(item.id)) },
-                                    text = "❌ Cache",
+                                    text = "Delete Offline File",
                                     isWarning = true,
                                 )
                             } else {
                                 IndustrialButton(
                                     onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DownloadMediaRequested(item.id)) },
-                                    text = "⬇️ Cache",
+                                    text = "Download",
                                 )
                             }
                         }
