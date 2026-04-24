@@ -59,7 +59,10 @@ fun BaseSurgicalWebView(
                 settings.loadWithOverviewMode = true
                 settings.javaScriptCanOpenWindowsAutomatically = true
                 settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                settings.userAgentString = settings.userAgentString.replace("; wv", "")
+                
+                if (url.contains("youtube.com", ignoreCase = true) || url.contains("google.com", ignoreCase = true)) {
+                    settings.userAgentString = settings.userAgentString.replace("; wv", "")
+                }
 
                 val cookieManager = CookieManager.getInstance()
                 cookieManager.setAcceptCookie(true)
@@ -187,6 +190,11 @@ fun BaseSurgicalWebView(
                             request: WebResourceRequest?,
                         ): Boolean {
                             val newUrl = request?.url?.toString() ?: ""
+
+                            if (newUrl.startsWith("intent://") || newUrl.startsWith("fb://") || newUrl.startsWith("android-app://")) {
+                                android.util.Log.d("Gatekeeper", "🛡️ BASE-WEB: Blocking deep link: $newUrl")
+                                return true
+                            }
 
                             val isAuthFlow =
                                 newUrl.contains("accounts.google.com") ||

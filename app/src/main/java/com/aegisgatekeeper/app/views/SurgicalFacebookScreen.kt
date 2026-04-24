@@ -139,10 +139,13 @@ fun SurgicalFacebookScreen(
                 onPageLoaded = { loadedUrl ->
                     if (!isLoggedIn) {
                         val cookies = cookieManager.getCookie("https://m.facebook.com") ?: ""
-                        val isCheckpoint = loadedUrl.contains("checkpoint", ignoreCase = true) || 
-                                           loadedUrl.contains("two_step_verification", ignoreCase = true)
-                        if (cookies.contains("c_user=") && cookies.contains("xs=") && !isCheckpoint) {
-                            android.util.Log.d("Gatekeeper", "✅ FB-AUTH: Login successful, auth cookie detected!")
+                        val isHomeFeed = loadedUrl == "https://m.facebook.com/" || 
+                                         loadedUrl.startsWith("https://m.facebook.com/?") || 
+                                         loadedUrl.contains("facebook.com/home") ||
+                                         loadedUrl.contains("ref=logo")
+                        
+                        if (cookies.contains("c_user=") && cookies.contains("xs=") && isHomeFeed) {
+                            android.util.Log.d("Gatekeeper", "✅ FB-AUTH: Login fully completed (reached home).")
                             cookieManager.flush()
                             isLoggedIn = true
                             GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/"))
