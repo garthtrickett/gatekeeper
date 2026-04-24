@@ -175,7 +175,9 @@ private fun ColumnScope.LoginWebView(onLoginSuccess: () -> Unit) {
                             super.onPageFinished(view, url)
                             android.util.Log.d("Gatekeeper", "✅ FB-LOGIN-LOADED: $url")
                             val cookies = cookieManager.getCookie("https://m.facebook.com") ?: ""
-                            if (cookies.contains("c_user=") && cookies.contains("xs=")) {
+                            val isCheckpoint = url?.contains("checkpoint", ignoreCase = true) == true || 
+                                               url?.contains("two_step_verification", ignoreCase = true) == true
+                            if (cookies.contains("c_user=") && cookies.contains("xs=") && !isCheckpoint) {
                                 android.util.Log.d("Gatekeeper", "✅ FB-AUTH: Login successful, auth cookie detected!")
                                 cookieManager.flush()
                                 onLoginSuccess()

@@ -158,7 +158,9 @@ fun BaseSurgicalWebView(
                                 return false
                             }
 
-                            if (onLogout != null && (newUrl.contains("login") || newUrl.contains("checkpoint"))) {
+                            if (onLogout != null && (newUrl.contains("login", ignoreCase = true) || 
+                                newUrl.contains("checkpoint", ignoreCase = true) ||
+                                newUrl.contains("two_step_verification", ignoreCase = true))) {
                                 onLogout()
                                 return true
                             }
