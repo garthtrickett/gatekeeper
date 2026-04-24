@@ -32,6 +32,7 @@ fun BaseSurgicalWebView(
     // New properties to manage the User-Agent switch
     userAgent: String? = null,
     onLoginSuccess: () -> Unit = {},
+    onInterceptUrlChange: ((WebView, String) -> Boolean)? = null,
 ) {
     var lastLoadedUrl by remember { mutableStateOf(url) }
 
@@ -305,8 +306,11 @@ fun BaseSurgicalWebView(
                 webView.settings.userAgentString = userAgent
             }
             if (url != lastLoadedUrl) {
+                val handled = onInterceptUrlChange?.invoke(webView, url) ?: false
+                if (!handled) {
+                    webView.loadUrl(url)
+                }
                 lastLoadedUrl = url
-                webView.loadUrl(url)
             }
         },
     )

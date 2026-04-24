@@ -142,6 +142,42 @@ fun SurgicalFacebookScreen(
                         forceReload++
                     }
                 },
+                onInterceptUrlChange = { webView, newUrl ->
+                    if (isLoggedIn) {
+                        val targetPath = when {
+                            newUrl.contains("/groups/") -> "/groups/"
+                            newUrl.contains("/events/") -> "/events/"
+                            newUrl.contains("/search/") -> "/search/"
+                            else -> null
+                        }
+                        if (targetPath != null) {
+                            val js = """
+                                (function(targetPath) {
+                                    var links = Array.from(document.querySelectorAll('a')).filter(a => a.href && a.href.includes(targetPath));
+                                    if (links.length > 0) {
+                                        links[0].click();
+                                        return 'clicked';
+                                    }
+                                    return 'not_found';
+                                })('$targetPath');
+                            """.trimIndent()
+                            
+                            webView.evaluateJavascript(js) { result ->
+                                if (result == "\"not_found\"" || result == "null") {
+                                    android.util.Log.d("Gatekeeper", "🛡️ SPA hack failed (link not found). Falling back to hard load: $newUrl")
+                                    webView.loadUrl(newUrl)
+                                } else {
+                                    android.util.Log.d("Gatekeeper", "✨ SPA hack succeeded. Soft navigating to: $newUrl")
+                                }
+                            }
+                            true // Handled asynchronously
+                        } else {
+                            false
+                        }
+                    } else {
+                        false
+                    }
+                },
                 cssInjector = { currentUrl ->
                     if (isLoggedIn) {
                         val hideList = mutableListOf("div[data-m-bubble-key=\"back_button\"]")
