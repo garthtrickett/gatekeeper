@@ -60,7 +60,7 @@ fun BaseSurgicalWebView(
                 settings.javaScriptCanOpenWindowsAutomatically = true
                 settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 
-                if (url.contains("youtube.com", ignoreCase = true) || url.contains("google.com", ignoreCase = true)) {
+                if (url.contains("youtube.com", ignoreCase = true) || url.contains("google.com", ignoreCase = true) || url.contains("facebook.com", ignoreCase = true)) {
                     settings.userAgentString = settings.userAgentString.replace("; wv", "")
                 }
 
