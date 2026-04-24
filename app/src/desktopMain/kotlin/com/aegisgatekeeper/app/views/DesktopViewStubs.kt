@@ -69,6 +69,7 @@ actual fun PinnedWebModal(
 fun ContentBankScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+    var showYouTubeSearch by remember { mutableStateOf(false) }
 
     val items =
         state.contentItems
@@ -98,6 +99,8 @@ fun ContentBankScreen() {
                 com.aegisgatekeeper.app.domain
                     .IndustrialButton(onClick = { searchQuery = "" }, text = "Clear")
             }
+            com.aegisgatekeeper.app.domain
+                .IndustrialButton(onClick = { showYouTubeSearch = true }, text = "YouTube")
         }
 
         if (items.isEmpty()) {
@@ -115,6 +118,10 @@ fun ContentBankScreen() {
                 }
             }
         }
+    }
+
+    if (showYouTubeSearch) {
+        CleanYouTubeDialog(onDismiss = { showYouTubeSearch = false })
     }
 }
 
