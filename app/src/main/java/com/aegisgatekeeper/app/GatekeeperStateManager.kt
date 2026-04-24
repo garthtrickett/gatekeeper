@@ -267,6 +267,8 @@ object GatekeeperStateManager {
                         lastModified = it.lastModified,
                         isSynced = it.isSynced,
                         isDeleted = it.isDeleted,
+                        localFilePath = it.localFilePath,
+                        downloadStatus = it.downloadStatus
                     )
                 },
             savedMediaPositions = mediaPositionsFromDb,
@@ -299,6 +301,8 @@ object GatekeeperStateManager {
                                 lastModified = it.lastModified,
                                 isSynced = it.isSynced,
                                 isDeleted = it.isDeleted,
+                                localFilePath = it.localFilePath,
+                                downloadStatus = it.downloadStatus
                             ),
                     )
                 },

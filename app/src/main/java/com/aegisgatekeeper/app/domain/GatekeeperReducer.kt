@@ -482,6 +482,56 @@ private fun reduceContentAndVault(
             state.copy(activeContentFilter = action.filter)
         }
 
+        is GatekeeperAction.DownloadMediaRequested -> {
+            state.copy(
+                contentItems = state.contentItems.map {
+                    if (it.id == action.id) it.copy(downloadStatus = DownloadStatus.QUEUED) else it
+                }
+            )
+        }
+
+        is GatekeeperAction.DownloadProgressUpdated -> {
+            state.copy(
+                activeDownloads = state.activeDownloads + (action.id to action.progress),
+                contentItems = state.contentItems.map {
+                    if (it.id == action.id) it.copy(downloadStatus = DownloadStatus.DOWNLOADING) else it
+                }
+            )
+        }
+
+        is GatekeeperAction.DownloadCompleted -> {
+            state.copy(
+                activeDownloads = state.activeDownloads - action.id,
+                contentItems = state.contentItems.map {
+                    if (it.id == action.id) it.copy(
+                        downloadStatus = DownloadStatus.COMPLETED,
+                        localFilePath = action.localFilePath
+                    ) else it
+                }
+            )
+        }
+
+        is GatekeeperAction.DownloadFailed -> {
+            state.copy(
+                activeDownloads = state.activeDownloads - action.id,
+                contentItems = state.contentItems.map {
+                    if (it.id == action.id) it.copy(downloadStatus = DownloadStatus.FAILED) else it
+                }
+            )
+        }
+
+        is GatekeeperAction.DeleteDownloadedMedia -> {
+            state.copy(
+                activeDownloads = state.activeDownloads - action.id,
+                contentItems = state.contentItems.map {
+                    if (it.id == action.id) it.copy(
+                        downloadStatus = DownloadStatus.NONE,
+                        localFilePath = null
+                    ) else it
+                }
+            )
+        }
+
         // --- YouTube Clean Room Logic ---
         is GatekeeperAction.SearchYouTubeRequested -> {
             state.copy(isLoadingYouTube = true, youtubeSearchResults = emptyList())

@@ -24,6 +24,7 @@ data class GatekeeperState(
     val activePodcastEpisodes: List<com.aegisgatekeeper.app.api.RssEpisode>? = null,
     val activePodcastId: String? = null,
     val isLoadingEpisodes: Boolean = false,
+    val activeDownloads: Map<String, Float> = emptyMap(),
 )
 
 data class MetacognitionRequest(
@@ -72,6 +73,10 @@ data class VaultItem(
     val isDeleted: Boolean = false,
 )
 
+enum class DownloadStatus {
+    NONE, QUEUED, DOWNLOADING, COMPLETED, FAILED
+}
+
 data class ContentItem(
     val id: String =
         java.util.UUID
@@ -89,6 +94,8 @@ data class ContentItem(
     val lastModified: Long = System.currentTimeMillis(),
     val isSynced: Boolean = false,
     val isDeleted: Boolean = false,
+    val localFilePath: String? = null,
+    val downloadStatus: DownloadStatus = DownloadStatus.NONE,
 )
 
 data class NotificationLog(

@@ -85,6 +85,10 @@ data class PodcastSubscription(
     val isDeleted: Boolean = false,
 )
 
+enum class DownloadStatus {
+    NONE, QUEUED, DOWNLOADING, COMPLETED, FAILED
+}
+
 /**
  * Represents a piece of curated media saved to the Content Bank.
  */
@@ -102,6 +106,8 @@ data class ContentItem(
     val lastModified: Long = System.currentTimeMillis(),
     val isSynced: Boolean = false,
     val isDeleted: Boolean = false,
+    val localFilePath: String? = null,
+    val downloadStatus: DownloadStatus = DownloadStatus.NONE,
 )
 
 data class NotificationLog(

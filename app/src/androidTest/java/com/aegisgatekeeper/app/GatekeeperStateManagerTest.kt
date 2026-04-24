@@ -82,6 +82,14 @@ class GatekeeperStateManagerTest {
                 override fun encode(value: ContentType): String = value.name
             }
 
+        val downloadStatusAdapter =
+            object : ColumnAdapter<com.aegisgatekeeper.app.domain.DownloadStatus, String> {
+                override fun decode(databaseValue: String): com.aegisgatekeeper.app.domain.DownloadStatus =
+                    com.aegisgatekeeper.app.domain.DownloadStatus.valueOf(databaseValue)
+
+                override fun encode(value: com.aegisgatekeeper.app.domain.DownloadStatus): String = value.name
+            }
+
         val frictionGameAdapter =
             object : ColumnAdapter<com.aegisgatekeeper.app.domain.FrictionGame, String> {
                 override fun decode(databaseValue: String): com.aegisgatekeeper.app.domain.FrictionGame =
@@ -116,6 +124,7 @@ class GatekeeperStateManagerTest {
                     ContentItem.Adapter(
                         sourceAdapter = contentSourceAdapter,
                         typeAdapter = contentTypeAdapter,
+                        downloadStatusAdapter = downloadStatusAdapter,
                     ),
             )
 
@@ -243,6 +252,8 @@ class GatekeeperStateManagerTest {
                 100L,
                 false,
                 false,
+                null,
+                com.aegisgatekeeper.app.domain.DownloadStatus.NONE
             )
             db.contentItemQueries.insert(
                 "2",
@@ -258,6 +269,8 @@ class GatekeeperStateManagerTest {
                 200L,
                 false,
                 false,
+                null,
+                com.aegisgatekeeper.app.domain.DownloadStatus.NONE
             )
             db.contentItemQueries.insert(
                 "3",
@@ -273,6 +286,8 @@ class GatekeeperStateManagerTest {
                 300L,
                 false,
                 false,
+                null,
+                com.aegisgatekeeper.app.domain.DownloadStatus.NONE
             )
 
             // Act
@@ -306,6 +321,8 @@ class GatekeeperStateManagerTest {
                 100L,
                 false,
                 false,
+                null,
+                com.aegisgatekeeper.app.domain.DownloadStatus.NONE
             )
             db.contentItemQueries.insert(
                 "2",
@@ -321,6 +338,8 @@ class GatekeeperStateManagerTest {
                 200L,
                 false,
                 false,
+                null,
+                com.aegisgatekeeper.app.domain.DownloadStatus.NONE
             )
             db.contentItemQueries.insert(
                 "3",
@@ -336,6 +355,8 @@ class GatekeeperStateManagerTest {
                 300L,
                 false,
                 false,
+                null,
+                com.aegisgatekeeper.app.domain.DownloadStatus.NONE
             )
 
             // Act & Assert - countAll
@@ -511,6 +532,8 @@ class GatekeeperStateManagerTest {
                             lastModified = newItem.lastModified,
                             isSynced = newItem.isSynced,
                             isDeleted = newItem.isDeleted,
+                            localFilePath = newItem.localFilePath,
+                            downloadStatus = newItem.downloadStatus
                         )
                     }
 

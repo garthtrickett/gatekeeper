@@ -1,6 +1,7 @@
 import kotlin.Boolean;
 import com.aegisgatekeeper.app.domain.ContentSource;
 import com.aegisgatekeeper.app.domain.ContentType;
+import com.aegisgatekeeper.app.domain.DownloadStatus;
 
 -- The Content Bank table for curated media that has been captured and ranked.
 CREATE TABLE IF NOT EXISTS ContentItem (
@@ -16,7 +17,9 @@ CREATE TABLE IF NOT EXISTS ContentItem (
     durationSeconds INTEGER,
     lastModified INTEGER NOT NULL,
     isSynced INTEGER AS Boolean NOT NULL DEFAULT 0,
-    isDeleted INTEGER AS Boolean NOT NULL DEFAULT 0
+    isDeleted INTEGER AS Boolean NOT NULL DEFAULT 0,
+    localFilePath TEXT,
+    downloadStatus TEXT AS DownloadStatus NOT NULL DEFAULT 'NONE'
 );
 
 selectAllByRank:
@@ -38,11 +41,14 @@ countAllByType:
 SELECT COUNT(*) FROM ContentItem WHERE type = :type AND isDeleted = 0;
 
 insert:
-INSERT OR REPLACE INTO ContentItem(id, podcastId, videoId, title, channelName, source, type, rank, capturedAtTimestamp, durationSeconds, lastModified, isSynced, isDeleted)
-VALUES (:id, :podcastId, :videoId, :title, :channelName, :source, :type, :rank, :capturedAtTimestamp, :durationSeconds, :lastModified, :isSynced, :isDeleted);
+INSERT OR REPLACE INTO ContentItem(id, podcastId, videoId, title, channelName, source, type, rank, capturedAtTimestamp, durationSeconds, lastModified, isSynced, isDeleted, localFilePath, downloadStatus)
+VALUES (:id, :podcastId, :videoId, :title, :channelName, :source, :type, :rank, :capturedAtTimestamp, :durationSeconds, :lastModified, :isSynced, :isDeleted, :localFilePath, :downloadStatus);
 
 updateRank:
 UPDATE ContentItem SET rank = :rank, isSynced = 0, lastModified = :lastModified WHERE id = :id;
+
+updateDownloadStatus:
+UPDATE ContentItem SET downloadStatus = :downloadStatus, localFilePath = :localFilePath, lastModified = :lastModified WHERE id = :id;
 
 delete:
 UPDATE ContentItem SET isDeleted = 1, isSynced = 0, lastModified = :lastModified WHERE id = :id;

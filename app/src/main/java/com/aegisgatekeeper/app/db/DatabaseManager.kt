@@ -38,6 +38,14 @@ object DatabaseManager {
             override fun encode(value: ContentType): String = value.name
         }
 
+    private val downloadStatusAdapter =
+        object : ColumnAdapter<com.aegisgatekeeper.app.domain.DownloadStatus, String> {
+            override fun decode(databaseValue: String): com.aegisgatekeeper.app.domain.DownloadStatus =
+                com.aegisgatekeeper.app.domain.DownloadStatus.valueOf(databaseValue)
+
+            override fun encode(value: com.aegisgatekeeper.app.domain.DownloadStatus): String = value.name
+        }
+
     private val frictionGameAdapter =
         object : ColumnAdapter<com.aegisgatekeeper.app.domain.FrictionGame, String> {
             override fun decode(databaseValue: String): com.aegisgatekeeper.app.domain.FrictionGame =
@@ -76,6 +84,7 @@ object DatabaseManager {
                 ContentItem.Adapter(
                     sourceAdapter = contentSourceAdapter,
                     typeAdapter = contentTypeAdapter,
+                    downloadStatusAdapter = downloadStatusAdapter,
                 ),
         )
     }

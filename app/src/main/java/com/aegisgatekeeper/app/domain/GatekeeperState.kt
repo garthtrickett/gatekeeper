@@ -40,6 +40,7 @@ data class GatekeeperState(
     val activePodcastId: String? = null,
     val isLoadingEpisodes: Boolean = false,
     val activeContentFilter: ContentType? = null,
+    val activeDownloads: Map<String, Float> = emptyMap(),
     val sessionLogs: List<SessionLog> = emptyList(),
     val intentionalSlots: List<IntentionalSlotItem> = emptyList(),
     val activeAudioUrl: String? = null,

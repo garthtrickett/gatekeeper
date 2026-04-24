@@ -87,6 +87,31 @@ fun handleDatabaseEffects(
                     lastModified = it.lastModified,
                     isSynced = it.isSynced,
                     isDeleted = it.isDeleted,
+                    localFilePath = it.localFilePath,
+                    downloadStatus = it.downloadStatus
+                )
+            }
+        }
+
+        is GatekeeperAction.DownloadMediaRequested,
+        is GatekeeperAction.DownloadCompleted,
+        is GatekeeperAction.DownloadFailed,
+        is GatekeeperAction.DeleteDownloadedMedia -> {
+            // Update the download status in the DB
+            val actionId = when (action) {
+                is GatekeeperAction.DownloadMediaRequested -> action.id
+                is GatekeeperAction.DownloadCompleted -> action.id
+                is GatekeeperAction.DownloadFailed -> action.id
+                is GatekeeperAction.DeleteDownloadedMedia -> action.id
+                else -> null
+            }
+            val item = newState.contentItems.find { it.id == actionId }
+            if (item != null) {
+                db.contentItemQueries.updateDownloadStatus(
+                    downloadStatus = item.downloadStatus,
+                    localFilePath = item.localFilePath,
+                    lastModified = System.currentTimeMillis(),
+                    id = item.id
                 )
             }
         }

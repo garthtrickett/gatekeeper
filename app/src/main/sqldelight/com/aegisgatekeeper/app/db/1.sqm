@@ -1,3 +1,5 @@
+ALTER TABLE ContentItem ADD COLUMN localFilePath TEXT;
+ALTER TABLE ContentItem ADD COLUMN downloadStatus TEXT NOT NULL DEFAULT 'NONE';
 CREATE TABLE AlternativeActivity (
     id TEXT NOT NULL PRIMARY KEY,
     description TEXT NOT NULL,
