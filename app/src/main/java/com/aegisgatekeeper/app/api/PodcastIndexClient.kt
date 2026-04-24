@@ -14,17 +14,22 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.security.MessageDigest
 
 @Serializable
-data class PodcastSearchResponse(
-    @SerialName("feeds") val feeds: List<PodcastFeedDto> = emptyList(),
+data class ItunesSearchResponse(
+    val results: List<ItunesPodcastDto> = emptyList()
+)
+
+@Serializable
+data class ItunesPodcastDto(
+    val collectionId: Long? = null,
+    val collectionName: String? = null,
+    val feedUrl: String? = null,
+    val artworkUrl600: String? = null,
+    val artistName: String? = null
 )
 
 object PodcastIndexClient {
-    private const val API_KEY = "DUMMY_KEY"
-    private const val API_SECRET = "DUMMY_SECRET"
-
     internal var client =
         HttpClient(OkHttp) {
             install(ContentNegotiation) {
@@ -36,21 +41,25 @@ object PodcastIndexClient {
         if (query.isBlank()) return emptyList<PodcastFeedDto>().right()
 
         return try {
-            val unixTime = (System.currentTimeMillis() / 1000L).toString()
-            val data4Hash = API_KEY + API_SECRET + unixTime
-            val hash = MessageDigest.getInstance("SHA-1").digest(data4Hash.toByteArray())
-            val authHeader = hash.joinToString("") { "%02x".format(it) }
-
             val response =
-                client.get("https://api.podcastindex.org/api/1.0/search/byterm") {
-                    header("X-Auth-Key", API_KEY)
-                    header("X-Auth-Date", unixTime)
-                    header("Authorization", authHeader)
-                    header("User-Agent", "AegisGatekeeper/1.0")
-                    parameter("q", query)
+                client.get("https://itunes.apple.com/search") {
+                    parameter("media", "podcast")
+                    parameter("term", query)
                 }
             if (response.status.value in 200..299) {
-                response.body<PodcastSearchResponse>().feeds.right()
+                val itunesResponse = response.body<ItunesSearchResponse>()
+                val feeds = itunesResponse.results.mapNotNull {
+                    if (it.feedUrl != null && it.collectionName != null) {
+                        PodcastFeedDto(
+                            id = it.collectionId ?: 0L,
+                            title = it.collectionName,
+                            url = it.feedUrl,
+                            image = it.artworkUrl600,
+                            author = it.artistName
+                        )
+                    } else null
+                }
+                feeds.right()
             } else {
                 "HTTP Error: ${response.status.value}".left()
             }

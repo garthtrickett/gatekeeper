@@ -18,13 +18,13 @@ class PodcastIndexClientTest {
     private val mockJsonResponse =
         """ 
         {
-            "feeds":[
+            "results":[
                 {
-                    "id": 12345,
-                    "title": "Test Podcast",
-                    "url": "https://example.com/feed.xml",
-                    "image": "https://example.com/image.jpg",
-                    "author": "Test Author"
+                    "collectionId": 12345,
+                    "collectionName": "Test Podcast",
+                    "feedUrl": "https://example.com/feed.xml",
+                    "artworkUrl600": "https://example.com/image.jpg",
+                    "artistName": "Test Author"
                 }
             ]
         }
