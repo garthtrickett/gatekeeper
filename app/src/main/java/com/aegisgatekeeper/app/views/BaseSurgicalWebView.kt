@@ -144,10 +144,7 @@ fun BaseSurgicalWebView(
                                     onLoginSuccess()
                                     return
                                 }
-                                val isNowLoggedIn = cookies.contains("c_user=") && cookies.contains("xs=")
-                                val isOnDesktopHomepage = currentUrl?.contains("www.facebook.com") == true && (currentUrl.endsWith("/") || currentUrl.endsWith("home.php"))
 
-                                // AUTH-DETOUR STEP 4: Detect successful desktop login and redirect back to mobile surgical root.
                                 val isExplicitHomeFeed =
                                     currentUrl == "https://m.facebook.com/" ||
                                         currentUrl?.startsWith("https://m.facebook.com/?") == true ||
