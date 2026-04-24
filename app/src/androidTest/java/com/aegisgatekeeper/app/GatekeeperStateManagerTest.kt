@@ -737,7 +737,8 @@ class GatekeeperStateManagerTest {
                     
                     is GatekeeperAction.CacheParsedEpisodes -> {
                         db.transaction {
-                            action.episodes.forEach { ep ->
+                            val baseTime = System.currentTimeMillis()
+                            action.episodes.forEachIndexed { index, ep ->
                                 val id = java.util.UUID.nameUUIDFromBytes(ep.audioUrl.toByteArray()).toString()
                                 db.podcastEpisodeQueries.insertOrReplace(
                                     id = id,
@@ -746,7 +747,7 @@ class GatekeeperStateManagerTest {
                                     audioUrl = ep.audioUrl,
                                     durationSeconds = ep.durationSeconds,
                                     pubDate = ep.pubDate,
-                                    lastModified = System.currentTimeMillis()
+                                    lastModified = baseTime - index
                                 )
                             }
                             db.podcastEpisodeQueries.deleteOldEpisodes(action.podcastId, 200)

@@ -161,7 +161,8 @@ fun handleDatabaseEffects(
         is GatekeeperAction.CacheParsedEpisodes -> {
             Log.i("Gatekeeper", "DB: Caching ${action.episodes.size} episodes for podcast ${action.podcastId}")
             db.transaction {
-                action.episodes.forEach { ep ->
+                val baseTime = System.currentTimeMillis()
+                action.episodes.forEachIndexed { index, ep ->
                     val id = java.util.UUID.nameUUIDFromBytes(ep.audioUrl.toByteArray()).toString()
                     db.podcastEpisodeQueries.insertOrReplace(
                         id = id,
@@ -170,7 +171,7 @@ fun handleDatabaseEffects(
                         audioUrl = ep.audioUrl,
                         durationSeconds = ep.durationSeconds,
                         pubDate = ep.pubDate,
-                        lastModified = System.currentTimeMillis()
+                        lastModified = baseTime - index
                     )
                 }
                 db.podcastEpisodeQueries.deleteOldEpisodes(action.podcastId, 200)

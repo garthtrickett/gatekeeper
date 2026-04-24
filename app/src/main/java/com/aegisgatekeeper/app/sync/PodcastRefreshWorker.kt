@@ -37,7 +37,8 @@ class PodcastRefreshWorker(
                 ifRight = { data ->
                     Log.i("Gatekeeper", "✅ PodcastRefreshWorker: Fetched ${data.episodes.size} episodes for ${sub.showTitle}")
                     db.transaction {
-                        data.episodes.forEach { ep ->
+                        val baseTime = System.currentTimeMillis()
+                        data.episodes.forEachIndexed { index, ep ->
                             val id = UUID.nameUUIDFromBytes(ep.audioUrl.toByteArray()).toString()
                             db.podcastEpisodeQueries.insertOrReplace(
                                 id = id,
@@ -46,7 +47,7 @@ class PodcastRefreshWorker(
                                 audioUrl = ep.audioUrl,
                                 durationSeconds = ep.durationSeconds,
                                 pubDate = ep.pubDate,
-                                lastModified = System.currentTimeMillis()
+                                lastModified = baseTime - index
                             )
                         }
                         db.podcastEpisodeQueries.deleteOldEpisodes(sub.id, 200)
