@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -293,6 +294,7 @@ class ContentBankUiTest {
 
         // 3. Enter a URL
         val testUrl = "https://youtu.be/dQw4w9WgXcQ"
+        composeTestRule.onNodeWithText("Paste YouTube or SoundCloud link").performTextClearance()
         composeTestRule.onNodeWithText("Paste YouTube or SoundCloud link").performTextInput(testUrl)
 
         // 4. Click Add
