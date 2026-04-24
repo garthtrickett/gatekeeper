@@ -181,14 +181,23 @@ fun BaseSurgicalWebView(
                                 val js =
                                     """
                                     (function() {
-                                        var styleId = 'gatekeeper-base-surgical-mask';
-                                        var style = document.getElementById(styleId);
-                                        if (!style) {
-                                            style = document.createElement('style');
-                                            style.id = styleId;
-                                            document.head.appendChild(style);
+                                        function injectCSS() {
+                                            var styleId = 'gatekeeper-base-surgical-mask';
+                                            var style = document.getElementById(styleId);
+                                            if (!style) {
+                                                style = document.createElement('style');
+                                                style.id = styleId;
+                                                style.textContent = "$cleanCss";
+                                                document.documentElement.appendChild(style);
+                                            } else if (style.textContent !== "$cleanCss") {
+                                                style.textContent = "$cleanCss";
+                                            }
                                         }
-                                        style.textContent = "$cleanCss";
+                                        injectCSS();
+                                        if (!window.gkCssObserver) {
+                                            window.gkCssObserver = new MutationObserver(injectCSS);
+                                            window.gkCssObserver.observe(document.documentElement, { childList: true, subtree: true });
+                                        }
                                     })();
                                     """.trimIndent()
                                 view?.evaluateJavascript(js, null)
@@ -292,6 +301,9 @@ fun BaseSurgicalWebView(
             }
         },
         update = { webView ->
+            if (userAgent != null && webView.settings.userAgentString != userAgent) {
+                webView.settings.userAgentString = userAgent
+            }
             if (url != lastLoadedUrl) {
                 lastLoadedUrl = url
                 webView.loadUrl(url)

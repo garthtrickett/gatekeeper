@@ -71,19 +71,19 @@ fun SurgicalFacebookScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 IndustrialButton(
-                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/")) },
+                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/?_rdr")) },
                     text = "Groups",
                     enabled = !url.contains("/groups/"),
                     invertEnabledColor = true,
                 )
                 IndustrialButton(
-                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/events/")) },
+                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/events/?_rdr")) },
                     text = "Events",
                     enabled = !url.contains("/events/"),
                     invertEnabledColor = true,
                 )
                 IndustrialButton(
-                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/search/")) },
+                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/search/?_rdr")) },
                     text = "Search",
                     enabled = !url.contains("/search/"),
                     invertEnabledColor = true,
@@ -92,8 +92,8 @@ fun SurgicalFacebookScreen(
                     onClick = {
                         cookieManager.removeAllCookies(null)
                         cookieManager.flush()
-                        isLoggedIn = false
-                        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/login.php"))
+                            // Force a state update with a cache-busting param to trigger WebView reload
+                            GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/?_rdr&reload=${System.currentTimeMillis()}"))
                         forceReload++
                     },
                     text = "Logout",

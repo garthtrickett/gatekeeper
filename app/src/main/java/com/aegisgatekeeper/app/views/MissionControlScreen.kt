@@ -157,7 +157,7 @@ fun MissionControlScreen() {
                     IndustrialButton(
                         onClick = {
                             GatekeeperStateManager.dispatch(
-                                GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/"),
+                                GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/?_rdr"),
                             )
                         },
                         text = "FB Groups",
@@ -166,7 +166,7 @@ fun MissionControlScreen() {
                     IndustrialButton(
                         onClick = {
                             GatekeeperStateManager.dispatch(
-                                GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/events/"),
+                                GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/events/?_rdr"),
                             )
                         },
                         text = "FB Events",
@@ -175,7 +175,7 @@ fun MissionControlScreen() {
                     IndustrialButton(
                         onClick = {
                             GatekeeperStateManager.dispatch(
-                                GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/search/"),
+                                GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/search/?_rdr"),
                             )
                         },
                         text = "FB Search",

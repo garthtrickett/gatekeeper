@@ -46,7 +46,7 @@ class SurgicalFacebookUiTest {
     @Test
     fun testFacebookOverlay_AppearsAndCloses() {
         // Arrange: Open the Facebook Surgical Screen
-        val testUrl = "https://m.facebook.com/groups/"
+        val testUrl = "https://m.facebook.com/groups/?_rdr"
         GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook(testUrl))
 
         composeTestRule.setContent {
@@ -83,7 +83,7 @@ class SurgicalFacebookUiTest {
         cookieManager.setAcceptCookie(true)
         cookieManager.setCookie("https://m.facebook.com", "c_user=12345; xs=mock_session_secret")
 
-        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/"))
+        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/?_rdr"))
 
         composeTestRule.setContent {
             GatekeeperTheme {
@@ -114,7 +114,7 @@ class SurgicalFacebookUiTest {
         cookieManager.setCookie("https://m.facebook.com", "c_user=12345; xs=mock_session_secret")
 
         // Start at Groups
-        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/"))
+        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/?_rdr"))
 
         composeTestRule.setContent {
             GatekeeperTheme {
