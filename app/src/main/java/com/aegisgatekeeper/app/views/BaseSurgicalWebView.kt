@@ -29,6 +29,9 @@ fun BaseSurgicalWebView(
     jsInterfaceObj: Any? = null,
     jsInterfaceName: String? = null,
     jsInjector: ((String) -> String)? = null,
+    // New properties to manage the User-Agent switch
+    userAgent: String? = null,
+    onLoginSuccess: () -> Unit = {},
 ) {
     var lastLoadedUrl by remember { mutableStateOf(url) }
 
@@ -60,16 +63,8 @@ fun BaseSurgicalWebView(
                 settings.javaScriptCanOpenWindowsAutomatically = true
                 settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 
-                val isFacebook = url.contains("facebook.com", ignoreCase = true)
-                val isGoogle = url.contains("youtube.com", ignoreCase = true) || url.contains("google.com", ignoreCase = true)
-
-                if (isFacebook) {
-                    // The www.facebook.com login page will redirect to m.facebook.com if it sees a mobile UA, creating a loop.
-                    // We force a Desktop UA for the entire session to break this cycle. The mobile site still renders fine.
-                    settings.userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
-                } else if (isGoogle) {
-                    // Google just checks for the presence of "; wv" and "Version/4.0"
-                    settings.userAgentString = settings.userAgentString.replace("; wv", "").replace("Version/4.0 ", "")
+                if (userAgent != null) {
+                    settings.userAgentString = userAgent
                 }
 
                 val cookieManager = CookieManager.getInstance()
@@ -138,17 +133,21 @@ fun BaseSurgicalWebView(
                             currentUrl?.let { onPageLoaded(it) }
 
                             if (jailRoot != null) {
-                                val cookies = CookieManager.getInstance().getCookie(currentUrl) ?: ""
+                                val currentCookies = CookieManager.getInstance().getCookie(currentUrl) ?: ""
+                                val isNowLoggedIn = currentCookies.contains("c_user=") && currentCookies.contains("xs=")
+
+                                // Check if we are on the desktop homepage after a login, but before the UA switch has happened
+                                val isOnDesktopHomepage = currentUrl?.contains("www.facebook.com") == true && (currentUrl.endsWith("/") || currentUrl.endsWith("home.php"))
+
+                                if (isNowLoggedIn && isOnDesktopHomepage) {
+                                    android.util.Log.d("Gatekeeper", "✅ AUTH-SUCCESS: Login detected. Triggering UA switch and redirect.")
+                                    onLoginSuccess()
+                                    return
+                                }
                                 val isNowLoggedIn = cookies.contains("c_user=") && cookies.contains("xs=")
                                 val isOnDesktopHomepage = currentUrl?.contains("www.facebook.com") == true && (currentUrl.endsWith("/") || currentUrl.endsWith("home.php"))
 
                                 // AUTH-DETOUR STEP 4: Detect successful desktop login and redirect back to mobile surgical root.
-                                if (isNowLoggedIn && isOnDesktopHomepage) {
-                                    android.util.Log.d("Gatekeeper", "✅ AUTH-DETOUR: Desktop login complete. Redirecting to mobile surgical root: $jailRoot")
-                                    view?.loadUrl(jailRoot)
-                                    return
-                                }
-
                                 val isExplicitHomeFeed =
                                     currentUrl == "https://m.facebook.com/" ||
                                         currentUrl?.startsWith("https://m.facebook.com/?") == true ||

@@ -45,9 +45,12 @@ fun SurgicalFacebookScreen(
     var isLoggedIn by remember { mutableStateOf(false) }
     var forceReload by remember { mutableStateOf(0) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(forceReload) {
         val cookies = cookieManager.getCookie("https://m.facebook.com") ?: ""
-        isLoggedIn = cookies.contains("c_user=") && cookies.contains("xs=")
+        val currentlyLoggedIn = cookies.contains("c_user=") && cookies.contains("xs=")
+        if (currentlyLoggedIn != isLoggedIn) {
+            isLoggedIn = currentlyLoggedIn
+        }
     }
 
     Column(
@@ -104,10 +107,22 @@ fun SurgicalFacebookScreen(
             IndustrialButton(onClick = onClose, text = "Exit", isWarning = true)
         }
 
-        androidx.compose.runtime.key(forceReload) {
+        androidx.compose.runtime.key(forceReload, isLoggedIn) {
+            val userAgent = if (isLoggedIn) {
+                // Once logged in, use a clean mobile UA to get the correct mobile layout.
+                "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36"
+            } else {
+                // Before login, use a Desktop UA to bypass the 2FA/login redirect loop.
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
+            }
+
             BaseSurgicalWebView(
                 url = url,
                 modifier = Modifier.weight(1f),
+                userAgent = userAgent,
+                onLoginSuccess = {
+                    forceReload++
+                },
                 cssInjector = { currentUrl ->
                     if (isLoggedIn) {
                         val hideList = mutableListOf("div[data-m-bubble-key=\"back_button\"]")
