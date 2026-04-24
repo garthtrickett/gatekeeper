@@ -95,7 +95,7 @@ private fun PodcastSubscriptionsView(
                     ),
                 keyboardActions =
                     androidx.compose.foundation.text.KeyboardActions(onSearch = {
-                        if (query.isNotBlank()) {
+                        if (query.isNotBlank() && !state.isSearchingPodcasts) {
                             isSearchMode = true
                             GatekeeperStateManager.dispatch(GatekeeperAction.SearchPodcastsRequested(query))
                         }
@@ -104,13 +104,14 @@ private fun PodcastSubscriptionsView(
             Spacer(modifier = Modifier.width(8.dp))
             IndustrialButton(
                 onClick = {
-                    if (query.isNotBlank()) {
+                    if (query.isNotBlank() && !state.isSearchingPodcasts) {
                         isSearchMode = true
                         GatekeeperStateManager.dispatch(GatekeeperAction.SearchPodcastsRequested(query))
                     }
                 },
-                enabled = query.isNotBlank(),
+                enabled = query.isNotBlank() && !state.isSearchingPodcasts,
                 text = "Search",
+                isLoading = state.isSearchingPodcasts
             )
         }
 

@@ -31,10 +31,12 @@ data class ItunesPodcastDto(
 )
 
 object PodcastIndexClient {
+    private val jsonParser = Json { ignoreUnknownKeys = true }
+
     internal var client =
         HttpClient(OkHttp) {
             install(ContentNegotiation) {
-                json(Json { ignoreUnknownKeys = true })
+                json(jsonParser)
             }
         }
 
@@ -44,13 +46,15 @@ object PodcastIndexClient {
         return try {
             val response =
                 client.get("https://itunes.apple.com/search") {
+                    io.ktor.client.request.header("User-Agent", "AegisGatekeeper/1.0")
                     parameter("media", "podcast")
+                    parameter("entity", "podcast")
+                    parameter("limit", 25)
                     parameter("term", query)
                 }
             if (response.status.value in 200..299) {
                 val responseText = response.bodyAsText()
-                val parser = Json { ignoreUnknownKeys = true }
-                val itunesResponse = parser.decodeFromString(ItunesSearchResponse.serializer(), responseText)
+                val itunesResponse = jsonParser.decodeFromString(ItunesSearchResponse.serializer(), responseText)
                 val feeds = itunesResponse.results.mapNotNull {
                     if (it.feedUrl != null && it.collectionName != null) {
                         PodcastFeedDto(
