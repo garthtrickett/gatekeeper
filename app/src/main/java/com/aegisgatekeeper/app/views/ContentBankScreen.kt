@@ -485,7 +485,29 @@ private fun ContentItemCard(
                 Spacer(modifier = Modifier.width(16.dp))
 
                 // Action Buttons
-                Column(horizontalAlignment = Alignment.End) {
+                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (item.type == ContentType.AUDIO && item.source != ContentSource.SOUNDCLOUD) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            val status = item.downloadStatus
+                            val progress = state.activeDownloads[item.id] ?: 0f
+                            if (status == com.aegisgatekeeper.app.domain.DownloadStatus.DOWNLOADING || status == com.aegisgatekeeper.app.domain.DownloadStatus.QUEUED) {
+                                androidx.compose.foundation.layout.Box(contentAlignment = Alignment.Center, modifier = Modifier.size(40.dp)) {
+                                    androidx.compose.material3.CircularProgressIndicator(progress = { progress / 100f }, color = MaterialTheme.colorScheme.primary, strokeWidth = 2.dp)
+                                }
+                            } else if (status == com.aegisgatekeeper.app.domain.DownloadStatus.COMPLETED) {
+                                IndustrialButton(
+                                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DeleteDownloadedMedia(item.id)) },
+                                    text = "❌ Cache",
+                                    isWarning = true,
+                                )
+                            } else {
+                                IndustrialButton(
+                                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DownloadMediaRequested(item.id)) },
+                                    text = "⬇️ Cache",
+                                )
+                            }
+                        }
+                    }
                     if (item.source == ContentSource.YOUTUBE || item.source == ContentSource.SOUNDCLOUD ||
                         item.type == ContentType.READING || item.type == ContentType.AUDIO
                     ) {

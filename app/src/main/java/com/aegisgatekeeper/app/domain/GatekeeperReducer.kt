@@ -596,6 +596,14 @@ private fun reduceContentAndVault(
             state.copy(activeNativeMediaItem = null, isNativeAudioPlayerModalVisible = false)
         }
 
+        is GatekeeperAction.SearchPodcastsRequested -> {
+            state.copy(isSearchingPodcasts = true, podcastSearchResults = emptyList())
+        }
+
+        is GatekeeperAction.PodcastSearchCompleted -> {
+            state.copy(isSearchingPodcasts = false, podcastSearchResults = action.results)
+        }
+
         is GatekeeperAction.ProcessPodcastUrl -> {
             state.copy(isSyncingPodcasts = true, podcastSyncError = null)
         }

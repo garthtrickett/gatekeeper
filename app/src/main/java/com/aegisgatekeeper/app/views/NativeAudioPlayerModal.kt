@@ -256,14 +256,28 @@ fun NativeAudioPlayerModal(
                                 }
                                 Spacer(modifier = Modifier.height(32.dp))
                             }
-                            Text(
-                                contentItem.title,
-                                color = Color.White,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 2,
-                                textAlign = TextAlign.Center,
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                                Text(
+                                    contentItem.title,
+                                    color = Color.White,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 2,
+                                    textAlign = TextAlign.Center,
+                                )
+                                if (contentItem.downloadStatus == com.aegisgatekeeper.app.domain.DownloadStatus.COMPLETED) {
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    androidx.compose.material3.FilterChip(
+                                        selected = true,
+                                        onClick = {},
+                                        label = { Text("OFFLINE", fontSize = 10.sp, fontWeight = FontWeight.Bold) },
+                                        colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                        )
+                                    )
+                                }
+                            }
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(contentItem.channelName ?: "Podcast", color = Color.Gray, fontSize = 16.sp, maxLines = 1)
 

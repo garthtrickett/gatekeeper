@@ -13,6 +13,7 @@ import com.aegisgatekeeper.app.domain.ContentType
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.GatekeeperState
 import com.aegisgatekeeper.app.domain.PodcastSubscription
+import com.aegisgatekeeper.app.media.MediaDownloader
 import com.aegisgatekeeper.app.widget.VaultWidget
 import com.aegisgatekeeper.app.widget.updateAll
 import kotlinx.coroutines.delay
@@ -23,6 +24,31 @@ suspend fun handleMediaAndSystemEffects(
     dispatch: (GatekeeperAction) -> Unit,
 ) {
     when (action) {
+        is GatekeeperAction.SearchPodcastsRequested -> {
+            Log.d("Gatekeeper", "📡 Searching Podcasts for '${action.query}'")
+            com.aegisgatekeeper.app.api.PodcastIndexClient.searchPodcasts(action.query).fold(
+                ifLeft = { error ->
+                    Log.e("Gatekeeper", "❌ Podcast Search Failed: $error")
+                    dispatch(GatekeeperAction.PodcastSearchCompleted(emptyList()))
+                },
+                ifRight = { results ->
+                    dispatch(GatekeeperAction.PodcastSearchCompleted(results))
+                }
+            )
+        }
+
+        is GatekeeperAction.DownloadMediaRequested -> {
+            val item = state.contentItems.find { it.id == action.id }
+            if (item != null) {
+                Log.d("Gatekeeper", "⬇️ Starting download for ${item.title}")
+                MediaDownloader.enqueueDownload(item.id, item.videoId)
+            }
+        }
+        is GatekeeperAction.DeleteDownloadedMedia -> {
+            Log.d("Gatekeeper", "🗑️ Deleting offline media for ${action.id}")
+            MediaDownloader.removeDownload(action.id)
+        }
+
         is GatekeeperAction.ProcessPodcastUrl -> {
             Log.i("Gatekeeper", "📡 Fetching Podcast RSS: ${action.url}")
             val result = RssClient.fetchFeed(action.url)

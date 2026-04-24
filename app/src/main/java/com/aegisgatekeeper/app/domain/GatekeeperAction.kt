@@ -73,6 +73,10 @@ sealed interface GatekeeperAction {
         val currentTimestamp: Long,
     ) : GatekeeperAction
 
+    data class SearchPodcastsRequested(val query: String) : GatekeeperAction
+
+    data class PodcastSearchCompleted(val results: List<com.aegisgatekeeper.app.api.PodcastFeedDto>) : GatekeeperAction
+
     data class ProcessPodcastUrl(
         val url: String,
     ) : GatekeeperAction

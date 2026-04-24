@@ -66,97 +66,135 @@ fun FeedManagementDialog(onDismiss: () -> Unit) {
 @Suppress("FunctionName")
 @Composable
 private fun PodcastSubscriptionsView(state: GatekeeperState, onDismiss: () -> Unit) {
-    var url by remember { mutableStateOf("") }
-
-    androidx.compose.runtime.LaunchedEffect(url) {
-        if (url.isNotEmpty() && state.podcastSyncError != null) {
-            GatekeeperStateManager.dispatch(GatekeeperAction.ClearPodcastSyncError)
-        }
-    }
+    var query by remember { mutableStateOf("") }
+    var isSearchMode by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Text("Manage Podcast Feeds", style = MaterialTheme.typography.titleLarge)
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text("Manage Podcasts", style = MaterialTheme.typography.titleLarge)
+            if (isSearchMode) {
+                IndustrialButton(onClick = { isSearchMode = false }, text = "View Subs")
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             IndustrialTextField(
-                value = url,
-                onValueChange = { url = it },
-                label = { Text("RSS Feed URL") },
+                value = query,
+                onValueChange = { query = it },
+                label = { Text("Search podcasts...") },
                 modifier = Modifier.weight(1f),
                 singleLine = true,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Search),
+                keyboardActions = androidx.compose.foundation.text.KeyboardActions(onSearch = {
+                    if (query.isNotBlank()) {
+                        isSearchMode = true
+                        GatekeeperStateManager.dispatch(GatekeeperAction.SearchPodcastsRequested(query))
+                    }
+                })
             )
             Spacer(modifier = Modifier.width(8.dp))
-            if (state.isSyncingPodcasts) {
-                androidx.compose.material3.CircularProgressIndicator(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .size(24.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = 2.dp,
-                )
-            } else {
-                IndustrialButton(
-                    onClick = {
-                        if (url.isNotBlank()) {
-                            GatekeeperStateManager.dispatch(GatekeeperAction.ProcessPodcastUrl(url))
-                            url = ""
-                        }
-                    },
-                    enabled = url.isNotBlank(),
-                    text = "Add",
-                )
-            }
-        }
-
-        if (state.podcastSyncError != null) {
-            Text(
-                text = state.podcastSyncError!!,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp)
+            IndustrialButton(
+                onClick = {
+                    if (query.isNotBlank()) {
+                        isSearchMode = true
+                        GatekeeperStateManager.dispatch(GatekeeperAction.SearchPodcastsRequested(query))
+                    }
+                },
+                enabled = query.isNotBlank(),
+                text = "Search",
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        if (state.podcastSubscriptions.isEmpty()) {
-            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Text("No podcast subscriptions yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        } else {
-            LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(state.podcastSubscriptions, key = { it.id }) { sub ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth().clickable {
-                            GatekeeperStateManager.dispatch(GatekeeperAction.LoadPodcastEpisodes(sub.feedUrl, sub.id))
-                        },
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp).fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
+        if (isSearchMode) {
+            if (state.isSearchingPodcasts) {
+                Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    androidx.compose.material3.CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
+            } else if (state.podcastSearchResults.isEmpty()) {
+                Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Text("No results found.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            } else {
+                LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(state.podcastSearchResults, key = { it.id }) { result ->
+                        val isSubscribed = state.podcastSubscriptions.any { it.feedUrl == result.url }
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(sub.showTitle, style = MaterialTheme.typography.titleMedium, maxLines = 1)
-                                Text(
-                                    sub.feedUrl,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
+                            Row(
+                                modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(result.title, style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                                    if (result.author != null) {
+                                        Text(result.author, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                IndustrialButton(
+                                    onClick = {
+                                        if (!isSubscribed) {
+                                            val sub = com.aegisgatekeeper.app.domain.PodcastSubscription(
+                                                feedUrl = result.url,
+                                                showTitle = result.title,
+                                                artworkUrl = result.image,
+                                            )
+                                            GatekeeperStateManager.dispatch(GatekeeperAction.SavePodcastSubscription(sub))
+                                        }
+                                    },
+                                    text = if (isSubscribed) "✓" else "Subscribe",
+                                    enabled = !isSubscribed
                                 )
                             }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                "🗑️",
-                                modifier = Modifier
-                                    .clickable {
-                                        GatekeeperStateManager.dispatch(
-                                            GatekeeperAction.RemovePodcastSubscription(sub.id, System.currentTimeMillis()),
-                                        )
-                                    }.padding(8.dp),
-                            )
+                        }
+                    }
+                }
+            }
+        } else {
+            if (state.podcastSubscriptions.isEmpty()) {
+                Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Text("No podcast subscriptions yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            } else {
+                LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(state.podcastSubscriptions, key = { it.id }) { sub ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth().clickable {
+                                GatekeeperStateManager.dispatch(GatekeeperAction.LoadPodcastEpisodes(sub.feedUrl, sub.id))
+                            },
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(sub.showTitle, style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                                    Text(
+                                        sub.feedUrl,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "🗑️",
+                                    modifier = Modifier
+                                        .clickable {
+                                            GatekeeperStateManager.dispatch(
+                                                GatekeeperAction.RemovePodcastSubscription(sub.id, System.currentTimeMillis()),
+                                            )
+                                        }.padding(8.dp),
+                                )
+                            }
                         }
                     }
                 }
@@ -221,18 +259,41 @@ private fun PodcastEpisodesView(state: GatekeeperState, onDismiss: () -> Unit) {
                                 }
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            IndustrialButton(
-                                onClick = {
-                                    if (!isAlreadyInBank && state.activePodcastId != null) {
-                                        GatekeeperStateManager.dispatch(
-                                            GatekeeperAction.AddEpisodeToBank(ep, state.activePodcastId, activeSub?.showTitle ?: "Podcast")
-                                        )
+                            val contentItem = state.contentItems.find { it.videoId == ep.audioUrl && !it.isDeleted }
+                            if (contentItem != null) {
+                                val status = contentItem.downloadStatus
+                                val progress = state.activeDownloads[contentItem.id] ?: 0f
+                                if (status == com.aegisgatekeeper.app.domain.DownloadStatus.DOWNLOADING || status == com.aegisgatekeeper.app.domain.DownloadStatus.QUEUED) {
+                                    androidx.compose.foundation.layout.Box(contentAlignment = Alignment.Center, modifier = Modifier.size(64.dp)) {
+                                        androidx.compose.material3.CircularProgressIndicator(progress = { progress / 100f }, color = MaterialTheme.colorScheme.primary)
                                     }
-                                },
-                                enabled = !isAlreadyInBank,
-                                text = if (isAlreadyInBank) "✓" else "+",
-                                modifier = Modifier.width(64.dp)
-                            )
+                                } else if (status == com.aegisgatekeeper.app.domain.DownloadStatus.COMPLETED) {
+                                    IndustrialButton(
+                                        onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DeleteDownloadedMedia(contentItem.id)) },
+                                        text = "🗑️",
+                                        isWarning = true,
+                                        modifier = Modifier.width(64.dp)
+                                    )
+                                } else {
+                                    IndustrialButton(
+                                        onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DownloadMediaRequested(contentItem.id)) },
+                                        text = "⬇️",
+                                        modifier = Modifier.width(64.dp)
+                                    )
+                                }
+                            } else {
+                                IndustrialButton(
+                                    onClick = {
+                                        if (state.activePodcastId != null) {
+                                            GatekeeperStateManager.dispatch(
+                                                GatekeeperAction.AddEpisodeToBank(ep, state.activePodcastId, activeSub?.showTitle ?: "Podcast")
+                                            )
+                                        }
+                                    },
+                                    text = "+",
+                                    modifier = Modifier.width(64.dp)
+                                )
+                            }
                         }
                     }
                 }

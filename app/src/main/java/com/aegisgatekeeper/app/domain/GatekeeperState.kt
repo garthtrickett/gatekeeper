@@ -36,6 +36,8 @@ data class GatekeeperState(
     val contentItems: List<ContentItem> = emptyList(),
     val isSyncingPodcasts: Boolean = false,
     val podcastSyncError: String? = null,
+    val isSearchingPodcasts: Boolean = false,
+    val podcastSearchResults: List<com.aegisgatekeeper.app.api.PodcastFeedDto> = emptyList(),
     val activePodcastEpisodes: List<com.aegisgatekeeper.app.api.RssEpisode>? = null,
     val activePodcastId: String? = null,
     val isLoadingEpisodes: Boolean = false,
