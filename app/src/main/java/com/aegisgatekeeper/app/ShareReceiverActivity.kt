@@ -27,7 +27,13 @@ class ShareReceiverActivity : ComponentActivity() {
                         currentTimestamp = System.currentTimeMillis(),
                     ),
                 )
-                Toast.makeText(this, "Saved to Content Bank", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Opening in Gatekeeper...", Toast.LENGTH_SHORT).show()
+
+                // Launch the main activity to ensure the UI is visible for the dialog
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+                startActivity(intent)
             }
         }
         finish()

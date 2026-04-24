@@ -376,6 +376,9 @@ sealed interface GatekeeperAction {
 
     object ClosePinnedWebsite : GatekeeperAction
 
+    data class ShowSurgicalSearch(val url: String = "") : GatekeeperAction
+    object HideSurgicalSearch : GatekeeperAction
+
     // --- Permission & Onboarding Flow ---
     data class PermissionsUpdated(
         val hasOverlay: Boolean,

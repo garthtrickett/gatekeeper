@@ -126,48 +126,7 @@ suspend fun handleMediaAndSystemEffects(
             val videoId = pattern.find(action.url)?.value
 
             if (videoId != null) {
-                var title: String? = action.providedTitle
-                var channelName: String? = null
-                var durationSeconds: Long? = null
-
-                val detailsResult = YoutubeApiClient.getVideoDetails(videoId)
-                detailsResult.fold(
-                    ifLeft = { error ->
-                        Log.w("Gatekeeper", "⚠️ YouTube API failed, falling back to HTML scrape: $error")
-                        if (title == null) {
-                            val metadataResult = UrlMetadataClient.fetchMetadata(action.url)
-                            title = metadataResult.fold({ "YouTube Video" }, { it.title })
-                        }
-                    },
-                    ifRight = { response ->
-                        // Prefer the API title over the fallback text
-                        val snippet = response.items.firstOrNull()?.snippet
-                        title = snippet?.title ?: title
-                        channelName = snippet?.channelTitle
-                        val isoDuration =
-                            response.items
-                                .firstOrNull()
-                                ?.contentDetails
-                                ?.duration
-                        if (isoDuration != null) {
-                            durationSeconds =
-                                com.aegisgatekeeper.app.domain
-                                    .parseIso8601Duration(isoDuration)
-                        }
-                    },
-                )
-
-                dispatch(
-                    GatekeeperAction.SaveToContentBank(
-                        videoId = videoId,
-                        title = title ?: "YouTube Video",
-                        channelName = channelName,
-                        source = ContentSource.YOUTUBE,
-                        type = ContentType.VIDEO,
-                        currentTimestamp = action.currentTimestamp,
-                        durationSeconds = durationSeconds,
-                    ),
-                )
+                dispatch(GatekeeperAction.ShowSurgicalSearch(action.url))
             } else if (action.url.contains("soundcloud.com", ignoreCase = true)) {
                 val metadataResult = UrlMetadataClient.fetchMetadata(action.url, isSoundCloud = true)
                 val title = metadataResult.fold({ action.providedTitle ?: "SoundCloud Audio" }, { it.title })

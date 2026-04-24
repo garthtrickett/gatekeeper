@@ -678,6 +678,14 @@ private fun reduceContentAndVault(
             state.copy(isSyncingPodcasts = false, podcastSyncError = action.error)
         }
 
+        is GatekeeperAction.ShowSurgicalSearch -> {
+            state.copy(isSurgicalSearchVisible = true, initialSurgicalSearchUrl = action.url)
+        }
+
+        GatekeeperAction.HideSurgicalSearch -> {
+            state.copy(isSurgicalSearchVisible = false, initialSurgicalSearchUrl = null)
+        }
+
         is GatekeeperAction.OpenSurgicalFacebook -> {
             state.copy(activeFacebookUrl = action.url)
         }

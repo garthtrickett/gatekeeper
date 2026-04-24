@@ -65,7 +65,7 @@ class YouTubeSurgicalBridge {
 fun CleanYouTubeDialog(onDismiss: () -> Unit) {
     val state by GatekeeperStateManager.state.collectAsState()
     var query by remember { mutableStateOf("") }
-    var currentUrl by remember { mutableStateOf("") }
+    var currentUrl by remember { mutableStateOf(state.initialSurgicalSearchUrl ?: "") }
 
     androidx.compose.ui.window.Dialog(
         onDismissRequest = onDismiss,
@@ -190,6 +190,9 @@ fun CleanYouTubeDialog(onDismiss: () -> Unit) {
                                     
                                     var channelEl = video.querySelector('.bidi-matching-text');
                                     var channel = channelEl ? channelEl.innerText : '';
+
+                                    var durationEl = video.querySelector('ytm-thumbnail-overlay-time-status-renderer');
+                                    var durationStr = durationEl ? durationEl.innerText.trim() : '0:00';
                                     
                                     var btn = document.createElement('button');
                                     btn.className = 'gatekeeper-add-btn';
@@ -209,7 +212,7 @@ fun CleanYouTubeDialog(onDismiss: () -> Unit) {
                                         e.preventDefault();
                                         e.stopPropagation();
                                         if (window.GatekeeperBridge) {
-                                            window.GatekeeperBridge.saveVideo(videoId, title, channel);
+                                            window.GatekeeperBridge.saveVideo(videoId, title, channel, durationStr);
                                             btn.innerText = 'Added ✓';
                                             btn.style.backgroundColor = '#888888';
                                             btn.disabled = true;

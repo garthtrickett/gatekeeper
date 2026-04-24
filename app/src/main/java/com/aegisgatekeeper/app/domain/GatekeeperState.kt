@@ -61,6 +61,8 @@ data class GatekeeperState(
     val currentSurgicalUrl: String? = null,
     val activeFacebookUrl: String? = null,
     val activePinnedWebsiteUrl: String? = null,
+    val isSurgicalSearchVisible: Boolean = false,
+    val initialSurgicalSearchUrl: String? = null,
     val syncServerUrl: String = BuildConfig.SYNC_SERVER_URL,
     // --- Permissions State (Dual-Moat Onboarding) ---
     val hasOverlayPermission: Boolean = false,

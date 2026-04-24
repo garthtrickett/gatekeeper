@@ -385,6 +385,12 @@ class MainActivity : ComponentActivity() {
                                 onDismiss = { GatekeeperStateManager.dispatch(GatekeeperAction.ClearMetacognition) },
                             )
                         }
+
+                        if (state.isSurgicalSearchVisible) {
+                            com.aegisgatekeeper.app.views.CleanYouTubeDialog(
+                                onDismiss = { GatekeeperStateManager.dispatch(GatekeeperAction.HideSurgicalSearch) },
+                            )
+                        }
                     }
                 }
             }
