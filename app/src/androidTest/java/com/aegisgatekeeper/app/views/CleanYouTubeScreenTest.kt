@@ -33,22 +33,30 @@ class CleanYouTubeScreenTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @Test
-    fun testInitialRendering() {
+    fun testDialogRenderingAndDismissal() {
+        var dismissed = false
         composeTestRule.setContent {
             GatekeeperTheme {
-                CleanYouTubeScreen()
+                CleanYouTubeDialog(onDismiss = { dismissed = true })
             }
         }
 
         composeTestRule.onNodeWithText("Surgical Search").assertExists()
         composeTestRule.onNodeWithText("Search YouTube...").assertExists()
+        composeTestRule.onNodeWithText("Exit").assertIsDisplayed()
+
+        // Act
+        composeTestRule.onNodeWithText("Exit").performClick()
+
+        // Assert
+        com.google.common.truth.Truth.assertThat(dismissed).isTrue()
     }
 
     @Test
     fun testSearchInput_updatesCurrentUrl() {
         composeTestRule.setContent {
             GatekeeperTheme {
-                CleanYouTubeScreen()
+                CleanYouTubeDialog(onDismiss = {})
             }
         }
 
@@ -67,7 +75,7 @@ class CleanYouTubeScreenTest {
     fun testAuthButton_triggersNavigation() {
         composeTestRule.setContent {
             GatekeeperTheme {
-                CleanYouTubeScreen()
+                CleanYouTubeDialog(onDismiss = {})
             }
         }
 

@@ -237,7 +237,6 @@ fun main() =
                     listOf(
                         "Vault" to "🔍",
                         "Bank" to "🎬",
-                        "Search" to "🎯",
                         "Digest" to "🔔",
                         "Web" to "🌐",
                         "Habits" to "🏃",
@@ -257,14 +256,10 @@ fun main() =
                             }
 
                             2 -> {
-                                CleanYouTubeScreen()
-                            }
-
-                            3 -> {
                                 NotificationDigestScreen()
                             }
 
-                            4 -> {
+                            3 -> {
                                 if (state.isWebEngineReady) {
                                     com.aegisgatekeeper.app.views
                                         .SurgicalWebScreen()
@@ -278,12 +273,12 @@ fun main() =
                                 }
                             }
 
-                            5 -> {
+                            4 -> {
                                 com.aegisgatekeeper.app.views
                                     .AlternativeActivitiesScreen()
                             }
 
-                            6 -> {
+                            5 -> {
                                 com.aegisgatekeeper.app.views
                                     .AccountScreen()
                             }
