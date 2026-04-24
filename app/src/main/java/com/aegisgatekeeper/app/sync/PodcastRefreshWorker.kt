@@ -47,7 +47,7 @@ class PodcastRefreshWorker(
                                 audioUrl = ep.audioUrl,
                                 durationSeconds = ep.durationSeconds,
                                 pubDate = ep.pubDate,
-                                lastModified = baseTime - index
+                                lastModified = baseTime - index,
                             )
                         }
                         db.podcastEpisodeQueries.deleteOldEpisodes(sub.id, 200)
@@ -57,7 +57,7 @@ class PodcastRefreshWorker(
                     if (GatekeeperStateManager.state.value.activePodcastId == sub.id) {
                         GatekeeperStateManager.dispatch(GatekeeperAction.LoadPodcastEpisodes(sub.feedUrl, sub.id))
                     }
-                }
+                },
             )
         }
 

@@ -18,7 +18,7 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 data class ItunesSearchResponse(
-    val results: List<ItunesPodcastDto> = emptyList()
+    val results: List<ItunesPodcastDto> = emptyList(),
 )
 
 @Serializable
@@ -27,7 +27,7 @@ data class ItunesPodcastDto(
     val collectionName: String? = null,
     val feedUrl: String? = null,
     val artworkUrl600: String? = null,
-    val artistName: String? = null
+    val artistName: String? = null,
 )
 
 object PodcastIndexClient {
@@ -55,17 +55,20 @@ object PodcastIndexClient {
             if (response.status.value in 200..299) {
                 val responseText = response.bodyAsText()
                 val itunesResponse = jsonParser.decodeFromString(ItunesSearchResponse.serializer(), responseText)
-                val feeds = itunesResponse.results.mapNotNull {
-                    if (it.feedUrl != null && it.collectionName != null) {
-                        PodcastFeedDto(
-                            id = it.collectionId ?: 0L,
-                            title = it.collectionName,
-                            url = it.feedUrl,
-                            image = it.artworkUrl600,
-                            author = it.artistName
-                        )
-                    } else null
-                }
+                val feeds =
+                    itunesResponse.results.mapNotNull {
+                        if (it.feedUrl != null && it.collectionName != null) {
+                            PodcastFeedDto(
+                                id = it.collectionId ?: 0L,
+                                title = it.collectionName,
+                                url = it.feedUrl,
+                                image = it.artworkUrl600,
+                                author = it.artistName,
+                            )
+                        } else {
+                            null
+                        }
+                    }
                 feeds.right()
             } else {
                 "HTTP Error: ${response.status.value}".left()

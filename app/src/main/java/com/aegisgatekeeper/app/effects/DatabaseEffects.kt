@@ -141,17 +141,18 @@ fun handleDatabaseEffects(
         }
 
         is GatekeeperAction.LoadPodcastEpisodes -> {
-            val cached = db.podcastEpisodeQueries.selectAllForPodcast(action.podcastId).executeAsList().map {
-                com.aegisgatekeeper.app.domain.CachedEpisode(
-                    id = it.id,
-                    podcastId = it.podcastId,
-                    title = it.title,
-                    audioUrl = it.audioUrl,
-                    durationSeconds = it.durationSeconds,
-                    pubDate = it.pubDate,
-                    lastModified = it.lastModified
-                )
-            }
+            val cached =
+                db.podcastEpisodeQueries.selectAllForPodcast(action.podcastId).executeAsList().map {
+                    com.aegisgatekeeper.app.domain.CachedEpisode(
+                        id = it.id,
+                        podcastId = it.podcastId,
+                        title = it.title,
+                        audioUrl = it.audioUrl,
+                        durationSeconds = it.durationSeconds,
+                        pubDate = it.pubDate,
+                        lastModified = it.lastModified,
+                    )
+                }
             if (cached.isNotEmpty()) {
                 Log.i("Gatekeeper", "DB: Loaded ${cached.size} cached episodes for podcast ${action.podcastId}")
                 dispatch(GatekeeperAction.PodcastEpisodesLoaded(cached, action.podcastId))
@@ -163,7 +164,10 @@ fun handleDatabaseEffects(
             db.transaction {
                 val baseTime = System.currentTimeMillis()
                 action.episodes.forEachIndexed { index, ep ->
-                    val id = java.util.UUID.nameUUIDFromBytes(ep.audioUrl.toByteArray()).toString()
+                    val id =
+                        java.util.UUID
+                            .nameUUIDFromBytes(ep.audioUrl.toByteArray())
+                            .toString()
                     db.podcastEpisodeQueries.insertOrReplace(
                         id = id,
                         podcastId = action.podcastId,
@@ -171,24 +175,25 @@ fun handleDatabaseEffects(
                         audioUrl = ep.audioUrl,
                         durationSeconds = ep.durationSeconds,
                         pubDate = ep.pubDate,
-                        lastModified = baseTime - index
+                        lastModified = baseTime - index,
                     )
                 }
                 db.podcastEpisodeQueries.deleteOldEpisodes(action.podcastId, 200)
             }
-            
+
             if (newState.activePodcastId == action.podcastId) {
-                 val cached = db.podcastEpisodeQueries.selectAllForPodcast(action.podcastId).executeAsList().map {
-                    com.aegisgatekeeper.app.domain.CachedEpisode(
-                        id = it.id,
-                        podcastId = it.podcastId,
-                        title = it.title,
-                        audioUrl = it.audioUrl,
-                        durationSeconds = it.durationSeconds,
-                        pubDate = it.pubDate,
-                        lastModified = it.lastModified
-                    )
-                }
+                val cached =
+                    db.podcastEpisodeQueries.selectAllForPodcast(action.podcastId).executeAsList().map {
+                        com.aegisgatekeeper.app.domain.CachedEpisode(
+                            id = it.id,
+                            podcastId = it.podcastId,
+                            title = it.title,
+                            audioUrl = it.audioUrl,
+                            durationSeconds = it.durationSeconds,
+                            pubDate = it.pubDate,
+                            lastModified = it.lastModified,
+                        )
+                    }
                 dispatch(GatekeeperAction.PodcastEpisodesLoaded(cached, action.podcastId))
             }
         }

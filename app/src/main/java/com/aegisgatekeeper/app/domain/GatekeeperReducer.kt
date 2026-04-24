@@ -673,7 +673,7 @@ private fun reduceContentAndVault(
                 activePodcastId = action.podcastId,
             )
         }
-        
+
         is GatekeeperAction.CacheParsedEpisodes -> {
             state
         }

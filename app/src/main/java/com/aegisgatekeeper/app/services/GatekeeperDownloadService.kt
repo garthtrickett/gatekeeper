@@ -44,16 +44,19 @@ class GatekeeperDownloadService :
                             )
                             startPolling(downloadManager)
                         }
+
                         Download.STATE_COMPLETED -> {
                             GatekeeperStateManager.dispatch(
                                 GatekeeperAction.DownloadCompleted(download.request.id, "cached_in_simplecache"),
                             )
                             checkStopPolling(downloadManager)
                         }
+
                         Download.STATE_FAILED -> {
                             GatekeeperStateManager.dispatch(GatekeeperAction.DownloadFailed(download.request.id))
                             checkStopPolling(downloadManager)
                         }
+
                         else -> {
                             checkStopPolling(downloadManager)
                         }
@@ -66,24 +69,25 @@ class GatekeeperDownloadService :
 
     private fun startPolling(manager: DownloadManager) {
         if (pollingJob?.isActive == true) return
-        pollingJob = serviceScope.launch {
-            while (isActive) {
-                var hasDownloading = false
-                manager.currentDownloads.forEach { download ->
-                    if (download.state == Download.STATE_DOWNLOADING) {
-                        hasDownloading = true
-                        val pct = if (download.percentDownloaded == -1f) 0f else download.percentDownloaded
-                        GatekeeperStateManager.dispatch(
-                            GatekeeperAction.DownloadProgressUpdated(download.request.id, pct)
-                        )
+        pollingJob =
+            serviceScope.launch {
+                while (isActive) {
+                    var hasDownloading = false
+                    manager.currentDownloads.forEach { download ->
+                        if (download.state == Download.STATE_DOWNLOADING) {
+                            hasDownloading = true
+                            val pct = if (download.percentDownloaded == -1f) 0f else download.percentDownloaded
+                            GatekeeperStateManager.dispatch(
+                                GatekeeperAction.DownloadProgressUpdated(download.request.id, pct),
+                            )
+                        }
                     }
+                    if (!hasDownloading) {
+                        break
+                    }
+                    delay(500)
                 }
-                if (!hasDownloading) {
-                    break
-                }
-                delay(500)
             }
-        }
     }
 
     private fun checkStopPolling(manager: DownloadManager) {

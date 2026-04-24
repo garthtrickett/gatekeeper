@@ -111,7 +111,7 @@ private fun PodcastSubscriptionsView(
                 },
                 enabled = query.isNotBlank() && !state.isSearchingPodcasts,
                 text = "Search",
-                isLoading = state.isSearchingPodcasts
+                isLoading = state.isSearchingPodcasts,
             )
         }
 

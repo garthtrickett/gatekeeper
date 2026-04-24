@@ -658,13 +658,24 @@ class GatekeeperReducerTest {
     @Test
     fun testRemovePodcastSubscription_RemovesSubscriptionAndMarksContentAsDeleted() {
         val sub = PodcastSubscription(id = "sub1", feedUrl = "url", showTitle = "Title", artworkUrl = null)
-        val content = ContentItem(id = "c1", podcastId = "sub1", videoId = "v1", title = "T1", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val content =
+            ContentItem(
+                id = "c1",
+                podcastId = "sub1",
+                videoId = "v1",
+                title = "T1",
+                source = ContentSource.GENERIC,
+                type = ContentType.AUDIO,
+                rank = 0,
+                capturedAtTimestamp = 0,
+            )
         val slot = IntentionalSlotItem(slotIndex = 0, contentItem = content)
-        val stateBefore = initialState.copy(
-            podcastSubscriptions = listOf(sub),
-            contentItems = listOf(content),
-            intentionalSlots = listOf(slot)
-        )
+        val stateBefore =
+            initialState.copy(
+                podcastSubscriptions = listOf(sub),
+                contentItems = listOf(content),
+                intentionalSlots = listOf(slot),
+            )
 
         val action = GatekeeperAction.RemovePodcastSubscription("sub1", 1000L)
         val newState = reduce(stateBefore, action)
@@ -700,7 +711,13 @@ class GatekeeperReducerTest {
         val stateWithLoading = initialState.copy(isLoadingEpisodes = true)
         val mockEpisodes =
             listOf(
-                CachedEpisode(title = "Ep 1", audioUrl = "audio_url", durationSeconds = 1000L, pubDate = "2023-01-01", podcastId = "podcast1"),
+                CachedEpisode(
+                    title = "Ep 1",
+                    audioUrl = "audio_url",
+                    durationSeconds = 1000L,
+                    pubDate = "2023-01-01",
+                    podcastId = "podcast1",
+                ),
             )
         val action = GatekeeperAction.PodcastEpisodesLoaded(mockEpisodes, "podcast1")
         val newState = reduce(stateWithLoading, action)

@@ -116,7 +116,7 @@ suspend fun handleMediaAndSystemEffects(
             androidx.work.WorkManager.getInstance(App.instance).enqueueUniqueWork(
                 "manual-podcast-refresh",
                 androidx.work.ExistingWorkPolicy.REPLACE,
-                request
+                request,
             )
         }
 
