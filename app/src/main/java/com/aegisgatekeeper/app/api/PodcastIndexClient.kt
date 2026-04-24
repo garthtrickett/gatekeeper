@@ -47,7 +47,9 @@ object PodcastIndexClient {
                     parameter("term", query)
                 }
             if (response.status.value in 200..299) {
-                val itunesResponse = response.body<ItunesSearchResponse>()
+                val responseText = response.bodyAsText()
+                val parser = Json { ignoreUnknownKeys = true }
+                val itunesResponse = parser.decodeFromString(ItunesSearchResponse.serializer(), responseText)
                 val feeds = itunesResponse.results.mapNotNull {
                     if (it.feedUrl != null && it.collectionName != null) {
                         PodcastFeedDto(
