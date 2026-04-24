@@ -42,15 +42,7 @@ fun SurgicalFacebookScreen(
     onClose: () -> Unit,
 ) {
     val cookieManager = remember { CookieManager.getInstance() }
-
-    // In production, we check cookies. In UI tests, we can force this via state injection if needed,
-    // but the most robust way is to inject a dummy cookie in the @Before setup of the test.
-    var isLoggedIn by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        val cookies = cookieManager.getCookie("https://m.facebook.com") ?: ""
-        isLoggedIn = cookies.contains("c_user=") && cookies.contains("xs=")
-    }
+    var forceReload by remember { mutableStateOf(0) }
 
     Column(
         modifier =
@@ -58,7 +50,6 @@ fun SurgicalFacebookScreen(
                 .fillMaxSize()
                 .background(Color.Black)
                 .systemBarsPadding(),
-        // Pushes the header below the system status bar
     ) {
         // Header Navigation
         Row(
@@ -91,132 +82,52 @@ fun SurgicalFacebookScreen(
                     enabled = !url.contains("/search/"),
                     invertEnabledColor = true,
                 )
-                if (isLoggedIn) {
-                    IndustrialButton(
-                        onClick = {
-                            cookieManager.removeAllCookies(null)
-                            cookieManager.flush()
-                            isLoggedIn = false
-                        },
-                        text = "Logout",
-                        isWarning = true,
-                    )
-                }
+                IndustrialButton(
+                    onClick = {
+                        cookieManager.removeAllCookies(null)
+                        cookieManager.flush()
+                        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/"))
+                        forceReload++
+                    },
+                    text = "Logout",
+                    isWarning = true,
+                )
             }
             Spacer(modifier = Modifier.width(8.dp))
             IndustrialButton(onClick = onClose, text = "Exit", isWarning = true)
         }
 
-        if (isLoggedIn) {
-            SurgicalWebView(
+        // By passing forceReload, we can trigger a hard recomposition to completely clear the webview state if needed.
+        // However, updating `url` is usually enough.
+        androidx.compose.runtime.key(forceReload) {
+            BaseSurgicalWebView(
                 url = url,
+                modifier = Modifier.weight(1f),
+                cssInjector = { currentUrl ->
+                    val hideList = mutableListOf("div[data-m-bubble-key=\"back_button\"]")
+                    val isSearchPage = currentUrl.contains("/search/")
+                    if (!isSearchPage) {
+                        hideList.add("#m_newsfeed_stream")
+                        hideList.add("#stories_tray")
+                        hideList.add("#m_story_permalink_view")
+                    }
+                    val isRootList = currentUrl.matches(Regex(".*/(groups|events)/?(\\?.*)?$"))
+                    if (isRootList) {
+                        hideList.add("div[role=\"button\"][aria-label=\"Back\"]")
+                        hideList.add("div[role=\"button\"][aria-label=\"back\"]")
+                        hideList.add("a[data-sigil=\"MBackNavBarClick\"]")
+                    }
+                    hideList.joinToString(", ") + " { display: none !important; }"
+                },
+                networkBlocklist = emptyList(),
                 onLogout = {
                     cookieManager.removeAllCookies(null)
                     cookieManager.flush()
-                    isLoggedIn = false
+                    GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/"))
+                    forceReload++
                 },
+                jailRoot = url,
             )
-        } else {
-            LoginWebView(targetUrl = url, onLoginSuccess = { isLoggedIn = true })
         }
     }
-}
-
-@SuppressLint("SetJavaScriptEnabled")
-@Suppress("FunctionName")
-@Composable
-private fun ColumnScope.LoginWebView(targetUrl: String, onLoginSuccess: () -> Unit) {
-    val cookieManager = remember { CookieManager.getInstance() }
-
-    AndroidView(
-        modifier = Modifier.weight(1f).fillMaxWidth(),
-        factory = {
-            WebView(it).apply {
-                layoutParams =
-                    android.view.ViewGroup.LayoutParams(
-                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                    )
-                settings.javaScriptEnabled = true
-                settings.domStorageEnabled = true
-                settings.useWideViewPort = true
-                settings.loadWithOverviewMode = true
-                settings.javaScriptCanOpenWindowsAutomatically = true
-                settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                settings.userAgentString = settings.userAgentString.replace("; wv", "")
-
-                cookieManager.setAcceptCookie(true)
-                cookieManager.setAcceptThirdPartyCookies(this, true)
-
-                webViewClient =
-                    object : WebViewClient() {
-                        override fun onPageStarted(
-                            view: WebView?,
-                            urlStr: String?,
-                            favicon: android.graphics.Bitmap?,
-                        ) {
-                            super.onPageStarted(view, urlStr, favicon)
-                            android.util.Log.d("Gatekeeper", "📡 FB-LOGIN-LOADING: $urlStr")
-                        }
-
-                        override fun onReceivedError(
-                            view: WebView?,
-                            request: android.webkit.WebResourceRequest?,
-                            error: android.webkit.WebResourceError?,
-                        ) {
-                            super.onReceivedError(view, request, error)
-                            android.util.Log.e("Gatekeeper", "❌ FB-LOGIN-ERROR: ${error?.description} at ${request?.url}")
-                        }
-
-                        override fun onPageFinished(
-                            view: WebView?,
-                            urlStr: String?,
-                        ) {
-                            super.onPageFinished(view, urlStr)
-                            android.util.Log.d("Gatekeeper", "✅ FB-LOGIN-LOADED: $urlStr")
-                            val cookies = cookieManager.getCookie("https://m.facebook.com") ?: ""
-                            val isCheckpoint = urlStr?.contains("checkpoint", ignoreCase = true) == true || 
-                                               urlStr?.contains("two_step_verification", ignoreCase = true) == true
-                            if (cookies.contains("c_user=") && cookies.contains("xs=") && !isCheckpoint) {
-                                android.util.Log.d("Gatekeeper", "✅ FB-AUTH: Login successful, auth cookie detected!")
-                                cookieManager.flush()
-                                onLoginSuccess()
-                            }
-                        }
-                    }
-                loadUrl(targetUrl)
-            }
-        },
-    )
-}
-
-@Suppress("FunctionName")
-@Composable
-private fun ColumnScope.SurgicalWebView(
-    url: String,
-    onLogout: () -> Unit,
-) {
-    BaseSurgicalWebView(
-        url = url,
-        modifier = Modifier.weight(1f),
-        cssInjector = { currentUrl ->
-            val hideList = mutableListOf("div[data-m-bubble-key=\"back_button\"]")
-            val isSearchPage = currentUrl.contains("/search/")
-            if (!isSearchPage) {
-                hideList.add("#m_newsfeed_stream")
-                hideList.add("#stories_tray")
-                hideList.add("#m_story_permalink_view")
-            }
-            val isRootList = currentUrl.matches(Regex(".*/(groups|events)/?(\\?.*)?$"))
-            if (isRootList) {
-                hideList.add("div[role=\"button\"][aria-label=\"Back\"]")
-                hideList.add("div[role=\"button\"][aria-label=\"back\"]")
-                hideList.add("a[data-sigil=\"MBackNavBarClick\"]")
-            }
-            hideList.joinToString(", ") + " { display: none !important; }"
-        },
-        networkBlocklist = emptyList(),
-        onLogout = onLogout,
-        jailRoot = url,
-    )
 }

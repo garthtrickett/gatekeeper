@@ -105,6 +105,20 @@ fun BaseSurgicalWebView(
                             super.onPageFinished(view, currentUrl)
                             currentUrl?.let { onPageLoaded(it) }
 
+                            if (jailRoot != null) {
+                                val isExplicitHomeFeed =
+                                    currentUrl == "https://m.facebook.com/" ||
+                                        currentUrl?.startsWith("https://m.facebook.com/?") == true ||
+                                        currentUrl?.contains("facebook.com/home") == true ||
+                                        currentUrl?.contains("ref=logo") == true
+
+                                if (isExplicitHomeFeed) {
+                                    android.util.Log.d("Gatekeeper", "🛡️ Jail: Reached feed after redirect. Redirecting to jail root.")
+                                    view?.loadUrl(jailRoot)
+                                    return
+                                }
+                            }
+
                             val cssToInject = cssInjector(currentUrl ?: "")
                             if (cssToInject.isNotBlank()) {
                                 val cleanCss = cssToInject.replace("\n", " ").replace("\"", "\\\"").replace("'", "\\'")
@@ -169,7 +183,11 @@ fun BaseSurgicalWebView(
                                         newUrl.contains("ref=logo")
 
                                 if (isExplicitHomeFeed) {
-                                    android.util.Log.d("Gatekeeper", "🛡️ Jail: Blocking redirect to Feed. Forcing current root: $jailRoot")
+                                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N && request?.isRedirect == true) {
+                                        android.util.Log.d("Gatekeeper", "🛡️ Jail: Allowing redirect to Feed to preserve cookies.")
+                                        return false
+                                    }
+                                    android.util.Log.d("Gatekeeper", "🛡️ Jail: Blocking navigation to Feed. Forcing current root: $jailRoot")
                                     view?.post { view.loadUrl(jailRoot) }
                                     return true
                                 }

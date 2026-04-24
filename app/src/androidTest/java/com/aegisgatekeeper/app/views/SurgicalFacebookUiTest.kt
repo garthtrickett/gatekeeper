@@ -65,7 +65,7 @@ class SurgicalFacebookUiTest {
         composeTestRule.onNodeWithText("Groups").assertIsDisplayed()
         composeTestRule.onNodeWithText("Events").assertIsDisplayed()
         composeTestRule.onNodeWithText("Search").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Logout").assertDoesNotExist()
+        composeTestRule.onNodeWithText("Logout").assertIsDisplayed()
 
         // Act: Click Exit
         composeTestRule.onNodeWithText("Exit").performClick()
@@ -97,7 +97,7 @@ class SurgicalFacebookUiTest {
             }
         }
 
-        // Assert: Because we mocked the cookie, the logic should bypass LoginWebView and show GROUPS/EVENTS buttons
+        // Assert: The logic should show GROUPS/EVENTS buttons
         composeTestRule.onNodeWithText("Groups").assertIsDisplayed()
         composeTestRule.onNodeWithText("Search").assertIsDisplayed()
         composeTestRule.onNodeWithText("Logout").assertIsDisplayed()
