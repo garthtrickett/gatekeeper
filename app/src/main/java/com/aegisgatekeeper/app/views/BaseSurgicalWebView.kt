@@ -192,7 +192,21 @@ fun BaseSurgicalWebView(
                             val newUrl = request?.url?.toString() ?: ""
 
                             if (newUrl.startsWith("intent://") || newUrl.startsWith("fb://") || newUrl.startsWith("android-app://")) {
-                                android.util.Log.d("Gatekeeper", "🛡️ BASE-WEB: Blocking deep link: $newUrl")
+                                android.util.Log.d("Gatekeeper", "🛡️ BASE-WEB: Intercepting deep link: $newUrl")
+                                
+                                if (newUrl.startsWith("intent://")) {
+                                    try {
+                                        val intent = android.content.Intent.parseUri(newUrl, android.content.Intent.URI_INTENT_SCHEME)
+                                        val fallbackUrl = intent.getStringExtra("browser_fallback_url")
+                                        if (fallbackUrl != null) {
+                                            android.util.Log.d("Gatekeeper", "🌐 BASE-WEB: Navigating to deep link fallback: $fallbackUrl")
+                                            view?.loadUrl(fallbackUrl)
+                                            return true
+                                        }
+                                    } catch (e: Exception) {
+                                        android.util.Log.e("Gatekeeper", "❌ BASE-WEB: Failed to parse intent fallback: ${e.message}")
+                                    }
+                                }
                                 return true
                             }
 
@@ -207,7 +221,7 @@ fun BaseSurgicalWebView(
                             // We no longer eagerly logout on "login" or "checkpoint" URLs.
                             // Facebook handles these flows gracefully, and wiping cookies breaks them.
 
-                            if (jailRoot != null) {
+                            if (currentJailRoot != null) {
                                 val isExplicitHomeFeed =
                                     newUrl == "https://m.facebook.com/" ||
                                         newUrl.startsWith("https://m.facebook.com/?") ||
@@ -219,8 +233,8 @@ fun BaseSurgicalWebView(
                                         android.util.Log.d("Gatekeeper", "🛡️ Jail: Allowing redirect to Feed to preserve cookies.")
                                         return false
                                     }
-                                    android.util.Log.d("Gatekeeper", "🛡️ Jail: Blocking navigation to Feed. Forcing current root: $jailRoot")
-                                    view?.post { view.loadUrl(jailRoot) }
+                                    android.util.Log.d("Gatekeeper", "🛡️ Jail: Blocking navigation to Feed. Forcing current root: $currentJailRoot")
+                                    view?.post { view.loadUrl(currentJailRoot!!) }
                                     return true
                                 }
                             }
