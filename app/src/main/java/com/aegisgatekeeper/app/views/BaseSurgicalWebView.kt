@@ -137,7 +137,7 @@ fun BaseSurgicalWebView(
                                 val isNowLoggedIn = currentCookies.contains("c_user=") && currentCookies.contains("xs=")
 
                                 // Check if we are on the desktop homepage after a login, but before the UA switch has happened
-                                val isOnDesktopHomepage = currentUrl?.contains("www.facebook.com") == true && (currentUrl.endsWith("/") || currentUrl.endsWith("home.php"))
+                                val isOnDesktopHomepage = currentUrl == "https://www.facebook.com/" || currentUrl == "https://www.facebook.com/home.php"
 
                                 if (isNowLoggedIn && isOnDesktopHomepage) {
                                     android.util.Log.d("Gatekeeper", "✅ AUTH-SUCCESS: Login detected. Triggering UA switch and redirect.")
