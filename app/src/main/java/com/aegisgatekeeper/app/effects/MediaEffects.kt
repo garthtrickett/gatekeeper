@@ -6,7 +6,6 @@ import com.aegisgatekeeper.app.App
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.api.RssClient
 import com.aegisgatekeeper.app.api.UrlMetadataClient
-import com.aegisgatekeeper.app.api.YoutubeApiClient
 import com.aegisgatekeeper.app.domain.ContentItem
 import com.aegisgatekeeper.app.domain.ContentSource
 import com.aegisgatekeeper.app.domain.ContentType

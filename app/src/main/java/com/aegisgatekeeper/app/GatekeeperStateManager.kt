@@ -1,7 +1,6 @@
 package com.aegisgatekeeper.app
 
 import android.util.Log
-import com.aegisgatekeeper.app.api.YoutubeApiClient
 import com.aegisgatekeeper.app.auth.SecureTokenStorage
 import com.aegisgatekeeper.app.db.DatabaseManager
 import com.aegisgatekeeper.app.domain.ContentItem
