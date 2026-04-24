@@ -40,7 +40,7 @@ object YoutubeApiClient {
         }
 
     /**
-     * Fetches a maximum of 5 videos of medium or long duration.
+     * Fetches a maximum of 20 videos of medium or long duration.
      * This inherently filters out Shorts.
      * Returns a typed Either to adhere to Railway Oriented Programming principles.
      */
@@ -58,7 +58,7 @@ object YoutubeApiClient {
                         parameter("part", "snippet")
                         parameter("q", query)
                         parameter("type", "video")
-                        parameter("maxResults", 5)
+                        parameter("maxResults", 20)
                         parameter("videoDuration", "medium") // or "long"
                     }
             when (response.status.value) {
