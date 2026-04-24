@@ -54,7 +54,7 @@ class FeedManagementUiTest {
         }
 
         // Assert: The subscription is visible
-        composeTestRule.onNodeWithText("Manage Podcast Feeds").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Manage Podcasts").assertIsDisplayed()
         composeTestRule.onNodeWithText("The Sovereign Podcast").assertIsDisplayed()
 
         // Act: Click the subscription row to drill down
@@ -140,6 +140,6 @@ class FeedManagementUiTest {
 
         // Assert: We are back at the subscriptions list
         assertThat(GatekeeperStateManager.state.value.activePodcastId).isNull()
-        composeTestRule.onNodeWithText("Manage Podcast Feeds").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Manage Podcasts").assertIsDisplayed()
     }
 }

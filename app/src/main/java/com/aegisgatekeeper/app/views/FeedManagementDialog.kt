@@ -40,24 +40,21 @@ import com.aegisgatekeeper.app.domain.IndustrialTextField
 fun FeedManagementDialog(onDismiss: () -> Unit) {
     val state by GatekeeperStateManager.state.collectAsState()
 
-    androidx.compose.runtime.DisposableEffect(Unit) {
-        onDispose {
-            if (state.activePodcastId != null) {
-                GatekeeperStateManager.dispatch(GatekeeperAction.ClearPodcastEpisodes)
-            }
-        }
+    val handleDismiss = {
+        GatekeeperStateManager.dispatch(GatekeeperAction.ClearPodcastEpisodes)
+        onDismiss()
     }
 
-    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+    Dialog(onDismissRequest = handleDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             shape = MaterialTheme.shapes.medium,
             color = MaterialTheme.colorScheme.surface,
             modifier = Modifier.fillMaxWidth().height(600.dp).padding(16.dp),
         ) {
             if (state.activePodcastId != null) {
-                PodcastEpisodesView(state, onDismiss)
+                PodcastEpisodesView(state, handleDismiss)
             } else {
-                PodcastSubscriptionsView(state, onDismiss)
+                PodcastSubscriptionsView(state, handleDismiss)
             }
         }
     }
@@ -305,10 +302,7 @@ private fun PodcastEpisodesView(state: GatekeeperState, onDismiss: () -> Unit) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             IndustrialButton(onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.ClearPodcastEpisodes) }, text = "Back", isWarning = true)
             Spacer(modifier = Modifier.width(8.dp))
-            IndustrialButton(onClick = {
-                GatekeeperStateManager.dispatch(GatekeeperAction.ClearPodcastEpisodes)
-                onDismiss()
-            }, text = "Close")
+            IndustrialButton(onClick = onDismiss, text = "Close")
         }
     }
 }
