@@ -42,6 +42,9 @@ fun BaseSurgicalWebView(
         modifier = modifier.fillMaxWidth(),
         factory = { ctx ->
             WebView(ctx).apply {
+                var jailRedirectCount = 0
+                var lastJailRedirectTime = 0L
+
                 layoutParams =
                     android.view.ViewGroup.LayoutParams(
                         android.view.ViewGroup.LayoutParams.MATCH_PARENT,
@@ -113,6 +116,27 @@ fun BaseSurgicalWebView(
                                         currentUrl?.contains("ref=logo") == true
 
                                 if (isExplicitHomeFeed) {
+                                    val cookies = CookieManager.getInstance().getCookie(currentUrl) ?: ""
+                                    if (onLogout != null && !cookies.contains("c_user=")) {
+                                        android.util.Log.d("Gatekeeper", "🚪 Jail: User is logged out. Triggering logout instead of jailing.")
+                                        onLogout()
+                                        return
+                                    }
+
+                                    val now = System.currentTimeMillis()
+                                    if (now - lastJailRedirectTime < 5000L) {
+                                        jailRedirectCount++
+                                    } else {
+                                        jailRedirectCount = 1
+                                    }
+                                    lastJailRedirectTime = now
+
+                                    if (jailRedirectCount > 3) {
+                                        android.util.Log.e("Gatekeeper", "🛑 Jail: Redirect loop detected. Triggering logout.")
+                                        onLogout?.invoke()
+                                        return
+                                    }
+
                                     android.util.Log.d("Gatekeeper", "🛡️ Jail: Reached feed after redirect. Redirecting to jail root.")
                                     view?.loadUrl(jailRoot)
                                     return

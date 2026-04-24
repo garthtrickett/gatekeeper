@@ -42,7 +42,13 @@ fun SurgicalFacebookScreen(
     onClose: () -> Unit,
 ) {
     val cookieManager = remember { CookieManager.getInstance() }
+    var isLoggedIn by remember { mutableStateOf(false) }
     var forceReload by remember { mutableStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        val cookies = cookieManager.getCookie("https://m.facebook.com") ?: ""
+        isLoggedIn = cookies.contains("c_user=") && cookies.contains("xs=")
+    }
 
     Column(
         modifier =
@@ -86,7 +92,8 @@ fun SurgicalFacebookScreen(
                     onClick = {
                         cookieManager.removeAllCookies(null)
                         cookieManager.flush()
-                        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/"))
+                        isLoggedIn = false
+                        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/login.php"))
                         forceReload++
                     },
                     text = "Logout",
@@ -97,36 +104,52 @@ fun SurgicalFacebookScreen(
             IndustrialButton(onClick = onClose, text = "Exit", isWarning = true)
         }
 
-        // By passing forceReload, we can trigger a hard recomposition to completely clear the webview state if needed.
-        // However, updating `url` is usually enough.
         androidx.compose.runtime.key(forceReload) {
             BaseSurgicalWebView(
                 url = url,
                 modifier = Modifier.weight(1f),
                 cssInjector = { currentUrl ->
-                    val hideList = mutableListOf("div[data-m-bubble-key=\"back_button\"]")
-                    val isSearchPage = currentUrl.contains("/search/")
-                    if (!isSearchPage) {
-                        hideList.add("#m_newsfeed_stream")
-                        hideList.add("#stories_tray")
-                        hideList.add("#m_story_permalink_view")
+                    if (isLoggedIn) {
+                        val hideList = mutableListOf("div[data-m-bubble-key=\"back_button\"]")
+                        val isSearchPage = currentUrl.contains("/search/")
+                        if (!isSearchPage) {
+                            hideList.add("#m_newsfeed_stream")
+                            hideList.add("#stories_tray")
+                            hideList.add("#m_story_permalink_view")
+                        }
+                        val isRootList = currentUrl.matches(Regex(".*/(groups|events)/?(\\?.*)?$"))
+                        if (isRootList) {
+                            hideList.add("div[role=\"button\"][aria-label=\"Back\"]")
+                            hideList.add("div[role=\"button\"][aria-label=\"back\"]")
+                            hideList.add("a[data-sigil=\"MBackNavBarClick\"]")
+                        }
+                        hideList.joinToString(", ") + " { display: none !important; }"
+                    } else {
+                        ""
                     }
-                    val isRootList = currentUrl.matches(Regex(".*/(groups|events)/?(\\?.*)?$"))
-                    if (isRootList) {
-                        hideList.add("div[role=\"button\"][aria-label=\"Back\"]")
-                        hideList.add("div[role=\"button\"][aria-label=\"back\"]")
-                        hideList.add("a[data-sigil=\"MBackNavBarClick\"]")
-                    }
-                    hideList.joinToString(", ") + " { display: none !important; }"
                 },
                 networkBlocklist = emptyList(),
                 onLogout = {
                     cookieManager.removeAllCookies(null)
                     cookieManager.flush()
-                    GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/"))
+                    isLoggedIn = false
+                    GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/login.php"))
                     forceReload++
                 },
-                jailRoot = url,
+                onPageLoaded = { loadedUrl ->
+                    if (!isLoggedIn) {
+                        val cookies = cookieManager.getCookie("https://m.facebook.com") ?: ""
+                        val isCheckpoint = loadedUrl.contains("checkpoint", ignoreCase = true) || 
+                                           loadedUrl.contains("two_step_verification", ignoreCase = true)
+                        if (cookies.contains("c_user=") && cookies.contains("xs=") && !isCheckpoint) {
+                            android.util.Log.d("Gatekeeper", "✅ FB-AUTH: Login successful, auth cookie detected!")
+                            cookieManager.flush()
+                            isLoggedIn = true
+                            GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/"))
+                        }
+                    }
+                },
+                jailRoot = if (isLoggedIn) url else null,
             )
         }
     }
