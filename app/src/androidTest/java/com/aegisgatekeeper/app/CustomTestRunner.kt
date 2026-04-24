@@ -19,6 +19,8 @@ class CustomTestRunner : AndroidJUnitRunner() {
         // Ensure a clean slate for instrumented tests by deleting any existing database
         // before the Application (and GatekeeperStateManager singleton) initializes.
         context?.deleteDatabase("gatekeeper.db")
+        context?.deleteDatabase("gatekeeper.db-wal")
+        context?.deleteDatabase("gatekeeper.db-shm")
         return super.newApplication(cl, App::class.java.name, context)
     }
 }

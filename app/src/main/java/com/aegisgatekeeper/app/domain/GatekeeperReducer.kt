@@ -783,7 +783,14 @@ private fun reduceSyncAndAuth(
                     val local = localContentMap[id]
                     val remote = remoteContentMap[id]
                     when {
-                        local != null && remote != null -> if (remote.lastModified > local.lastModified) remote else local
+                        local != null && remote != null -> if (remote.lastModified > local.lastModified) {
+                            remote.copy(
+                                localFilePath = local.localFilePath,
+                                downloadStatus = local.downloadStatus
+                            )
+                        } else {
+                            local
+                        }
                         remote != null -> remote
                         else -> local
                     }

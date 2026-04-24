@@ -1,3 +1,13 @@
+CREATE TABLE IF NOT EXISTS PodcastSubscription (
+    id TEXT NOT NULL PRIMARY KEY,
+    feedUrl TEXT NOT NULL UNIQUE,
+    showTitle TEXT NOT NULL,
+    artworkUrl TEXT
+);
+
+ALTER TABLE ContentItem ADD COLUMN podcastId TEXT;
+ALTER TABLE ContentItem ADD COLUMN localFilePath TEXT;
+ALTER TABLE ContentItem ADD COLUMN downloadStatus TEXT NOT NULL DEFAULT 'NONE';
 ALTER TABLE ContentItem ADD COLUMN localFilePath TEXT;
 ALTER TABLE ContentItem ADD COLUMN downloadStatus TEXT NOT NULL DEFAULT 'NONE';
 CREATE TABLE AlternativeActivity (

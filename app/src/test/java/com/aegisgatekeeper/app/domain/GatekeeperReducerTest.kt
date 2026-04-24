@@ -388,6 +388,52 @@ class GatekeeperReducerTest {
     }
 
     @Test
+    fun testRemoteSyncCompleted_PreservesLocalDownloadStatus() {
+        // Arrange: Local has download status
+        val localContentItem =
+            ContentItem(
+                id = "c1",
+                videoId = "vid1",
+                title = "Local Title",
+                source = ContentSource.YOUTUBE,
+                type = ContentType.VIDEO,
+                rank = 0,
+                capturedAtTimestamp = 1000L,
+                lastModified = 1000L, // Older
+                localFilePath = "/path/to/file",
+                downloadStatus = DownloadStatus.COMPLETED
+            )
+        val stateWithLocal = initialState.copy(contentItems = listOf(localContentItem))
+
+        // Arrange: Remote is newer but lacks download status (as it's not synced)
+        val remoteContentItem =
+            ContentItem(
+                id = "c1",
+                videoId = "vid1",
+                title = "Remote Title",
+                source = ContentSource.YOUTUBE,
+                type = ContentType.VIDEO,
+                rank = 0,
+                capturedAtTimestamp = 1000L,
+                lastModified = 2000L, // Newer
+                localFilePath = null,
+                downloadStatus = DownloadStatus.NONE
+            )
+
+        val action = GatekeeperAction.RemoteSyncCompleted(emptyList(), listOf(remoteContentItem))
+
+        // Act
+        val newState = reduce(stateWithLocal, action)
+
+        // Assert: Remote won (Title updated), but local download status is preserved
+        assertThat(newState.contentItems).hasSize(1)
+        val item = newState.contentItems.first()
+        assertThat(item.title).isEqualTo("Remote Title")
+        assertThat(item.localFilePath).isEqualTo("/path/to/file")
+        assertThat(item.downloadStatus).isEqualTo(DownloadStatus.COMPLETED)
+    }
+
+    @Test
     fun testUpdateSyncUrl_UpdatesState() {
         val action = GatekeeperAction.UpdateSyncUrl("http://127.0.0.1:8081")
         val newState = reduce(initialState, action)
