@@ -112,9 +112,9 @@ class FeedManagementUiTest {
         assertThat(bankedItem).isNotNull()
         assertThat(bankedItem?.title).isEqualTo("Episode 1: Focus")
         
-        // The button should now say "✓" and be disabled
-        composeTestRule.onNodeWithText("✓").assertIsDisplayed()
-        composeTestRule.onNodeWithText("✓").assertIsNotEnabled()
+        // The button should now say "Download" because it's added to the content bank
+        composeTestRule.onNodeWithText("Download").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Download").assertIsEnabled()
     }
 
     @Test
