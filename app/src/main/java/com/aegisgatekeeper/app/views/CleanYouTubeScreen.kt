@@ -28,6 +28,7 @@ import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.IndustrialButton
 import com.aegisgatekeeper.app.domain.IndustrialTextField
+import java.net.URLEncoder
 
 class YouTubeSurgicalBridge {
     @android.webkit.JavascriptInterface
@@ -43,6 +44,19 @@ class YouTubeSurgicalBridge {
             )
         )
     }
+
+    @android.webkit.JavascriptInterface
+    fun dumpHtml(html: String) {
+        android.util.Log.d("GatekeeperHTML", "--- START HTML DUMP ---")
+        val chunkSize = 3000
+        var i = 0
+        while (i < html.length) {
+            val end = kotlin.math.min(html.length, i + chunkSize)
+            android.util.Log.d("GatekeeperHTML", html.substring(i, end))
+            i += chunkSize
+        }
+        android.util.Log.d("GatekeeperHTML", "--- END HTML DUMP ---")
+    }
 }
 
 @Suppress("FunctionName")
@@ -50,7 +64,7 @@ class YouTubeSurgicalBridge {
 fun CleanYouTubeScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
     var query by remember { mutableStateOf("") }
-    var currentUrl by remember { mutableStateOf("https://m.youtube.com") }
+    var currentUrl by remember { mutableStateOf("") }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.fillMaxSize().padding(top = 16.dp, start = 16.dp, end = 16.dp)) {
@@ -64,25 +78,17 @@ fun CleanYouTubeScreen() {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                Column(horizontalAlignment = Alignment.End) {
-                    IndustrialButton(
-                        onClick = {
-                            GatekeeperStateManager.dispatch(
-                                GatekeeperAction.OpenPinnedWebsite(
-                                    "https://accounts.google.com/ServiceLogin?service=youtube&continue=https://m.youtube.com"
-                                )
+                IndustrialButton(
+                    onClick = {
+                        GatekeeperStateManager.dispatch(
+                            GatekeeperAction.OpenPinnedWebsite(
+                                "https://accounts.google.com/ServiceLogin?service=youtube&continue=https://m.youtube.com"
                             )
-                        },
-                        text = "Authenticate",
-                        isWarning = true,
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        "Login to stop Bot checks",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                        )
+                    },
+                    text = "Auth",
+                    isWarning = true,
+                )
             }
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -97,7 +103,8 @@ fun CleanYouTubeScreen() {
                     keyboardActions = KeyboardActions(
                         onSearch = {
                             if (query.isNotBlank()) {
-                                currentUrl = "https://m.youtube.com/results?search_query=${java.net.URLEncoder.encode(query, "UTF-8")}"
+                                val encoded = URLEncoder.encode(query, "UTF-8")
+                                currentUrl = "https://m.youtube.com/results?search_query=$encoded"
                             }
                         }
                     ),
@@ -106,7 +113,8 @@ fun CleanYouTubeScreen() {
                 IndustrialButton(
                     onClick = {
                         if (query.isNotBlank()) {
-                            currentUrl = "https://m.youtube.com/results?search_query=${java.net.URLEncoder.encode(query, "UTF-8")}"
+                            val encoded = URLEncoder.encode(query, "UTF-8")
+                            currentUrl = "https://m.youtube.com/results?search_query=$encoded"
                         }
                     },
                     text = "Search",
@@ -130,7 +138,7 @@ fun CleanYouTubeScreen() {
                         ytm-item-section-renderer[section-identifier="related-searches"],
                         ytm-chip-cloud-renderer,
                         .pivot-bar-container,
-[role="tablist"],
+                        [role="tablist"],
                         a[href="/"],
                         a[href^="/shorts"],
                         a[href="/feed/subscriptions"],
@@ -145,12 +153,12 @@ fun CleanYouTubeScreen() {
                         (function() {
                             if (window.gatekeeperObserver) return;
                             
+                            // Log HTML for debugging
                             setTimeout(function() {
-                                if (window.GatekeeperBridge && !window.hasDumpedHtml) {
+                                if (window.GatekeeperBridge) {
                                     window.GatekeeperBridge.dumpHtml(document.documentElement.outerHTML);
-                                    window.hasDumpedHtml = true;
                                 }
-                            }, 3000);
+                            }, 4000);
 
                             function injectButtons() {
                                 var videos = document.querySelectorAll('ytm-video-with-context-renderer');
@@ -194,9 +202,9 @@ fun CleanYouTubeScreen() {
                                             btn.style.backgroundColor = '#888888';
                                             btn.disabled = true;
                                         }
-                                    var style = document.createElement('style'); 
-                                    style.textContent = '$css'; 
-                                    document.head.appendChild(style);
+                                    };
+                                    
+                                    video.appendChild(btn);
                                 });
                             }
                             
@@ -217,7 +225,7 @@ fun CleanYouTubeScreen() {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "Search for a specific video above. The feed is disabled to protect your intent.",
+                        "Search for a specific video above.\nThe feed is disabled to protect your intent.",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodyLarge,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,

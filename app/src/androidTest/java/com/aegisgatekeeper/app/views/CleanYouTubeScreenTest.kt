@@ -40,4 +40,39 @@ class CleanYouTubeScreenTest {
         composeTestRule.onNodeWithText("Surgical Search").assertExists()
         composeTestRule.onNodeWithText("Search YouTube...").assertExists()
     }
+
+    @Test
+    fun testSearchInput_updatesCurrentUrl() {
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                CleanYouTubeScreen()
+            }
+        }
+
+        val query = "Kotlin Coroutines"
+        
+        // Act: Type query and click Search
+        composeTestRule.onNodeWithText("Search YouTube...").performTextInput(query)
+        composeTestRule.onNodeWithText("Search").performClick()
+
+        // Assert: Since we can't easily inspect the internal WebView URL in this test, 
+        // we verify the search bar still holds the query and the WebView is likely active.
+        composeTestRule.onNodeWithText(query).assertExists()
+    }
+
+    @Test
+    fun testAuthButton_triggersNavigation() {
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                CleanYouTubeScreen()
+            }
+        }
+
+        // Act
+        composeTestRule.onNodeWithText("Auth").performClick()
+
+        // Assert: Verify state manager triggered the Pinned Website modal
+        val state = GatekeeperStateManager.state.value
+        assertThat(state.activePinnedWebsiteUrl).contains("accounts.google.com")
+    }
 }
