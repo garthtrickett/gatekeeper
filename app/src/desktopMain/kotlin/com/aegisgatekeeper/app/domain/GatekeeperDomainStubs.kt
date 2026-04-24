@@ -21,7 +21,7 @@ data class GatekeeperState(
     val pendingMetacognition: MetacognitionRequest? = null,
     val isSyncingPodcasts: Boolean = false,
     val podcastSyncError: String? = null,
-    val activePodcastEpisodes: List<com.aegisgatekeeper.app.api.RssEpisode>? = null,
+    val activePodcastEpisodes: List<CachedEpisode>? = null,
     val activePodcastId: String? = null,
     val isLoadingEpisodes: Boolean = false,
     val activeDownloads: Map<String, Float> = emptyMap(),
