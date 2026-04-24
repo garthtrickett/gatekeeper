@@ -301,10 +301,16 @@ private fun PodcastEpisodesView(
                                         contentAlignment = Alignment.Center,
                                         modifier = Modifier.size(64.dp),
                                     ) {
-                                        androidx.compose.material3.CircularProgressIndicator(
-                                            progress = { progress / 100f },
-                                            color = MaterialTheme.colorScheme.primary,
-                                        )
+                                        if (progress > 0f && progress < 100f) {
+                                            androidx.compose.material3.CircularProgressIndicator(
+                                                progress = { progress / 100f },
+                                                color = MaterialTheme.colorScheme.primary,
+                                            )
+                                        } else {
+                                            androidx.compose.material3.CircularProgressIndicator(
+                                                color = MaterialTheme.colorScheme.primary,
+                                            )
+                                        }
                                     }
                                 } else if (status == com.aegisgatekeeper.app.domain.DownloadStatus.COMPLETED) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {

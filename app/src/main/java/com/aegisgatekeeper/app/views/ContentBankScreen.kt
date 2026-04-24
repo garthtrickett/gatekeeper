@@ -499,9 +499,18 @@ private fun ContentItemCard(
                                     contentAlignment = Alignment.Center,
                                     modifier = Modifier.size(40.dp),
                                 ) {
-                                    androidx.compose.material3.CircularProgressIndicator(progress = {
-                                        progress / 100f
-                                    }, color = MaterialTheme.colorScheme.primary, strokeWidth = 2.dp)
+                                    if (progress > 0f && progress < 100f) {
+                                        androidx.compose.material3.CircularProgressIndicator(
+                                            progress = { progress / 100f },
+                                            color = MaterialTheme.colorScheme.primary,
+                                            strokeWidth = 2.dp
+                                        )
+                                    } else {
+                                        androidx.compose.material3.CircularProgressIndicator(
+                                            color = MaterialTheme.colorScheme.primary,
+                                            strokeWidth = 2.dp
+                                        )
+                                    }
                                 }
                             } else if (status == com.aegisgatekeeper.app.domain.DownloadStatus.COMPLETED) {
                                 Text("✅", modifier = Modifier.padding(end = 8.dp))

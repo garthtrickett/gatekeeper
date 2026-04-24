@@ -9,6 +9,12 @@ import com.aegisgatekeeper.app.App
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.R
 import com.aegisgatekeeper.app.domain.GatekeeperAction
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 class GatekeeperDownloadService :
     DownloadService(
@@ -18,6 +24,9 @@ class GatekeeperDownloadService :
         R.string.app_name,
         R.string.accessibility_description,
     ) {
+    private val serviceScope = CoroutineScope(Dispatchers.Main)
+    private var pollingJob: Job? = null
+
     override fun getDownloadManager(): DownloadManager {
         val manager = App.downloadManager
         manager.addListener(
@@ -28,26 +37,68 @@ class GatekeeperDownloadService :
                     finalException: Exception?,
                 ) {
                     when (download.state) {
-                        Download.STATE_DOWNLOADING -> {
-                            GatekeeperStateManager.dispatch(
-                                GatekeeperAction.DownloadProgressUpdated(download.request.id, download.percentDownloaded),
-                            )
+                        Download.STATE_QUEUED -> {
+                            GatekeeperStateManager.dispatch(GatekeeperAction.DownloadMediaRequested(download.request.id))
                         }
-
+                        Download.STATE_DOWNLOADING -> {
+                            val pct = if (download.percentDownloaded == -1f) 0f else download.percentDownloaded
+                            GatekeeperStateManager.dispatch(
+                                GatekeeperAction.DownloadProgressUpdated(download.request.id, pct),
+                            )
+                            startPolling(downloadManager)
+                        }
                         Download.STATE_COMPLETED -> {
                             GatekeeperStateManager.dispatch(
                                 GatekeeperAction.DownloadCompleted(download.request.id, "cached_in_simplecache"),
                             )
+                            checkStopPolling(downloadManager)
                         }
-
                         Download.STATE_FAILED -> {
                             GatekeeperStateManager.dispatch(GatekeeperAction.DownloadFailed(download.request.id))
+                            checkStopPolling(downloadManager)
+                        }
+                        else -> {
+                            checkStopPolling(downloadManager)
                         }
                     }
                 }
             },
         )
         return manager
+    }
+
+    private fun startPolling(manager: DownloadManager) {
+        if (pollingJob?.isActive == true) return
+        pollingJob = serviceScope.launch {
+            while (isActive) {
+                var hasDownloading = false
+                manager.currentDownloads.forEach { download ->
+                    if (download.state == Download.STATE_DOWNLOADING) {
+                        hasDownloading = true
+                        val pct = if (download.percentDownloaded == -1f) 0f else download.percentDownloaded
+                        GatekeeperStateManager.dispatch(
+                            GatekeeperAction.DownloadProgressUpdated(download.request.id, pct)
+                        )
+                    }
+                }
+                if (!hasDownloading) {
+                    break
+                }
+                delay(500)
+            }
+        }
+    }
+
+    private fun checkStopPolling(manager: DownloadManager) {
+        if (manager.currentDownloads.none { it.state == Download.STATE_DOWNLOADING }) {
+            pollingJob?.cancel()
+            pollingJob = null
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        pollingJob?.cancel()
     }
 
     override fun getScheduler(): androidx.media3.exoplayer.scheduler.Scheduler? = null
