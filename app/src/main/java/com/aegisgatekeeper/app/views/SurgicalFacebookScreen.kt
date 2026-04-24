@@ -152,11 +152,11 @@ private fun ColumnScope.LoginWebView(onLoginSuccess: () -> Unit) {
                     object : WebViewClient() {
                         override fun onPageStarted(
                             view: WebView?,
-                            url: String?,
+                            urlStr: String?,
                             favicon: android.graphics.Bitmap?,
                         ) {
-                            super.onPageStarted(view, url, favicon)
-                            android.util.Log.d("Gatekeeper", "📡 FB-LOGIN-LOADING: $url")
+                            super.onPageStarted(view, urlStr, favicon)
+                            android.util.Log.d("Gatekeeper", "📡 FB-LOGIN-LOADING: $urlStr")
                         }
 
                         override fun onReceivedError(
@@ -170,13 +170,13 @@ private fun ColumnScope.LoginWebView(onLoginSuccess: () -> Unit) {
 
                         override fun onPageFinished(
                             view: WebView?,
-                            url: String?,
+                            urlStr: String?,
                         ) {
-                            super.onPageFinished(view, url)
-                            android.util.Log.d("Gatekeeper", "✅ FB-LOGIN-LOADED: $url")
+                            super.onPageFinished(view, urlStr)
+                            android.util.Log.d("Gatekeeper", "✅ FB-LOGIN-LOADED: $urlStr")
                             val cookies = cookieManager.getCookie("https://m.facebook.com") ?: ""
-                            val isCheckpoint = url?.contains("checkpoint", ignoreCase = true) == true || 
-                                               url?.contains("two_step_verification", ignoreCase = true) == true
+                            val isCheckpoint = urlStr?.contains("checkpoint", ignoreCase = true) == true || 
+                                               urlStr?.contains("two_step_verification", ignoreCase = true) == true
                             if (cookies.contains("c_user=") && cookies.contains("xs=") && !isCheckpoint) {
                                 android.util.Log.d("Gatekeeper", "✅ FB-AUTH: Login successful, auth cookie detected!")
                                 cookieManager.flush()
@@ -184,7 +184,7 @@ private fun ColumnScope.LoginWebView(onLoginSuccess: () -> Unit) {
                             }
                         }
                     }
-                loadUrl("https://m.facebook.com/login")
+                loadUrl(url)
             }
         },
     )

@@ -158,12 +158,8 @@ fun BaseSurgicalWebView(
                                 return false
                             }
 
-                            if (onLogout != null && (newUrl.contains("login", ignoreCase = true) || 
-                                newUrl.contains("checkpoint", ignoreCase = true) ||
-                                newUrl.contains("two_step_verification", ignoreCase = true))) {
-                                onLogout()
-                                return true
-                            }
+                            // We no longer eagerly logout on "login" or "checkpoint" URLs.
+                            // Facebook handles these flows gracefully, and wiping cookies breaks them.
 
                             if (jailRoot != null) {
                                 val isExplicitHomeFeed =
