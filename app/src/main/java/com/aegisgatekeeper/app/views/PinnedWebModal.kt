@@ -46,7 +46,6 @@ actual fun PinnedWebModal(
             modifier = Modifier.weight(1f),
             cssInjector = { "" },
             networkBlocklist = emptyList(),
-            jailRoot = url,
         )
     }
 }
