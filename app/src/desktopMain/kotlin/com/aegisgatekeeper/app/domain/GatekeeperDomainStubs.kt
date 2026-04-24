@@ -221,6 +221,12 @@ sealed interface GatekeeperAction {
     ) : GatekeeperAction
 
     object ClosePinnedWebsite : GatekeeperAction
+
+    data class DownloadMediaRequested(val id: String) : GatekeeperAction
+    data class DownloadProgressUpdated(val id: String, val progress: Float) : GatekeeperAction
+    data class DownloadCompleted(val id: String, val localFilePath: String) : GatekeeperAction
+    data class DownloadFailed(val id: String) : GatekeeperAction
+    data class DeleteDownloadedMedia(val id: String) : GatekeeperAction
 }
 
 fun isVaultUnlocked(currentTime: LocalTime): Boolean {

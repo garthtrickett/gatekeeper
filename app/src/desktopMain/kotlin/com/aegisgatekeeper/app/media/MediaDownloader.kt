@@ -37,8 +37,8 @@ actual object MediaDownloader {
                 targetFile.outputStream().use { out ->
                     while (!channel.isClosedForRead) {
                         val packet = channel.readRemaining(1024 * 64)
-                        while (packet.isNotEmpty) {
-                            val bytes = packet.readBytes()
+                        val bytes = packet.readBytes()
+                        if (bytes.isNotEmpty()) {
                             out.write(bytes)
                             totalBytesRead += bytes.size
                             GatekeeperStateManager.dispatch(GatekeeperAction.DownloadProgressUpdated(id, (totalBytesRead.toFloat() / contentLength) * 100f))
