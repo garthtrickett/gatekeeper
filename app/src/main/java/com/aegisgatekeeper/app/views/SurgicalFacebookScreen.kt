@@ -121,6 +121,7 @@ fun SurgicalFacebookScreen(
                 modifier = Modifier.weight(1f),
                 userAgent = userAgent,
                 onLoginSuccess = {
+                    android.util.Log.d("Gatekeeper", "🔄 DIAGNOSTIC: onLoginSuccess triggered, incrementing forceReload.")
                     forceReload++
                 },
                 cssInjector = { currentUrl ->
@@ -161,6 +162,7 @@ fun SurgicalFacebookScreen(
                         
                         if (cookies.contains("c_user=") && cookies.contains("xs=") && isHomeFeed) {
                             android.util.Log.d("Gatekeeper", "✅ FB-AUTH: Login fully completed (reached home).")
+                            android.util.Log.d("Gatekeeper", "🔄 DIAGNOSTIC: Home feed reached, dispatching OpenSurgicalFacebook with reload cache-buster.")
                             cookieManager.flush()
                             isLoggedIn = true
                             // Force a state update with a cache-busting param to trigger WebView reload

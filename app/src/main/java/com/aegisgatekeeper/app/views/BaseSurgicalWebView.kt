@@ -130,6 +130,7 @@ fun BaseSurgicalWebView(
                             android.util.Log.d("Gatekeeper", "🏁 BASE-WEB-FINISHED: $currentUrl")
                             val cookies = CookieManager.getInstance().getCookie(currentUrl)
                             android.util.Log.d("Gatekeeper", "🍪 COOKIE-STATE-CHECK | Has Cookies: ${!cookies.isNullOrEmpty()}")
+                            android.util.Log.d("Gatekeeper", "🍪 DIAGNOSTIC-COOKIES | $currentUrl: $cookies")
                             currentUrl?.let { onPageLoaded(it) }
 
                             if (jailRoot != null) {
@@ -174,6 +175,7 @@ fun BaseSurgicalWebView(
                                     }
 
                                     android.util.Log.d("Gatekeeper", "🛡️ Jail: Reached feed after redirect. Redirecting to jail root.")
+                                    android.util.Log.d("Gatekeeper", "🛑 DIAGNOSTIC: jailRoot triggered in onPageFinished. currentUrl=$currentUrl, jailRoot=$jailRoot, redirectCount=$jailRedirectCount")
                                     view?.loadUrl(jailRoot)
                                     return
                                 }
@@ -276,6 +278,7 @@ fun BaseSurgicalWebView(
                                         return false
                                     }
                                     android.util.Log.d("Gatekeeper", "🛡️ Jail: Blocking navigation to Feed. Forcing current root: $jailRoot")
+                                    android.util.Log.d("Gatekeeper", "🛑 DIAGNOSTIC: jailRoot triggered in shouldOverrideUrlLoading. newUrl=$newUrl, jailRoot=$jailRoot")
                                     view?.post { view.loadUrl(jailRoot) }
                                     return true
                                 }
