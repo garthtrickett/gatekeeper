@@ -117,7 +117,7 @@ fun SurgicalFacebookScreen(
                 },
             )
         } else {
-            LoginWebView(onLoginSuccess = { isLoggedIn = true })
+            LoginWebView(targetUrl = url, onLoginSuccess = { isLoggedIn = true })
         }
     }
 }
@@ -125,7 +125,7 @@ fun SurgicalFacebookScreen(
 @SuppressLint("SetJavaScriptEnabled")
 @Suppress("FunctionName")
 @Composable
-private fun ColumnScope.LoginWebView(onLoginSuccess: () -> Unit) {
+private fun ColumnScope.LoginWebView(targetUrl: String, onLoginSuccess: () -> Unit) {
     val cookieManager = remember { CookieManager.getInstance() }
 
     AndroidView(
