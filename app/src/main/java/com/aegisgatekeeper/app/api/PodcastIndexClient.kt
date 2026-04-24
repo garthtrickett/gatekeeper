@@ -46,7 +46,7 @@ object PodcastIndexClient {
         return try {
             val response =
                 client.get("https://itunes.apple.com/search") {
-                    io.ktor.client.request.header("User-Agent", "AegisGatekeeper/1.0")
+                    header("User-Agent", "AegisGatekeeper/1.0")
                     parameter("media", "podcast")
                     parameter("entity", "podcast")
                     parameter("limit", 25)
