@@ -680,6 +680,14 @@ class GatekeeperReducerTest {
     }
 
     @Test
+    fun testCacheParsedEpisodes_leavesStateUnchanged() {
+        // CacheParsedEpisodes is a pure side-effect trigger; it should not modify state directly.
+        val action = GatekeeperAction.CacheParsedEpisodes(emptyList(), "podcast1")
+        val newState = reduce(initialState, action)
+        assertThat(newState).isEqualTo(initialState)
+    }
+
+    @Test
     fun testOpenNativePlayer_SetsActiveNativeMediaItem() {
         val ep =
             ContentItem(

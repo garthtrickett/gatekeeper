@@ -734,6 +734,24 @@ class GatekeeperStateManagerTest {
                             db.contentItemQueries.delete(lastModified = action.currentTimestamp, id = it.id)
                         }
                     }
+                    
+                    is GatekeeperAction.CacheParsedEpisodes -> {
+                        db.transaction {
+                            action.episodes.forEach { ep ->
+                                val id = java.util.UUID.nameUUIDFromBytes(ep.audioUrl.toByteArray()).toString()
+                                db.podcastEpisodeQueries.insertOrReplace(
+                                    id = id,
+                                    podcastId = action.podcastId,
+                                    title = ep.title,
+                                    audioUrl = ep.audioUrl,
+                                    durationSeconds = ep.durationSeconds,
+                                    pubDate = ep.pubDate,
+                                    lastModified = System.currentTimeMillis()
+                                )
+                            }
+                            db.podcastEpisodeQueries.deleteOldEpisodes(action.podcastId, 200)
+                        }
+                    }
 
                     else -> { /* Other side effects not under test */ }
                 }
