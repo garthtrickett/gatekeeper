@@ -221,7 +221,7 @@ fun BaseSurgicalWebView(
                             // We no longer eagerly logout on "login" or "checkpoint" URLs.
                             // Facebook handles these flows gracefully, and wiping cookies breaks them.
 
-                            if (currentJailRoot != null) {
+                            if (jailRoot != null) {
                                 val isExplicitHomeFeed =
                                     newUrl == "https://m.facebook.com/" ||
                                         newUrl.startsWith("https://m.facebook.com/?") ||
@@ -233,8 +233,8 @@ fun BaseSurgicalWebView(
                                         android.util.Log.d("Gatekeeper", "🛡️ Jail: Allowing redirect to Feed to preserve cookies.")
                                         return false
                                     }
-                                    android.util.Log.d("Gatekeeper", "🛡️ Jail: Blocking navigation to Feed. Forcing current root: $currentJailRoot")
-                                    view?.post { view.loadUrl(currentJailRoot!!) }
+                                    android.util.Log.d("Gatekeeper", "🛡️ Jail: Blocking navigation to Feed. Forcing current root: $jailRoot")
+                                    view?.post { view.loadUrl(jailRoot) }
                                     return true
                                 }
                             }
