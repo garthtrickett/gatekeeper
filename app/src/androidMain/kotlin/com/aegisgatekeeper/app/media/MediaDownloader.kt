@@ -7,13 +7,16 @@ import com.aegisgatekeeper.app.App
 import com.aegisgatekeeper.app.services.GatekeeperDownloadService
 
 actual object MediaDownloader {
-    actual fun enqueueDownload(id: String, url: String) {
+    actual fun enqueueDownload(
+        id: String,
+        url: String,
+    ) {
         val request = DownloadRequest.Builder(id, Uri.parse(url)).build()
         DownloadService.sendAddDownload(
             App.instance,
             GatekeeperDownloadService::class.java,
             request,
-            false
+            false,
         )
     }
 
@@ -22,7 +25,7 @@ actual object MediaDownloader {
             App.instance,
             GatekeeperDownloadService::class.java,
             id,
-            false
+            false,
         )
     }
 }

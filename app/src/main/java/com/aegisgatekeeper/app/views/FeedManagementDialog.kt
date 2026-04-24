@@ -62,12 +62,19 @@ fun FeedManagementDialog(onDismiss: () -> Unit) {
 
 @Suppress("FunctionName")
 @Composable
-private fun PodcastSubscriptionsView(state: GatekeeperState, onDismiss: () -> Unit) {
+private fun PodcastSubscriptionsView(
+    state: GatekeeperState,
+    onDismiss: () -> Unit,
+) {
     var query by remember { mutableStateOf("") }
     var isSearchMode by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Text("Manage Podcasts", style = MaterialTheme.typography.titleLarge)
             if (isSearchMode) {
                 IndustrialButton(onClick = { isSearchMode = false }, text = "View Subs")
@@ -82,13 +89,17 @@ private fun PodcastSubscriptionsView(state: GatekeeperState, onDismiss: () -> Un
                 label = { Text("Search podcasts...") },
                 modifier = Modifier.weight(1f),
                 singleLine = true,
-                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Search),
-                keyboardActions = androidx.compose.foundation.text.KeyboardActions(onSearch = {
-                    if (query.isNotBlank()) {
-                        isSearchMode = true
-                        GatekeeperStateManager.dispatch(GatekeeperAction.SearchPodcastsRequested(query))
-                    }
-                })
+                keyboardOptions =
+                    androidx.compose.foundation.text.KeyboardOptions(
+                        imeAction = androidx.compose.ui.text.input.ImeAction.Search,
+                    ),
+                keyboardActions =
+                    androidx.compose.foundation.text.KeyboardActions(onSearch = {
+                        if (query.isNotBlank()) {
+                            isSearchMode = true
+                            GatekeeperStateManager.dispatch(GatekeeperAction.SearchPodcastsRequested(query))
+                        }
+                    }),
             )
             Spacer(modifier = Modifier.width(8.dp))
             IndustrialButton(
@@ -130,23 +141,29 @@ private fun PodcastSubscriptionsView(state: GatekeeperState, onDismiss: () -> Un
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(result.title, style = MaterialTheme.typography.titleMedium, maxLines = 1)
                                     if (result.author != null) {
-                                        Text(result.author, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                                        Text(
+                                            result.author,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 1,
+                                        )
                                     }
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
                                 IndustrialButton(
                                     onClick = {
                                         if (!isSubscribed) {
-                                            val sub = com.aegisgatekeeper.app.domain.PodcastSubscription(
-                                                feedUrl = result.url,
-                                                showTitle = result.title,
-                                                artworkUrl = result.image,
-                                            )
+                                            val sub =
+                                                com.aegisgatekeeper.app.domain.PodcastSubscription(
+                                                    feedUrl = result.url,
+                                                    showTitle = result.title,
+                                                    artworkUrl = result.image,
+                                                )
                                             GatekeeperStateManager.dispatch(GatekeeperAction.SavePodcastSubscription(sub))
                                         }
                                     },
                                     text = if (isSubscribed) "✓" else "Subscribe",
-                                    enabled = !isSubscribed
+                                    enabled = !isSubscribed,
                                 )
                             }
                         }
@@ -162,9 +179,10 @@ private fun PodcastSubscriptionsView(state: GatekeeperState, onDismiss: () -> Un
                 LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(state.podcastSubscriptions, key = { it.id }) { sub ->
                         Card(
-                            modifier = Modifier.fillMaxWidth().clickable {
-                                GatekeeperStateManager.dispatch(GatekeeperAction.LoadPodcastEpisodes(sub.feedUrl, sub.id))
-                            },
+                            modifier =
+                                Modifier.fillMaxWidth().clickable {
+                                    GatekeeperStateManager.dispatch(GatekeeperAction.LoadPodcastEpisodes(sub.feedUrl, sub.id))
+                                },
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                         ) {
                             Row(
@@ -184,12 +202,13 @@ private fun PodcastSubscriptionsView(state: GatekeeperState, onDismiss: () -> Un
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     "🗑️",
-                                    modifier = Modifier
-                                        .clickable {
-                                            GatekeeperStateManager.dispatch(
-                                                GatekeeperAction.RemovePodcastSubscription(sub.id, System.currentTimeMillis()),
-                                            )
-                                        }.padding(8.dp),
+                                    modifier =
+                                        Modifier
+                                            .clickable {
+                                                GatekeeperStateManager.dispatch(
+                                                    GatekeeperAction.RemovePodcastSubscription(sub.id, System.currentTimeMillis()),
+                                                )
+                                            }.padding(8.dp),
                                 )
                             }
                         }
@@ -207,12 +226,20 @@ private fun PodcastSubscriptionsView(state: GatekeeperState, onDismiss: () -> Un
 
 @Suppress("FunctionName")
 @Composable
-private fun PodcastEpisodesView(state: GatekeeperState, onDismiss: () -> Unit) {
+private fun PodcastEpisodesView(
+    state: GatekeeperState,
+    onDismiss: () -> Unit,
+) {
     val activeSub = state.podcastSubscriptions.find { it.id == state.activePodcastId }
     val title = activeSub?.showTitle ?: "Podcast Episodes"
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+        Text(
+            title,
+            style = MaterialTheme.typography.titleLarge,
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         if (state.isLoadingEpisodes) {
@@ -240,12 +267,18 @@ private fun PodcastEpisodesView(state: GatekeeperState, onDismiss: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(ep.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                                val metaText = buildString {
-                                    if (ep.pubDate != null) append(ep.pubDate)
-                                    if (ep.pubDate != null && ep.durationSeconds != null && ep.durationSeconds > 0) append(" • ")
-                                    if (ep.durationSeconds != null && ep.durationSeconds > 0) append("${ep.durationSeconds / 60}m")
-                                }
+                                Text(
+                                    ep.title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    maxLines = 2,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                )
+                                val metaText =
+                                    buildString {
+                                        if (ep.pubDate != null) append(ep.pubDate)
+                                        if (ep.pubDate != null && ep.durationSeconds != null && ep.durationSeconds > 0) append(" • ")
+                                        if (ep.durationSeconds != null && ep.durationSeconds > 0) append("${ep.durationSeconds / 60}m")
+                                    }
                                 if (metaText.isNotEmpty()) {
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
@@ -260,22 +293,38 @@ private fun PodcastEpisodesView(state: GatekeeperState, onDismiss: () -> Unit) {
                             if (contentItem != null) {
                                 val status = contentItem.downloadStatus
                                 val progress = state.activeDownloads[contentItem.id] ?: 0f
-                                if (status == com.aegisgatekeeper.app.domain.DownloadStatus.DOWNLOADING || status == com.aegisgatekeeper.app.domain.DownloadStatus.QUEUED) {
-                                    androidx.compose.foundation.layout.Box(contentAlignment = Alignment.Center, modifier = Modifier.size(64.dp)) {
-                                        androidx.compose.material3.CircularProgressIndicator(progress = { progress / 100f }, color = MaterialTheme.colorScheme.primary)
+                                if (status == com.aegisgatekeeper.app.domain.DownloadStatus.DOWNLOADING ||
+                                    status == com.aegisgatekeeper.app.domain.DownloadStatus.QUEUED
+                                ) {
+                                    androidx.compose.foundation.layout.Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.size(64.dp),
+                                    ) {
+                                        androidx.compose.material3.CircularProgressIndicator(
+                                            progress = { progress / 100f },
+                                            color = MaterialTheme.colorScheme.primary,
+                                        )
                                     }
                                 } else if (status == com.aegisgatekeeper.app.domain.DownloadStatus.COMPLETED) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text("✅", modifier = Modifier.padding(end = 8.dp))
                                         IndustrialButton(
-                                            onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DeleteDownloadedMedia(contentItem.id)) },
+                                            onClick = {
+                                                GatekeeperStateManager.dispatch(
+                                                    GatekeeperAction.DeleteDownloadedMedia(contentItem.id),
+                                                )
+                                            },
                                             text = "Delete Offline File",
                                             isWarning = true,
                                         )
                                     }
                                 } else {
                                     IndustrialButton(
-                                        onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DownloadMediaRequested(contentItem.id)) },
+                                        onClick = {
+                                            GatekeeperStateManager.dispatch(
+                                                GatekeeperAction.DownloadMediaRequested(contentItem.id),
+                                            )
+                                        },
                                         text = "Download",
                                     )
                                 }
@@ -284,12 +333,16 @@ private fun PodcastEpisodesView(state: GatekeeperState, onDismiss: () -> Unit) {
                                     onClick = {
                                         if (state.activePodcastId != null) {
                                             GatekeeperStateManager.dispatch(
-                                                GatekeeperAction.AddEpisodeToBank(ep, state.activePodcastId, activeSub?.showTitle ?: "Podcast")
+                                                GatekeeperAction.AddEpisodeToBank(
+                                                    ep,
+                                                    state.activePodcastId,
+                                                    activeSub?.showTitle ?: "Podcast",
+                                                ),
                                             )
                                         }
                                     },
                                     text = "+",
-                                    modifier = Modifier.width(64.dp)
+                                    modifier = Modifier.width(64.dp),
                                 )
                             }
                         }
@@ -300,7 +353,11 @@ private fun PodcastEpisodesView(state: GatekeeperState, onDismiss: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            IndustrialButton(onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.ClearPodcastEpisodes) }, text = "Back", isWarning = true)
+            IndustrialButton(
+                onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.ClearPodcastEpisodes) },
+                text = "Back",
+                isWarning = true,
+            )
             Spacer(modifier = Modifier.width(8.dp))
             IndustrialButton(onClick = onDismiss, text = "Close")
         }

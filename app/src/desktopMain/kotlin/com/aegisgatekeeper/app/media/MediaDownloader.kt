@@ -16,16 +16,48 @@ actual object MediaDownloader {
     private val client = HttpClient(CIO)
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    actual fun enqueueDownload(id: String, url: String) {
+    actual fun enqueueDownload(
+        id: String,
+        url: String,
+    ) {
         scope.launch {
             try {
                 val osName = System.getProperty("os.name").lowercase()
                 val userHome = System.getProperty("user.home")
-                val cacheDirPath = when {
-                    osName.contains("win") -> System.getenv("APPDATA") + File.separator + "gatekeeper" + File.separator + "downloads"
-                    osName.contains("mac") -> userHome + File.separator + "Library" + File.separator + "Application Support" + File.separator + "gatekeeper" + File.separator + "downloads"
-                    else -> userHome + File.separator + ".local" + File.separator + "share" + File.separator + "gatekeeper" + File.separator + "downloads"
-                }
+                val cacheDirPath =
+                    when {
+                        osName.contains("win") -> {
+                            System.getenv("APPDATA") +
+                                File.separator +
+                                "gatekeeper" +
+                                File.separator +
+                                "downloads"
+                        }
+
+                        osName.contains("mac") -> {
+                            userHome +
+                                File.separator +
+                                "Library" +
+                                File.separator +
+                                "Application Support" +
+                                File.separator +
+                                "gatekeeper" +
+                                File.separator +
+                                "downloads"
+                        }
+
+                        else -> {
+                            userHome +
+                                File.separator +
+                                ".local" +
+                                File.separator +
+                                "share" +
+                                File.separator +
+                                "gatekeeper" +
+                                File.separator +
+                                "downloads"
+                        }
+                    }
                 val cacheDir = File(cacheDirPath).apply { mkdirs() }
                 val targetFile = File(cacheDir, "$id.mp3")
 
@@ -41,7 +73,12 @@ actual object MediaDownloader {
                         if (bytes.isNotEmpty()) {
                             out.write(bytes)
                             totalBytesRead += bytes.size
-                            GatekeeperStateManager.dispatch(GatekeeperAction.DownloadProgressUpdated(id, (totalBytesRead.toFloat() / contentLength) * 100f))
+                            GatekeeperStateManager.dispatch(
+                                GatekeeperAction.DownloadProgressUpdated(
+                                    id,
+                                    (totalBytesRead.toFloat() / contentLength) * 100f,
+                                ),
+                            )
                         }
                     }
                 }
@@ -55,11 +92,24 @@ actual object MediaDownloader {
     actual fun removeDownload(id: String) {
         val osName = System.getProperty("os.name").lowercase()
         val userHome = System.getProperty("user.home")
-        val cacheDirPath = when {
-            osName.contains("win") -> System.getenv("APPDATA") + File.separator + "gatekeeper" + File.separator + "downloads"
-            osName.contains("mac") -> userHome + File.separator + "Library" + File.separator + "Application Support" + File.separator + "gatekeeper" + File.separator + "downloads"
-            else -> userHome + File.separator + ".local" + File.separator + "share" + File.separator + "gatekeeper" + File.separator + "downloads"
-        }
+        val cacheDirPath =
+            when {
+                osName.contains("win") -> {
+                    System.getenv("APPDATA") + File.separator + "gatekeeper" + File.separator + "downloads"
+                }
+
+                osName.contains("mac") -> {
+                    userHome + File.separator + "Library" + File.separator + "Application Support" + File.separator +
+                        "gatekeeper" +
+                        File.separator +
+                        "downloads"
+                }
+
+                else -> {
+                    userHome + File.separator + ".local" + File.separator + "share" + File.separator + "gatekeeper" + File.separator +
+                        "downloads"
+                }
+            }
         val targetFile = File(cacheDirPath, "$id.mp3")
         if (targetFile.exists()) {
             targetFile.delete()

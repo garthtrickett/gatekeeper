@@ -401,7 +401,7 @@ class GatekeeperReducerTest {
                 capturedAtTimestamp = 1000L,
                 lastModified = 1000L, // Older
                 localFilePath = "/path/to/file",
-                downloadStatus = DownloadStatus.COMPLETED
+                downloadStatus = DownloadStatus.COMPLETED,
             )
         val stateWithLocal = initialState.copy(contentItems = listOf(localContentItem))
 
@@ -417,7 +417,7 @@ class GatekeeperReducerTest {
                 capturedAtTimestamp = 1000L,
                 lastModified = 2000L, // Newer
                 localFilePath = null,
-                downloadStatus = DownloadStatus.NONE
+                downloadStatus = DownloadStatus.NONE,
             )
 
         val action = GatekeeperAction.RemoteSyncCompleted(emptyList(), listOf(remoteContentItem))
@@ -653,7 +653,11 @@ class GatekeeperReducerTest {
     @Test
     fun testPodcastEpisodesLoaded_setsActiveEpisodes() {
         val stateWithLoading = initialState.copy(isLoadingEpisodes = true)
-        val mockEpisodes = listOf(com.aegisgatekeeper.app.api.RssEpisode("Ep 1", "audio_url", 1000L, "2023-01-01"))
+        val mockEpisodes =
+            listOf(
+                com.aegisgatekeeper.app.api
+                    .RssEpisode("Ep 1", "audio_url", 1000L, "2023-01-01"),
+            )
         val action = GatekeeperAction.PodcastEpisodesLoaded(mockEpisodes, "podcast1")
         val newState = reduce(stateWithLoading, action)
 
@@ -664,11 +668,12 @@ class GatekeeperReducerTest {
 
     @Test
     fun testClearPodcastEpisodes_clearsActive() {
-        val stateWithActive = initialState.copy(
-            isLoadingEpisodes = true,
-            activePodcastEpisodes = listOf(),
-            activePodcastId = "podcast1"
-        )
+        val stateWithActive =
+            initialState.copy(
+                isLoadingEpisodes = true,
+                activePodcastEpisodes = listOf(),
+                activePodcastId = "podcast1",
+            )
         val newState = reduce(stateWithActive, GatekeeperAction.ClearPodcastEpisodes)
 
         assertThat(newState.isLoadingEpisodes).isFalse()
@@ -1024,29 +1029,56 @@ class GatekeeperReducerTest {
 
     @Test
     fun testDownloadMediaRequested_SetsStatusToQueued() {
-        val item = ContentItem(id = "1", videoId = "url", title = "T", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val item =
+            ContentItem(
+                id = "1",
+                videoId = "url",
+                title = "T",
+                source = ContentSource.GENERIC,
+                type = ContentType.AUDIO,
+                rank = 0,
+                capturedAtTimestamp = 0,
+            )
         val state = initialState.copy(contentItems = listOf(item))
         val newState = reduce(state, GatekeeperAction.DownloadMediaRequested("1"))
-        
+
         assertThat(newState.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.QUEUED)
     }
 
     @Test
     fun testDownloadProgressUpdated_SetsStatusToDownloadingAndUpdatesProgress() {
-        val item = ContentItem(id = "1", videoId = "url", title = "T", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val item =
+            ContentItem(
+                id = "1",
+                videoId = "url",
+                title = "T",
+                source = ContentSource.GENERIC,
+                type = ContentType.AUDIO,
+                rank = 0,
+                capturedAtTimestamp = 0,
+            )
         val state = initialState.copy(contentItems = listOf(item))
         val newState = reduce(state, GatekeeperAction.DownloadProgressUpdated("1", 45.5f))
-        
+
         assertThat(newState.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.DOWNLOADING)
         assertThat(newState.activeDownloads["1"]).isEqualTo(45.5f)
     }
 
     @Test
     fun testDownloadCompleted_SetsStatusToCompletedAndPath() {
-        val item = ContentItem(id = "1", videoId = "url", title = "T", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val item =
+            ContentItem(
+                id = "1",
+                videoId = "url",
+                title = "T",
+                source = ContentSource.GENERIC,
+                type = ContentType.AUDIO,
+                rank = 0,
+                capturedAtTimestamp = 0,
+            )
         val state = initialState.copy(contentItems = listOf(item), activeDownloads = mapOf("1" to 100f))
         val newState = reduce(state, GatekeeperAction.DownloadCompleted("1", "/path/to/file.mp3"))
-        
+
         assertThat(newState.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.COMPLETED)
         assertThat(newState.contentItems.first().localFilePath).isEqualTo("/path/to/file.mp3")
         assertThat(newState.activeDownloads).isEmpty()
@@ -1054,16 +1086,27 @@ class GatekeeperReducerTest {
 
     @Test
     fun testDeleteDownloadedMedia_ResetsStatusAndPath() {
-        val item = ContentItem(id = "1", videoId = "url", title = "T", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0, downloadStatus = DownloadStatus.COMPLETED, localFilePath = "/path/to/file.mp3")
+        val item =
+            ContentItem(
+                id = "1",
+                videoId = "url",
+                title = "T",
+                source = ContentSource.GENERIC,
+                type = ContentType.AUDIO,
+                rank = 0,
+                capturedAtTimestamp = 0,
+                downloadStatus = DownloadStatus.COMPLETED,
+                localFilePath = "/path/to/file.mp3",
+            )
         val state = initialState.copy(contentItems = listOf(item))
         val newState = reduce(state, GatekeeperAction.DeleteDownloadedMedia("1"))
-        
+
         assertThat(newState.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.NONE)
         assertThat(newState.contentItems.first().localFilePath).isNull()
     }
 
     // --- Podcast Search Reducer Tests ---
-    
+
     @Test
     fun testSearchPodcastsRequested_SetsLoadingState() {
         val newState = reduce(initialState, GatekeeperAction.SearchPodcastsRequested("huberman"))
@@ -1074,9 +1117,13 @@ class GatekeeperReducerTest {
     @Test
     fun testPodcastSearchCompleted_SetsResultsAndClearsLoading() {
         val state = initialState.copy(isSearchingPodcasts = true)
-        val mockResults = listOf(com.aegisgatekeeper.app.api.PodcastFeedDto(id = 1L, title = "Huberman Lab", url = "https://feed.xml"))
+        val mockResults =
+            listOf(
+                com.aegisgatekeeper.app.api
+                    .PodcastFeedDto(id = 1L, title = "Huberman Lab", url = "https://feed.xml"),
+            )
         val newState = reduce(state, GatekeeperAction.PodcastSearchCompleted(mockResults))
-        
+
         assertThat(newState.isSearchingPodcasts).isFalse()
         assertThat(newState.podcastSearchResults).hasSize(1)
         assertThat(newState.podcastSearchResults.first().title).isEqualTo("Huberman Lab")

@@ -85,6 +85,16 @@ data class PodcastSubscription(
     val isDeleted: Boolean = false,
 )
 
+data class CachedEpisode(
+    val id: String = UUID.randomUUID().toString(),
+    val podcastId: String,
+    val title: String,
+    val audioUrl: String,
+    val durationSeconds: Long?,
+    val pubDate: String?,
+    val lastModified: Long = System.currentTimeMillis(),
+)
+
 /**
  * Represents a piece of curated media saved to the Content Bank.
  */

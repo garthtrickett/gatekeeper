@@ -39,12 +39,13 @@ class FeedManagementUiTest {
     @Test
     fun testFeedManagement_ShowsSubscriptionsAndDrillsDown() {
         // Arrange: Seed a subscription
-        val sub = PodcastSubscription(
-            id = "podcast_123",
-            feedUrl = "https://example.com/feed.xml",
-            showTitle = "The Sovereign Podcast",
-            artworkUrl = null
-        )
+        val sub =
+            PodcastSubscription(
+                id = "podcast_123",
+                feedUrl = "https://example.com/feed.xml",
+                showTitle = "The Sovereign Podcast",
+                artworkUrl = null,
+            )
         GatekeeperStateManager.dispatch(GatekeeperAction.SavePodcastSubscription(sub))
 
         composeTestRule.setContent {
@@ -70,23 +71,25 @@ class FeedManagementUiTest {
     @Test
     fun testFeedManagement_RendersEpisodesAndAddsToBank() {
         // Arrange: Seed a subscription and mock the episodes loaded state
-        val sub = PodcastSubscription(
-            id = "podcast_123",
-            feedUrl = "https://example.com/feed.xml",
-            showTitle = "The Sovereign Podcast",
-            artworkUrl = null
-        )
-        GatekeeperStateManager.dispatch(GatekeeperAction.SavePodcastSubscription(sub))
-        
-        val mockEpisodes = listOf(
-            RssEpisode(
-                title = "Episode 1: Focus",
-                audioUrl = "https://example.com/ep1.mp3",
-                durationSeconds = 3600L,
-                pubDate = "Jan 01"
+        val sub =
+            PodcastSubscription(
+                id = "podcast_123",
+                feedUrl = "https://example.com/feed.xml",
+                showTitle = "The Sovereign Podcast",
+                artworkUrl = null,
             )
-        )
-        
+        GatekeeperStateManager.dispatch(GatekeeperAction.SavePodcastSubscription(sub))
+
+        val mockEpisodes =
+            listOf(
+                RssEpisode(
+                    title = "Episode 1: Focus",
+                    audioUrl = "https://example.com/ep1.mp3",
+                    durationSeconds = 3600L,
+                    pubDate = "Jan 01",
+                ),
+            )
+
         // Force the drill-down state manually without triggering network side-effects
         GatekeeperStateManager.dispatch(GatekeeperAction.PodcastEpisodesLoaded(mockEpisodes, sub.id))
 
@@ -111,7 +114,7 @@ class FeedManagementUiTest {
         val bankedItem = state.contentItems.find { it.videoId == "https://example.com/ep1.mp3" }
         assertThat(bankedItem).isNotNull()
         assertThat(bankedItem?.title).isEqualTo("Episode 1: Focus")
-        
+
         // The button should now say "Download" because it's added to the content bank
         composeTestRule.onNodeWithText("Download").assertIsDisplayed()
         composeTestRule.onNodeWithText("Download").assertIsEnabled()
@@ -133,7 +136,7 @@ class FeedManagementUiTest {
 
         // Assert: We are in the drill-down view
         composeTestRule.onNodeWithText("Title").assertIsDisplayed()
-        
+
         // Act: Click "Back"
         composeTestRule.onNodeWithText("Back").performClick()
         composeTestRule.waitForIdle()

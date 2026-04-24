@@ -85,7 +85,8 @@ class GatekeeperStateManagerTest {
         val downloadStatusAdapter =
             object : ColumnAdapter<com.aegisgatekeeper.app.domain.DownloadStatus, String> {
                 override fun decode(databaseValue: String): com.aegisgatekeeper.app.domain.DownloadStatus =
-                    com.aegisgatekeeper.app.domain.DownloadStatus.valueOf(databaseValue)
+                    com.aegisgatekeeper.app.domain.DownloadStatus
+                        .valueOf(databaseValue)
 
                 override fun encode(value: com.aegisgatekeeper.app.domain.DownloadStatus): String = value.name
             }
@@ -253,7 +254,7 @@ class GatekeeperStateManagerTest {
                 false,
                 false,
                 null,
-                com.aegisgatekeeper.app.domain.DownloadStatus.NONE
+                com.aegisgatekeeper.app.domain.DownloadStatus.NONE,
             )
             db.contentItemQueries.insert(
                 "2",
@@ -270,7 +271,7 @@ class GatekeeperStateManagerTest {
                 false,
                 false,
                 null,
-                com.aegisgatekeeper.app.domain.DownloadStatus.NONE
+                com.aegisgatekeeper.app.domain.DownloadStatus.NONE,
             )
             db.contentItemQueries.insert(
                 "3",
@@ -287,7 +288,7 @@ class GatekeeperStateManagerTest {
                 false,
                 false,
                 null,
-                com.aegisgatekeeper.app.domain.DownloadStatus.NONE
+                com.aegisgatekeeper.app.domain.DownloadStatus.NONE,
             )
 
             // Act
@@ -322,7 +323,7 @@ class GatekeeperStateManagerTest {
                 false,
                 false,
                 null,
-                com.aegisgatekeeper.app.domain.DownloadStatus.NONE
+                com.aegisgatekeeper.app.domain.DownloadStatus.NONE,
             )
             db.contentItemQueries.insert(
                 "2",
@@ -339,7 +340,7 @@ class GatekeeperStateManagerTest {
                 false,
                 false,
                 null,
-                com.aegisgatekeeper.app.domain.DownloadStatus.NONE
+                com.aegisgatekeeper.app.domain.DownloadStatus.NONE,
             )
             db.contentItemQueries.insert(
                 "3",
@@ -356,7 +357,7 @@ class GatekeeperStateManagerTest {
                 false,
                 false,
                 null,
-                com.aegisgatekeeper.app.domain.DownloadStatus.NONE
+                com.aegisgatekeeper.app.domain.DownloadStatus.NONE,
             )
 
             // Act & Assert - countAll
@@ -533,28 +534,30 @@ class GatekeeperStateManagerTest {
                             isSynced = newItem.isSynced,
                             isDeleted = newItem.isDeleted,
                             localFilePath = newItem.localFilePath,
-                            downloadStatus = newItem.downloadStatus
+                            downloadStatus = newItem.downloadStatus,
                         )
                     }
 
                     is GatekeeperAction.DownloadCompleted,
                     is GatekeeperAction.DownloadMediaRequested,
                     is GatekeeperAction.DownloadFailed,
-                    is GatekeeperAction.DeleteDownloadedMedia -> {
-                        val actionId = when (action) {
-                            is GatekeeperAction.DownloadMediaRequested -> action.id
-                            is GatekeeperAction.DownloadCompleted -> action.id
-                            is GatekeeperAction.DownloadFailed -> action.id
-                            is GatekeeperAction.DeleteDownloadedMedia -> action.id
-                            else -> null
-                        }
+                    is GatekeeperAction.DeleteDownloadedMedia,
+                    -> {
+                        val actionId =
+                            when (action) {
+                                is GatekeeperAction.DownloadMediaRequested -> action.id
+                                is GatekeeperAction.DownloadCompleted -> action.id
+                                is GatekeeperAction.DownloadFailed -> action.id
+                                is GatekeeperAction.DeleteDownloadedMedia -> action.id
+                                else -> null
+                            }
                         val item = newState.contentItems.find { it.id == actionId }
                         if (item != null) {
                             db.contentItemQueries.updateDownloadStatus(
                                 downloadStatus = item.downloadStatus,
                                 localFilePath = item.localFilePath,
                                 lastModified = System.currentTimeMillis(),
-                                id = item.id
+                                id = item.id,
                             )
                         }
                     }

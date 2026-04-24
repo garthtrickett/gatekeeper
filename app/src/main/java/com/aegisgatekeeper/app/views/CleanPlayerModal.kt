@@ -307,7 +307,7 @@ actual fun CleanPlayerModal(
                                     GatekeeperStateManager.dispatch(GatekeeperAction.TriggerMetacognition("CleanPlayer: YouTube", duration))
                                     onStop()
                                 },
-                                onStateChangeCallback = { state -> 
+                                onStateChangeCallback = { state ->
                                     playerStateCallback(state)
                                     if (state == 2 || state == 0) { // PAUSED or ENDED
                                         GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(videoId, currentPosition))

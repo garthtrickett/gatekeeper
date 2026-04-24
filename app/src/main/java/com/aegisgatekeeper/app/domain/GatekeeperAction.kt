@@ -73,9 +73,13 @@ sealed interface GatekeeperAction {
         val currentTimestamp: Long,
     ) : GatekeeperAction
 
-    data class SearchPodcastsRequested(val query: String) : GatekeeperAction
+    data class SearchPodcastsRequested(
+        val query: String,
+    ) : GatekeeperAction
 
-    data class PodcastSearchCompleted(val results: List<com.aegisgatekeeper.app.api.PodcastFeedDto>) : GatekeeperAction
+    data class PodcastSearchCompleted(
+        val results: List<com.aegisgatekeeper.app.api.PodcastFeedDto>,
+    ) : GatekeeperAction
 
     data class ProcessPodcastUrl(
         val url: String,
@@ -146,11 +150,27 @@ sealed interface GatekeeperAction {
         val filter: ContentType?,
     ) : GatekeeperAction
 
-    data class DownloadMediaRequested(val id: String) : GatekeeperAction
-    data class DownloadProgressUpdated(val id: String, val progress: Float) : GatekeeperAction
-    data class DownloadCompleted(val id: String, val localFilePath: String) : GatekeeperAction
-    data class DownloadFailed(val id: String) : GatekeeperAction
-    data class DeleteDownloadedMedia(val id: String) : GatekeeperAction
+    data class DownloadMediaRequested(
+        val id: String,
+    ) : GatekeeperAction
+
+    data class DownloadProgressUpdated(
+        val id: String,
+        val progress: Float,
+    ) : GatekeeperAction
+
+    data class DownloadCompleted(
+        val id: String,
+        val localFilePath: String,
+    ) : GatekeeperAction
+
+    data class DownloadFailed(
+        val id: String,
+    ) : GatekeeperAction
+
+    data class DeleteDownloadedMedia(
+        val id: String,
+    ) : GatekeeperAction
 
     // --- Layer 5: Clean Room Media Engines ---
     data class SearchYouTubeRequested(

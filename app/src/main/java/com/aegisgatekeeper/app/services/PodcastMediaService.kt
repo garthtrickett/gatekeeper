@@ -15,14 +15,18 @@ class PodcastMediaService : MediaSessionService() {
 
     override fun onCreate() {
         super.onCreate()
-        val cacheDataSourceFactory = CacheDataSource.Factory()
-            .setCache(App.downloadCache)
-            .setUpstreamDataSourceFactory(DefaultHttpDataSource.Factory())
-            .setCacheWriteDataSinkFactory(null) // Do not write to cache during playback, let DownloadManager handle it
+        val cacheDataSourceFactory =
+            CacheDataSource
+                .Factory()
+                .setCache(App.downloadCache)
+                .setUpstreamDataSourceFactory(DefaultHttpDataSource.Factory())
+                .setCacheWriteDataSinkFactory(null) // Do not write to cache during playback, let DownloadManager handle it
 
-        val player = ExoPlayer.Builder(this)
-            .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSourceFactory))
-            .build()
+        val player =
+            ExoPlayer
+                .Builder(this)
+                .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSourceFactory))
+                .build()
         mediaSession = MediaSession.Builder(this, player).build()
     }
 

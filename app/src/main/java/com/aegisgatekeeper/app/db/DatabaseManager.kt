@@ -41,7 +41,8 @@ object DatabaseManager {
     private val downloadStatusAdapter =
         object : ColumnAdapter<com.aegisgatekeeper.app.domain.DownloadStatus, String> {
             override fun decode(databaseValue: String): com.aegisgatekeeper.app.domain.DownloadStatus =
-                com.aegisgatekeeper.app.domain.DownloadStatus.valueOf(databaseValue)
+                com.aegisgatekeeper.app.domain.DownloadStatus
+                    .valueOf(databaseValue)
 
             override fun encode(value: com.aegisgatekeeper.app.domain.DownloadStatus): String = value.name
         }

@@ -63,16 +63,20 @@ fun CleanYouTubeScreen() {
                 Column(horizontalAlignment = Alignment.End) {
                     IndustrialButton(
                         onClick = {
-                            GatekeeperStateManager.dispatch(GatekeeperAction.OpenPinnedWebsite("https://accounts.google.com/ServiceLogin?service=youtube&continue=https://www.youtube.com"))
+                            GatekeeperStateManager.dispatch(
+                                GatekeeperAction.OpenPinnedWebsite(
+                                    "https://accounts.google.com/ServiceLogin?service=youtube&continue=https://www.youtube.com",
+                                ),
+                            )
                         },
                         text = "Authenticate",
-                        isWarning = true
+                        isWarning = true,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         "Login to stop Bot checks",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

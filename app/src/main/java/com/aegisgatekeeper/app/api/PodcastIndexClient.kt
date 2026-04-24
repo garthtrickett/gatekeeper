@@ -18,18 +18,19 @@ import java.security.MessageDigest
 
 @Serializable
 data class PodcastSearchResponse(
-    @SerialName("feeds") val feeds: List<PodcastFeedDto> = emptyList()
+    @SerialName("feeds") val feeds: List<PodcastFeedDto> = emptyList(),
 )
 
 object PodcastIndexClient {
     private const val API_KEY = "DUMMY_KEY"
     private const val API_SECRET = "DUMMY_SECRET"
 
-    internal var client = HttpClient(OkHttp) {
-        install(ContentNegotiation) {
-            json(Json { ignoreUnknownKeys = true })
+    internal var client =
+        HttpClient(OkHttp) {
+            install(ContentNegotiation) {
+                json(Json { ignoreUnknownKeys = true })
+            }
         }
-    }
 
     suspend fun searchPodcasts(query: String): Either<String, List<PodcastFeedDto>> {
         if (query.isBlank()) return emptyList<PodcastFeedDto>().right()
@@ -40,13 +41,14 @@ object PodcastIndexClient {
             val hash = MessageDigest.getInstance("SHA-1").digest(data4Hash.toByteArray())
             val authHeader = hash.joinToString("") { "%02x".format(it) }
 
-            val response = client.get("https://api.podcastindex.org/api/1.0/search/byterm") {
-                header("X-Auth-Key", API_KEY)
-                header("X-Auth-Date", unixTime)
-                header("Authorization", authHeader)
-                header("User-Agent", "AegisGatekeeper/1.0")
-                parameter("q", query)
-            }
+            val response =
+                client.get("https://api.podcastindex.org/api/1.0/search/byterm") {
+                    header("X-Auth-Key", API_KEY)
+                    header("X-Auth-Date", unixTime)
+                    header("Authorization", authHeader)
+                    header("User-Agent", "AegisGatekeeper/1.0")
+                    parameter("q", query)
+                }
             if (response.status.value in 200..299) {
                 response.body<PodcastSearchResponse>().feeds.right()
             } else {

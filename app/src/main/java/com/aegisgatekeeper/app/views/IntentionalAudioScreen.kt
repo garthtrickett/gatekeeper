@@ -163,7 +163,9 @@ fun IntentionalContentScreen() {
                                                 }
 
                                                 com.aegisgatekeeper.app.domain.ContentType.AUDIO -> {
-                                                    if (item.contentItem.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
+                                                    if (item.contentItem.source ==
+                                                        com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD
+                                                    ) {
                                                         GatekeeperStateManager.dispatch(
                                                             GatekeeperAction.OpenCleanAudioPlayer(item.contentItem.videoId),
                                                         )
@@ -573,7 +575,7 @@ fun CleanAudioPlayerModal(
                                         )
                                         onStop()
                                     },
-                                    onStateChangeCallback = { state -> 
+                                    onStateChangeCallback = { state ->
                                         playerStateCallback(state)
                                         if (state == 2 || state == 0) { // PAUSED or ENDED
                                             GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(url, currentPosition))

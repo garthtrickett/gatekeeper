@@ -35,7 +35,7 @@ object RssClient {
                     connection.requestMethod = "GET"
                     connection.setRequestProperty(
                         "User-Agent",
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
                     )
                     connection.setRequestProperty("Accept", "application/rss+xml, application/xml, text/xml, */*")
                     connection.connectTimeout = 15000
@@ -64,7 +64,9 @@ object RssClient {
                 // Basic parsing using highly predictable regex for standard RSS structure
                 val channelTitle =
                     Regex("<title>(.*?)</title>", RegexOption.DOT_MATCHES_ALL)
-                        .find(xml)?.groupValues?.get(1)
+                        .find(xml)
+                        ?.groupValues
+                        ?.get(1)
                         ?.replace("<!\\[CDATA\\[".toRegex(), "")
                         ?.replace("]]>".toRegex(), "")
                         ?.trim() ?: "Unknown Podcast"
@@ -81,13 +83,23 @@ object RssClient {
                             val itemXml = match.groupValues[1]
                             val title =
                                 Regex("<title>(.*?)</title>", RegexOption.DOT_MATCHES_ALL)
-                                    .find(itemXml)?.groupValues?.get(1)
+                                    .find(itemXml)
+                                    ?.groupValues
+                                    ?.get(1)
                                     ?.replace("<!\\[CDATA\\[".toRegex(), "")
                                     ?.replace("]]>".toRegex(), "")
                                     ?.trim()
-                            
-                            val enclosure = Regex("<enclosure[^>]*?url=[\"']([^\"']+)[\"']", RegexOption.IGNORE_CASE).find(itemXml)?.groupValues?.get(1)
-                            val durationStr = Regex("<itunes:duration[^>]*>(.*?)</itunes:duration>", RegexOption.IGNORE_CASE).find(itemXml)?.groupValues?.get(1)
+
+                            val enclosure =
+                                Regex(
+                                    "<enclosure[^>]*?url=[\"']([^\"']+)[\"']",
+                                    RegexOption.IGNORE_CASE,
+                                ).find(itemXml)?.groupValues?.get(1)
+                            val durationStr =
+                                Regex(
+                                    "<itunes:duration[^>]*>(.*?)</itunes:duration>",
+                                    RegexOption.IGNORE_CASE,
+                                ).find(itemXml)?.groupValues?.get(1)
                             val pubDate = Regex("<pubDate[^>]*>(.*?)</pubDate>", RegexOption.IGNORE_CASE).find(itemXml)?.groupValues?.get(1)
 
                             if (title != null && enclosure != null) {

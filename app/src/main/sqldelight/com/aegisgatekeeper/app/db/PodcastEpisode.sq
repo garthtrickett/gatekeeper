@@ -1,0 +1,25 @@
+CREATE TABLE IF NOT EXISTS PodcastEpisode (
+    id TEXT NOT NULL PRIMARY KEY,
+    podcastId TEXT NOT NULL,
+    title TEXT NOT NULL,
+    audioUrl TEXT NOT NULL,
+    durationSeconds INTEGER,
+    pubDate TEXT,
+    lastModified INTEGER NOT NULL,
+    FOREIGN KEY (podcastId) REFERENCES PodcastSubscription(id) ON DELETE CASCADE
+);
+
+insertOrReplace:
+INSERT OR REPLACE INTO PodcastEpisode(id, podcastId, title, audioUrl, durationSeconds, pubDate, lastModified)
+VALUES (:id, :podcastId, :title, :audioUrl, :durationSeconds, :pubDate, :lastModified);
+
+selectAllForPodcast:
+SELECT * FROM PodcastEpisode WHERE podcastId = :podcastId ORDER BY lastModified DESC, id DESC;
+
+deleteAllForPodcast:
+DELETE FROM PodcastEpisode WHERE podcastId = :podcastId;
+
+deleteOldEpisodes:
+DELETE FROM PodcastEpisode WHERE podcastId = :podcastId AND id NOT IN (
+    SELECT id FROM PodcastEpisode WHERE podcastId = :podcastId ORDER BY lastModified DESC, id DESC LIMIT :keepCount
+);

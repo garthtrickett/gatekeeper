@@ -387,8 +387,12 @@ class ContentBankUiTest {
 
         // Assert: The state manager should now have an active native media item
         val state = GatekeeperStateManager.state.value
-        com.google.common.truth.Truth.assertThat(state.activeNativeMediaItem).isNotNull()
-        com.google.common.truth.Truth.assertThat(state.activeNativeMediaItem!!.title).isEqualTo("Test Podcast Episode")
+        com.google.common.truth.Truth
+            .assertThat(state.activeNativeMediaItem)
+            .isNotNull()
+        com.google.common.truth.Truth
+            .assertThat(state.activeNativeMediaItem!!.title)
+            .isEqualTo("Test Podcast Episode")
 
         // Assert: The native modal UI should be visible
         composeTestRule.onNodeWithText("End Session").assertIsDisplayed()

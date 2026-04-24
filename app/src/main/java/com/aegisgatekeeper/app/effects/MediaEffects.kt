@@ -33,7 +33,7 @@ suspend fun handleMediaAndSystemEffects(
                 },
                 ifRight = { results ->
                     dispatch(GatekeeperAction.PodcastSearchCompleted(results))
-                }
+                },
             )
         }
 
@@ -44,6 +44,7 @@ suspend fun handleMediaAndSystemEffects(
                 MediaDownloader.enqueueDownload(item.id, item.videoId)
             }
         }
+
         is GatekeeperAction.DeleteDownloadedMedia -> {
             Log.d("Gatekeeper", "🗑️ Deleting offline media for ${action.id}")
             MediaDownloader.removeDownload(action.id)
@@ -85,7 +86,7 @@ suspend fun handleMediaAndSystemEffects(
                 },
                 ifRight = { data ->
                     dispatch(GatekeeperAction.PodcastEpisodesLoaded(data.episodes, action.podcastId))
-                }
+                },
             )
         }
 
@@ -101,7 +102,7 @@ suspend fun handleMediaAndSystemEffects(
                     durationSeconds = action.episode.durationSeconds,
                     channelName = action.podcastTitle,
                     podcastId = action.podcastId,
-                )
+                ),
             )
         }
 

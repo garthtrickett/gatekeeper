@@ -1,6 +1,10 @@
 package com.aegisgatekeeper.app
 
 import android.app.Application
+import androidx.media3.database.StandaloneDatabaseProvider
+import androidx.media3.datasource.cache.NoOpCacheEvictor
+import androidx.media3.datasource.cache.SimpleCache
+import androidx.media3.exoplayer.offline.DownloadManager
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -8,14 +12,9 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.aegisgatekeeper.app.sync.SyncWorker
-import java.util.concurrent.TimeUnit
-
-import androidx.media3.database.StandaloneDatabaseProvider
-import androidx.media3.datasource.cache.NoOpCacheEvictor
-import androidx.media3.datasource.cache.SimpleCache
-import androidx.media3.exoplayer.offline.DownloadManager
 import java.io.File
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class App :
     Application(),
@@ -45,12 +44,14 @@ class App :
         val downloadDirectory = File(getExternalFilesDir(null), "downloads")
         downloadCache = SimpleCache(downloadDirectory, NoOpCacheEvictor(), databaseProvider)
 
-        downloadManager = DownloadManager(
-            this,
-            databaseProvider,
-            downloadCache,
-            androidx.media3.datasource.DefaultHttpDataSource.Factory(),
-            Executors.newFixedThreadPool(6)
-        )
+        downloadManager =
+            DownloadManager(
+                this,
+                databaseProvider,
+                downloadCache,
+                androidx.media3.datasource.DefaultHttpDataSource
+                    .Factory(),
+                Executors.newFixedThreadPool(6),
+            )
     }
 }

@@ -484,51 +484,64 @@ private fun reduceContentAndVault(
 
         is GatekeeperAction.DownloadMediaRequested -> {
             state.copy(
-                contentItems = state.contentItems.map {
-                    if (it.id == action.id) it.copy(downloadStatus = DownloadStatus.QUEUED) else it
-                }
+                contentItems =
+                    state.contentItems.map {
+                        if (it.id == action.id) it.copy(downloadStatus = DownloadStatus.QUEUED) else it
+                    },
             )
         }
 
         is GatekeeperAction.DownloadProgressUpdated -> {
             state.copy(
                 activeDownloads = state.activeDownloads + (action.id to action.progress),
-                contentItems = state.contentItems.map {
-                    if (it.id == action.id) it.copy(downloadStatus = DownloadStatus.DOWNLOADING) else it
-                }
+                contentItems =
+                    state.contentItems.map {
+                        if (it.id == action.id) it.copy(downloadStatus = DownloadStatus.DOWNLOADING) else it
+                    },
             )
         }
 
         is GatekeeperAction.DownloadCompleted -> {
             state.copy(
                 activeDownloads = state.activeDownloads - action.id,
-                contentItems = state.contentItems.map {
-                    if (it.id == action.id) it.copy(
-                        downloadStatus = DownloadStatus.COMPLETED,
-                        localFilePath = action.localFilePath
-                    ) else it
-                }
+                contentItems =
+                    state.contentItems.map {
+                        if (it.id == action.id) {
+                            it.copy(
+                                downloadStatus = DownloadStatus.COMPLETED,
+                                localFilePath = action.localFilePath,
+                            )
+                        } else {
+                            it
+                        }
+                    },
             )
         }
 
         is GatekeeperAction.DownloadFailed -> {
             state.copy(
                 activeDownloads = state.activeDownloads - action.id,
-                contentItems = state.contentItems.map {
-                    if (it.id == action.id) it.copy(downloadStatus = DownloadStatus.FAILED) else it
-                }
+                contentItems =
+                    state.contentItems.map {
+                        if (it.id == action.id) it.copy(downloadStatus = DownloadStatus.FAILED) else it
+                    },
             )
         }
 
         is GatekeeperAction.DeleteDownloadedMedia -> {
             state.copy(
                 activeDownloads = state.activeDownloads - action.id,
-                contentItems = state.contentItems.map {
-                    if (it.id == action.id) it.copy(
-                        downloadStatus = DownloadStatus.NONE,
-                        localFilePath = null
-                    ) else it
-                }
+                contentItems =
+                    state.contentItems.map {
+                        if (it.id == action.id) {
+                            it.copy(
+                                downloadStatus = DownloadStatus.NONE,
+                                localFilePath = null,
+                            )
+                        } else {
+                            it
+                        }
+                    },
             )
         }
 
@@ -783,16 +796,24 @@ private fun reduceSyncAndAuth(
                     val local = localContentMap[id]
                     val remote = remoteContentMap[id]
                     when {
-                        local != null && remote != null -> if (remote.lastModified > local.lastModified) {
-                            remote.copy(
-                                localFilePath = local.localFilePath,
-                                downloadStatus = local.downloadStatus
-                            )
-                        } else {
+                        local != null && remote != null -> {
+                            if (remote.lastModified > local.lastModified) {
+                                remote.copy(
+                                    localFilePath = local.localFilePath,
+                                    downloadStatus = local.downloadStatus,
+                                )
+                            } else {
+                                local
+                            }
+                        }
+
+                        remote != null -> {
+                            remote
+                        }
+
+                        else -> {
                             local
                         }
-                        remote != null -> remote
-                        else -> local
                     }
                 }
 

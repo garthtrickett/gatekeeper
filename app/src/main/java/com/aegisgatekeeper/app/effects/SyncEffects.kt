@@ -36,7 +36,7 @@ fun handleSyncAndAuthEffects(
                         isResolved = it.isResolved,
                         lastModified = it.lastModified,
                         isSynced = true, // Mark as synced
-                        isDeleted = it.isDeleted
+                        isDeleted = it.isDeleted,
                     )
                 }
                 newState.contentItems.forEach {
@@ -55,7 +55,7 @@ fun handleSyncAndAuthEffects(
                         isSynced = true, // Mark as synced
                         isDeleted = it.isDeleted,
                         localFilePath = it.localFilePath,
-                        downloadStatus = it.downloadStatus
+                        downloadStatus = it.downloadStatus,
                     )
                 }
             }

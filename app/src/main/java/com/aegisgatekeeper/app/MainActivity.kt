@@ -197,7 +197,9 @@ class MainActivity : ComponentActivity() {
             GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanAudioPlayer(audioUrlToPlay))
         } else if (nativeAudioIdToPlay != null) {
             android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Native Audio Player (ID: $nativeAudioIdToPlay)")
-            val item = GatekeeperStateManager.state.value.contentItems.find { it.id == nativeAudioIdToPlay }
+            val item =
+                GatekeeperStateManager.state.value.contentItems
+                    .find { it.id == nativeAudioIdToPlay }
             if (item != null) {
                 GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
             }

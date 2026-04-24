@@ -2,7 +2,6 @@ package com.aegisgatekeeper.app.views
 
 import android.content.ComponentName
 import androidx.compose.foundation.background
-import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -118,6 +118,7 @@ fun NativeAudioPlayerModal(
                             override fun onIsPlayingChanged(isPlayingState: Boolean) {
                                 isPlaying = isPlayingState
                             }
+
                             override fun onPlaybackStateChanged(playbackState: Int) {
                                 isBuffering = playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_IDLE
                             }
@@ -234,7 +235,12 @@ fun NativeAudioPlayerModal(
                         ) {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 IndustrialButton(onClick = {
-                                    GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(contentItem.videoId, currentPosition / 1000f))
+                                    GatekeeperStateManager.dispatch(
+                                        GatekeeperAction.SaveMediaPosition(
+                                            contentItem.videoId,
+                                            currentPosition / 1000f,
+                                        ),
+                                    )
                                     onMinimize()
                                 }, text = "Minimize")
                                 IndustrialButton(onClick = { showMetacognition = true }, text = "End Session", isWarning = true)
@@ -272,10 +278,11 @@ fun NativeAudioPlayerModal(
                                         selected = true,
                                         onClick = {},
                                         label = { Text("OFFLINE", fontSize = 10.sp, fontWeight = FontWeight.Bold) },
-                                        colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
-                                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                                        )
+                                        colors =
+                                            androidx.compose.material3.FilterChipDefaults.filterChipColors(
+                                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                            ),
                                     )
                                 }
                             }

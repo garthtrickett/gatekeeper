@@ -8,5 +8,5 @@ data class PodcastFeedDto(
     val title: String,
     val url: String,
     val image: String? = null,
-    val author: String? = null
+    val author: String? = null,
 )

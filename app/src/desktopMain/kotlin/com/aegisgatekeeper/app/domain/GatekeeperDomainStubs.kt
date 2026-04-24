@@ -45,6 +45,19 @@ data class PodcastSubscription(
     val isDeleted: Boolean = false,
 )
 
+data class CachedEpisode(
+    val id: String =
+        java.util.UUID
+            .randomUUID()
+            .toString(),
+    val podcastId: String,
+    val title: String,
+    val audioUrl: String,
+    val durationSeconds: Long?,
+    val pubDate: String?,
+    val lastModified: Long = System.currentTimeMillis(),
+)
+
 data class PinnedWebsite(
     val id: String,
     val label: String,
@@ -222,11 +235,27 @@ sealed interface GatekeeperAction {
 
     object ClosePinnedWebsite : GatekeeperAction
 
-    data class DownloadMediaRequested(val id: String) : GatekeeperAction
-    data class DownloadProgressUpdated(val id: String, val progress: Float) : GatekeeperAction
-    data class DownloadCompleted(val id: String, val localFilePath: String) : GatekeeperAction
-    data class DownloadFailed(val id: String) : GatekeeperAction
-    data class DeleteDownloadedMedia(val id: String) : GatekeeperAction
+    data class DownloadMediaRequested(
+        val id: String,
+    ) : GatekeeperAction
+
+    data class DownloadProgressUpdated(
+        val id: String,
+        val progress: Float,
+    ) : GatekeeperAction
+
+    data class DownloadCompleted(
+        val id: String,
+        val localFilePath: String,
+    ) : GatekeeperAction
+
+    data class DownloadFailed(
+        val id: String,
+    ) : GatekeeperAction
+
+    data class DeleteDownloadedMedia(
+        val id: String,
+    ) : GatekeeperAction
 }
 
 fun isVaultUnlocked(currentTime: LocalTime): Boolean {
