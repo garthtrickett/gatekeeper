@@ -35,24 +35,24 @@ data class YoutubeSearchItem(
 
 @Serializable
 data class ItemId(
-    @SerialName("videoId") val videoId: String,
+    @SerialName("videoId") val videoId: String = "",
 )
 
 @Serializable
 data class YoutubeSnippet(
-    @SerialName("title") val title: String,
-    @SerialName("channelTitle") val channelTitle: String,
-    @SerialName("thumbnails") val thumbnails: Thumbnails,
+    @SerialName("title") val title: String = "",
+    @SerialName("channelTitle") val channelTitle: String = "",
+    @SerialName("thumbnails") val thumbnails: Thumbnails = Thumbnails(),
 )
 
 @Serializable
 data class Thumbnails(
-    @SerialName("high") val high: ThumbnailInfo,
+    @SerialName("high") val high: ThumbnailInfo = ThumbnailInfo(),
 )
 
 @Serializable
 data class ThumbnailInfo(
-    @SerialName("url") val url: String,
+    @SerialName("url") val url: String = "",
 )
 
 @Serializable

@@ -62,7 +62,11 @@ object YoutubeApiClient {
                         parameter("videoDuration", "medium") // or "long"
                     }
             when (response.status.value) {
-                in 200..299 -> response.body<YoutubeSearchResponse>().right()
+                in 200..299 -> {
+                    val searchResponse = response.body<YoutubeSearchResponse>()
+                    val validItems = searchResponse.items.filter { it.id.videoId.isNotBlank() }
+                    YoutubeSearchResponse(validItems).right()
+                }
                 403, 429 -> YoutubeError.RateLimitExceeded.left()
                 404 -> YoutubeError.VideoNotFound.left()
                 else -> YoutubeError.UnknownError(response.status.value).left()
