@@ -37,9 +37,6 @@ class GatekeeperDownloadService :
                     finalException: Exception?,
                 ) {
                     when (download.state) {
-                        Download.STATE_QUEUED -> {
-                            GatekeeperStateManager.dispatch(GatekeeperAction.DownloadMediaRequested(download.request.id))
-                        }
                         Download.STATE_DOWNLOADING -> {
                             val pct = if (download.percentDownloaded == -1f) 0f else download.percentDownloaded
                             GatekeeperStateManager.dispatch(
