@@ -265,7 +265,7 @@ private fun PodcastEpisodesView(state: GatekeeperState, onDismiss: () -> Unit) {
                                 val progress = state.activeDownloads[contentItem.id] ?: 0f
                                 if (status == com.aegisgatekeeper.app.domain.DownloadStatus.DOWNLOADING || status == com.aegisgatekeeper.app.domain.DownloadStatus.QUEUED) {
                                     androidx.compose.foundation.layout.Box(contentAlignment = Alignment.Center, modifier = Modifier.size(64.dp)) {
-                                        androidx.compose.material3.CircularProgressIndicator(progress = { progress / 100f }, color = MaterialTheme.colorScheme.primary)
+                                        androidx.compose.material3.CircularProgressIndicator(progress = progress / 100f, color = MaterialTheme.colorScheme.primary)
                                     }
                                 } else if (status == com.aegisgatekeeper.app.domain.DownloadStatus.COMPLETED) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {

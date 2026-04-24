@@ -492,7 +492,7 @@ private fun ContentItemCard(
                             val progress = state.activeDownloads[item.id] ?: 0f
                             if (status == com.aegisgatekeeper.app.domain.DownloadStatus.DOWNLOADING || status == com.aegisgatekeeper.app.domain.DownloadStatus.QUEUED) {
                                 androidx.compose.foundation.layout.Box(contentAlignment = Alignment.Center, modifier = Modifier.size(40.dp)) {
-                                    androidx.compose.material3.CircularProgressIndicator(progress = { progress / 100f }, color = MaterialTheme.colorScheme.primary, strokeWidth = 2.dp)
+                                    androidx.compose.material3.CircularProgressIndicator(progress = progress / 100f, color = MaterialTheme.colorScheme.primary, strokeWidth = 2.dp)
                                 }
                             } else if (status == com.aegisgatekeeper.app.domain.DownloadStatus.COMPLETED) {
                                 Text("✅", modifier = Modifier.padding(end = 8.dp))

@@ -73,10 +73,6 @@ data class VaultItem(
     val isDeleted: Boolean = false,
 )
 
-enum class DownloadStatus {
-    NONE, QUEUED, DOWNLOADING, COMPLETED, FAILED
-}
-
 data class ContentItem(
     val id: String =
         java.util.UUID

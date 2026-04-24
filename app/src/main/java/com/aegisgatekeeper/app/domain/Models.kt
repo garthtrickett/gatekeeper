@@ -85,10 +85,6 @@ data class PodcastSubscription(
     val isDeleted: Boolean = false,
 )
 
-enum class DownloadStatus {
-    NONE, QUEUED, DOWNLOADING, COMPLETED, FAILED
-}
-
 /**
  * Represents a piece of curated media saved to the Content Bank.
  */

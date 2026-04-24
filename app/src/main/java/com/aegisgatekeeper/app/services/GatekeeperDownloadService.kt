@@ -45,6 +45,10 @@ class GatekeeperDownloadService : DownloadService(
         return manager
     }
 
+    override fun getScheduler(): androidx.media3.exoplayer.scheduler.Scheduler? {
+        return null
+    }
+
     override fun getForegroundNotification(
         downloads: MutableList<Download>,
         notMetRequirements: Int

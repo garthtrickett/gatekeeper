@@ -39,6 +39,8 @@ enum class FrictionGame { GAUNTLET, HOLD_STEADY }
 
 enum class Emotion { HAPPY, ANXIOUS, DRAINED, SKIPPED }
 
+enum class DownloadStatus { NONE, QUEUED, DOWNLOADING, COMPLETED, FAILED }
+
 // 1. Color Palette
 private val Charcoal = Color(0xFF121212)
 private val SafetyOrange = Color(0xFFFF9800)
