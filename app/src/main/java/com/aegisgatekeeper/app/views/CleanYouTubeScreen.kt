@@ -90,6 +90,7 @@ fun CleanYouTubeDialog(onDismiss: () -> Unit) {
                                     "https://accounts.google.com/ServiceLogin?service=youtube&continue=https://m.youtube.com"
                                 )
                             )
+                            onDismiss()
                         },
                         text = "Auth",
                         isWarning = true,
