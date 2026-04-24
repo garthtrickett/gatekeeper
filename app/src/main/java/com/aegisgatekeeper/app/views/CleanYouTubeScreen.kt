@@ -1,24 +1,16 @@
 package com.aegisgatekeeper.app.views
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,26 +22,38 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.aegisgatekeeper.app.GatekeeperStateManager
-import com.aegisgatekeeper.app.api.YoutubeSearchItem
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.IndustrialButton
 import com.aegisgatekeeper.app.domain.IndustrialTextField
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
+
+class YouTubeSurgicalBridge {
+    @android.webkit.JavascriptInterface
+    fun saveVideo(videoId: String, title: String, channel: String) {
+        GatekeeperStateManager.dispatch(
+            GatekeeperAction.SaveToContentBank(
+                videoId = videoId,
+                title = title,
+                channelName = channel,
+                source = com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE,
+                type = com.aegisgatekeeper.app.domain.ContentType.VIDEO,
+                currentTimestamp = System.currentTimeMillis()
+            )
+        )
+    }
+}
 
 @Suppress("FunctionName")
 @Composable
 fun CleanYouTubeScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
     var query by remember { mutableStateOf("") }
+    var currentUrl by remember { mutableStateOf("https://m.youtube.com") }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Column(modifier = Modifier.fillMaxSize().padding(top = 16.dp, start = 16.dp, end = 16.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text("Surgical Search", style = MaterialTheme.typography.headlineLarge)
@@ -65,8 +69,8 @@ fun CleanYouTubeScreen() {
                         onClick = {
                             GatekeeperStateManager.dispatch(
                                 GatekeeperAction.OpenPinnedWebsite(
-                                    "https://accounts.google.com/ServiceLogin?service=youtube&continue=https://www.youtube.com",
-                                ),
+                                    "https://accounts.google.com/ServiceLogin?service=youtube&continue=https://m.youtube.com"
+                                )
                             )
                         },
                         text = "Authenticate",
@@ -82,99 +86,116 @@ fun CleanYouTubeScreen() {
             }
             Spacer(modifier = Modifier.height(24.dp))
 
-            IndustrialTextField(
-                value = query,
-                onValueChange = { query = it },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Search for intentional content...") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions =
-                    KeyboardActions(
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                IndustrialTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    modifier = Modifier.weight(1f),
+                    label = { Text("Search YouTube...") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(
                         onSearch = {
                             if (query.isNotBlank()) {
-                                GatekeeperStateManager.dispatch(GatekeeperAction.SearchYouTubeRequested(query))
+                                currentUrl = "https://m.youtube.com/results?search_query=${java.net.URLEncoder.encode(query, "UTF-8")}"
                             }
-                        },
-                    ),
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            if (state.isLoadingYouTube) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            } else if (state.youtubeSearchResults.isNotEmpty()) {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    items(state.youtubeSearchResults, key = { it.id.videoId }) { item ->
-                        YouTubeResultItem(item = item) {
-                            GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanPlayer(item.id.videoId))
                         }
-                    }
-                }
-            } else if (query.isNotBlank()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        "No results to display.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                    ),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                IndustrialButton(
+                    onClick = {
+                        if (query.isNotBlank()) {
+                            currentUrl = "https://m.youtube.com/results?search_query=${java.net.URLEncoder.encode(query, "UTF-8")}"
+                        }
+                    },
+                    text = "Search",
+                    enabled = query.isNotBlank()
+                )
             }
-        }
-    }
-}
 
-@Suppress("FunctionName")
-@Composable
-fun YouTubeResultItem(
-    item: YoutubeSearchItem,
-    onClick: () -> Unit,
-) {
-    Card(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-    ) {
-        Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            KamelImage(
-                resource = asyncPainterResource(data = item.snippet.thumbnails.high.url),
-                contentDescription = "Thumbnail for ${item.snippet.title}",
-                modifier =
-                    Modifier
-                        .width(120.dp)
-                        .aspectRatio(16f / 9f),
-                contentScale = ContentScale.Crop,
+            Spacer(modifier = Modifier.height(16.dp))
+
+            val bridge = remember { YouTubeSurgicalBridge() }
+            BaseSurgicalWebView(
+                url = currentUrl,
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                cssInjector = {
+                    """
+                    .theme-header, 
+                    ytm-mobile-topbar-renderer, 
+                    ytm-pivot-bar-renderer, 
+                    ytm-reel-shelf-renderer, 
+                    ytm-item-section-renderer[section-identifier="related-searches"],
+                    ytm-chip-cloud-renderer { display: none !important; }
+                    """.trimIndent()
+                },
+                jsInterfaceObj = bridge,
+                jsInterfaceName = "GatekeeperBridge",
+                jsInjector = {
+                    """
+                    (function() {
+                        if (window.gatekeeperObserver) return;
+                        
+                        function injectButtons() {
+                            var videos = document.querySelectorAll('ytm-video-with-context-renderer');
+                            videos.forEach(function(video) {
+                                if (video.querySelector('.gatekeeper-add-btn')) return;
+                                
+                                var a = video.querySelector('a');
+                                if (!a || !a.href) return;
+                                
+                                var href = a.href;
+                                var videoIdMatch = href.match(/[?&]v=([^&]+)/);
+                                if (!videoIdMatch) return;
+                                var videoId = videoIdMatch[1];
+                                
+                                var titleEl = video.querySelector('.media-item-headline');
+                                var title = titleEl ? titleEl.innerText : 'Unknown Video';
+                                
+                                var channelEl = video.querySelector('.bidi-matching-text');
+                                var channel = channelEl ? channelEl.innerText : '';
+                                
+                                var btn = document.createElement('button');
+                                btn.className = 'gatekeeper-add-btn';
+                                btn.innerText = '+ Add to Bank';
+                                btn.style.width = '100%';
+                                btn.style.padding = '12px';
+                                btn.style.marginTop = '8px';
+                                btn.style.backgroundColor = '#4AF626';
+                                btn.style.color = '#121212';
+                                btn.style.border = 'none';
+                                btn.style.borderRadius = '4px';
+                                btn.style.fontWeight = 'bold';
+                                btn.style.fontFamily = 'monospace';
+                                btn.style.fontSize = '14px';
+                                
+                                btn.onclick = function(e) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (window.GatekeeperBridge) {
+                                        window.GatekeeperBridge.saveVideo(videoId, title, channel);
+                                        btn.innerText = 'Added ✓';
+                                        btn.style.backgroundColor = '#888888';
+                                        btn.disabled = true;
+                                    }
+                                };
+                                
+                                video.appendChild(btn);
+                            });
+                        }
+                        
+                        window.gatekeeperObserver = new MutationObserver(function(mutations) {
+                            injectButtons();
+                        });
+                        
+                        window.gatekeeperObserver.observe(document.body, { childList: true, subtree: true });
+                        injectButtons();
+                    })();
+                    """.trimIndent()
+                },
+                networkBlocklist = emptyList()
             )
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                val decodedTitle =
-                    item.snippet.title
-                        .replace("&amp;", "&")
-                        .replace("&#39;", "'")
-                        .replace("&quot;", "\"")
-                        .replace("&lt;", "<")
-                        .replace("&gt;", ">")
-
-                Text(
-                    text = decodedTitle,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = item.snippet.channelTitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
         }
     }
 }

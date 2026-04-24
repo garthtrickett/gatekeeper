@@ -95,7 +95,6 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
     var pendingFilterAction by remember { mutableStateOf<(() -> Unit)?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
     var showFeedManagement by remember { mutableStateOf(false) }
-    var showYouTubeSearch by remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -125,7 +124,6 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     if (searchQuery.isNotEmpty()) {
                         IndustrialButton(onClick = { searchQuery = "" }, text = "Clear")
                     }
-                    IndustrialButton(onClick = { showYouTubeSearch = true }, text = "YouTube")
                     IndustrialButton(onClick = { showFeedManagement = true }, text = "Podcasts")
                 }
 
@@ -339,110 +337,6 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
 
         if (showFeedManagement) {
             FeedManagementDialog(onDismiss = { showFeedManagement = false })
-        }
-
-        if (showYouTubeSearch) {
-            YouTubeSearchDialog(state = state, onDismiss = { showYouTubeSearch = false })
-        }
-    }
-}
-
-@Suppress("FunctionName")
-@Composable
-fun YouTubeSearchDialog(
-    state: com.aegisgatekeeper.app.domain.GatekeeperState,
-    onDismiss: () -> Unit,
-) {
-    var query by remember { mutableStateOf("") }
-    
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Surface(
-            shape = MaterialTheme.shapes.medium,
-            color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.fillMaxWidth().height(600.dp).padding(16.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Search YouTube", style = MaterialTheme.typography.titleLarge)
-                    IndustrialButton(onClick = onDismiss, text = "Close")
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IndustrialTextField(
-                        value = query,
-                        onValueChange = { query = it },
-                        label = { Text("Search...") },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                            imeAction = androidx.compose.ui.text.input.ImeAction.Search
-                        ),
-                        keyboardActions = androidx.compose.foundation.text.KeyboardActions(
-                            onSearch = {
-                                if (query.isNotBlank()) {
-                                    GatekeeperStateManager.dispatch(GatekeeperAction.SearchYouTubeRequested(query))
-                                }
-                            }
-                        )
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    IndustrialButton(
-                        onClick = {
-                            if (query.isNotBlank()) {
-                                GatekeeperStateManager.dispatch(GatekeeperAction.SearchYouTubeRequested(query))
-                            }
-                        },
-                        text = "Search",
-                        enabled = query.isNotBlank() && !state.isLoadingYouTube,
-                        isLoading = state.isLoadingYouTube
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                if (state.isLoadingYouTube) {
-                    Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        androidx.compose.material3.CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    }
-                } else if (state.youtubeSearchResults.isNotEmpty()) {
-                    LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        items(state.youtubeSearchResults, key = { it.id.videoId }) { item ->
-                            YouTubeResultItem(item = item) {
-                                GatekeeperStateManager.dispatch(
-                                    GatekeeperAction.SaveToContentBank(
-                                        videoId = item.id.videoId,
-                                        title = item.snippet.title,
-                                        channelName = item.snippet.channelTitle,
-                                        source = ContentSource.YOUTUBE,
-                                        type = ContentType.VIDEO,
-                                        currentTimestamp = System.currentTimeMillis(),
-                                        durationSeconds = null
-                                    )
-                                )
-                                onDismiss()
-                            }
-                        }
-                    }
-                } else if (query.isNotBlank()) {
-                    Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Text(
-                            "No results to display.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                } else {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            }
         }
     }
 }

@@ -492,42 +492,4 @@ class ContentBankUiTest {
         composeTestRule.onNodeWithText("Clear").assertDoesNotExist()
     }
 
-    @Test
-    fun testContentBank_InAppYouTubeSearch_AddsVideo() {
-        // Arrange: Mock the search results in the state manager
-        val mockResults = listOf(
-            com.aegisgatekeeper.app.api.YoutubeSearchItem(
-                id = com.aegisgatekeeper.app.api.ItemId("mock_vid_123"),
-                snippet = com.aegisgatekeeper.app.api.YoutubeSnippet(
-                    title = "In-App Search Result",
-                    channelTitle = "Mock Channel",
-                    thumbnails = com.aegisgatekeeper.app.api.Thumbnails(
-                        high = com.aegisgatekeeper.app.api.ThumbnailInfo("https://example.com/thumb.jpg")
-                    )
-                )
-            )
-        )
-        GatekeeperStateManager.dispatch(GatekeeperAction.YouTubeSearchCompleted(mockResults))
-
-        composeTestRule.setContent {
-            GatekeeperTheme {
-                ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
-            }
-        }
-
-        // Act: Open YouTube search dialog
-        composeTestRule.onNodeWithText("YouTube").performClick()
-        composeTestRule.waitForIdle()
-
-        // Assert: Dialog is displayed
-        composeTestRule.onNodeWithText("Search YouTube").assertIsDisplayed()
-
-        // Act: Click the mocked search result
-        composeTestRule.onNodeWithText("In-App Search Result").performClick()
-        composeTestRule.waitForIdle()
-
-        // Assert: Dialog closed and item added to bank
-        composeTestRule.onNodeWithText("Search YouTube").assertDoesNotExist()
-        composeTestRule.onNodeWithText("In-App Search Result").assertIsDisplayed()
-    }
 }

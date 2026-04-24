@@ -529,58 +529,6 @@ class GatekeeperReducerTest {
     // --- YouTube Reducer Tests ---
 
     @Test
-    fun testSearchYouTubeRequested_setsLoadingState() {
-        // Arrange
-        val action = GatekeeperAction.SearchYouTubeRequested("functional programming")
-
-        // Act
-        val newState = reduce(initialState, action)
-
-        // Assert
-        assertThat(newState.isLoadingYouTube).isTrue()
-        assertThat(newState.youtubeSearchResults).isEmpty()
-    }
-
-    @Test
-    fun testYouTubeSearchCompleted_populatesResults_clearsLoading() {
-        // Arrange
-        val stateBefore = initialState.copy(isLoadingYouTube = true)
-        val mockResults =
-            listOf(
-                YoutubeSearchItem(
-                    id = ItemId("videoId1"),
-                    snippet = YoutubeSnippet("Title 1", "Channel 1", Thumbnails(ThumbnailInfo("url1"))),
-                ),
-            )
-        val action = GatekeeperAction.YouTubeSearchCompleted(mockResults)
-
-        // Act
-        val newState = reduce(stateBefore, action)
-
-        // Assert
-        assertThat(newState.isLoadingYouTube).isFalse()
-        assertThat(newState.youtubeSearchResults).hasSize(1)
-        assertThat(
-            newState.youtubeSearchResults
-                .first()
-                .id.videoId,
-        ).isEqualTo("videoId1")
-    }
-
-    @Test
-    fun testYouTubeSearchFailed_clearsLoadingState() {
-        // Arrange
-        val stateBefore = initialState.copy(isLoadingYouTube = true)
-
-        // Act
-        val newState = reduce(stateBefore, GatekeeperAction.YouTubeSearchFailed(com.aegisgatekeeper.app.api.YoutubeError.RateLimitExceeded))
-
-        // Assert
-        assertThat(newState.isLoadingYouTube).isFalse()
-        assertThat(newState.youtubeSearchResults).isEmpty()
-    }
-
-    @Test
     fun testOpenSurgicalFacebook_updatesUrl() {
         val url = "https://m.facebook.com/groups/123"
         val action = GatekeeperAction.OpenSurgicalFacebook(url)

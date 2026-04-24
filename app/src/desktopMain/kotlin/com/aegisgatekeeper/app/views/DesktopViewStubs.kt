@@ -98,8 +98,6 @@ fun ContentBankScreen() {
                 com.aegisgatekeeper.app.domain
                     .IndustrialButton(onClick = { searchQuery = "" }, text = "Clear")
             }
-            com.aegisgatekeeper.app.domain
-                .IndustrialButton(onClick = { /* Not available on Desktop MVP */ }, text = "YouTube")
         }
 
         if (items.isEmpty()) {
