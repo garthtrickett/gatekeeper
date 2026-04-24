@@ -62,15 +62,13 @@ fun BaseSurgicalWebView(
                 
                 val isFacebook = url.contains("facebook.com", ignoreCase = true)
                 val isGoogle = url.contains("youtube.com", ignoreCase = true) || url.contains("google.com", ignoreCase = true)
-                
+
                 if (isFacebook) {
-                    // Facebook explicitly blocks Android WebViews from completing 2FA flows (throwing 404s) to prevent phishing.
-                    // Android WebViews inject an undeletable `X-Requested-With` header. 
-                    // Spoofing an iOS Safari User-Agent bypasses their Android-specific WAF entirely.
-                    settings.userAgentString = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1"
+                    // The www.facebook.com login page will redirect to m.facebook.com if it sees a mobile UA, creating a loop.
+                    // We force a Desktop UA for the entire session to break this cycle. The mobile site still renders fine.
+                    settings.userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
                 } else if (isGoogle) {
-                    // Completely mask the WebView to prevent Google from serving 404s or rejecting logins.
-                    // Both "; wv" and "Version/4.0 " are unique fingerprints of Android WebViews.
+                    // Google just checks for the presence of "; wv" and "Version/4.0"
                     settings.userAgentString = settings.userAgentString.replace("; wv", "").replace("Version/4.0 ", "")
                 }
 
