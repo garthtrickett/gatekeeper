@@ -79,4 +79,24 @@ class TimeUtilsTest {
         assertThat(parseIso8601Duration("P")).isEqualTo(0L)
         assertThat(parseIso8601Duration("")).isEqualTo(0L)
     }
+
+    @Test
+    fun testParseHumanReadableDuration() {
+        // Standard MM:SS
+        assertThat(parseHumanReadableDuration("10:30")).isEqualTo(630L)
+
+        // With Hours H:MM:SS
+        assertThat(parseHumanReadableDuration("1:10:30")).isEqualTo(4230L)
+
+        // Single-digit minutes/seconds M:SS
+        assertThat(parseHumanReadableDuration("4:05")).isEqualTo(245L)
+
+        // Seconds only SS
+        assertThat(parseHumanReadableDuration("45")).isEqualTo(45L)
+
+        // Edge cases
+        assertThat(parseHumanReadableDuration("")).isEqualTo(0L)
+        assertThat(parseHumanReadableDuration("abc")).isEqualTo(0L)
+        assertThat(parseHumanReadableDuration("Shorts")).isEqualTo(0L)
+    }
 }
