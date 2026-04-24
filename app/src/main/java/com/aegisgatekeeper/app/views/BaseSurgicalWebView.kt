@@ -118,7 +118,7 @@ fun BaseSurgicalWebView(
                                             style.id = styleId;
                                             document.head.appendChild(style);
                                         }
-                                        style.innerHTML = "$cleanCss";
+                                        style.textContent = "$cleanCss";
                                     })();
                                     """.trimIndent()
                                 view?.evaluateJavascript(js, null)

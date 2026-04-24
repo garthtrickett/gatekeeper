@@ -194,9 +194,9 @@ fun CleanYouTubeScreen() {
                                             btn.style.backgroundColor = '#888888';
                                             btn.disabled = true;
                                         }
-                                    };
-                                    
-                                    video.appendChild(btn);
+                                    var style = document.createElement('style'); 
+                                    style.textContent = '$css'; 
+                                    document.head.appendChild(style);
                                 });
                             }
                             
