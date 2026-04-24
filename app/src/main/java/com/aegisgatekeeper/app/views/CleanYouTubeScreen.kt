@@ -116,93 +116,108 @@ fun CleanYouTubeScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            val bridge = remember { YouTubeSurgicalBridge() }
-            BaseSurgicalWebView(
-                url = currentUrl,
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-                cssInjector = {
-                    """
-                    .theme-header, 
-                    ytm-mobile-topbar-renderer, 
-                    ytm-pivot-bar-renderer, 
-                    ytm-reel-shelf-renderer, 
-                    ytm-item-section-renderer[section-identifier="related-searches"],
-                    ytm-chip-cloud-renderer,
-                    .pivot-bar-container,
-                    [role="tablist"],
-                    a[href="/"],
-                    a[href^="/shorts"],
-                    a[href="/feed/subscriptions"],
-                    a[href="/feed/library"],
-                    a[href="/feed/you"] { display: none !important; }
-                    """.trimIndent()
-                },
-                jsInterfaceObj = bridge,
-                jsInterfaceName = "GatekeeperBridge",
-                jsInjector = {
-                    """
-                    (function() {
-                        if (window.gatekeeperObserver) return;
-                        
-                        function injectButtons() {
-                            var videos = document.querySelectorAll('ytm-video-with-context-renderer');
-                            videos.forEach(function(video) {
-                                if (video.querySelector('.gatekeeper-add-btn')) return;
-                                
-                                var a = video.querySelector('a');
-                                if (!a || !a.href) return;
-                                
-                                var href = a.href;
-                                var videoIdMatch = href.match(/[?&]v=([^&]+)/);
-                                if (!videoIdMatch) return;
-                                var videoId = videoIdMatch[1];
-                                
-                                var titleEl = video.querySelector('.media-item-headline');
-                                var title = titleEl ? titleEl.innerText : 'Unknown Video';
-                                
-                                var channelEl = video.querySelector('.bidi-matching-text');
-                                var channel = channelEl ? channelEl.innerText : '';
-                                
-                                var btn = document.createElement('button');
-                                btn.className = 'gatekeeper-add-btn';
-                                btn.innerText = '+ Add to Bank';
-                                btn.style.width = '100%';
-                                btn.style.padding = '12px';
-                                btn.style.marginTop = '8px';
-                                btn.style.backgroundColor = '#4AF626';
-                                btn.style.color = '#121212';
-                                btn.style.border = 'none';
-                                btn.style.borderRadius = '4px';
-                                btn.style.fontWeight = 'bold';
-                                btn.style.fontFamily = 'monospace';
-                                btn.style.fontSize = '14px';
-                                
-                                btn.onclick = function(e) {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    if (window.GatekeeperBridge) {
-                                        window.GatekeeperBridge.saveVideo(videoId, title, channel);
-                                        btn.innerText = 'Added ✓';
-                                        btn.style.backgroundColor = '#888888';
-                                        btn.disabled = true;
-                                    }
-                                };
-                                
-                                video.appendChild(btn);
+            if (currentUrl.isNotBlank()) {
+                val bridge = remember { YouTubeSurgicalBridge() }
+                BaseSurgicalWebView(
+                    url = currentUrl,
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    cssInjector = {
+                        """
+                        .theme-header, 
+                        ytm-mobile-topbar-renderer, 
+                        ytm-pivot-bar-renderer, 
+                        ytm-reel-shelf-renderer, 
+                        ytm-item-section-renderer[section-identifier="related-searches"],
+                        ytm-chip-cloud-renderer,
+                        .pivot-bar-container,
+[role="tablist"],
+                        a[href="/"],
+                        a[href^="/shorts"],
+                        a[href="/feed/subscriptions"],
+                        a[href="/feed/library"],
+                        a[href="/feed/you"] { display: none !important; }
+                        """.trimIndent()
+                    },
+                    jsInterfaceObj = bridge,
+                    jsInterfaceName = "GatekeeperBridge",
+                    jsInjector = {
+                        """
+                        (function() {
+                            if (window.gatekeeperObserver) return;
+                            
+                            function injectButtons() {
+                                var videos = document.querySelectorAll('ytm-video-with-context-renderer');
+                                videos.forEach(function(video) {
+                                    if (video.querySelector('.gatekeeper-add-btn')) return;
+                                    
+                                    var a = video.querySelector('a');
+                                    if (!a || !a.href) return;
+                                    
+                                    var href = a.href;
+                                    var videoIdMatch = href.match(/[?&]v=([^&]+)/);
+                                    if (!videoIdMatch) return;
+                                    var videoId = videoIdMatch[1];
+                                    
+                                    var titleEl = video.querySelector('.media-item-headline');
+                                    var title = titleEl ? titleEl.innerText : 'Unknown Video';
+                                    
+                                    var channelEl = video.querySelector('.bidi-matching-text');
+                                    var channel = channelEl ? channelEl.innerText : '';
+                                    
+                                    var btn = document.createElement('button');
+                                    btn.className = 'gatekeeper-add-btn';
+                                    btn.innerText = '+ Add to Bank';
+                                    btn.style.width = '100%';
+                                    btn.style.padding = '12px';
+                                    btn.style.marginTop = '8px';
+                                    btn.style.backgroundColor = '#4AF626';
+                                    btn.style.color = '#121212';
+                                    btn.style.border = 'none';
+                                    btn.style.borderRadius = '4px';
+                                    btn.style.fontWeight = 'bold';
+                                    btn.style.fontFamily = 'monospace';
+                                    btn.style.fontSize = '14px';
+                                    
+                                    btn.onclick = function(e) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        if (window.GatekeeperBridge) {
+                                            window.GatekeeperBridge.saveVideo(videoId, title, channel);
+                                            btn.innerText = 'Added ✓';
+                                            btn.style.backgroundColor = '#888888';
+                                            btn.disabled = true;
+                                        }
+                                    };
+                                    
+                                    video.appendChild(btn);
+                                });
+                            }
+                            
+                            window.gatekeeperObserver = new MutationObserver(function(mutations) {
+                                injectButtons();
                             });
-                        }
-                        
-                        window.gatekeeperObserver = new MutationObserver(function(mutations) {
+                            
+                            window.gatekeeperObserver.observe(document.body, { childList: true, subtree: true });
                             injectButtons();
-                        });
-                        
-                        window.gatekeeperObserver.observe(document.body, { childList: true, subtree: true });
-                        injectButtons();
-                    })();
-                    """.trimIndent()
-                },
-                networkBlocklist = emptyList()
-            )
+                        })();
+                        """.trimIndent()
+                    },
+                    networkBlocklist = emptyList()
+                )
+            } else {
+                androidx.compose.foundation.layout.Box(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Search for a specific video above. The feed is disabled to protect your intent.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    )
+                }
+            }
         }
     }
 }
