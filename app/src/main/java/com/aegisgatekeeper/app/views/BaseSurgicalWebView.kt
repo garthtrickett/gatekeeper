@@ -101,7 +101,22 @@ fun BaseSurgicalWebView(
                             error: android.webkit.WebResourceError?,
                         ) {
                             super.onReceivedError(view, request, error)
-                            android.util.Log.e("Gatekeeper", "❌ BASE-WEB-ERROR: ${error?.description} at ${request?.url}")
+                            if (request?.isForMainFrame == true) {
+                                android.util.Log.e("Gatekeeper", "🚨 BASE-WEB-ERROR: ${error?.errorCode} - ${error?.description} on URL: ${request.url}")
+                            } else {
+                                android.util.Log.e("Gatekeeper", "❌ BASE-WEB-ERROR: ${error?.description} at ${request?.url}")
+                            }
+                        }
+
+                        override fun onReceivedHttpError(
+                            view: WebView?,
+                            request: WebResourceRequest?,
+                            errorResponse: android.webkit.WebResourceResponse?,
+                        ) {
+                            super.onReceivedHttpError(view, request, errorResponse)
+                            if (request?.isForMainFrame == true) {
+                                android.util.Log.e("Gatekeeper", "🚨 BASE-WEB-HTTP-ERROR: ${errorResponse?.statusCode} - ${errorResponse?.reasonPhrase} on URL: ${request.url}")
+                            }
                         }
 
                         override fun onPageFinished(
@@ -109,6 +124,9 @@ fun BaseSurgicalWebView(
                             currentUrl: String?,
                         ) {
                             super.onPageFinished(view, currentUrl)
+                            android.util.Log.d("Gatekeeper", "🏁 BASE-WEB-FINISHED: $currentUrl")
+                            val cookies = CookieManager.getInstance().getCookie(currentUrl)
+                            android.util.Log.d("Gatekeeper", "🍪 COOKIE-STATE-CHECK | Has Cookies: ${!cookies.isNullOrEmpty()}")
                             currentUrl?.let { onPageLoaded(it) }
 
                             if (jailRoot != null) {
@@ -190,6 +208,7 @@ fun BaseSurgicalWebView(
                             request: WebResourceRequest?,
                         ): Boolean {
                             val newUrl = request?.url?.toString() ?: ""
+                            android.util.Log.d("Gatekeeper", "🔀 BASE-WEB-REDIRECT: $newUrl")
 
                             if (newUrl.startsWith("intent://") || newUrl.startsWith("fb://") || newUrl.startsWith("android-app://")) {
                                 android.util.Log.d("Gatekeeper", "🛡️ BASE-WEB: Intercepting deep link: $newUrl")
