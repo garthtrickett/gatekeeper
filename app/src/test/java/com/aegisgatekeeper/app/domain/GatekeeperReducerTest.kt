@@ -630,6 +630,52 @@ class GatekeeperReducerTest {
     // --- Podcast Reducer Tests ---
 
     @Test
+    fun testProcessPodcastUrl_SetsSyncingState() {
+        val action = GatekeeperAction.ProcessPodcastUrl("https://example.com/feed.xml")
+        val newState = reduce(initialState, action)
+        assertThat(newState.isSyncingPodcasts).isTrue()
+        assertThat(newState.podcastSyncError).isNull()
+    }
+
+    @Test
+    fun testPodcastSyncFailed_SetsErrorState() {
+        val stateBefore = initialState.copy(isSyncingPodcasts = true)
+        val action = GatekeeperAction.PodcastSyncFailed("Network Error")
+        val newState = reduce(stateBefore, action)
+        assertThat(newState.isSyncingPodcasts).isFalse()
+        assertThat(newState.podcastSyncError).isEqualTo("Network Error")
+    }
+
+    @Test
+    fun testPodcastSyncCompleted_ClearsSyncingState() {
+        val stateBefore = initialState.copy(isSyncingPodcasts = true, podcastSyncError = "Old Error")
+        val action = GatekeeperAction.PodcastSyncCompleted
+        val newState = reduce(stateBefore, action)
+        assertThat(newState.isSyncingPodcasts).isFalse()
+        assertThat(newState.podcastSyncError).isNull()
+    }
+
+    @Test
+    fun testRemovePodcastSubscription_RemovesSubscriptionAndMarksContentAsDeleted() {
+        val sub = PodcastSubscription(id = "sub1", feedUrl = "url", showTitle = "Title", artworkUrl = null)
+        val content = ContentItem(id = "c1", podcastId = "sub1", videoId = "v1", title = "T1", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val slot = IntentionalSlotItem(slotIndex = 0, contentItem = content)
+        val stateBefore = initialState.copy(
+            podcastSubscriptions = listOf(sub),
+            contentItems = listOf(content),
+            intentionalSlots = listOf(slot)
+        )
+
+        val action = GatekeeperAction.RemovePodcastSubscription("sub1", 1000L)
+        val newState = reduce(stateBefore, action)
+
+        assertThat(newState.podcastSubscriptions).isEmpty()
+        assertThat(newState.contentItems.first().isDeleted).isTrue()
+        assertThat(newState.contentItems.first().lastModified).isEqualTo(1000L)
+        assertThat(newState.intentionalSlots).isEmpty() // Because the associated content was deleted
+    }
+
+    @Test
     fun testSavePodcastSubscription_AddsSubscription() {
         val sub = PodcastSubscription(id = "sub1", feedUrl = "url", showTitle = "Title", artworkUrl = null)
 
