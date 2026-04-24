@@ -32,12 +32,13 @@ import java.net.URLEncoder
 
 class YouTubeSurgicalBridge {
     @android.webkit.JavascriptInterface
-    fun saveVideo(videoId: String, title: String, channel: String) {
+    fun saveVideo(videoId: String, title: String, channel: String, durationStr: String) {
         GatekeeperStateManager.dispatch(
             GatekeeperAction.SaveToContentBank(
                 videoId = videoId,
                 title = title,
                 channelName = channel,
+                durationSeconds = com.aegisgatekeeper.app.domain.parseHumanReadableDuration(durationStr),
                 source = com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE,
                 type = com.aegisgatekeeper.app.domain.ContentType.VIDEO,
                 currentTimestamp = System.currentTimeMillis()

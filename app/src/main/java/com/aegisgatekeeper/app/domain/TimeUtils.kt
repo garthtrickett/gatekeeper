@@ -55,3 +55,14 @@ fun estimateReadTimeSeconds(html: String): Long {
     val wordCount = pureText.split(Regex("\\s+")).count { it.isNotBlank() }
     return (wordCount / 225.0 * 60).toLong()
 }
+
+fun parseHumanReadableDuration(duration: String): Long {
+    if (duration.isBlank()) return 0L
+    val parts = duration.split(":")
+    return when (parts.size) {
+        3 -> (parts[0].toLongOrNull() ?: 0L) * 3600 + (parts[1].toLongOrNull() ?: 0L) * 60 + (parts[2].toLongOrNull() ?: 0L)
+        2 -> (parts[0].toLongOrNull() ?: 0L) * 60 + (parts[1].toLongOrNull() ?: 0L)
+        1 -> parts[0].toLongOrNull() ?: 0L
+        else -> 0L
+    }
+}
