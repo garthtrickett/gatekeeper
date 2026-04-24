@@ -24,9 +24,10 @@ class YouTubeSurgicalBridgeTest {
         val testId = "dQw4w9WgXcQ"
         val testTitle = "Never Gonna Give You Up"
         val testChannel = "Rick Astley"
+        val testDuration = "15:33"
 
         // Act: Simulate JS calling the bridge
-        bridge.saveVideo(testId, testTitle, testChannel)
+        bridge.saveVideo(testId, testTitle, testChannel, testDuration)
 
         // Assert: Verify state manager received the item
         val state = GatekeeperStateManager.state.value
@@ -35,6 +36,7 @@ class YouTubeSurgicalBridgeTest {
         assertThat(item).isNotNull()
         assertThat(item?.title).isEqualTo(testTitle)
         assertThat(item?.channelName).isEqualTo(testChannel)
+        assertThat(item?.durationSeconds).isEqualTo(933L)
         assertThat(item?.source).isEqualTo(ContentSource.YOUTUBE)
         assertThat(item?.type).isEqualTo(ContentType.VIDEO)
     }

@@ -298,14 +298,13 @@ class ContentBankUiTest {
         // 4. Click Add
         composeTestRule.onNodeWithText("Add Intent").performClick()
 
-        // 5. Verify dialog is dismissed (wait for idle)
+        // 5. Verify dialog is dismissed and surgical search is triggered
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Add to Bank").assertDoesNotExist()
 
-        // Note: We don't assert the item appears immediately in the list because
-        // ProcessSharedLink triggers an asynchronous network call to fetch the title.
-        // In a real instrumented test, we would mock the GatekeeperStateManager scope
-        // if we wanted to verify the final list state.
+        val state = GatekeeperStateManager.state.value
+        com.google.common.truth.Truth.assertThat(state.isSurgicalSearchVisible).isTrue()
+        com.google.common.truth.Truth.assertThat(state.initialSurgicalSearchUrl).isEqualTo(testUrl)
     }
 
     @Test
