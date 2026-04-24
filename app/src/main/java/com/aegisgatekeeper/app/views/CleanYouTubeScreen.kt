@@ -127,7 +127,14 @@ fun CleanYouTubeScreen() {
                     ytm-pivot-bar-renderer, 
                     ytm-reel-shelf-renderer, 
                     ytm-item-section-renderer[section-identifier="related-searches"],
-                    ytm-chip-cloud-renderer { display: none !important; }
+                    ytm-chip-cloud-renderer,
+                    .pivot-bar-container,
+                    [role="tablist"],
+                    a[href="/"],
+                    a[href^="/shorts"],
+                    a[href="/feed/subscriptions"],
+                    a[href="/feed/library"],
+                    a[href="/feed/you"] { display: none !important; }
                     """.trimIndent()
                 },
                 jsInterfaceObj = bridge,
