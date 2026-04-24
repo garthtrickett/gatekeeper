@@ -25,7 +25,7 @@ object PodcastIndexClient {
     private const val API_KEY = "DUMMY_KEY"
     private const val API_SECRET = "DUMMY_SECRET"
 
-    private val client = HttpClient(OkHttp) {
+    internal var client = HttpClient(OkHttp) {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
         }

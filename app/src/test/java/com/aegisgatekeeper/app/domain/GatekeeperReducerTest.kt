@@ -973,4 +973,66 @@ class GatekeeperReducerTest {
         // Assert 2
         assertThat(finalState.isDualMoatEnabled).isTrue()
     }
+
+    // --- Download Manager Reducer Tests ---
+
+    @Test
+    fun testDownloadMediaRequested_SetsStatusToQueued() {
+        val item = ContentItem(id = "1", videoId = "url", title = "T", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val state = initialState.copy(contentItems = listOf(item))
+        val newState = reduce(state, GatekeeperAction.DownloadMediaRequested("1"))
+        
+        assertThat(newState.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.QUEUED)
+    }
+
+    @Test
+    fun testDownloadProgressUpdated_SetsStatusToDownloadingAndUpdatesProgress() {
+        val item = ContentItem(id = "1", videoId = "url", title = "T", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val state = initialState.copy(contentItems = listOf(item))
+        val newState = reduce(state, GatekeeperAction.DownloadProgressUpdated("1", 45.5f))
+        
+        assertThat(newState.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.DOWNLOADING)
+        assertThat(newState.activeDownloads["1"]).isEqualTo(45.5f)
+    }
+
+    @Test
+    fun testDownloadCompleted_SetsStatusToCompletedAndPath() {
+        val item = ContentItem(id = "1", videoId = "url", title = "T", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val state = initialState.copy(contentItems = listOf(item), activeDownloads = mapOf("1" to 100f))
+        val newState = reduce(state, GatekeeperAction.DownloadCompleted("1", "/path/to/file.mp3"))
+        
+        assertThat(newState.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.COMPLETED)
+        assertThat(newState.contentItems.first().localFilePath).isEqualTo("/path/to/file.mp3")
+        assertThat(newState.activeDownloads).isEmpty()
+    }
+
+    @Test
+    fun testDeleteDownloadedMedia_ResetsStatusAndPath() {
+        val item = ContentItem(id = "1", videoId = "url", title = "T", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0, downloadStatus = DownloadStatus.COMPLETED, localFilePath = "/path/to/file.mp3")
+        val state = initialState.copy(contentItems = listOf(item))
+        val newState = reduce(state, GatekeeperAction.DeleteDownloadedMedia("1"))
+        
+        assertThat(newState.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.NONE)
+        assertThat(newState.contentItems.first().localFilePath).isNull()
+    }
+
+    // --- Podcast Search Reducer Tests ---
+    
+    @Test
+    fun testSearchPodcastsRequested_SetsLoadingState() {
+        val newState = reduce(initialState, GatekeeperAction.SearchPodcastsRequested("huberman"))
+        assertThat(newState.isSearchingPodcasts).isTrue()
+        assertThat(newState.podcastSearchResults).isEmpty()
+    }
+
+    @Test
+    fun testPodcastSearchCompleted_SetsResultsAndClearsLoading() {
+        val state = initialState.copy(isSearchingPodcasts = true)
+        val mockResults = listOf(com.aegisgatekeeper.app.api.PodcastFeedDto(id = 1L, title = "Huberman Lab", url = "https://feed.xml"))
+        val newState = reduce(state, GatekeeperAction.PodcastSearchCompleted(mockResults))
+        
+        assertThat(newState.isSearchingPodcasts).isFalse()
+        assertThat(newState.podcastSearchResults).hasSize(1)
+        assertThat(newState.podcastSearchResults.first().title).isEqualTo("Huberman Lab")
+    }
 }

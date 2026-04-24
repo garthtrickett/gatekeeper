@@ -537,6 +537,28 @@ class GatekeeperStateManagerTest {
                         )
                     }
 
+                    is GatekeeperAction.DownloadCompleted,
+                    is GatekeeperAction.DownloadMediaRequested,
+                    is GatekeeperAction.DownloadFailed,
+                    is GatekeeperAction.DeleteDownloadedMedia -> {
+                        val actionId = when (action) {
+                            is GatekeeperAction.DownloadMediaRequested -> action.id
+                            is GatekeeperAction.DownloadCompleted -> action.id
+                            is GatekeeperAction.DownloadFailed -> action.id
+                            is GatekeeperAction.DeleteDownloadedMedia -> action.id
+                            else -> null
+                        }
+                        val item = newState.contentItems.find { it.id == actionId }
+                        if (item != null) {
+                            db.contentItemQueries.updateDownloadStatus(
+                                downloadStatus = item.downloadStatus,
+                                localFilePath = item.localFilePath,
+                                lastModified = System.currentTimeMillis(),
+                                id = item.id
+                            )
+                        }
+                    }
+
                     is GatekeeperAction.ReorderContentBank -> {
                         newState.contentItems.forEach { item ->
                             db.contentItemQueries.updateRank(rank = item.rank, lastModified = action.currentTimestamp, id = item.id)
