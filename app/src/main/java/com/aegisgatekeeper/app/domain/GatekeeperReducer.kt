@@ -662,7 +662,6 @@ private fun reduceContentAndVault(
         is GatekeeperAction.LoadPodcastEpisodes -> {
             state.copy(
                 isLoadingEpisodes = true,
-                activePodcastEpisodes = null,
                 activePodcastId = action.podcastId,
             )
         }
@@ -673,6 +672,10 @@ private fun reduceContentAndVault(
                 activePodcastEpisodes = action.episodes,
                 activePodcastId = action.podcastId,
             )
+        }
+        
+        is GatekeeperAction.CacheParsedEpisodes -> {
+            state
         }
 
         GatekeeperAction.ClearPodcastEpisodes -> {

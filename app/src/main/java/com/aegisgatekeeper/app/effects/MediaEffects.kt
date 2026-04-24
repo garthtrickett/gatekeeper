@@ -82,10 +82,14 @@ suspend fun handleMediaAndSystemEffects(
             result.fold(
                 ifLeft = { error ->
                     Log.e("Gatekeeper", "❌ Failed to load podcast episodes: $error")
-                    dispatch(GatekeeperAction.ClearPodcastEpisodes)
+                    if (state.activePodcastEpisodes == null) {
+                        dispatch(GatekeeperAction.ClearPodcastEpisodes)
+                    } else {
+                        dispatch(GatekeeperAction.PodcastEpisodesLoaded(state.activePodcastEpisodes, action.podcastId))
+                    }
                 },
                 ifRight = { data ->
-                    dispatch(GatekeeperAction.PodcastEpisodesLoaded(data.episodes, action.podcastId))
+                    dispatch(GatekeeperAction.CacheParsedEpisodes(data.episodes, action.podcastId))
                 },
             )
         }

@@ -82,7 +82,8 @@ class FeedManagementUiTest {
 
         val mockEpisodes =
             listOf(
-                RssEpisode(
+                CachedEpisode(
+                    podcastId = "podcast_123",
                     title = "Episode 1: Focus",
                     audioUrl = "https://example.com/ep1.mp3",
                     durationSeconds = 3600L,

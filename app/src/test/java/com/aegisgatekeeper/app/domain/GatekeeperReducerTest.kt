@@ -641,12 +641,11 @@ class GatekeeperReducerTest {
     }
 
     @Test
-    fun testLoadPodcastEpisodes_setsLoadingAndClearsActive() {
+    fun testLoadPodcastEpisodes_setsLoading() {
         val action = GatekeeperAction.LoadPodcastEpisodes("url", "podcast1")
         val newState = reduce(initialState, action)
 
         assertThat(newState.isLoadingEpisodes).isTrue()
-        assertThat(newState.activePodcastEpisodes).isNull()
         assertThat(newState.activePodcastId).isEqualTo("podcast1")
     }
 
@@ -655,8 +654,7 @@ class GatekeeperReducerTest {
         val stateWithLoading = initialState.copy(isLoadingEpisodes = true)
         val mockEpisodes =
             listOf(
-                com.aegisgatekeeper.app.api
-                    .RssEpisode("Ep 1", "audio_url", 1000L, "2023-01-01"),
+                CachedEpisode(title = "Ep 1", audioUrl = "audio_url", durationSeconds = 1000L, pubDate = "2023-01-01", podcastId = "podcast1"),
             )
         val action = GatekeeperAction.PodcastEpisodesLoaded(mockEpisodes, "podcast1")
         val newState = reduce(stateWithLoading, action)

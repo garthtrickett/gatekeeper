@@ -179,15 +179,20 @@ sealed interface GatekeeperAction {
         val podcastId: String,
     ) : GatekeeperAction
 
-    data class PodcastEpisodesLoaded(
+    data class CacheParsedEpisodes(
         val episodes: List<com.aegisgatekeeper.app.api.RssEpisode>,
+        val podcastId: String,
+    ) : GatekeeperAction
+
+    data class PodcastEpisodesLoaded(
+        val episodes: List<CachedEpisode>,
         val podcastId: String,
     ) : GatekeeperAction
 
     object ClearPodcastEpisodes : GatekeeperAction
 
     data class AddEpisodeToBank(
-        val episode: com.aegisgatekeeper.app.api.RssEpisode,
+        val episode: CachedEpisode,
         val podcastId: String,
         val podcastTitle: String,
     ) : GatekeeperAction

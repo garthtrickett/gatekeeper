@@ -118,7 +118,6 @@ object GatekeeperStateManager {
                 _state.value =
                     _state.value.copy(
                         isLoadingEpisodes = true,
-                        activePodcastEpisodes = null,
                         activePodcastId = action.podcastId,
                     )
             }
@@ -130,6 +129,10 @@ object GatekeeperStateManager {
                         activePodcastEpisodes = action.episodes,
                         activePodcastId = action.podcastId,
                     )
+            }
+
+            is GatekeeperAction.CacheParsedEpisodes -> {
+                // Handled in side effects
             }
 
             GatekeeperAction.ClearPodcastEpisodes -> {
