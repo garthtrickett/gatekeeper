@@ -61,12 +61,16 @@ class YouTubeSurgicalBridge {
 
 @Suppress("FunctionName")
 @Composable
-fun CleanYouTubeScreen() {
+fun CleanYouTubeDialog(onDismiss: () -> Unit) {
     val state by GatekeeperStateManager.state.collectAsState()
     var query by remember { mutableStateOf("") }
     var currentUrl by remember { mutableStateOf("") }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+    androidx.compose.ui.window.Dialog(
+        onDismissRequest = onDismiss,
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.fillMaxSize().padding(top = 16.dp, start = 16.dp, end = 16.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
                 Column(modifier = Modifier.weight(1f)) {
@@ -78,17 +82,24 @@ fun CleanYouTubeScreen() {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                IndustrialButton(
-                    onClick = {
-                        GatekeeperStateManager.dispatch(
-                            GatekeeperAction.OpenPinnedWebsite(
-                                "https://accounts.google.com/ServiceLogin?service=youtube&continue=https://m.youtube.com"
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    IndustrialButton(
+                        onClick = {
+                            GatekeeperStateManager.dispatch(
+                                GatekeeperAction.OpenPinnedWebsite(
+                                    "https://accounts.google.com/ServiceLogin?service=youtube&continue=https://m.youtube.com"
+                                )
                             )
-                        )
-                    },
-                    text = "Auth",
-                    isWarning = true,
-                )
+                        },
+                        text = "Auth",
+                        isWarning = true,
+                    )
+                    IndustrialButton(
+                        onClick = onDismiss,
+                        text = "Exit",
+                        isWarning = true,
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -234,5 +245,6 @@ fun CleanYouTubeScreen() {
                 }
             }
         }
+    }
     }
 }

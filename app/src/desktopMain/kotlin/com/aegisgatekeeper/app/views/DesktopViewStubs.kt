@@ -137,18 +137,28 @@ fun VaultReviewScreen() {
 
 @Suppress("FunctionName")
 @Composable
-fun CleanYouTubeScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text("Surgical Search", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            "The native YouTube client is an Android-only feature. Use the 'Web' tab to access a filtered version of YouTube.",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
+fun CleanYouTubeDialog(onDismiss: () -> Unit) {
+    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
+        androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text("Surgical Search", style = MaterialTheme.typography.headlineMedium)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "The native YouTube client is an Android-only feature. Use the 'Web' tab to access a filtered version of YouTube.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                com.aegisgatekeeper.app.domain.IndustrialButton(
+                    onClick = onDismiss,
+                    text = "Exit",
+                    isWarning = true
+                )
+            }
+        }
     }
 }
