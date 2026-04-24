@@ -141,7 +141,8 @@ fun BaseSurgicalWebView(
                                 return
                             }
 
-                            if (jailRoot != null) {
+                            val currentJailRoot = view?.tag as? String
+                            if (currentJailRoot != null) {
                                 val isExplicitHomeFeed =
                                     currentUrl == "https://m.facebook.com/" ||
                                         currentUrl?.startsWith("https://m.facebook.com/?") == true ||
@@ -170,8 +171,8 @@ fun BaseSurgicalWebView(
                                         return
                                     }
 
-                                    android.util.Log.d("Gatekeeper", "🛡️ Jail: Reached feed after redirect. Redirecting to jail root.")
-                                    view?.loadUrl(jailRoot)
+                                    android.util.Log.d("Gatekeeper", "🛡️ Jail: Reached feed after redirect. Redirecting to jail root: $currentJailRoot")
+                                    view?.loadUrl(currentJailRoot)
                                     return
                                 }
                             }
@@ -269,7 +270,8 @@ fun BaseSurgicalWebView(
                             // We no longer eagerly logout on "login" or "checkpoint" URLs.
                             // Facebook handles these flows gracefully, and wiping cookies breaks them.
 
-                            if (jailRoot != null) {
+                            val currentJailRoot = view?.tag as? String
+                            if (currentJailRoot != null) {
                                 // Prevent desktop escape when logged in
                                 if (newUrl.contains("www.facebook.com") || newUrl.contains("web.facebook.com")) {
                                     val mobileUrl = newUrl.replace("www.facebook.com", "m.facebook.com").replace("web.facebook.com", "m.facebook.com")
@@ -289,8 +291,8 @@ fun BaseSurgicalWebView(
                                         android.util.Log.d("Gatekeeper", "🛡️ Jail: Allowing redirect to Feed to preserve cookies.")
                                         return false
                                     }
-                                    android.util.Log.d("Gatekeeper", "🛡️ Jail: Blocking navigation to Feed. Forcing current root: $jailRoot")
-                                    view?.post { view.loadUrl(jailRoot) }
+                                    android.util.Log.d("Gatekeeper", "🛡️ Jail: Blocking navigation to Feed. Forcing current root: $currentJailRoot")
+                                    view?.post { view.loadUrl(currentJailRoot) }
                                     return true
                                 }
                             }
@@ -302,6 +304,8 @@ fun BaseSurgicalWebView(
             }
         },
         update = { webView ->
+            webView.tag = jailRoot // Ensure WebViewClient always reads the latest active tab
+            
             if (userAgent != null && webView.settings.userAgentString != userAgent) {
                 webView.settings.userAgentString = userAgent
             }
