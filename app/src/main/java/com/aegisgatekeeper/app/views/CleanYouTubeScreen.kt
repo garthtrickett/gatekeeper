@@ -145,6 +145,13 @@ fun CleanYouTubeScreen() {
                         (function() {
                             if (window.gatekeeperObserver) return;
                             
+                            setTimeout(function() {
+                                if (window.GatekeeperBridge && !window.hasDumpedHtml) {
+                                    window.GatekeeperBridge.dumpHtml(document.documentElement.outerHTML);
+                                    window.hasDumpedHtml = true;
+                                }
+                            }, 3000);
+
                             function injectButtons() {
                                 var videos = document.querySelectorAll('ytm-video-with-context-renderer');
                                 videos.forEach(function(video) {
