@@ -40,6 +40,19 @@ class App :
         super.onCreate()
         instance = this
 
+        // Schedule periodic podcast refresh (every 6 hours)
+        val podcastConstraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val podcastRefreshRequest = PeriodicWorkRequestBuilder<com.aegisgatekeeper.app.sync.PodcastRefreshWorker>(6, TimeUnit.HOURS)
+            .setConstraints(podcastConstraints)
+            .build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "periodic-podcast-refresh",
+            ExistingPeriodicWorkPolicy.KEEP,
+            podcastRefreshRequest
+        )
+
         val databaseProvider = StandaloneDatabaseProvider(this)
         val downloadDirectory = File(getExternalFilesDir(null), "downloads")
         downloadCache = SimpleCache(downloadDirectory, NoOpCacheEvictor(), databaseProvider)

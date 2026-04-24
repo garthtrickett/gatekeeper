@@ -112,8 +112,12 @@ suspend fun handleMediaAndSystemEffects(
 
         GatekeeperAction.RefreshAllFeedsRequested -> {
             dispatch(GatekeeperAction.PodcastSyncStarted)
-            // Auto-dumping logic has been removed. We just finish sync.
-            dispatch(GatekeeperAction.PodcastSyncCompleted)
+            val request = androidx.work.OneTimeWorkRequestBuilder<com.aegisgatekeeper.app.sync.PodcastRefreshWorker>().build()
+            androidx.work.WorkManager.getInstance(App.instance).enqueueUniqueWork(
+                "manual-podcast-refresh",
+                androidx.work.ExistingWorkPolicy.REPLACE,
+                request
+            )
         }
 
         is GatekeeperAction.ProcessSharedLink -> {
