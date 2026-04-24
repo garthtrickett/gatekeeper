@@ -128,24 +128,19 @@ fun BaseSurgicalWebView(
                         ) {
                             super.onPageFinished(view, currentUrl)
                             android.util.Log.d("Gatekeeper", "🏁 BASE-WEB-FINISHED: $currentUrl")
-                            val cookies = CookieManager.getInstance().getCookie(currentUrl)
-                            android.util.Log.d("Gatekeeper", "🍪 COOKIE-STATE-CHECK | Has Cookies: ${!cookies.isNullOrEmpty()}")
-                            android.util.Log.d("Gatekeeper", "🍪 DIAGNOSTIC-COOKIES | $currentUrl: $cookies")
                             currentUrl?.let { onPageLoaded(it) }
 
+                            val currentCookies = CookieManager.getInstance().getCookie(currentUrl) ?: ""
+                            val isNowLoggedIn = currentCookies.contains("c_user=") && currentCookies.contains("xs=")
+
+                            // If we started logged out (jailRoot == null), but are now logged in, trigger success!
+                            if (jailRoot == null && isNowLoggedIn) {
+                                android.util.Log.d("Gatekeeper", "✅ AUTH-SUCCESS: Login detected. Triggering UA switch.")
+                                onLoginSuccess()
+                                return
+                            }
+
                             if (jailRoot != null) {
-                                val currentCookies = CookieManager.getInstance().getCookie(currentUrl) ?: ""
-                                val isNowLoggedIn = currentCookies.contains("c_user=") && currentCookies.contains("xs=")
-
-                                // Check if we are on the desktop homepage after a login, but before the UA switch has happened
-                                val isOnDesktopHomepage = currentUrl == "https://www.facebook.com/" || currentUrl == "https://www.facebook.com/home.php"
-
-                                if (isNowLoggedIn && isOnDesktopHomepage) {
-                                    android.util.Log.d("Gatekeeper", "✅ AUTH-SUCCESS: Login detected. Triggering UA switch and redirect.")
-                                    onLoginSuccess()
-                                    return
-                                }
-
                                 val isExplicitHomeFeed =
                                     currentUrl == "https://m.facebook.com/" ||
                                         currentUrl?.startsWith("https://m.facebook.com/?") == true ||
@@ -175,7 +170,6 @@ fun BaseSurgicalWebView(
                                     }
 
                                     android.util.Log.d("Gatekeeper", "🛡️ Jail: Reached feed after redirect. Redirecting to jail root.")
-                                    android.util.Log.d("Gatekeeper", "🛑 DIAGNOSTIC: jailRoot triggered in onPageFinished. currentUrl=$currentUrl, jailRoot=$jailRoot, redirectCount=$jailRedirectCount")
                                     view?.loadUrl(jailRoot)
                                     return
                                 }
@@ -266,6 +260,14 @@ fun BaseSurgicalWebView(
                             // Facebook handles these flows gracefully, and wiping cookies breaks them.
 
                             if (jailRoot != null) {
+                                // Prevent desktop escape when logged in
+                                if (newUrl.contains("www.facebook.com") || newUrl.contains("web.facebook.com")) {
+                                    val mobileUrl = newUrl.replace("www.facebook.com", "m.facebook.com").replace("web.facebook.com", "m.facebook.com")
+                                    android.util.Log.d("Gatekeeper", "🛡️ Mobile-Forcing: Rewriting to $mobileUrl")
+                                    view?.loadUrl(mobileUrl)
+                                    return true
+                                }
+
                                 val isExplicitHomeFeed =
                                     newUrl == "https://m.facebook.com/" ||
                                         newUrl.startsWith("https://m.facebook.com/?") ||
@@ -278,7 +280,6 @@ fun BaseSurgicalWebView(
                                         return false
                                     }
                                     android.util.Log.d("Gatekeeper", "🛡️ Jail: Blocking navigation to Feed. Forcing current root: $jailRoot")
-                                    android.util.Log.d("Gatekeeper", "🛑 DIAGNOSTIC: jailRoot triggered in shouldOverrideUrlLoading. newUrl=$newUrl, jailRoot=$jailRoot")
                                     view?.post { view.loadUrl(jailRoot) }
                                     return true
                                 }

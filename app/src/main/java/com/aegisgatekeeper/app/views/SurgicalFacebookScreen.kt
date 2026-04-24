@@ -42,16 +42,13 @@ fun SurgicalFacebookScreen(
     onClose: () -> Unit,
 ) {
     val cookieManager = remember { CookieManager.getInstance() }
-    var isLoggedIn by remember { mutableStateOf(false) }
-    var forceReload by remember { mutableStateOf(0) }
-
-    LaunchedEffect(forceReload) {
-        val cookies = cookieManager.getCookie("https://m.facebook.com") ?: ""
-        val currentlyLoggedIn = cookies.contains("c_user=") && cookies.contains("xs=")
-        if (currentlyLoggedIn != isLoggedIn) {
-            isLoggedIn = currentlyLoggedIn
-        }
+    var isLoggedIn by remember { 
+        val cookiesD = cookieManager.getCookie("https://facebook.com") ?: ""
+        val cookiesM = cookieManager.getCookie("https://m.facebook.com") ?: ""
+        val allC = cookiesD + cookiesM
+        mutableStateOf(allC.contains("c_user=") && allC.contains("xs=")) 
     }
+    var forceReload by remember { mutableStateOf(0) }
 
     Column(
         modifier =
@@ -121,8 +118,29 @@ fun SurgicalFacebookScreen(
                 modifier = Modifier.weight(1f),
                 userAgent = userAgent,
                 onLoginSuccess = {
-                    android.util.Log.d("Gatekeeper", "🔄 DIAGNOSTIC: onLoginSuccess triggered, incrementing forceReload.")
-                    forceReload++
+                    android.util.Log.d("Gatekeeper", "🔄 FB-AUTH: Login Success. Sanitizing cookies and switching to Mobile UA.")
+                    val rawCookiesDesktop = cookieManager.getCookie("https://facebook.com") ?: ""
+                    val rawCookiesMobile = cookieManager.getCookie("https://m.facebook.com") ?: ""
+                    val allCookies = "$rawCookiesDesktop;$rawCookiesMobile"
+                    val keepKeys = setOf("c_user", "xs", "datr", "fr", "sb")
+                    val savedCookies = mutableSetOf<String>()
+                    
+                    allCookies.split(";").forEach { pair ->
+                        val trimmed = pair.trim()
+                        val key = trimmed.substringBefore("=")
+                        if (key in keepKeys && trimmed.isNotBlank()) {
+                            savedCookies.add(trimmed)
+                        }
+                    }
+                    
+                    cookieManager.removeAllCookies {
+                        savedCookies.forEach { cookie ->
+                            cookieManager.setCookie("https://facebook.com", "$cookie; domain=.facebook.com; path=/")
+                        }
+                        cookieManager.flush()
+                        isLoggedIn = true
+                        forceReload++
+                    }
                 },
                 cssInjector = { currentUrl ->
                     if (isLoggedIn) {
@@ -152,24 +170,7 @@ fun SurgicalFacebookScreen(
                     GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/login.php"))
                     forceReload++
                 },
-                onPageLoaded = { loadedUrl ->
-                    if (!isLoggedIn) {
-                        val cookies = cookieManager.getCookie("https://m.facebook.com") ?: ""
-                        val isHomeFeed = loadedUrl == "https://m.facebook.com/" || 
-                                         loadedUrl.startsWith("https://m.facebook.com/?") || 
-                                         loadedUrl.contains("facebook.com/home") ||
-                                         loadedUrl.contains("ref=logo")
-                        
-                        if (cookies.contains("c_user=") && cookies.contains("xs=") && isHomeFeed) {
-                            android.util.Log.d("Gatekeeper", "✅ FB-AUTH: Login fully completed (reached home).")
-                            android.util.Log.d("Gatekeeper", "🔄 DIAGNOSTIC: Home feed reached, dispatching OpenSurgicalFacebook with reload cache-buster.")
-                            cookieManager.flush()
-                            isLoggedIn = true
-                            // Force a state update with a cache-busting param to trigger WebView reload
-                            GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/?reload=${System.currentTimeMillis()}"))
-                        }
-                    }
-                },
+                onPageLoaded = { },
                 jailRoot = if (isLoggedIn) url else null,
             )
         }
