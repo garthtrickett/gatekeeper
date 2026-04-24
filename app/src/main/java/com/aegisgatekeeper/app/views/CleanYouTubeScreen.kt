@@ -229,6 +229,16 @@ fun CleanYouTubeDialog(onDismiss: () -> Unit) {
                             
                             window.gatekeeperObserver.observe(document.body, { childList: true, subtree: true });
                             injectButtons();
+                            
+                            // Completely lock down the WebView to prevent escaping the surgical search
+                            if (!window.gkGlobalClickCatcher) {
+                                window.gkGlobalClickCatcher = true;
+                                document.addEventListener('click', function(e) {
+                                    if (e.target && e.target.className === 'gatekeeper-add-btn') return;
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                }, true); // capture phase prevents YouTube's SPA router from firing
+                            }
                         })();
                         """.trimIndent()
                     },
