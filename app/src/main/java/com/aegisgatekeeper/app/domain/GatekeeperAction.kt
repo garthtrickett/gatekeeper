@@ -178,18 +178,6 @@ sealed interface GatekeeperAction {
     ) : GatekeeperAction
 
     // --- Layer 5: Clean Room Media Engines ---
-    data class SearchYouTubeRequested(
-        val query: String,
-    ) : GatekeeperAction
-
-    data class YouTubeSearchCompleted(
-        val results: List<com.aegisgatekeeper.app.api.YoutubeSearchItem>,
-    ) : GatekeeperAction
-
-    data class YouTubeSearchFailed(
-        val error: com.aegisgatekeeper.app.api.YoutubeError,
-    ) : GatekeeperAction
-
     data class SaveMediaPosition(
         val mediaId: String,
         val positionSeconds: Float,

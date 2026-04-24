@@ -208,21 +208,6 @@ suspend fun handleMediaAndSystemEffects(
             }
         }
 
-        is GatekeeperAction.SearchYouTubeRequested -> {
-            Log.d("Gatekeeper", "📡 SearchYouTubeRequested: Calling YouTube API for '${action.query}'")
-            YoutubeApiClient
-                .searchVideos(action.query)
-                .fold(
-                    ifLeft = { error ->
-                        Log.e("Gatekeeper", "❌ YouTube Search Failed: $error")
-                        dispatch(GatekeeperAction.YouTubeSearchFailed(error))
-                    },
-                    ifRight = { response ->
-                        dispatch(GatekeeperAction.YouTubeSearchCompleted(response.items))
-                    },
-                )
-        }
-
         is GatekeeperAction.LogGiveUp -> {
             // Go to the home screen to prevent re-interception loop
             val homeIntent =

@@ -26,6 +26,9 @@ fun BaseSurgicalWebView(
     onPageLoaded: (String) -> Unit = {},
     onLogout: (() -> Unit)? = null,
     jailRoot: String? = null,
+    jsInterfaceObj: Any? = null,
+    jsInterfaceName: String? = null,
+    jsInjector: ((String) -> String)? = null,
 ) {
     var lastLoadedUrl by remember { mutableStateOf(url) }
 
@@ -58,6 +61,10 @@ fun BaseSurgicalWebView(
                 val cookieManager = CookieManager.getInstance()
                 cookieManager.setAcceptCookie(true)
                 cookieManager.setAcceptThirdPartyCookies(this, true)
+
+                if (jsInterfaceObj != null && jsInterfaceName != null) {
+                    addJavascriptInterface(jsInterfaceObj, jsInterfaceName)
+                }
 
                 webChromeClient =
                     object : WebChromeClient() {
@@ -115,6 +122,12 @@ fun BaseSurgicalWebView(
                                     })();
                                     """.trimIndent()
                                 view?.evaluateJavascript(js, null)
+                            }
+
+                            jsInjector?.invoke(currentUrl ?: "")?.let { jsToInject ->
+                                if (jsToInject.isNotBlank()) {
+                                    view?.evaluateJavascript(jsToInject, null)
+                                }
                             }
                         }
 

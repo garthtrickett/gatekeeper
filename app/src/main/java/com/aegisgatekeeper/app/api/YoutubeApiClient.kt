@@ -40,44 +40,6 @@ object YoutubeApiClient {
         }
 
     /**
-     * Fetches a maximum of 20 videos of medium or long duration.
-     * This inherently filters out Shorts.
-     * Returns a typed Either to adhere to Railway Oriented Programming principles.
-     */
-    suspend fun searchVideos(query: String): Either<YoutubeError, YoutubeSearchResponse> {
-        // Prevent API calls for blank queries
-        if (query.isBlank()) {
-            return YoutubeSearchResponse(emptyList()).right()
-        }
-
-        return try {
-            val response =
-                client
-                    .get("search") {
-                        parameter("key", API_KEY)
-                        parameter("part", "snippet")
-                        parameter("q", query)
-                        parameter("type", "video")
-                        parameter("maxResults", 20)
-                        parameter("videoDuration", "medium") // or "long"
-                    }
-            when (response.status.value) {
-                in 200..299 -> {
-                    val searchResponse = response.body<YoutubeSearchResponse>()
-                    val validItems = searchResponse.items.filter { it.id.videoId.isNotBlank() }
-                    YoutubeSearchResponse(validItems).right()
-                }
-                403, 429 -> YoutubeError.RateLimitExceeded.left()
-                404 -> YoutubeError.VideoNotFound.left()
-                else -> YoutubeError.UnknownError(response.status.value).left()
-            }
-        } catch (e: Exception) {
-            Log.e("Gatekeeper", "YouTube API Call Failed: ${e.message}")
-            YoutubeError.NetworkFailure(e.message ?: "Unknown network failure").left()
-        }
-    }
-
-    /**
      * Fetches video details including ISO 8601 duration (e.g. PT15M33S)
      */
     suspend fun getVideoDetails(videoId: String): Either<YoutubeError, YoutubeVideoDetailsResponse> {

@@ -23,39 +23,6 @@ sealed interface YoutubeError {
 }
 
 @Serializable
-data class YoutubeSearchResponse(
-    @SerialName("items") val items: List<YoutubeSearchItem>,
-)
-
-@Serializable
-data class YoutubeSearchItem(
-    @SerialName("id") val id: ItemId,
-    @SerialName("snippet") val snippet: YoutubeSnippet,
-)
-
-@Serializable
-data class ItemId(
-    @SerialName("videoId") val videoId: String = "",
-)
-
-@Serializable
-data class YoutubeSnippet(
-    @SerialName("title") val title: String = "",
-    @SerialName("channelTitle") val channelTitle: String = "",
-    @SerialName("thumbnails") val thumbnails: Thumbnails = Thumbnails(),
-)
-
-@Serializable
-data class Thumbnails(
-    @SerialName("high") val high: ThumbnailInfo = ThumbnailInfo(),
-)
-
-@Serializable
-data class ThumbnailInfo(
-    @SerialName("url") val url: String = "",
-)
-
-@Serializable
 data class YoutubeVideoDetailsResponse(
     @SerialName("items") val items: List<VideoDetailItem> = emptyList(),
 )

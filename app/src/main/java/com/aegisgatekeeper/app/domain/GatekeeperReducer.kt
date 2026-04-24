@@ -546,18 +546,6 @@ private fun reduceContentAndVault(
         }
 
         // --- YouTube Clean Room Logic ---
-        is GatekeeperAction.SearchYouTubeRequested -> {
-            state.copy(isLoadingYouTube = true, youtubeSearchResults = emptyList())
-        }
-
-        is GatekeeperAction.YouTubeSearchCompleted -> {
-            state.copy(isLoadingYouTube = false, youtubeSearchResults = action.results)
-        }
-
-        is GatekeeperAction.YouTubeSearchFailed -> {
-            state.copy(isLoadingYouTube = false)
-        }
-
         is GatekeeperAction.SaveMediaPosition -> {
             state.copy(savedMediaPositions = state.savedMediaPositions + (action.mediaId to action.positionSeconds))
         }

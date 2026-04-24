@@ -83,10 +83,6 @@ actual fun CleanPlayerModal(
         remember(videoId) {
             val cleanTitle =
                 state.contentItems.find { it.videoId == videoId }?.title
-                    ?: state.youtubeSearchResults
-                        .find { it.id.videoId == videoId }
-                        ?.snippet
-                        ?.title
                     ?: "Clean Player Video"
             cleanTitle
                 .replace("&amp;", "&")
