@@ -153,21 +153,35 @@ fun SurgicalFacebookScreen(
                         if (targetPath != null) {
                             val js = """
                                 (function(targetPath) {
-                                    var links = Array.from(document.querySelectorAll('a')).filter(a => a.href && a.href.includes(targetPath));
-                                    if (links.length > 0) {
-                                        links[0].click();
-                                        return 'clicked';
+                                    try {
+                                        var links = Array.from(document.querySelectorAll('a')).filter(a => a.href && a.href.includes(targetPath));
+                                        if (links.length > 0) {
+                                            var link = links[0];
+                                            // Rewrite to mobile instantly so React doesn't try to route to desktop
+                                            link.href = link.href.replace('www.facebook.com', 'm.facebook.com').replace('web.facebook.com', 'm.facebook.com');
+                                            
+                                            // Dispatch a real MouseEvent to prevent React's synthetic event engine from crashing
+                                            var evt = new MouseEvent('click', {
+                                                bubbles: true,
+                                                cancelable: true,
+                                                view: window
+                                            });
+                                            link.dispatchEvent(evt);
+                                            return 'clicked';
+                                        }
+                                        return 'not_found';
+                                    } catch(e) {
+                                        return 'error_' + e.message;
                                     }
-                                    return 'not_found';
                                 })('$targetPath');
                             """.trimIndent()
                             
                             webView.evaluateJavascript(js) { result ->
-                                if (result == "\"not_found\"" || result == "null") {
-                                    android.util.Log.d("Gatekeeper", "🛡️ SPA hack failed (link not found). Falling back to hard load: $newUrl")
-                                    webView.loadUrl(newUrl)
-                                } else {
+                                if (result == "\"clicked\"") {
                                     android.util.Log.d("Gatekeeper", "✨ SPA hack succeeded. Soft navigating to: $newUrl")
+                                } else {
+                                    android.util.Log.d("Gatekeeper", "🛡️ SPA hack failed ($result). Falling back to hard load: $newUrl")
+                                    webView.loadUrl(newUrl)
                                 }
                             }
                             true // Handled asynchronously
