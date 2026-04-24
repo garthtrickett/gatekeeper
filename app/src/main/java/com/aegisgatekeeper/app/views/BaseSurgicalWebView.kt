@@ -60,9 +60,16 @@ fun BaseSurgicalWebView(
                 settings.javaScriptCanOpenWindowsAutomatically = true
                 settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 
-                // Completely mask the WebView to prevent Facebook 2FA and Google from serving 404s or rejecting logins.
-                // Both "; wv" and "Version/4.0 " are unique fingerprints of Android WebViews.
-                settings.userAgentString = settings.userAgentString.replace("; wv", "").replace("Version/4.0 ", "")
+                if (url.contains("facebook.com", ignoreCase = true)) {
+                    // Facebook explicitly blocks Android WebViews from completing 2FA flows to prevent phishing.
+                    // Spoofing an iOS Safari User-Agent bypasses their Android-specific WebView detection 
+                    // while still serving the correct mobile web layout.
+                    settings.userAgentString = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1"
+                } else if (url.contains("youtube.com", ignoreCase = true) || url.contains("google.com", ignoreCase = true)) {
+                    // Completely mask the WebView to prevent Google from serving 404s or rejecting logins.
+                    // Both "; wv" and "Version/4.0 " are unique fingerprints of Android WebViews.
+                    settings.userAgentString = settings.userAgentString.replace("; wv", "").replace("Version/4.0 ", "")
+                }
 
                 val cookieManager = CookieManager.getInstance()
                 cookieManager.setAcceptCookie(true)
