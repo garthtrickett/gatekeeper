@@ -2,7 +2,10 @@ package com.aegisgatekeeper.app.views
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth.assertThat
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.MainActivity
 import com.aegisgatekeeper.app.domain.GatekeeperTheme
