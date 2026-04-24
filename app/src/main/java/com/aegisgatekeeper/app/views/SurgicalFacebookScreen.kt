@@ -49,7 +49,7 @@ fun SurgicalFacebookScreen(
 
     LaunchedEffect(Unit) {
         val cookies = cookieManager.getCookie("https://m.facebook.com") ?: ""
-        isLoggedIn = cookies.contains("c_user=") || cookies.contains("xs=")
+        isLoggedIn = cookies.contains("c_user=") && cookies.contains("xs=")
     }
 
     Column(
@@ -139,6 +139,12 @@ private fun ColumnScope.LoginWebView(onLoginSuccess: () -> Unit) {
                     )
                 settings.javaScriptEnabled = true
                 settings.domStorageEnabled = true
+                settings.useWideViewPort = true
+                settings.loadWithOverviewMode = true
+                settings.javaScriptCanOpenWindowsAutomatically = true
+                settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                settings.userAgentString = settings.userAgentString.replace("; wv", "")
+
                 cookieManager.setAcceptCookie(true)
                 cookieManager.setAcceptThirdPartyCookies(this, true)
 
@@ -169,8 +175,9 @@ private fun ColumnScope.LoginWebView(onLoginSuccess: () -> Unit) {
                             super.onPageFinished(view, url)
                             android.util.Log.d("Gatekeeper", "✅ FB-LOGIN-LOADED: $url")
                             val cookies = cookieManager.getCookie("https://m.facebook.com") ?: ""
-                            if (cookies.contains("c_user=") || cookies.contains("xs=")) {
+                            if (cookies.contains("c_user=") && cookies.contains("xs=")) {
                                 android.util.Log.d("Gatekeeper", "✅ FB-AUTH: Login successful, auth cookie detected!")
+                                cookieManager.flush()
                                 onLoginSuccess()
                             }
                         }
