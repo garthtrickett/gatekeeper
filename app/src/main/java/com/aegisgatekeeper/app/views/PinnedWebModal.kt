@@ -46,6 +46,13 @@ actual fun PinnedWebModal(
             modifier = Modifier.weight(1f),
             cssInjector = { "" },
             networkBlocklist = emptyList(),
+            onPageLoaded = { loadedUrl ->
+                // Once login is successful, we'll be redirected back to youtube.
+                // At that point, we can close this modal.
+                if (loadedUrl.contains("youtube.com") && !loadedUrl.contains("accounts.google.com")) {
+                    onClose()
+                }
+            }
         )
     }
 }
