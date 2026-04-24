@@ -184,7 +184,7 @@ private fun ColumnScope.LoginWebView(onLoginSuccess: () -> Unit) {
                             }
                         }
                     }
-                loadUrl(url)
+                loadUrl(targetUrl)
             }
         },
     )
