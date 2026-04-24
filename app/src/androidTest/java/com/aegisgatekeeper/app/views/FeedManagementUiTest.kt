@@ -10,6 +10,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.MainActivity
 import com.aegisgatekeeper.app.api.RssEpisode
+import com.aegisgatekeeper.app.domain.CachedEpisode
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.GatekeeperTheme
 import com.aegisgatekeeper.app.domain.PodcastSubscription
