@@ -140,6 +140,17 @@ fun BaseSurgicalWebView(
                             currentUrl?.let { onPageLoaded(it) }
 
                             if (jailRoot != null) {
+                                val cookies = CookieManager.getInstance().getCookie(currentUrl) ?: ""
+                                val isNowLoggedIn = cookies.contains("c_user=") && cookies.contains("xs=")
+                                val isOnDesktopHomepage = currentUrl?.contains("www.facebook.com") == true && (currentUrl.endsWith("/") || currentUrl.endsWith("home.php"))
+
+                                // AUTH-DETOUR STEP 4: Detect successful desktop login and redirect back to mobile surgical root.
+                                if (isNowLoggedIn && isOnDesktopHomepage) {
+                                    android.util.Log.d("Gatekeeper", "✅ AUTH-DETOUR: Desktop login complete. Redirecting to mobile surgical root: $jailRoot")
+                                    view?.loadUrl(jailRoot)
+                                    return
+                                }
+
                                 val isExplicitHomeFeed =
                                     currentUrl == "https://m.facebook.com/" ||
                                         currentUrl?.startsWith("https://m.facebook.com/?") == true ||
@@ -219,6 +230,14 @@ fun BaseSurgicalWebView(
                         ): Boolean {
                             val newUrl = request?.url?.toString() ?: ""
                             android.util.Log.d("Gatekeeper", "🔀 BASE-WEB-REDIRECT: $newUrl")
+
+                            // AUTH-DETOUR STEP 1 & 2: If we are being sent to the mobile login, intercept and force the desktop version.
+                            if (newUrl.contains("m.facebook.com/login")) {
+                                val desktopLoginUrl = newUrl.replace("m.facebook.com", "www.facebook.com")
+                                android.util.Log.d("Gatekeeper", "🛡️ AUTH-DETOUR: Forcing desktop login via: $desktopLoginUrl")
+                                view?.loadUrl(desktopLoginUrl)
+                                return true // We've handled the navigation.
+                            }
 
                             if (newUrl.startsWith("intent://") || newUrl.startsWith("fb://") || newUrl.startsWith("android-app://")) {
                                 android.util.Log.d("Gatekeeper", "🛡️ BASE-WEB: Intercepting deep link: $newUrl")
