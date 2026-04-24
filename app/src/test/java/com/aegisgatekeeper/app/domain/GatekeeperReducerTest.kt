@@ -1,10 +1,5 @@
 package com.aegisgatekeeper.app.domain
 
-import com.aegisgatekeeper.app.api.ItemId
-import com.aegisgatekeeper.app.api.ThumbnailInfo
-import com.aegisgatekeeper.app.api.Thumbnails
-import com.aegisgatekeeper.app.api.YoutubeSearchItem
-import com.aegisgatekeeper.app.api.YoutubeSnippet
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
