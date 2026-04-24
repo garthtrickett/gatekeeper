@@ -148,7 +148,8 @@ fun SurgicalFacebookScreen(
                             android.util.Log.d("Gatekeeper", "✅ FB-AUTH: Login fully completed (reached home).")
                             cookieManager.flush()
                             isLoggedIn = true
-                            GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/"))
+                            // Force a state update with a cache-busting param to trigger WebView reload
+                            GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/?reload=${System.currentTimeMillis()}"))
                         }
                     }
                 },
