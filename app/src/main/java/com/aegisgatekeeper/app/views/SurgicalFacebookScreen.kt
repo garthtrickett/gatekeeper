@@ -118,29 +118,9 @@ fun SurgicalFacebookScreen(
                 modifier = Modifier.weight(1f),
                 userAgent = userAgent,
                 onLoginSuccess = {
-                    android.util.Log.d("Gatekeeper", "🔄 FB-AUTH: Login Success. Sanitizing cookies and switching to Mobile UA.")
-                    val rawCookiesDesktop = cookieManager.getCookie("https://facebook.com") ?: ""
-                    val rawCookiesMobile = cookieManager.getCookie("https://m.facebook.com") ?: ""
-                    val allCookies = "$rawCookiesDesktop;$rawCookiesMobile"
-                    val keepKeys = setOf("c_user", "xs", "datr", "fr", "sb")
-                    val savedCookies = mutableSetOf<String>()
-                    
-                    allCookies.split(";").forEach { pair ->
-                        val trimmed = pair.trim()
-                        val key = trimmed.substringBefore("=")
-                        if (key in keepKeys && trimmed.isNotBlank()) {
-                            savedCookies.add(trimmed)
-                        }
-                    }
-                    
-                    cookieManager.removeAllCookies {
-                        savedCookies.forEach { cookie ->
-                            cookieManager.setCookie("https://facebook.com", "$cookie; domain=.facebook.com; path=/")
-                        }
-                        cookieManager.flush()
-                        isLoggedIn = true
-                        forceReload++
-                    }
+                    android.util.Log.d("Gatekeeper", "🔄 FB-AUTH: Login Success. Switching to Mobile UA.")
+                    isLoggedIn = true
+                    forceReload++
                 },
                 onInterceptUrlChange = { webView, newUrl ->
                     if (isLoggedIn) {
@@ -154,19 +134,14 @@ fun SurgicalFacebookScreen(
                             val js = """
                                 (function(targetPath) {
                                     try {
-                                        var links = Array.from(document.querySelectorAll('a')).filter(a => a.href && a.href.includes(targetPath));
-                                        if (links.length > 0) {
-                                            var link = links[0];
-                                            // Rewrite to mobile instantly so React doesn't try to route to desktop
-                                            link.href = link.href.replace('www.facebook.com', 'm.facebook.com').replace('web.facebook.com', 'm.facebook.com');
-                                            
-                                            // Dispatch a real MouseEvent to prevent React's synthetic event engine from crashing
-                                            var evt = new MouseEvent('click', {
-                                                bubbles: true,
-                                                cancelable: true,
-                                                view: window
-                                            });
-                                            link.dispatchEvent(evt);
+                                        // Prioritize the bottom navigation tab links, then fall back to any link
+                                        var links = Array.from(document.querySelectorAll('a[role="tab"]')).concat(Array.from(document.querySelectorAll('a')));
+                                        var targetLink = links.find(a => a.href && a.href.includes(targetPath));
+                                        
+                                        if (targetLink) {
+                                            // Click the inner element to correctly trigger React's synthetic event system without a TypeError
+                                            var clickTarget = targetLink.firstElementChild || targetLink;
+                                            clickTarget.click();
                                             return 'clicked';
                                         }
                                         return 'not_found';
