@@ -1,4 +1,4 @@
-package com.aegisgatekeeper.app.views
+package com.aegisgatekeeper.app
 
 import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.assertIsDisplayed
@@ -7,11 +7,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth.assertThat
-import com.aegisgatekeeper.app.GatekeeperStateManager
-import com.aegisgatekeeper.app.MainActivity
 import com.aegisgatekeeper.app.domain.GatekeeperTheme
-import com.aegisgatekeeper.app.resetStateForTest
+import com.aegisgatekeeper.app.views.CleanYouTubeDialog
+import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
