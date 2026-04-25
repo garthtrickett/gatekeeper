@@ -305,6 +305,27 @@ class GatekeeperStateManagerTest {
         }
 
     @Test
+    fun testPodcastEpisodeQueries_selectAllLatestGlobal_sortsByLastModifiedDesc() =
+        runTest {
+            // Arrange: Create a subscription
+            db.podcastSubscriptionQueries.insert("sub1", "https://test.com/feed", "Test Show", null)
+
+            // Insert episodes with explicit lastModified values (simulating parsed pubDates)
+            db.podcastEpisodeQueries.insertOrReplace("ep1", "sub1", "Older Episode", "url1", 1000L, "Jan 01", 10000L)
+            db.podcastEpisodeQueries.insertOrReplace("ep2", "sub1", "Newer Episode", "url2", 1000L, "Jan 02", 20000L)
+            db.podcastEpisodeQueries.insertOrReplace("ep3", "sub1", "Oldest Episode", "url3", 1000L, "Dec 31", 5000L)
+
+            // Act
+            val latest = db.podcastEpisodeQueries.selectAllLatestGlobal().executeAsList()
+
+            // Assert: Should be sorted by lastModified DESC (Newer -> Older -> Oldest)
+            assertThat(latest).hasSize(3)
+            assertThat(latest[0].title).isEqualTo("Newer Episode")
+            assertThat(latest[1].title).isEqualTo("Older Episode")
+            assertThat(latest[2].title).isEqualTo("Oldest Episode")
+        }
+
+    @Test
     fun testContentItemQueries_limitsAndCounts() =
         runTest {
             // Arrange

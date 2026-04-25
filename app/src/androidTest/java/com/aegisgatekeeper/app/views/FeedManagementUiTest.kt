@@ -162,6 +162,11 @@ class FeedManagementUiTest {
         composeTestRule.onNodeWithText("Global Episode 1").assertIsDisplayed()
         composeTestRule.onNodeWithText("The Sovereign Podcast • Feb 01 • 30m").assertIsDisplayed()
 
+        // Act: Click Refresh and verify state update
+        composeTestRule.onNodeWithText("Refresh").performClick()
+        composeTestRule.waitForIdle()
+        assertThat(GatekeeperStateManager.state.value.isSyncingPodcasts).isTrue()
+
         // Act: Click the '+' button to add to bank
         composeTestRule.onNodeWithText("+").performClick()
         composeTestRule.waitForIdle()
