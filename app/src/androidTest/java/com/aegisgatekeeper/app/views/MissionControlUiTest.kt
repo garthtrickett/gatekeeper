@@ -121,7 +121,7 @@ class MissionControlUiTest {
         composeTestRule.onNodeWithText("Add to Mission Control").assertIsDisplayed()
 
         // Click Add an App
-        composeTestRule.onNodeWithText("Add an App").performClick()
+        composeTestRule.onNodeWithText("Manage Apps").performClick()
 
         // Verify App Picker dialog appears
         composeTestRule.onNodeWithText("Pin Essential Apps").assertIsDisplayed()
@@ -142,7 +142,7 @@ class MissionControlUiTest {
         composeTestRule.onNodeWithText("+").performClick()
 
         // Choose "Add a Website"
-        composeTestRule.onNodeWithText("Add a Website").performClick()
+        composeTestRule.onNodeWithText("Manage Websites").performClick()
 
         // Verify dialog appears
         composeTestRule.onNodeWithText("Pin a Website").assertIsDisplayed()
