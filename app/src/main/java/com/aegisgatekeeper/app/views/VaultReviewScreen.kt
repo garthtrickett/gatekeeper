@@ -177,7 +177,6 @@ private fun VaultItemCard(
                     onClick = {
                         val encoded = java.net.URLEncoder.encode(item.query, "UTF-8")
                         GatekeeperStateManager.dispatch(GatekeeperAction.SurgicalNavigationRequested("https://duckduckgo.com/?q=$encoded"))
-                        GatekeeperStateManager.dispatch(GatekeeperAction.MarkVaultItemResolved(item.id, System.currentTimeMillis()))
                         onNavigateToWeb()
                     },
                     text = "🌐 Web"
@@ -186,14 +185,12 @@ private fun VaultItemCard(
                     onClick = {
                         val encoded = java.net.URLEncoder.encode(item.query, "UTF-8")
                         GatekeeperStateManager.dispatch(GatekeeperAction.ShowSurgicalSearch("https://m.youtube.com/results?search_query=$encoded"))
-                        GatekeeperStateManager.dispatch(GatekeeperAction.MarkVaultItemResolved(item.id, System.currentTimeMillis()))
                     },
                     text = "🎬 YouTube"
                 )
                 IndustrialButton(
                     onClick = {
                         GatekeeperStateManager.dispatch(GatekeeperAction.SearchPodcastsRequested(item.query))
-                        GatekeeperStateManager.dispatch(GatekeeperAction.MarkVaultItemResolved(item.id, System.currentTimeMillis()))
                         onOpenPodcasts(item.query)
                     },
                     text = "🎙️ Podcasts"
