@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS GiveUpLog (
 );
 
 insert:
-INSERT INTO GiveUpLog(id, packageName, timestamp) VALUES (:id, :packageName, :timestamp);
+INSERT OR REPLACE INTO GiveUpLog(id, packageName, timestamp) VALUES (:id, :packageName, :timestamp);
 
 selectAll:
 SELECT * FROM GiveUpLog ORDER BY timestamp DESC;

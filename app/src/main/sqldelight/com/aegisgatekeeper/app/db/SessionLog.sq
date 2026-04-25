@@ -14,5 +14,5 @@ selectAll:
 SELECT * FROM SessionLog ORDER BY loggedAtTimestamp DESC;
 
 insert:
-INSERT INTO SessionLog(id, packageName, durationMillis, emotion, loggedAtTimestamp)
+INSERT OR REPLACE INTO SessionLog(id, packageName, durationMillis, emotion, loggedAtTimestamp)
 VALUES (:id, :packageName, :durationMillis, :emotion, :loggedAtTimestamp);

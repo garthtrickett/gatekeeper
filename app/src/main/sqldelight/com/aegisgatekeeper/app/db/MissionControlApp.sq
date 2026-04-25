@@ -7,7 +7,7 @@ selectAll:
 SELECT * FROM MissionControlApp ORDER BY rank ASC;
 
 insert:
-INSERT INTO MissionControlApp(packageName, rank) VALUES (:packageName, :rank);
+INSERT OR REPLACE INTO MissionControlApp(packageName, rank) VALUES (:packageName, :rank);
 
 deleteAll:
 DELETE FROM MissionControlApp;

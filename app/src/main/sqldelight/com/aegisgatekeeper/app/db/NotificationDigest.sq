@@ -10,7 +10,7 @@ selectAll:
 SELECT * FROM NotificationDigest ORDER BY timestamp DESC;
 
 insert:
-INSERT INTO NotificationDigest(id, packageName, title, content, timestamp) VALUES (?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO NotificationDigest(id, packageName, title, content, timestamp) VALUES (?, ?, ?, ?, ?);
 
 deleteAll:
 DELETE FROM NotificationDigest;

@@ -46,7 +46,7 @@ selectAllScheduledBlockRules:
 SELECT * FROM ScheduledBlockRule;
 
 insertBlockingRule:
-INSERT INTO BlockingRule(id, groupId, ruleType, isEnabled) VALUES (:id, :groupId, :ruleType, :isEnabled);
+INSERT OR REPLACE INTO BlockingRule(id, groupId, ruleType, isEnabled) VALUES (:id, :groupId, :ruleType, :isEnabled);
 
 deleteBlockingRule:
 DELETE FROM BlockingRule WHERE id = :id;
@@ -70,4 +70,4 @@ selectAllConsumedCheckIns:
 SELECT * FROM ConsumedCheckIn ORDER BY timestamp DESC;
 
 insertConsumedCheckIn:
-INSERT INTO ConsumedCheckIn(id, groupId, timeMinutes, timestamp) VALUES (:id, :groupId, :timeMinutes, :timestamp);
+INSERT OR REPLACE INTO ConsumedCheckIn(id, groupId, timeMinutes, timestamp) VALUES (:id, :groupId, :timeMinutes, :timestamp);

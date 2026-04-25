@@ -9,7 +9,7 @@ selectAll:
 SELECT * FROM MissionControlWebsite ORDER BY rank ASC;
 
 insert:
-INSERT INTO MissionControlWebsite(id, label, url, rank) VALUES (:id, :label, :url, :rank);
+INSERT OR REPLACE INTO MissionControlWebsite(id, label, url, rank) VALUES (:id, :label, :url, :rank);
 
 delete:
 DELETE FROM MissionControlWebsite WHERE id = :id;

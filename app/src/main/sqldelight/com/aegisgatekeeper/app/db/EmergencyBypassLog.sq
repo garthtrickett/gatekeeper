@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS EmergencyBypassLog (
 );
 
 insert:
-INSERT INTO EmergencyBypassLog(id, packageName, reason, timestamp)
+INSERT OR REPLACE INTO EmergencyBypassLog(id, packageName, reason, timestamp)
 VALUES (:id, :packageName, :reason, :timestamp);
 
 selectAll:
