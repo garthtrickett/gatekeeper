@@ -55,51 +55,11 @@ fun InterceptionScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
     val interceptedPackage = state.currentlyInterceptedApp ?: return
 
-    // This local state determines which screen to show: CHOICE, BYPASS, SWAP, or FRICTION
-    var screen by remember(state.expiredSessionDurationMillis) {
-        mutableStateOf(if (state.expiredSessionDurationMillis != null) "SWAP" else "CHOICE")
-    }
+    // This local state determines which screen to show: CHOICE, BYPASS, or FRICTION
+    var screen by remember { mutableStateOf("CHOICE") }
     var selectedTimeMillis by remember { mutableStateOf(15 * 60_000L) }
 
     when (screen) {
-        "SWAP" -> {
-            val maxMins = ((state.expiredSessionDurationMillis ?: 0L) / 60000).toInt()
-            TimeBoxSwapUi(
-                maxMinutes = maxMins,
-                items = state.contentItems,
-                onPlayContent = { item ->
-                    if (item.type == com.aegisgatekeeper.app.domain.ContentType.VIDEO) {
-                        val intent =
-                            android.content.Intent(com.aegisgatekeeper.app.App.instance, MainActivity::class.java).apply {
-                                putExtra("OPEN_CLEAN_PLAYER_VIDEO_ID", item.videoId)
-                                flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            }
-                        com.aegisgatekeeper.app.App.instance
-                            .startActivity(intent)
-                    } else if (item.type == com.aegisgatekeeper.app.domain.ContentType.AUDIO) {
-                        val intent =
-                            android.content.Intent(com.aegisgatekeeper.app.App.instance, MainActivity::class.java).apply {
-                                if (item.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
-                                    putExtra("OPEN_CLEAN_AUDIO_URL", item.videoId)
-                                } else {
-                                    putExtra("OPEN_NATIVE_AUDIO_ID", item.id)
-                                }
-                                flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            }
-                        com.aegisgatekeeper.app.App.instance
-                            .startActivity(intent)
-                    } else {
-                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(item.videoId))
-                        intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-                        com.aegisgatekeeper.app.App.instance
-                            .startActivity(intent)
-                    }
-                    GatekeeperStateManager.dispatch(GatekeeperAction.DismissOverlay)
-                },
-                onCancel = { screen = "CHOICE" },
-            )
-        }
-
         "CHOICE" -> {
             InterceptionChoiceUi(
                 interceptedPackage = interceptedPackage,
