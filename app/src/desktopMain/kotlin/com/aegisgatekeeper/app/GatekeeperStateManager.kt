@@ -5,7 +5,12 @@ import com.aegisgatekeeper.app.domain.GatekeeperState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-object GatekeeperStateManager {
+import me.tatarka.inject.annotations.Inject
+import com.aegisgatekeeper.app.di.Singleton
+
+@Inject
+@Singleton
+class GatekeeperStateManager {
     private val _state = MutableStateFlow(GatekeeperState())
     val state = _state.asStateFlow()
 

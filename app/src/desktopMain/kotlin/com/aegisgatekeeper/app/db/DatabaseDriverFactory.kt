@@ -3,10 +3,12 @@ package com.aegisgatekeeper.app.db
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.aegisgatekeeper.app.db.GatekeeperDatabase
+import me.tatarka.inject.annotations.Inject
 import java.io.File
 
-actual class DatabaseDriverFactory actual constructor() {
-    actual fun createDriver(): SqlDriver {
+@Inject
+class DesktopSqlDriverFactory : SqlDriverFactory {
+    override fun createDriver(): SqlDriver {
         val osName = System.getProperty("os.name").lowercase()
         val userHome = System.getProperty("user.home")
         val dataDirPath =

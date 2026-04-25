@@ -1,15 +1,17 @@
 package com.aegisgatekeeper.app.db
 
+import android.content.Context
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
-import com.aegisgatekeeper.app.App
 import com.aegisgatekeeper.app.db.GatekeeperDatabase
+import me.tatarka.inject.annotations.Inject
 
-actual class DatabaseDriverFactory actual constructor() {
-    actual fun createDriver(): SqlDriver =
+@Inject
+class AndroidSqlDriverFactory(private val context: Context) : SqlDriverFactory {
+    override fun createDriver(): SqlDriver =
         AndroidSqliteDriver(
             schema = GatekeeperDatabase.Schema,
-            context = App.instance,
+            context = context,
             name = "gatekeeper.db",
             callback =
                 object : AndroidSqliteDriver.Callback(GatekeeperDatabase.Schema) {

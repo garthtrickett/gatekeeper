@@ -22,44 +22,28 @@ data class RssFeedData(
     val episodes: List<RssEpisode>,
 )
 
-object RssClient {
+import me.tatarka.inject.annotations.Inject
+import com.aegisgatekeeper.app.di.Singleton
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
+
+@Inject
+@Singleton
+class RssClient(private val client: HttpClient) {
     suspend fun fetchFeed(feedUrl: String): Either<String, RssFeedData> =
         withContext(Dispatchers.IO) {
             try {
-                var currentUrl = feedUrl
-                var connection: HttpURLConnection
-                var redirects = 0
-
-                while (true) {
-                    connection = URL(currentUrl).openConnection() as HttpURLConnection
-                    connection.requestMethod = "GET"
-                    connection.setRequestProperty(
-                        "User-Agent",
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-                    )
-                    connection.setRequestProperty("Accept", "application/rss+xml, application/xml, text/xml, */*")
-                    connection.connectTimeout = 30000
-                    connection.readTimeout = 30000
-                    connection.instanceFollowRedirects = false
-
-                    val status = connection.responseCode
-                    if (status in 300..399) {
-                        val location = connection.getHeaderField("Location")
-                        if (location != null) {
-                            currentUrl = location
-                            redirects++
-                            if (redirects > 10) break
-                            continue
-                        }
-                    }
-                    break
+                val response = client.get(feedUrl) {
+                    header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+                    header("Accept", "application/rss+xml, application/xml, text/xml, */*")
+                }
+                if (response.status.value !in 200..299) {
+                    return@withContext "HTTP Error: ${response.status.value}".left()
                 }
 
-                if (connection.responseCode !in 200..299) {
-                    return@withContext "HTTP Error: ${connection.responseCode}".left()
-                }
-
-                val xml = connection.inputStream.bufferedReader().use { it.readText() }
+                val xml = response.bodyAsText()
 
                 // Basic parsing using highly predictable regex for standard RSS structure
                 val channelTitle =

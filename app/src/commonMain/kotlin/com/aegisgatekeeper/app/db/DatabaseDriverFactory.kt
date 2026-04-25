@@ -2,6 +2,6 @@ package com.aegisgatekeeper.app.db
 
 import app.cash.sqldelight.db.SqlDriver
 
-expect class DatabaseDriverFactory() {
+interface SqlDriverFactory {
     fun createDriver(): SqlDriver
 }

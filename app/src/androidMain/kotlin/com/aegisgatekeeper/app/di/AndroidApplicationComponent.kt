@@ -18,4 +18,11 @@ abstract class AndroidApplicationComponent(
 
     @Provides
     fun mediaDownloader(impl: AndroidMediaDownloader): MediaDownloader = impl
+
+    @Provides
+    fun sqlDriverFactory(impl: AndroidSqlDriverFactory): SqlDriverFactory = impl
+
+    @Provides
+    @Singleton
+    fun provideDatabase(provider: DatabaseProvider): GatekeeperDatabase = provider.db
 }

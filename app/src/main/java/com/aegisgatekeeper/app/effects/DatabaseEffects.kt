@@ -468,6 +468,7 @@ fun handleDatabaseEffects(
             db.alternativeActivityQueries.delete(action.id)
         }
 
-        else -> { /* Other actions don't interact directly with DB in this handler */ }
+            else -> { /* Other actions don't interact directly with DB in this handler */ }
+        }
     }
 }

@@ -22,7 +22,16 @@ data class ContentMetadata(
     val resolvedUrl: String? = null,
 )
 
-object UrlMetadataClient {
+import me.tatarka.inject.annotations.Inject
+import com.aegisgatekeeper.app.di.Singleton
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
+
+@Inject
+@Singleton
+class UrlMetadataClient(private val client: HttpClient) {
     suspend fun fetchMetadata(
         url: String,
         isSoundCloud: Boolean = false,
@@ -30,43 +39,14 @@ object UrlMetadataClient {
     ): Either<UrlMetadataError, ContentMetadata> =
         withContext(Dispatchers.IO) {
             try {
-                var currentUrl = url
-                var connection: java.net.HttpURLConnection
-                var redirects = 0
-
-                while (true) {
-                    connection = URL(currentUrl).openConnection() as java.net.HttpURLConnection
-                    connection.requestMethod = "GET"
-                    connection.setRequestProperty(
-                        "User-Agent",
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-                    )
-                    connection.setRequestProperty("Accept-Language", "en-US,en;q=0.9")
-                    connection.connectTimeout = 30000
-                    connection.readTimeout = 30000
-                    connection.instanceFollowRedirects = false
-
-                    val status = connection.responseCode
-                    if (status in 300..399) {
-                        val location = connection.getHeaderField("Location")
-                        if (location != null) {
-                            currentUrl =
-                                if (location.startsWith("/")) {
-                                    URL(URL(currentUrl), location).toString()
-                                } else {
-                                    location
-                                }
-                            redirects++
-                            if (redirects > 10) break
-                            continue
-                        }
-                    }
-                    break
+                val response = client.get(url) {
+                    header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+                    header("Accept-Language", "en-US,en;q=0.9")
                 }
 
-                val html = connection.inputStream.readBytes().toString(Charsets.UTF_8)
+                val html = response.bodyAsText()
 
-                var resolvedUrl = currentUrl
+                var resolvedUrl = url
                 val canonicalRegex = """<link\s+rel=["']canonical["']\s+href=["']([^"']+)["']""".toRegex(RegexOption.IGNORE_CASE)
                 val canonicalMatch = canonicalRegex.find(html)
                 if (canonicalMatch != null) {

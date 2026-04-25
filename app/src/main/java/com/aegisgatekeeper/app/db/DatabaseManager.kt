@@ -66,9 +66,8 @@ object DatabaseManager {
         }
 
     val db: GatekeeperDatabase by lazy {
-        val driver = DatabaseDriverFactory().createDriver()
         GatekeeperDatabase(
-            driver = driver,
+            driver = driverFactory.createDriver(),
             AppGroupAdapter =
                 AppGroup.Adapter(
                     ruleCombinatorAdapter = ruleCombinatorAdapter,

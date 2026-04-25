@@ -226,12 +226,13 @@ suspend fun handleMediaAndSystemEffects(
         is GatekeeperAction.ClearIntentionalSlot,
         -> {
             try {
-                VaultWidget().updateAll(App.instance)
+                VaultWidget().updateAll(context)
             } catch (e: Exception) {
                 Log.e("Gatekeeper", "Widget Update Failed", e)
             }
         }
 
         else -> { /* Other actions don't interact with media/system in this handler */ }
+        }
     }
 }

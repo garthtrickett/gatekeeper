@@ -340,9 +340,9 @@ object GatekeeperStateManager {
         newState: GatekeeperState,
     ) {
         scope.launch {
-            handleDatabaseEffects(action, oldState, newState, db, ::dispatch)
-            handleSyncAndAuthEffects(action, newState, db)
-            handleMediaAndSystemEffects(action, newState, ::dispatch)
+            dbEffectHandler.handle(action, oldState, newState, ::dispatch)
+            syncEffectHandler.handle(action, newState)
+            mediaEffectHandler.handle(action, newState, ::dispatch)
         }
     }
 }

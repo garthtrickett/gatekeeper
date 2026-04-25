@@ -8,6 +8,7 @@ import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
 
 @Component
+@Singleton
 abstract class DesktopApplicationComponent : SharedApplicationComponent {
 
     @Provides

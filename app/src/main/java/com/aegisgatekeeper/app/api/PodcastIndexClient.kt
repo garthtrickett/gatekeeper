@@ -31,20 +31,13 @@ data class ItunesPodcastDto(
     val artistName: String? = null,
 )
 
-object PodcastIndexClient {
-    private val jsonParser = Json { ignoreUnknownKeys = true }
+import me.tatarka.inject.annotations.Inject
+import com.aegisgatekeeper.app.di.Singleton
 
-    internal var client =
-        HttpClient(OkHttp) {
-            install(HttpTimeout) {
-                requestTimeoutMillis = 30_000
-                connectTimeoutMillis = 30_000
-                socketTimeoutMillis = 30_000
-            }
-            install(ContentNegotiation) {
-                json(jsonParser)
-            }
-        }
+@Inject
+@Singleton
+class PodcastIndexClient(private val client: HttpClient) {
+    private val jsonParser = Json { ignoreUnknownKeys = true }
 
     suspend fun searchPodcasts(query: String): Either<String, List<PodcastFeedDto>> {
         if (query.isBlank()) return emptyList<PodcastFeedDto>().right()
