@@ -110,7 +110,7 @@ fun Routing.syncRouting() {
                             .putData("action", "sync_poke")
                             .addAllTokens(tokens)
                             .build()
-                        com.google.firebase.messaging.FirebaseMessaging.getInstance().sendMulticastAsync(message)
+                        com.google.firebase.messaging.FirebaseMessaging.getInstance().sendEachForMulticastAsync(message)
                     } catch (e: Exception) {
                         call.application.environment.log.error("Failed to send FCM pokes", e)
                     }

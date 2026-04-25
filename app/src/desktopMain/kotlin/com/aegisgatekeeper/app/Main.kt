@@ -98,16 +98,15 @@ fun main() =
         }
 
         DisposableEffect(Unit) {
-                ) {
-                    onDispose { KCEF.disposeBlocking() }
-                }
+            onDispose { KCEF.disposeBlocking() }
+        }
 
         val state by GatekeeperStateManager.state.collectAsState()
 
         // E2E Auto-Login Injection
         LaunchedEffect(Unit) {
             System.getenv("GATEKEEPER_DEV_TOKEN")?.let { token ->
-                stateManager.dispatch(
+                GatekeeperStateManager.dispatch(
                     com.aegisgatekeeper.app.domain.GatekeeperAction
                         .LoginSuccess(token),
                 )
