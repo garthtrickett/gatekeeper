@@ -323,6 +323,15 @@ private fun reduceRulesAndIntercepts(
             state.copy(isManualLockdownActive = action.isActive)
         }
 
+        is GatekeeperAction.UpdatePhaseWindows -> {
+            state.copy(
+                deepWorkStartMinutes = action.deepWorkStartMinutes,
+                deepWorkEndMinutes = action.deepWorkEndMinutes,
+                gatheringStartMinutes = action.gatheringStartMinutes,
+                gatheringEndMinutes = action.gatheringEndMinutes,
+            )
+        }
+
         is GatekeeperAction.UpdateMissionControlApps -> {
             state.copy(missionControlApps = action.packageNames)
         }

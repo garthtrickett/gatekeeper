@@ -206,6 +206,15 @@ object GatekeeperStateManager {
                 _state.value = _state.value.copy(pendingMetacognition = null)
             }
 
+            is GatekeeperAction.UpdatePhaseWindows -> {
+                _state.value = _state.value.copy(
+                    deepWorkStartMinutes = action.deepWorkStartMinutes,
+                    deepWorkEndMinutes = action.deepWorkEndMinutes,
+                    gatheringStartMinutes = action.gatheringStartMinutes,
+                    gatheringEndMinutes = action.gatheringEndMinutes
+                )
+            }
+
             else -> { /* Not all actions are handled on desktop */ }
         }
     }

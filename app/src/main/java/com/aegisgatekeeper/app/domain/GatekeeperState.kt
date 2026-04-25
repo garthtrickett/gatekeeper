@@ -23,6 +23,10 @@ data class GatekeeperState(
     val jwtToken: String? = null,
     // --- Business Logic State ---
     val isManualLockdownActive: Boolean = false,
+    val deepWorkStartMinutes: Int = 540,
+    val deepWorkEndMinutes: Int = 1020,
+    val gatheringStartMinutes: Int = 1080,
+    val gatheringEndMinutes: Int = 1110,
     val missionControlApps: List<String> = emptyList(),
     val missionControlWebsites: List<PinnedWebsite> = emptyList(),
     val activeFrictionGame: FrictionGame = FrictionGame.GAUNTLET,

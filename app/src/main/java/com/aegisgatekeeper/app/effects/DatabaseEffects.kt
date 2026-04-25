@@ -341,6 +341,16 @@ fun handleDatabaseEffects(
             db.appSettingsQueries.updateManualLockdown(action.isActive)
         }
 
+        is GatekeeperAction.UpdatePhaseWindows -> {
+            Log.i("Gatekeeper", "DB: Updating Phase Windows")
+            db.appSettingsQueries.updatePhaseWindows(
+                deepWorkStart = action.deepWorkStartMinutes.toLong(),
+                deepWorkEnd = action.deepWorkEndMinutes.toLong(),
+                gatheringStart = action.gatheringStartMinutes.toLong(),
+                gatheringEnd = action.gatheringEndMinutes.toLong()
+            )
+        }
+
         GatekeeperAction.ClearNotificationDigest -> {
             Log.i("Gatekeeper", "DB: Clearing Notification Digest")
             db.notificationDigestQueries.deleteAll()

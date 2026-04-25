@@ -353,6 +353,13 @@ sealed interface GatekeeperAction {
         val isActive: Boolean,
     ) : GatekeeperAction
 
+    data class UpdatePhaseWindows(
+        val deepWorkStartMinutes: Int,
+        val deepWorkEndMinutes: Int,
+        val gatheringStartMinutes: Int,
+        val gatheringEndMinutes: Int,
+    ) : GatekeeperAction
+
     data class UpdateMissionControlApps(
         val packageNames: List<String>,
     ) : GatekeeperAction

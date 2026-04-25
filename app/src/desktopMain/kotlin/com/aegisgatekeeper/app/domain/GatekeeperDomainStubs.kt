@@ -16,6 +16,10 @@ data class GatekeeperState(
     val savedMediaPositions: Map<String, Float> = emptyMap(),
     val activePinnedWebsiteUrl: String? = null,
     val missionControlWebsites: List<PinnedWebsite> = emptyList(),
+    val deepWorkStartMinutes: Int = 540,
+    val deepWorkEndMinutes: Int = 1020,
+    val gatheringStartMinutes: Int = 1080,
+    val gatheringEndMinutes: Int = 1110,
     val alternativeActivities: List<AlternativeActivity> = emptyList(),
     val podcastSubscriptions: List<PodcastSubscription> = emptyList(),
     val pendingMetacognition: MetacognitionRequest? = null,
@@ -144,11 +148,18 @@ sealed interface GatekeeperAction {
         val url: String,
     ) : GatekeeperAction
 
-    data class RequestMagicLink(
-        val email: String,
+    data class SetManualLockdown(
+        val isActive: Boolean,
     ) : GatekeeperAction
 
-    data class LoginSuccess(
+    data class UpdatePhaseWindows(
+        val deepWorkStartMinutes: Int,
+        val deepWorkEndMinutes: Int,
+        val gatheringStartMinutes: Int,
+        val gatheringEndMinutes: Int,
+    ) : GatekeeperAction
+
+    data class UpdateMissionControlApps(
         val token: String,
     ) : GatekeeperAction
 

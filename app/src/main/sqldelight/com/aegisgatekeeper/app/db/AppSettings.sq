@@ -5,14 +5,21 @@ CREATE TABLE IF NOT EXISTS AppSettings (
     id INTEGER NOT NULL PRIMARY KEY DEFAULT 1,
     isProTier INTEGER AS Boolean NOT NULL DEFAULT 0,
     activeFrictionGame TEXT AS FrictionGame NOT NULL DEFAULT 'GAUNTLET',
-    isManualLockdownActive INTEGER AS Boolean NOT NULL DEFAULT 0
+    isManualLockdownActive INTEGER AS Boolean NOT NULL DEFAULT 0,
+    deepWorkStartMinutes INTEGER NOT NULL DEFAULT 540,
+    deepWorkEndMinutes INTEGER NOT NULL DEFAULT 1020,
+    gatheringStartMinutes INTEGER NOT NULL DEFAULT 1080,
+    gatheringEndMinutes INTEGER NOT NULL DEFAULT 1110
 );
 
 getSettings:
 SELECT * FROM AppSettings WHERE id = 1;
 
 insertDefault:
-INSERT OR IGNORE INTO AppSettings(id, isProTier, activeFrictionGame, isManualLockdownActive) VALUES (1, 0, 'GAUNTLET', 0);
+INSERT OR IGNORE INTO AppSettings(id, isProTier, activeFrictionGame, isManualLockdownActive, deepWorkStartMinutes, deepWorkEndMinutes, gatheringStartMinutes, gatheringEndMinutes) VALUES (1, 0, 'GAUNTLET', 0, 540, 1020, 1080, 1110);
+
+updatePhaseWindows:
+UPDATE AppSettings SET deepWorkStartMinutes = :deepWorkStart, deepWorkEndMinutes = :deepWorkEnd, gatheringStartMinutes = :gatheringStart, gatheringEndMinutes = :gatheringEnd WHERE id = 1;
 
 updateProStatus:
 UPDATE AppSettings SET isProTier = :isProTier WHERE id = 1;
