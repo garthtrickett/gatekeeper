@@ -411,6 +411,62 @@ class GatekeeperStateManagerTest {
         }
 
     @Test
+    fun testUpdateCheckInRuleLogging() =
+        runTest {
+            // Arrange
+            dispatchWithSideEffects(GatekeeperAction.CreateAppGroup("group1", "Group", emptySet()))
+            dispatchWithSideEffects(
+                GatekeeperAction.AddCheckInRule(
+                    id = "checkin_1",
+                    groupId = "group1",
+                    checkInTimesMinutes = listOf(600),
+                    durationMinutes = 15,
+                    daysOfWeek = setOf(com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY)
+                )
+            )
+
+            // Act 1: Verify Initial Insertion
+            var rules = db.blockingRuleQueries.selectAllCheckInRules().executeAsList()
+            assertThat(rules).hasSize(1)
+            assertThat(rules.first().durationMinutes).isEqualTo(15L)
+
+            // Act 2: Update Rule
+            dispatchWithSideEffects(
+                GatekeeperAction.UpdateCheckInRule(
+                    id = "checkin_1",
+                    groupId = "group1",
+                    checkInTimesMinutes = listOf(600, 720),
+                    durationMinutes = 30,
+                    daysOfWeek = setOf(com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY)
+                )
+            )
+
+            // Assert 2: Verify Update
+            rules = db.blockingRuleQueries.selectAllCheckInRules().executeAsList()
+            assertThat(rules).hasSize(1)
+            assertThat(rules.first().durationMinutes).isEqualTo(30L)
+            assertThat(rules.first().checkInTimes).isEqualTo("600,720")
+        }
+
+    @Test
+    fun testMissionControlAppsLogging() =
+        runTest {
+            // Arrange
+            val action = GatekeeperAction.UpdateMissionControlApps(listOf("com.test.app1", "com.test.app2"))
+
+            // Act
+            dispatchWithSideEffects(action)
+
+            // Assert
+            val apps = db.missionControlAppQueries.selectAll().executeAsList()
+            assertThat(apps).hasSize(2)
+            assertThat(apps[0].packageName).isEqualTo("com.test.app1")
+            assertThat(apps[0].rank).isEqualTo(0L)
+            assertThat(apps[1].packageName).isEqualTo("com.test.app2")
+            assertThat(apps[1].rank).isEqualTo(1L)
+        }
+
+    @Test
     fun testDomainBlockRuleLogging() =
         runTest {
             // Arrange: Create a group first to satisfy foreign key constraints
