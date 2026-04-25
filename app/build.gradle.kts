@@ -8,6 +8,7 @@ plugins {
     kotlin("plugin.serialization")
     id("app.cash.sqldelight")
     id("com.google.gms.google-services")
+    id("com.google.devtools.ksp")
 }
 
 android {
