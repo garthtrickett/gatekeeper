@@ -89,7 +89,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
     val currentTime by remember { mutableStateOf(overrideTime ?: LocalTime.now()) }
     val isDeepWork =
         com.aegisgatekeeper.app.domain
-            .isDeepWorkHours(currentTime)
+            .isDeepWorkHours(currentTime, state.deepWorkStartMinutes, state.deepWorkEndMinutes)
     var isEditingUnlocked by remember { mutableStateOf(false) }
     var showFriction by remember { mutableStateOf(false) }
     var pendingFilterAction by remember { mutableStateOf<(() -> Unit)?>(null) }

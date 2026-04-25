@@ -7,35 +7,35 @@ import java.time.LocalTime
 class TimeUtilsTest {
     @Test
     fun testIsDeepWorkHours_InsideWindow_ReturnsTrue() {
-        assertThat(isDeepWorkHours(LocalTime.of(9, 0))).isTrue()
-        assertThat(isDeepWorkHours(LocalTime.of(12, 0))).isTrue()
-        assertThat(isDeepWorkHours(LocalTime.of(16, 59))).isTrue()
+        assertThat(isDeepWorkHours(LocalTime.of(9, 0), 540, 1020)).isTrue()
+        assertThat(isDeepWorkHours(LocalTime.of(12, 0), 540, 1020)).isTrue()
+        assertThat(isDeepWorkHours(LocalTime.of(16, 59), 540, 1020)).isTrue()
     }
 
     @Test
     fun testIsDeepWorkHours_OutsideWindow_ReturnsFalse() {
-        assertThat(isDeepWorkHours(LocalTime.of(8, 59))).isFalse()
-        assertThat(isDeepWorkHours(LocalTime.of(17, 0))).isFalse()
-        assertThat(isDeepWorkHours(LocalTime.of(20, 0))).isFalse()
+        assertThat(isDeepWorkHours(LocalTime.of(8, 59), 540, 1020)).isFalse()
+        assertThat(isDeepWorkHours(LocalTime.of(17, 0), 540, 1020)).isFalse()
+        assertThat(isDeepWorkHours(LocalTime.of(20, 0), 540, 1020)).isFalse()
     }
 
     @Test
     fun testIsVaultUnlocked_Before6PM_ReturnsFalse() {
-        assertThat(isVaultUnlocked(LocalTime.of(17, 59))).isFalse()
-        assertThat(isVaultUnlocked(LocalTime.of(10, 0))).isFalse()
+        assertThat(isVaultUnlocked(LocalTime.of(17, 59), 1080, 1110)).isFalse()
+        assertThat(isVaultUnlocked(LocalTime.of(10, 0), 1080, 1110)).isFalse()
     }
 
     @Test
     fun testIsVaultUnlocked_Between6PMAnd630PM_ReturnsTrue() {
-        assertThat(isVaultUnlocked(LocalTime.of(18, 0))).isTrue()
-        assertThat(isVaultUnlocked(LocalTime.of(18, 15))).isTrue()
-        assertThat(isVaultUnlocked(LocalTime.of(18, 29))).isTrue()
+        assertThat(isVaultUnlocked(LocalTime.of(18, 0), 1080, 1110)).isTrue()
+        assertThat(isVaultUnlocked(LocalTime.of(18, 15), 1080, 1110)).isTrue()
+        assertThat(isVaultUnlocked(LocalTime.of(18, 29), 1080, 1110)).isTrue()
     }
 
     @Test
     fun testIsVaultUnlocked_After630PM_ReturnsFalse() {
-        assertThat(isVaultUnlocked(LocalTime.of(18, 30))).isFalse()
-        assertThat(isVaultUnlocked(LocalTime.of(20, 0))).isFalse()
+        assertThat(isVaultUnlocked(LocalTime.of(18, 30), 1080, 1110)).isFalse()
+        assertThat(isVaultUnlocked(LocalTime.of(20, 0), 1080, 1110)).isFalse()
     }
 
     @Test

@@ -46,10 +46,10 @@ class VaultReviewUiTest {
         }
 
         // Assert
-        composeTestRule.onNodeWithText("The Vault is Locked").assertExists()
+        composeTestRule.onNodeWithText("You are in Focus Mode").assertExists()
         composeTestRule
             .onNodeWithText(
-                "Your distractions are safely stored.\nYou can review them between 6:00 PM and 6:30 PM.",
+                "Your thoughts are captured.\nThe Gathering Phase begins at 6:00 PM.",
             ).assertExists()
 
         // Step 1 check: Verify capture UI exists even when locked
@@ -105,7 +105,7 @@ class VaultReviewUiTest {
 
         // Assert
         composeTestRule.onNodeWithText("Lookup Vault").assertExists()
-        composeTestRule.onNodeWithText("You have until 6:30 PM to review these.").assertExists()
+        composeTestRule.onNodeWithText("The Gathering Phase ends at 6:30 PM. Review your captured thoughts.").assertExists()
     }
 
     @Test

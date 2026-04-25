@@ -294,10 +294,31 @@ sealed interface GatekeeperAction {
     ) : GatekeeperAction
 }
 
-fun isVaultUnlocked(currentTime: LocalTime): Boolean {
-    val start = LocalTime.of(18, 0)
-    val end = LocalTime.of(18, 30)
-    return !currentTime.isBefore(start) && currentTime.isBefore(end)
+fun isDeepWorkHours(currentTime: LocalTime, startMinutes: Int, endMinutes: Int): Boolean {
+    val current = currentTime.hour * 60 + currentTime.minute
+    return if (startMinutes <= endMinutes) {
+        current in startMinutes until endMinutes
+    } else {
+        current >= startMinutes || current < endMinutes
+    }
+}
+
+fun isVaultUnlocked(currentTime: LocalTime, startMinutes: Int, endMinutes: Int): Boolean {
+    val current = currentTime.hour * 60 + currentTime.minute
+    return if (startMinutes <= endMinutes) {
+        current in startMinutes until endMinutes
+    } else {
+        current >= startMinutes || current < endMinutes
+    }
+}
+
+fun formatMinutesToAmPm(minutes: Int): String {
+    var h = minutes / 60
+    val m = minutes % 60
+    val ampm = if (h >= 12) "PM" else "AM"
+    h %= 12
+    if (h == 0) h = 12
+    return String.format("%d:%02d %s", h, m, ampm)
 }
 
 fun parseRssPubDate(

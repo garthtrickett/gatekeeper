@@ -49,7 +49,7 @@ fun VaultReviewScreen(overrideTime: LocalTime? = null) {
         }
     }
 
-    val isUnlocked = isVaultUnlocked(currentTime)
+    val isUnlocked = com.aegisgatekeeper.app.domain.isVaultUnlocked(currentTime, state.gatheringStartMinutes, state.gatheringEndMinutes)
     // Transform, don't mutate: Filter only unresolved items
     val unresolvedItems = state.vaultItems.filter { !it.isResolved && !it.isDeleted }
 
@@ -67,9 +67,9 @@ fun VaultReviewScreen(overrideTime: LocalTime? = null) {
             Spacer(modifier = Modifier.height(8.dp))
 
             if (isUnlocked) {
-                VaultList(unresolvedItems, Modifier.weight(1f))
+                VaultList(unresolvedItems, state.gatheringEndMinutes, Modifier.weight(1f))
             } else {
-                LockedVaultMessage(Modifier.weight(1f))
+                LockedVaultMessage(state.gatheringStartMinutes, Modifier.weight(1f))
             }
         }
     }
@@ -79,13 +79,14 @@ fun VaultReviewScreen(overrideTime: LocalTime? = null) {
 @Composable
 private fun VaultList(
     items: List<VaultItem>,
+    gatheringEndMinutes: Int,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
     ) {
         Text(
-            text = "You have until 6:30 PM to review these.",
+            text = "The Gathering Phase ends at ${com.aegisgatekeeper.app.domain.formatMinutesToAmPm(gatheringEndMinutes)}. Review your captured thoughts.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -134,7 +135,7 @@ private fun VaultItemCard(item: VaultItem) {
 
 @Suppress("FunctionName")
 @Composable
-private fun LockedVaultMessage(modifier: Modifier = Modifier) {
+private fun LockedVaultMessage(gatheringStartMinutes: Int, modifier: Modifier = Modifier) {
     var query by remember { mutableStateOf("") }
     var showConfirmation by remember { mutableStateOf(false) }
 
@@ -167,13 +168,13 @@ private fun LockedVaultMessage(modifier: Modifier = Modifier) {
         Text(text = "🔒", style = MaterialTheme.typography.displayLarge)
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "The Vault is Locked",
+            text = "You are in Focus Mode",
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Your distractions are safely stored.\nYou can review them between 6:00 PM and 6:30 PM.",
+            text = "Your thoughts are captured.\nThe Gathering Phase begins at ${com.aegisgatekeeper.app.domain.formatMinutesToAmPm(gatheringStartMinutes)}.",
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
