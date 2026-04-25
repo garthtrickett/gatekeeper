@@ -109,6 +109,19 @@ suspend fun handleMediaAndSystemEffects(
             )
         }
 
+        is GatekeeperAction.SavePodcastSubscription -> {
+            Log.i("Gatekeeper", "📡 Fetching episodes for new subscription: ${action.subscription.showTitle}")
+            val result = RssClient.fetchFeed(action.subscription.feedUrl)
+            result.fold(
+                ifLeft = { error ->
+                    Log.e("Gatekeeper", "❌ Failed to fetch feed for new subscription: $error")
+                },
+                ifRight = { data ->
+                    dispatch(GatekeeperAction.CacheParsedEpisodes(data.episodes, action.subscription.id))
+                }
+            )
+        }
+
         GatekeeperAction.RefreshAllFeedsRequested -> {
             dispatch(GatekeeperAction.PodcastSyncStarted)
             val request = androidx.work.OneTimeWorkRequestBuilder<com.aegisgatekeeper.app.sync.PodcastRefreshWorker>().build()

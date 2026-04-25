@@ -418,7 +418,19 @@ private fun LatestEpisodesView(
     onDismiss: () -> Unit,
 ) {
     Column(modifier = Modifier.padding(16.dp).fillMaxSize()) {
-        Text("Latest Episodes", style = MaterialTheme.typography.titleLarge)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("Latest Episodes", style = MaterialTheme.typography.titleLarge)
+            IndustrialButton(
+                onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.RefreshAllFeedsRequested) },
+                text = "Refresh",
+                isLoading = state.isSyncingPodcasts,
+                enabled = !state.isSyncingPodcasts
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
         if (state.isLoadingGlobalEpisodes) {

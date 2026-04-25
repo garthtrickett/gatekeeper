@@ -63,6 +63,10 @@ class PodcastRefreshWorker(
 
         GatekeeperStateManager.dispatch(GatekeeperAction.PodcastSyncCompleted)
 
+        if (GatekeeperStateManager.state.value.latestGlobalEpisodes != null) {
+            GatekeeperStateManager.dispatch(GatekeeperAction.LoadLatestGlobalEpisodes)
+        }
+
         return if (anyFailures) Result.retry() else Result.success()
     }
 }
