@@ -35,9 +35,14 @@ import java.time.LocalTime
 
 @Suppress("FunctionName")
 @Composable
-fun VaultReviewScreen(overrideTime: LocalTime? = null) {
+fun VaultReviewScreen(
+    overrideTime: LocalTime? = null,
+    onNavigateToWeb: () -> Unit = {}
+) {
     val state by GatekeeperStateManager.state.collectAsState()
     var currentTime by remember { mutableStateOf(overrideTime ?: LocalTime.now()) }
+    var showFeedManagement by remember { mutableStateOf(false) }
+    var feedSearchQuery by remember { mutableStateOf<String?>(null) }
 
     // Only auto-update if we aren't overriding the time for tests
     if (overrideTime == null) {
@@ -67,11 +72,30 @@ fun VaultReviewScreen(overrideTime: LocalTime? = null) {
             Spacer(modifier = Modifier.height(8.dp))
 
             if (isUnlocked) {
-                VaultList(unresolvedItems, state.gatheringEndMinutes, Modifier.weight(1f))
+                VaultList(
+                    items = unresolvedItems,
+                    gatheringEndMinutes = state.gatheringEndMinutes,
+                    onNavigateToWeb = onNavigateToWeb,
+                    onOpenPodcasts = { query ->
+                        feedSearchQuery = query
+                        showFeedManagement = true
+                    },
+                    modifier = Modifier.weight(1f)
+                )
             } else {
                 LockedVaultMessage(state.gatheringStartMinutes, Modifier.weight(1f))
             }
         }
+    }
+
+    if (showFeedManagement) {
+        FeedManagementDialog(
+            onDismiss = {
+                showFeedManagement = false
+                feedSearchQuery = null
+            },
+            initialSearchQuery = feedSearchQuery
+        )
     }
 }
 
@@ -80,6 +104,8 @@ fun VaultReviewScreen(overrideTime: LocalTime? = null) {
 private fun VaultList(
     items: List<VaultItem>,
     gatheringEndMinutes: Int,
+    onNavigateToWeb: () -> Unit,
+    onOpenPodcasts: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -102,7 +128,11 @@ private fun VaultList(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 items(items, key = { it.id }) {
-                    VaultItemCard(it)
+                    VaultItemCard(
+                        item = it,
+                        onNavigateToWeb = onNavigateToWeb,
+                        onOpenPodcasts = onOpenPodcasts
+                    )
                 }
             }
         }
@@ -111,24 +141,62 @@ private fun VaultList(
 
 @Suppress("FunctionName")
 @Composable
-private fun VaultItemCard(item: VaultItem) {
+private fun VaultItemCard(
+    item: VaultItem,
+    onNavigateToWeb: () -> Unit,
+    onOpenPodcasts: (String) -> Unit
+) {
     TerminalPanel(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = item.query,
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyLarge,
-            )
-            IndustrialButton(
-                onClick = {
-                    GatekeeperStateManager.dispatch(GatekeeperAction.MarkVaultItemResolved(item.id, System.currentTimeMillis()))
-                },
-                text = "Resolved",
-            )
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = item.query,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                IndustrialButton(
+                    onClick = {
+                        GatekeeperStateManager.dispatch(GatekeeperAction.MarkVaultItemResolved(item.id, System.currentTimeMillis()))
+                    },
+                    text = "Resolved",
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().androidx.compose.foundation.horizontalScroll(androidx.compose.foundation.rememberScrollState())
+            ) {
+                IndustrialButton(
+                    onClick = {
+                        val encoded = java.net.URLEncoder.encode(item.query, "UTF-8")
+                        GatekeeperStateManager.dispatch(GatekeeperAction.SurgicalNavigationRequested("https://duckduckgo.com/?q=$encoded"))
+                        GatekeeperStateManager.dispatch(GatekeeperAction.MarkVaultItemResolved(item.id, System.currentTimeMillis()))
+                        onNavigateToWeb()
+                    },
+                    text = "🌐 Web"
+                )
+                IndustrialButton(
+                    onClick = {
+                        val encoded = java.net.URLEncoder.encode(item.query, "UTF-8")
+                        GatekeeperStateManager.dispatch(GatekeeperAction.ShowSurgicalSearch("https://m.youtube.com/results?search_query=$encoded"))
+                        GatekeeperStateManager.dispatch(GatekeeperAction.MarkVaultItemResolved(item.id, System.currentTimeMillis()))
+                    },
+                    text = "🎬 YouTube"
+                )
+                IndustrialButton(
+                    onClick = {
+                        GatekeeperStateManager.dispatch(GatekeeperAction.SearchPodcastsRequested(item.query))
+                        GatekeeperStateManager.dispatch(GatekeeperAction.MarkVaultItemResolved(item.id, System.currentTimeMillis()))
+                        onOpenPodcasts(item.query)
+                    },
+                    text = "🎙️ Podcasts"
+                )
+            }
         }
     }
 }

@@ -266,7 +266,7 @@ class MainActivity : ComponentActivity() {
                                     }
 
                                     1 -> {
-                                        VaultReviewScreen()
+                                        VaultReviewScreen(onNavigateToWeb = { selectedTab = 4 })
                                     }
 
                                     2 -> {
