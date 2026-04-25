@@ -674,6 +674,17 @@ private fun reduceContentAndVault(
             )
         }
 
+        GatekeeperAction.LoadLatestGlobalEpisodes -> {
+            state.copy(isLoadingGlobalEpisodes = true)
+        }
+
+        is GatekeeperAction.LatestGlobalEpisodesLoaded -> {
+            state.copy(
+                isLoadingGlobalEpisodes = false,
+                latestGlobalEpisodes = action.episodes,
+            )
+        }
+
         is GatekeeperAction.PodcastSyncFailed -> {
             state.copy(isSyncingPodcasts = false, podcastSyncError = action.error)
         }

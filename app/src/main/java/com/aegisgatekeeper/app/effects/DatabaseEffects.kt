@@ -196,6 +196,29 @@ fun handleDatabaseEffects(
                     }
                 dispatch(GatekeeperAction.PodcastEpisodesLoaded(cached, action.podcastId))
             }
+
+            if (newState.latestGlobalEpisodes != null || newState.activePodcastId == null) {
+                dispatch(GatekeeperAction.LoadLatestGlobalEpisodes)
+            }
+        }
+
+        GatekeeperAction.LoadLatestGlobalEpisodes -> {
+            val episodes =
+                db.podcastEpisodeQueries.selectAllLatestGlobal().executeAsList().map { row ->
+                    com.aegisgatekeeper.app.domain.UnifiedEpisode(
+                        id = row.id,
+                        podcastId = row.podcastId,
+                        title = row.title,
+                        audioUrl = row.audioUrl,
+                        durationSeconds = row.durationSeconds,
+                        pubDate = row.pubDate,
+                        lastModified = row.lastModified,
+                        showTitle = row.showTitle,
+                        artworkUrl = row.artworkUrl,
+                    )
+                }
+            Log.i("Gatekeeper", "DB: Loaded ${episodes.size} latest global episodes")
+            dispatch(GatekeeperAction.LatestGlobalEpisodesLoaded(episodes))
         }
 
         is GatekeeperAction.SaveIntentionalSlot -> {

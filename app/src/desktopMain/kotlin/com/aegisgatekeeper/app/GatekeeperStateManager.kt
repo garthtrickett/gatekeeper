@@ -144,6 +144,18 @@ object GatekeeperStateManager {
                     )
             }
 
+            GatekeeperAction.LoadLatestGlobalEpisodes -> {
+                _state.value = _state.value.copy(isLoadingGlobalEpisodes = true)
+            }
+
+            is GatekeeperAction.LatestGlobalEpisodesLoaded -> {
+                _state.value =
+                    _state.value.copy(
+                        isLoadingGlobalEpisodes = false,
+                        latestGlobalEpisodes = action.episodes,
+                    )
+            }
+
             is GatekeeperAction.SaveMediaPosition -> {
                 _state.value =
                     _state.value.copy(
