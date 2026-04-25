@@ -288,3 +288,23 @@ fun isVaultUnlocked(currentTime: LocalTime): Boolean {
     val end = LocalTime.of(18, 30)
     return !currentTime.isBefore(start) && currentTime.isBefore(end)
 }
+
+fun parseRssPubDate(dateStr: String?, fallback: Long): Long {
+    if (dateStr.isNullOrBlank()) return fallback
+    val cleanDate = dateStr.trim().replace(Regex("\\s+"), " ")
+    return try {
+        java.time.ZonedDateTime.parse(cleanDate, java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME).toInstant().toEpochMilli()
+    } catch (e: Exception) {
+        try {
+            val formatter = java.time.format.DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", java.util.Locale.US)
+            java.time.ZonedDateTime.parse(cleanDate, formatter).toInstant().toEpochMilli()
+        } catch (e2: Exception) {
+            try {
+                val formatter = java.time.format.DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz", java.util.Locale.US)
+                java.time.ZonedDateTime.parse(cleanDate, formatter).toInstant().toEpochMilli()
+            } catch (e3: Exception) {
+                fallback
+            }
+        }
+    }
+}

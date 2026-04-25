@@ -37,5 +37,5 @@ SELECT
     PodcastSubscription.artworkUrl
 FROM PodcastEpisode
 JOIN PodcastSubscription ON PodcastEpisode.podcastId = PodcastSubscription.id
-ORDER BY PodcastEpisode.pubDate DESC, PodcastEpisode.lastModified DESC
+ORDER BY PodcastEpisode.lastModified DESC, PodcastEpisode.id DESC
 LIMIT 100;
