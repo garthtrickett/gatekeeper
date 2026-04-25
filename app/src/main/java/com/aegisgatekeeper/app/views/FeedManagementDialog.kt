@@ -46,6 +46,8 @@ fun FeedManagementDialog(onDismiss: () -> Unit) {
         onDismiss()
     }
 
+    var selectedTab by androidx.compose.runtime.remember { androidx.compose.runtime.mutableIntStateOf(0) }
+
     Dialog(onDismissRequest = handleDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             shape = MaterialTheme.shapes.medium,
@@ -55,7 +57,44 @@ fun FeedManagementDialog(onDismiss: () -> Unit) {
             if (state.activePodcastId != null) {
                 PodcastEpisodesView(state, handleDismiss)
             } else {
-                PodcastSubscriptionsView(state, handleDismiss)
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        androidx.compose.material3.FilterChip(
+                            selected = selectedTab == 0,
+                            onClick = { selectedTab = 0 },
+                            label = { Text("Subscriptions") },
+                            colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            ),
+                        )
+                        androidx.compose.material3.FilterChip(
+                            selected = selectedTab == 1,
+                            onClick = {
+                                selectedTab = 1
+                                if (state.latestGlobalEpisodes == null) {
+                                    GatekeeperStateManager.dispatch(GatekeeperAction.LoadLatestGlobalEpisodes)
+                                }
+                            },
+                            label = { Text("Latest Episodes") },
+                            colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            ),
+                        )
+                    }
+
+                    Box(modifier = Modifier.weight(1f)) {
+                        if (selectedTab == 0) {
+                            PodcastSubscriptionsView(state, handleDismiss)
+                        } else {
+                            LatestEpisodesView(state, handleDismiss)
+                        }
+                    }
+                }
             }
         }
     }
