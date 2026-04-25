@@ -131,9 +131,6 @@ object GatekeeperStateManager {
                     )
             }
 
-            is GatekeeperAction.CacheParsedEpisodes -> {
-                // Handled in side effects
-            }
 
             GatekeeperAction.ClearPodcastEpisodes -> {
                 _state.value =

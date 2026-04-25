@@ -219,6 +219,9 @@ object GatekeeperStateManager {
                 com.aegisgatekeeper.app.domain
                     .PinnedWebsite(it.id, it.label, it.url)
             }
+            
+        val missionControlAppsFromDb =
+            db.missionControlAppQueries.selectAll().executeAsList().map { it.packageName }
 
         val token = SecureTokenStorage.getToken()
 
@@ -244,6 +247,7 @@ object GatekeeperStateManager {
             gatheringStartMinutes = appSettings?.gatheringStartMinutes?.toInt() ?: 1080,
             gatheringEndMinutes = appSettings?.gatheringEndMinutes?.toInt() ?: 1110,
             activeFrictionGame = appSettings?.activeFrictionGame ?: com.aegisgatekeeper.app.domain.FrictionGame.GAUNTLET,
+            missionControlApps = missionControlAppsFromDb,
             missionControlWebsites = pinnedWebsitesFromDb,
             appGroups = appGroupsList,
             customMessages = customMessagesFromDb,
