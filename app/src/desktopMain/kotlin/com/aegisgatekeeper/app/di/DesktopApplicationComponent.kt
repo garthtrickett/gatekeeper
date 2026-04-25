@@ -11,9 +11,9 @@ import me.tatarka.inject.annotations.Provides
 @Singleton
 abstract class DesktopApplicationComponent : SharedApplicationComponent {
 
-    abstract override val syncClient: SyncClient
-
     @get:Provides
+    override val syncClient: SyncClient = SyncClient
+
     abstract override val tokenProvider: DesktopTokenProvider
 
     @Provides

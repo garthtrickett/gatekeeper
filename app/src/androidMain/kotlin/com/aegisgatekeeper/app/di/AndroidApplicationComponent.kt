@@ -30,13 +30,11 @@ abstract class AndroidApplicationComponent(
     @get:Provides val context: Context
 ) : SharedApplicationComponent {
 
-    abstract override val syncClient: SyncClient
+    @get:Provides
+    override val syncClient: SyncClient = SyncClient
 
-    @get:Provides
     abstract val podcastIndexClient: PodcastIndexClient
-    @get:Provides
     abstract val rssClient: RssClient
-    @get:Provides
     abstract val urlMetadataClient: UrlMetadataClient
 
     @Provides
@@ -46,8 +44,7 @@ abstract class AndroidApplicationComponent(
     @Provides
     fun sqlDriverFactory(factory: AndroidSqlDriverFactory): SqlDriverFactory = factory
 
-    @get:Provides
-    override val tokenProvider: AndroidTokenProvider
+    abstract override val tokenProvider: AndroidTokenProvider
 
     @Provides
     @Singleton
