@@ -87,8 +87,8 @@ class TimeUtilsTest {
         assertThat(parseRssPubDate("Wed, 21 Oct 2015 07:28:00 GMT", fallback)).isEqualTo(1445412480000L)
         // With +0000 offset
         assertThat(parseRssPubDate("Tue, 15 Jun 2021 14:00:00 +0000", fallback)).isEqualTo(1623765600000L)
-        // Single digit day
-        assertThat(parseRssPubDate("Sun, 5 Jun 2021 14:00:00 +0000", fallback)).isEqualTo(1622892000000L)
+        // Single digit day, with correct day-of-week
+        assertThat(parseRssPubDate("Sat, 5 Jun 2021 14:00:00 +0000", fallback)).isEqualTo(1622901600000L)
         // Invalid
         assertThat(parseRssPubDate("Invalid Date", fallback)).isEqualTo(fallback)
         assertThat(parseRssPubDate(null, fallback)).isEqualTo(fallback)
