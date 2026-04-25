@@ -11,6 +11,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.aegisgatekeeper.app.di.create
 import com.aegisgatekeeper.app.sync.SyncWorker
 import java.io.File
 import java.util.concurrent.Executors

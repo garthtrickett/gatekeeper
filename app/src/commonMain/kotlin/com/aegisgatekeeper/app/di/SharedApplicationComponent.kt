@@ -1,8 +1,6 @@
 package com.aegisgatekeeper.app.di
 
-import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.auth.TokenProvider
-import com.aegisgatekeeper.app.media.MediaDownloader
 import com.aegisgatekeeper.app.sync.SyncClient
 import me.tatarka.inject.annotations.Scope
 

@@ -29,6 +29,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.aegisgatekeeper.app.domain.GatekeeperTheme
+import com.aegisgatekeeper.app.di.create
 import com.aegisgatekeeper.app.sync.SyncClient
 import com.aegisgatekeeper.app.views.ContentBankScreen
 import com.aegisgatekeeper.app.views.DesktopInterceptionOverlay
