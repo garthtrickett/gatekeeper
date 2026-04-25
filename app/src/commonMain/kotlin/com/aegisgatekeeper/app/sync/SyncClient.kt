@@ -84,8 +84,8 @@ object SyncClient {
     }
 
     suspend fun pullChanges(lastSyncTimestamp: Long = 0L): Either<SyncError, SyncPullPayload> {
-        val token = TokenProvider.getToken() ?: return SyncError.Unauthorized.left()
-        val baseUrl = TokenProvider.getSyncServerUrl().trimEnd('/')
+        val token = GlobalDI.component.tokenProvider.getToken() ?: return SyncError.Unauthorized.left()
+        val baseUrl = GlobalDI.component.tokenProvider.getSyncServerUrl().trimEnd('/')
 
         return try {
             val response =

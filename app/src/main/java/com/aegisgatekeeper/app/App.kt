@@ -39,6 +39,7 @@ class App :
     override fun onCreate() {
         super.onCreate()
         instance = this
+        GlobalDI.component = AndroidApplicationComponent::class.create(this)
 
         // Schedule periodic podcast refresh (every 6 hours)
         val podcastConstraints =

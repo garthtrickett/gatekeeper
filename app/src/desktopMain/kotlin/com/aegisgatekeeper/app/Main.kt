@@ -41,6 +41,7 @@ import java.io.File
 
 fun main() =
     application {
+        GlobalDI.component = DesktopApplicationComponent::class.create()
         // Initialize Surgical Web Engine (Chromium)
         var webViewReady by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {

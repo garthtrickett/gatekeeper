@@ -33,7 +33,18 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+                implementation("me.tatarka.inject:kotlin-inject-runtime:0.7.2")
             }
         }
     }
+}
+
+dependencies {
+    add("kspCommonMainMetadata", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.2")
+    add("kspAndroid", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.2")
+    add("kspJvm", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.2")
+}
+
+kotlin.sourceSets.commonMain {
+    kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
 }

@@ -40,13 +40,13 @@ suspend fun handleMediaAndSystemEffects(
             val item = state.contentItems.find { it.id == action.id }
             if (item != null) {
                 Log.d("Gatekeeper", "⬇️ Starting download for ${item.title}")
-                MediaDownloader.enqueueDownload(item.id, item.videoId)
+                com.aegisgatekeeper.app.di.GlobalDI.component.mediaDownloader.enqueueDownload(item.id, item.videoId)
             }
         }
 
         is GatekeeperAction.DeleteDownloadedMedia -> {
             Log.d("Gatekeeper", "🗑️ Deleting offline media for ${action.id}")
-            MediaDownloader.removeDownload(action.id)
+            com.aegisgatekeeper.app.di.GlobalDI.component.mediaDownloader.removeDownload(action.id)
         }
 
         is GatekeeperAction.ProcessPodcastUrl -> {

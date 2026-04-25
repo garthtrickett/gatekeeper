@@ -205,4 +205,12 @@ compose.desktop {
 
 dependencies {
     "debugImplementation"("androidx.compose.ui:ui-test-manifest:1.6.8")
+    
+    add("kspCommonMainMetadata", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.2")
+    add("kspAndroid", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.2")
+    add("kspJvm", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.2")
+}
+
+kotlin.sourceSets.commonMain {
+    kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
 }

@@ -2,8 +2,11 @@ package com.aegisgatekeeper.app.auth
 
 import com.aegisgatekeeper.app.GatekeeperStateManager
 
-actual object TokenProvider {
-    actual fun getToken(): String? = GatekeeperStateManager.state.value.jwtToken
+import me.tatarka.inject.annotations.Inject
 
-    actual fun getSyncServerUrl(): String = GatekeeperStateManager.state.value.syncServerUrl
+@Inject
+class DesktopTokenProvider : TokenProvider {
+    override fun getToken(): String? = GatekeeperStateManager.state.value.jwtToken
+
+    override fun getSyncServerUrl(): String = GatekeeperStateManager.state.value.syncServerUrl
 }
