@@ -12,7 +12,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class YouTubeSurgicalBridgeTest {
-
     @Before
     fun setup() {
         GatekeeperStateManager.resetStateForTest()

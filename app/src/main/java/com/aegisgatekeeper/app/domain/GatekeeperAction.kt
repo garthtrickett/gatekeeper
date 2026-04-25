@@ -123,6 +123,12 @@ sealed interface GatekeeperAction {
 
     object ClearPodcastEpisodes : GatekeeperAction
 
+    object LoadLatestGlobalEpisodes : GatekeeperAction
+
+    data class LatestGlobalEpisodesLoaded(
+        val episodes: List<UnifiedEpisode>,
+    ) : GatekeeperAction
+
     data class AddEpisodeToBank(
         val episode: CachedEpisode,
         val podcastId: String,
@@ -376,7 +382,10 @@ sealed interface GatekeeperAction {
 
     object ClosePinnedWebsite : GatekeeperAction
 
-    data class ShowSurgicalSearch(val url: String = "") : GatekeeperAction
+    data class ShowSurgicalSearch(
+        val url: String = "",
+    ) : GatekeeperAction
+
     object HideSurgicalSearch : GatekeeperAction
 
     // --- Permission & Onboarding Flow ---

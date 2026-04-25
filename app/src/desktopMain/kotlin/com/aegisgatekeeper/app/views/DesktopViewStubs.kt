@@ -163,7 +163,7 @@ fun CleanYouTubeDialog(onDismiss: () -> Unit) {
                 com.aegisgatekeeper.app.domain.IndustrialButton(
                     onClick = onDismiss,
                     text = "Exit",
-                    isWarning = true
+                    isWarning = true,
                 )
             }
         }

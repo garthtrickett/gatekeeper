@@ -42,11 +42,11 @@ fun SurgicalFacebookScreen(
     onClose: () -> Unit,
 ) {
     val cookieManager = remember { CookieManager.getInstance() }
-    var isLoggedIn by remember { 
+    var isLoggedIn by remember {
         val cookiesD = cookieManager.getCookie("https://facebook.com") ?: ""
         val cookiesM = cookieManager.getCookie("https://m.facebook.com") ?: ""
         val allC = cookiesD + cookiesM
-        mutableStateOf(allC.contains("c_user=") && allC.contains("xs=")) 
+        mutableStateOf(allC.contains("c_user=") && allC.contains("xs="))
     }
     var forceReload by remember { mutableStateOf(0) }
 
@@ -71,19 +71,31 @@ fun SurgicalFacebookScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 IndustrialButton(
-                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/?_rdr")) },
+                    onClick = {
+                        GatekeeperStateManager.dispatch(
+                            GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/?_rdr"),
+                        )
+                    },
                     text = "Groups",
                     enabled = !url.contains("/groups/"),
                     invertEnabledColor = true,
                 )
                 IndustrialButton(
-                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/events/?_rdr")) },
+                    onClick = {
+                        GatekeeperStateManager.dispatch(
+                            GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/events/?_rdr"),
+                        )
+                    },
                     text = "Events",
                     enabled = !url.contains("/events/"),
                     invertEnabledColor = true,
                 )
                 IndustrialButton(
-                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/search/?_rdr")) },
+                    onClick = {
+                        GatekeeperStateManager.dispatch(
+                            GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/search/?_rdr"),
+                        )
+                    },
                     text = "Search",
                     enabled = !url.contains("/search/"),
                     invertEnabledColor = true,
@@ -92,8 +104,12 @@ fun SurgicalFacebookScreen(
                     onClick = {
                         cookieManager.removeAllCookies(null)
                         cookieManager.flush()
-                            // Force a state update with a cache-busting param to trigger WebView reload
-                            GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/groups/?_rdr&reload=${System.currentTimeMillis()}"))
+                        // Force a state update with a cache-busting param to trigger WebView reload
+                        GatekeeperStateManager.dispatch(
+                            GatekeeperAction.OpenSurgicalFacebook(
+                                "https://m.facebook.com/groups/?_rdr&reload=${System.currentTimeMillis()}",
+                            ),
+                        )
                         forceReload++
                     },
                     text = "Logout",
@@ -105,13 +121,14 @@ fun SurgicalFacebookScreen(
         }
 
         androidx.compose.runtime.key(forceReload, isLoggedIn) {
-            val userAgent = if (isLoggedIn) {
-                // Once logged in, use a clean mobile UA to get the correct mobile layout.
-                "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36"
-            } else {
-                // Before login, use a Desktop UA to bypass the 2FA/login redirect loop.
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
-            }
+            val userAgent =
+                if (isLoggedIn) {
+                    // Once logged in, use a clean mobile UA to get the correct mobile layout.
+                    "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36"
+                } else {
+                    // Before login, use a Desktop UA to bypass the 2FA/login redirect loop.
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
+                }
 
             BaseSurgicalWebView(
                 url = url,
@@ -124,14 +141,16 @@ fun SurgicalFacebookScreen(
                 },
                 onInterceptUrlChange = { webView, newUrl ->
                     if (isLoggedIn) {
-                        val targetPath = when {
-                            newUrl.contains("/groups/") -> "/groups/"
-                            newUrl.contains("/events/") -> "/events/"
-                            newUrl.contains("/search/") -> "/search/"
-                            else -> null
-                        }
+                        val targetPath =
+                            when {
+                                newUrl.contains("/groups/") -> "/groups/"
+                                newUrl.contains("/events/") -> "/events/"
+                                newUrl.contains("/search/") -> "/search/"
+                                else -> null
+                            }
                         if (targetPath != null) {
-                            val js = """
+                            val js =
+                                """
                                 (function(targetPath) {
                                     try {
                                         // Prioritize the bottom navigation tab links, then fall back to any link
@@ -149,8 +168,8 @@ fun SurgicalFacebookScreen(
                                         return 'error_' + e.message;
                                     }
                                 })('$targetPath');
-                            """.trimIndent()
-                            
+                                """.trimIndent()
+
                             webView.evaluateJavascript(js) { result ->
                                 if (result == "\"clicked\"") {
                                     android.util.Log.d("Gatekeeper", "✨ SPA hack succeeded. Soft navigating to: $newUrl")

@@ -191,6 +191,12 @@ sealed interface GatekeeperAction {
 
     object ClearPodcastEpisodes : GatekeeperAction
 
+    object LoadLatestGlobalEpisodes : GatekeeperAction
+
+    data class LatestGlobalEpisodesLoaded(
+        val episodes: List<UnifiedEpisode>,
+    ) : GatekeeperAction
+
     data class AddEpisodeToBank(
         val episode: CachedEpisode,
         val podcastId: String,

@@ -48,7 +48,9 @@ class CleanYouTubeScreenTest {
         composeTestRule.onNodeWithText("Exit").performClick()
 
         // Assert
-        com.google.common.truth.Truth.assertThat(dismissed).isTrue()
+        com.google.common.truth.Truth
+            .assertThat(dismissed)
+            .isTrue()
     }
 
     @Test
@@ -60,12 +62,12 @@ class CleanYouTubeScreenTest {
         }
 
         val query = "Kotlin Coroutines"
-        
+
         // Act: Type query and click Search
         composeTestRule.onNodeWithText("Search YouTube...").performTextInput(query)
         composeTestRule.onNodeWithText("Search").performClick()
 
-        // Assert: Since we can't easily inspect the internal WebView URL in this test, 
+        // Assert: Since we can't easily inspect the internal WebView URL in this test,
         // we verify the search bar still holds the query and the WebView is likely active.
         composeTestRule.onNodeWithText(query).assertExists()
     }

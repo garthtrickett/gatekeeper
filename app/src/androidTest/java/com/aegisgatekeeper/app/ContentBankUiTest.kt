@@ -305,8 +305,12 @@ class ContentBankUiTest {
         composeTestRule.onNodeWithText("Add to Bank").assertDoesNotExist()
 
         val state = GatekeeperStateManager.state.value
-        com.google.common.truth.Truth.assertThat(state.isSurgicalSearchVisible).isTrue()
-        com.google.common.truth.Truth.assertThat(state.initialSurgicalSearchUrl).isEqualTo(testUrl)
+        com.google.common.truth.Truth
+            .assertThat(state.isSurgicalSearchVisible)
+            .isTrue()
+        com.google.common.truth.Truth
+            .assertThat(state.initialSurgicalSearchUrl)
+            .isEqualTo(testUrl)
     }
 
     @Test
@@ -492,5 +496,4 @@ class ContentBankUiTest {
         composeTestRule.onNodeWithText(title2).assertIsDisplayed()
         composeTestRule.onNodeWithText("Clear").assertDoesNotExist()
     }
-
 }

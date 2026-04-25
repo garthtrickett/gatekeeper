@@ -63,7 +63,7 @@ fun BaseSurgicalWebView(
                 settings.loadWithOverviewMode = true
                 settings.javaScriptCanOpenWindowsAutomatically = true
                 settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                
+
                 if (userAgent != null) {
                     settings.userAgentString = userAgent
                 }
@@ -106,7 +106,10 @@ fun BaseSurgicalWebView(
                         ) {
                             super.onReceivedError(view, request, error)
                             if (request?.isForMainFrame == true) {
-                                android.util.Log.e("Gatekeeper", "🚨 BASE-WEB-ERROR: ${error?.errorCode} - ${error?.description} on URL: ${request.url}")
+                                android.util.Log.e(
+                                    "Gatekeeper",
+                                    "🚨 BASE-WEB-ERROR: ${error?.errorCode} - ${error?.description} on URL: ${request.url}",
+                                )
                             } else {
                                 android.util.Log.e("Gatekeeper", "❌ BASE-WEB-ERROR: ${error?.description} at ${request?.url}")
                             }
@@ -119,7 +122,10 @@ fun BaseSurgicalWebView(
                         ) {
                             super.onReceivedHttpError(view, request, errorResponse)
                             if (request?.isForMainFrame == true) {
-                                android.util.Log.e("Gatekeeper", "🚨 BASE-WEB-HTTP-ERROR: ${errorResponse?.statusCode} - ${errorResponse?.reasonPhrase} on URL: ${request.url}")
+                                android.util.Log.e(
+                                    "Gatekeeper",
+                                    "🚨 BASE-WEB-HTTP-ERROR: ${errorResponse?.statusCode} - ${errorResponse?.reasonPhrase} on URL: ${request.url}",
+                                )
                             }
                         }
 
@@ -152,7 +158,10 @@ fun BaseSurgicalWebView(
                                 if (isExplicitHomeFeed) {
                                     val cookies = CookieManager.getInstance().getCookie(currentUrl) ?: ""
                                     if (onLogout != null && !cookies.contains("c_user=")) {
-                                        android.util.Log.d("Gatekeeper", "🚪 Jail: User is logged out. Triggering logout instead of jailing.")
+                                        android.util.Log.d(
+                                            "Gatekeeper",
+                                            "🚪 Jail: User is logged out. Triggering logout instead of jailing.",
+                                        )
                                         onLogout()
                                         return
                                     }
@@ -171,7 +180,10 @@ fun BaseSurgicalWebView(
                                         return
                                     }
 
-                                    android.util.Log.d("Gatekeeper", "🛡️ Jail: Reached feed after redirect. Redirecting to jail root: $currentJailRoot")
+                                    android.util.Log.d(
+                                        "Gatekeeper",
+                                        "🛡️ Jail: Reached feed after redirect. Redirecting to jail root: $currentJailRoot",
+                                    )
                                     view?.loadUrl(currentJailRoot)
                                     return
                                 }
@@ -242,7 +254,7 @@ fun BaseSurgicalWebView(
 
                             if (newUrl.startsWith("intent://") || newUrl.startsWith("fb://") || newUrl.startsWith("android-app://")) {
                                 android.util.Log.d("Gatekeeper", "🛡️ BASE-WEB: Intercepting deep link: $newUrl")
-                                
+
                                 if (newUrl.startsWith("intent://")) {
                                     try {
                                         val intent = android.content.Intent.parseUri(newUrl, android.content.Intent.URI_INTENT_SCHEME)
@@ -274,7 +286,12 @@ fun BaseSurgicalWebView(
                             if (currentJailRoot != null) {
                                 // Prevent desktop escape when logged in
                                 if (newUrl.contains("www.facebook.com") || newUrl.contains("web.facebook.com")) {
-                                    val mobileUrl = newUrl.replace("www.facebook.com", "m.facebook.com").replace("web.facebook.com", "m.facebook.com")
+                                    val mobileUrl =
+                                        newUrl
+                                            .replace(
+                                                "www.facebook.com",
+                                                "m.facebook.com",
+                                            ).replace("web.facebook.com", "m.facebook.com")
                                     android.util.Log.d("Gatekeeper", "🛡️ Mobile-Forcing: Rewriting to $mobileUrl")
                                     view?.loadUrl(mobileUrl)
                                     return true
@@ -287,11 +304,16 @@ fun BaseSurgicalWebView(
                                         newUrl.contains("ref=logo")
 
                                 if (isExplicitHomeFeed) {
-                                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N && request?.isRedirect == true) {
+                                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N &&
+                                        request?.isRedirect == true
+                                    ) {
                                         android.util.Log.d("Gatekeeper", "🛡️ Jail: Allowing redirect to Feed to preserve cookies.")
                                         return false
                                     }
-                                    android.util.Log.d("Gatekeeper", "🛡️ Jail: Blocking navigation to Feed. Forcing current root: $currentJailRoot")
+                                    android.util.Log.d(
+                                        "Gatekeeper",
+                                        "🛡️ Jail: Blocking navigation to Feed. Forcing current root: $currentJailRoot",
+                                    )
                                     view?.post { view.loadUrl(currentJailRoot) }
                                     return true
                                 }
@@ -305,7 +327,7 @@ fun BaseSurgicalWebView(
         },
         update = { webView ->
             webView.tag = jailRoot // Ensure WebViewClient always reads the latest active tab
-            
+
             if (userAgent != null && webView.settings.userAgentString != userAgent) {
                 webView.settings.userAgentString = userAgent
             }

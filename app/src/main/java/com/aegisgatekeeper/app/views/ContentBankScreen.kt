@@ -339,7 +339,6 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
         if (showFeedManagement) {
             FeedManagementDialog(onDismiss = { showFeedManagement = false })
         }
-
     }
 }
 

@@ -1,6 +1,7 @@
 package com.aegisgatekeeper.app.domain
 
 import com.aegisgatekeeper.app.BuildConfig
+
 /**
  * The strict, immutable representation of the app's current state.
  * Always use .copy() to update values. Never use var.
@@ -39,6 +40,8 @@ data class GatekeeperState(
     val activePodcastEpisodes: List<CachedEpisode>? = null,
     val activePodcastId: String? = null,
     val isLoadingEpisodes: Boolean = false,
+    val latestGlobalEpisodes: List<UnifiedEpisode>? = null,
+    val isLoadingGlobalEpisodes: Boolean = false,
     val activeContentFilter: ContentType? = null,
     val activeDownloads: Map<String, Float> = emptyMap(),
     val sessionLogs: List<SessionLog> = emptyList(),

@@ -95,6 +95,18 @@ data class CachedEpisode(
     val lastModified: Long = System.currentTimeMillis(),
 )
 
+data class UnifiedEpisode(
+    val id: String,
+    val podcastId: String,
+    val title: String,
+    val audioUrl: String,
+    val durationSeconds: Long?,
+    val pubDate: String?,
+    val lastModified: Long,
+    val showTitle: String,
+    val artworkUrl: String?,
+)
+
 /**
  * Represents a piece of curated media saved to the Content Bank.
  */

@@ -23,3 +23,19 @@ deleteOldEpisodes:
 DELETE FROM PodcastEpisode WHERE podcastId = :podcastId AND id NOT IN (
     SELECT id FROM PodcastEpisode WHERE podcastId = :podcastId ORDER BY lastModified DESC, id DESC LIMIT :keepCount
 );
+
+selectAllLatestGlobal:
+SELECT
+    PodcastEpisode.id,
+    PodcastEpisode.podcastId,
+    PodcastEpisode.title,
+    PodcastEpisode.audioUrl,
+    PodcastEpisode.durationSeconds,
+    PodcastEpisode.pubDate,
+    PodcastEpisode.lastModified,
+    PodcastSubscription.showTitle,
+    PodcastSubscription.artworkUrl
+FROM PodcastEpisode
+JOIN PodcastSubscription ON PodcastEpisode.podcastId = PodcastSubscription.id
+ORDER BY PodcastEpisode.pubDate DESC, PodcastEpisode.lastModified DESC
+LIMIT 100;
