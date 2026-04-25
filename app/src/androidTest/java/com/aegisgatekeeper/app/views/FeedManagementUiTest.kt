@@ -125,27 +125,29 @@ class FeedManagementUiTest {
     @Test
     fun testFeedManagement_LatestEpisodesFeed_RendersAndAddsToBank() {
         // Arrange: Seed a subscription and global episodes state
-        val sub = PodcastSubscription(
-            id = "podcast_123",
-            feedUrl = "https://example.com/feed.xml",
-            showTitle = "The Sovereign Podcast",
-            artworkUrl = null
-        )
+        val sub =
+            PodcastSubscription(
+                id = "podcast_123",
+                feedUrl = "https://example.com/feed.xml",
+                showTitle = "The Sovereign Podcast",
+                artworkUrl = null,
+            )
         GatekeeperStateManager.dispatch(GatekeeperAction.SavePodcastSubscription(sub))
 
-        val mockUnified = listOf(
-            com.aegisgatekeeper.app.domain.UnifiedEpisode(
-                id = "ep_1",
-                podcastId = "podcast_123",
-                title = "Global Episode 1",
-                audioUrl = "https://example.com/global1.mp3",
-                durationSeconds = 1800L,
-                pubDate = "Feb 01",
-                lastModified = 0L,
-                showTitle = "The Sovereign Podcast",
-                artworkUrl = null
+        val mockUnified =
+            listOf(
+                com.aegisgatekeeper.app.domain.UnifiedEpisode(
+                    id = "ep_1",
+                    podcastId = "podcast_123",
+                    title = "Global Episode 1",
+                    audioUrl = "https://example.com/global1.mp3",
+                    durationSeconds = 1800L,
+                    pubDate = "Feb 01",
+                    lastModified = 0L,
+                    showTitle = "The Sovereign Podcast",
+                    artworkUrl = null,
+                ),
             )
-        )
         GatekeeperStateManager.dispatch(GatekeeperAction.LatestGlobalEpisodesLoaded(mockUnified))
 
         composeTestRule.setContent {

@@ -66,10 +66,11 @@ fun FeedManagementDialog(onDismiss: () -> Unit) {
                             selected = selectedTab == 0,
                             onClick = { selectedTab = 0 },
                             label = { Text("Subscriptions") },
-                            colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                            ),
+                            colors =
+                                androidx.compose.material3.FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                ),
                         )
                         androidx.compose.material3.FilterChip(
                             selected = selectedTab == 1,
@@ -80,10 +81,11 @@ fun FeedManagementDialog(onDismiss: () -> Unit) {
                                 }
                             },
                             label = { Text("Latest Episodes") },
-                            colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                            ),
+                            colors =
+                                androidx.compose.material3.FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                ),
                         )
                     }
 
@@ -428,7 +430,7 @@ private fun LatestEpisodesView(
                 onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.RefreshAllFeedsRequested) },
                 text = "Refresh",
                 isLoading = state.isSyncingPodcasts,
-                enabled = !state.isSyncingPodcasts
+                enabled = !state.isSyncingPodcasts,
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -474,11 +476,12 @@ private fun LatestEpisodesView(
                                     maxLines = 2,
                                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                 )
-                                val metaText = buildString {
-                                    append(ep.showTitle)
-                                    if (ep.pubDate != null) append(" • ${ep.pubDate}")
-                                    if (ep.durationSeconds != null && ep.durationSeconds > 0) append(" • ${ep.durationSeconds / 60}m")
-                                }
+                                val metaText =
+                                    buildString {
+                                        append(ep.showTitle)
+                                        if (ep.pubDate != null) append(" • ${ep.pubDate}")
+                                        if (ep.durationSeconds != null && ep.durationSeconds > 0) append(" • ${ep.durationSeconds / 60}m")
+                                    }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     metaText,
@@ -538,15 +541,16 @@ private fun LatestEpisodesView(
                             } else {
                                 IndustrialButton(
                                     onClick = {
-                                        val cachedEp = com.aegisgatekeeper.app.domain.CachedEpisode(
-                                            id = ep.id,
-                                            podcastId = ep.podcastId,
-                                            title = ep.title,
-                                            audioUrl = ep.audioUrl,
-                                            durationSeconds = ep.durationSeconds,
-                                            pubDate = ep.pubDate,
-                                            lastModified = ep.lastModified,
-                                        )
+                                        val cachedEp =
+                                            com.aegisgatekeeper.app.domain.CachedEpisode(
+                                                id = ep.id,
+                                                podcastId = ep.podcastId,
+                                                title = ep.title,
+                                                audioUrl = ep.audioUrl,
+                                                durationSeconds = ep.durationSeconds,
+                                                pubDate = ep.pubDate,
+                                                lastModified = ep.lastModified,
+                                            )
                                         GatekeeperStateManager.dispatch(
                                             GatekeeperAction.AddEpisodeToBank(
                                                 cachedEp,

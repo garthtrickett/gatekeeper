@@ -198,9 +198,9 @@ object GatekeeperStateManager {
             is GatekeeperAction.TriggerMetacognition -> {
                 _state.value =
                     _state.value.copy(
-                        pendingMetacognition =
-                            com.aegisgatekeeper.app.domain.MetacognitionRequest(
-                                action.packageName,
+                        lastModified =
+                            com.aegisgatekeeper.app.domain
+                                .parseRssPubDate(ep.pubDate, 0L - index),
                                 action.durationMillis,
                             ),
                     )

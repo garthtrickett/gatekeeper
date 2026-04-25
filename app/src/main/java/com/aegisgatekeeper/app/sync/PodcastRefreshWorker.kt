@@ -47,7 +47,9 @@ class PodcastRefreshWorker(
                                 audioUrl = ep.audioUrl,
                                 durationSeconds = ep.durationSeconds,
                                 pubDate = ep.pubDate,
-                                lastModified = com.aegisgatekeeper.app.domain.parseRssPubDate(ep.pubDate, baseTime - index),
+                                lastModified =
+                                    com.aegisgatekeeper.app.domain
+                                        .parseRssPubDate(ep.pubDate, 0L - index),
                             )
                         }
                         db.podcastEpisodeQueries.deleteOldEpisodes(sub.id, 200)

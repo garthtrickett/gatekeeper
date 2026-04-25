@@ -696,19 +696,20 @@ class GatekeeperReducerTest {
     @Test
     fun testLatestGlobalEpisodesLoaded_setsActiveEpisodes() {
         val stateWithLoading = initialState.copy(isLoadingGlobalEpisodes = true)
-        val mockUnified = listOf(
-            UnifiedEpisode(
-                id = "ep_1",
-                podcastId = "podcast1",
-                title = "Global Episode 1",
-                audioUrl = "https://example.com/global1.mp3",
-                durationSeconds = 1800L,
-                pubDate = "Feb 01",
-                lastModified = 0L,
-                showTitle = "The Sovereign Podcast",
-                artworkUrl = null
+        val mockUnified =
+            listOf(
+                UnifiedEpisode(
+                    id = "ep_1",
+                    podcastId = "podcast1",
+                    title = "Global Episode 1",
+                    audioUrl = "https://example.com/global1.mp3",
+                    durationSeconds = 1800L,
+                    pubDate = "Feb 01",
+                    lastModified = 0L,
+                    showTitle = "The Sovereign Podcast",
+                    artworkUrl = null,
+                ),
             )
-        )
         val action = GatekeeperAction.LatestGlobalEpisodesLoaded(mockUnified)
         val newState = reduce(stateWithLoading, action)
 

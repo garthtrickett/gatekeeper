@@ -101,6 +101,8 @@ object RssClient {
                                     RegexOption.IGNORE_CASE,
                                 ).find(itemXml)?.groupValues?.get(1)
                             val pubDate = Regex("<pubDate[^>]*>(.*?)</pubDate>", RegexOption.IGNORE_CASE).find(itemXml)?.groupValues?.get(1)
+                                ?: Regex("<published[^>]*>(.*?)</published>", RegexOption.IGNORE_CASE).find(itemXml)?.groupValues?.get(1)
+                                ?: Regex("<dc:date[^>]*>(.*?)</dc:date>", RegexOption.IGNORE_CASE).find(itemXml)?.groupValues?.get(1)
 
                             if (title != null && enclosure != null) {
                                 val duration = durationStr?.let { parseItunesDuration(it) }

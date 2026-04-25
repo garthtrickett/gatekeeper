@@ -771,7 +771,9 @@ class GatekeeperStateManagerTest {
                                     audioUrl = ep.audioUrl,
                                     durationSeconds = ep.durationSeconds,
                                     pubDate = ep.pubDate,
-                                    lastModified = com.aegisgatekeeper.app.domain.parseRssPubDate(ep.pubDate, baseTime - index),
+                                    lastModified =
+                                        com.aegisgatekeeper.app.domain
+                                            .parseRssPubDate(ep.pubDate, baseTime - index),
                                 )
                             }
                             db.podcastEpisodeQueries.deleteOldEpisodes(action.podcastId, 200)

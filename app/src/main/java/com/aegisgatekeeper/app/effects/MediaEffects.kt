@@ -118,7 +118,7 @@ suspend fun handleMediaAndSystemEffects(
                 },
                 ifRight = { data ->
                     dispatch(GatekeeperAction.CacheParsedEpisodes(data.episodes, action.subscription.id))
-                }
+                },
             )
         }
 
