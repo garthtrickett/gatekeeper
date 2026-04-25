@@ -370,3 +370,152 @@ private fun PodcastEpisodesView(
         }
     }
 }
+
+@Suppress("FunctionName")
+@Composable
+private fun LatestEpisodesView(
+    state: GatekeeperState,
+    onDismiss: () -> Unit,
+) {
+    Column(modifier = Modifier.padding(16.dp).fillMaxSize()) {
+        Text("Latest Episodes", style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (state.isLoadingGlobalEpisodes) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                androidx.compose.material3.CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 2.dp,
+                )
+            }
+        } else if (state.latestGlobalEpisodes.isNullOrEmpty()) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Text("No recent episodes found.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        } else {
+            LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(state.latestGlobalEpisodes!!) { ep ->
+                    val isAlreadyInBank = state.contentItems.any { it.videoId == ep.audioUrl && !it.isDeleted }
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            ep.artworkUrl?.let { url ->
+                                io.kamel.image.KamelImage(
+                                    resource = io.kamel.image.asyncPainterResource(data = url),
+                                    contentDescription = "Podcast Artwork",
+                                    modifier = Modifier.size(48.dp),
+                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                            }
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    ep.title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    maxLines = 2,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                )
+                                val metaText = buildString {
+                                    append(ep.showTitle)
+                                    if (ep.pubDate != null) append(" • ${ep.pubDate}")
+                                    if (ep.durationSeconds != null && ep.durationSeconds > 0) append(" • ${ep.durationSeconds / 60}m")
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    metaText,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            val contentItem = state.contentItems.find { it.videoId == ep.audioUrl && !it.isDeleted }
+                            if (contentItem != null) {
+                                val status = contentItem.downloadStatus
+                                val progress = state.activeDownloads[contentItem.id] ?: 0f
+                                if (status == com.aegisgatekeeper.app.domain.DownloadStatus.DOWNLOADING ||
+                                    status == com.aegisgatekeeper.app.domain.DownloadStatus.QUEUED
+                                ) {
+                                    androidx.compose.foundation.layout.Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.size(64.dp),
+                                    ) {
+                                        if (progress > 0f && progress < 100f) {
+                                            androidx.compose.material3.CircularProgressIndicator(
+                                                progress = { progress / 100f },
+                                                color = MaterialTheme.colorScheme.primary,
+                                            )
+                                        } else {
+                                            androidx.compose.material3.CircularProgressIndicator(
+                                                color = MaterialTheme.colorScheme.primary,
+                                            )
+                                        }
+                                    }
+                                } else if (status == com.aegisgatekeeper.app.domain.DownloadStatus.COMPLETED) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text("✅", modifier = Modifier.padding(end = 8.dp))
+                                        IndustrialButton(
+                                            onClick = {
+                                                GatekeeperStateManager.dispatch(
+                                                    GatekeeperAction.DeleteDownloadedMedia(contentItem.id),
+                                                )
+                                            },
+                                            text = "Delete Offline File",
+                                            isWarning = true,
+                                        )
+                                    }
+                                } else {
+                                    IndustrialButton(
+                                        onClick = {
+                                            GatekeeperStateManager.dispatch(
+                                                GatekeeperAction.DownloadMediaRequested(contentItem.id),
+                                            )
+                                        },
+                                        text = "Download",
+                                    )
+                                }
+                            } else {
+                                IndustrialButton(
+                                    onClick = {
+                                        val cachedEp = com.aegisgatekeeper.app.domain.CachedEpisode(
+                                            id = ep.id,
+                                            podcastId = ep.podcastId,
+                                            title = ep.title,
+                                            audioUrl = ep.audioUrl,
+                                            durationSeconds = ep.durationSeconds,
+                                            pubDate = ep.pubDate,
+                                            lastModified = ep.lastModified,
+                                        )
+                                        GatekeeperStateManager.dispatch(
+                                            GatekeeperAction.AddEpisodeToBank(
+                                                cachedEp,
+                                                ep.podcastId,
+                                                ep.showTitle,
+                                            ),
+                                        )
+                                    },
+                                    text = "+",
+                                    modifier = Modifier.width(64.dp),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            IndustrialButton(onClick = onDismiss, text = "Close")
+        }
+    }
+}
