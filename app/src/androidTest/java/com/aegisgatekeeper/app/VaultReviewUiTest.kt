@@ -109,6 +109,43 @@ class VaultReviewUiTest {
     }
 
     @Test
+    fun testVaultReview_TriageButtons_TriggerCorrectActions() {
+        // Arrange: Inside the time window
+        val unlockedTime = LocalTime.of(18, 15)
+        val query = "Test Triage Workflow"
+
+        GatekeeperStateManager.dispatch(
+            GatekeeperAction.SaveToVault(query, System.currentTimeMillis()),
+        )
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                VaultReviewScreen(overrideTime = unlockedTime)
+            }
+        }
+
+        // Verify the item is displayed
+        composeTestRule.onNodeWithText(query).assertExists()
+
+        // Verify triage buttons
+        composeTestRule.onAllNodesWithText("🌐 Web")[0].assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("🎬 YouTube")[0].assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("🎙️ Podcasts")[0].assertIsDisplayed()
+
+        // Act: Click YouTube
+        composeTestRule.onAllNodesWithText("🎬 YouTube")[0].performClick()
+        composeTestRule.waitForIdle()
+
+        // Assert: Verify state triggered the Surgical Search
+        val state = GatekeeperStateManager.state.value
+        com.google.common.truth.Truth.assertThat(state.isSurgicalSearchVisible).isTrue()
+        
+        // Assert: Item should be resolved
+        val item = state.vaultItems.find { it.query == query }
+        com.google.common.truth.Truth.assertThat(item?.isResolved).isTrue()
+    }
+
+    @Test
     fun testVaultReview_DisplaysItemsAndResolves() {
         // Arrange: Inside the time window
         val unlockedTime = LocalTime.of(18, 15)

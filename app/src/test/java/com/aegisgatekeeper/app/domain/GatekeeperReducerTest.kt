@@ -1017,6 +1017,16 @@ class GatekeeperReducerTest {
         assertThat(newState.missionControlApps).isEqualTo(apps)
     }
 
+    @Test
+    fun testUpdatePhaseWindows_UpdatesState() {
+        val action = GatekeeperAction.UpdatePhaseWindows(100, 200, 300, 400)
+        val newState = reduce(initialState, action)
+        assertThat(newState.deepWorkStartMinutes).isEqualTo(100)
+        assertThat(newState.deepWorkEndMinutes).isEqualTo(200)
+        assertThat(newState.gatheringStartMinutes).isEqualTo(300)
+        assertThat(newState.gatheringEndMinutes).isEqualTo(400)
+    }
+
     // --- Metacognition Reducer Tests ---
 
     @Test

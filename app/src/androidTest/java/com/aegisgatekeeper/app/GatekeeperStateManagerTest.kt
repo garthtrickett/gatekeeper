@@ -455,6 +455,23 @@ class GatekeeperStateManagerTest {
         }
 
     @Test
+    fun testUpdatePhaseWindowsLogging() =
+        runTest {
+            // Arrange
+            val action = GatekeeperAction.UpdatePhaseWindows(480, 960, 1080, 1140)
+
+            // Act
+            dispatchWithSideEffects(action)
+
+            // Assert
+            val settings = db.appSettingsQueries.getSettings().executeAsOne()
+            assertThat(settings.deepWorkStartMinutes).isEqualTo(480L)
+            assertThat(settings.deepWorkEndMinutes).isEqualTo(960L)
+            assertThat(settings.gatheringStartMinutes).isEqualTo(1080L)
+            assertThat(settings.gatheringEndMinutes).isEqualTo(1140L)
+        }
+
+    @Test
     fun testMissionControlWebsiteLogging() =
         runTest {
             // Arrange
