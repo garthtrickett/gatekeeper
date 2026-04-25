@@ -25,6 +25,8 @@ data class GatekeeperState(
     val activePodcastId: String? = null,
     val isLoadingEpisodes: Boolean = false,
     val activeDownloads: Map<String, Float> = emptyMap(),
+    val latestGlobalEpisodes: List<UnifiedEpisode>? = null,
+    val isLoadingGlobalEpisodes: Boolean = false,
 )
 
 data class MetacognitionRequest(
@@ -56,6 +58,18 @@ data class CachedEpisode(
     val durationSeconds: Long?,
     val pubDate: String?,
     val lastModified: Long = System.currentTimeMillis(),
+)
+
+data class UnifiedEpisode(
+    val id: String,
+    val podcastId: String,
+    val title: String,
+    val audioUrl: String,
+    val durationSeconds: Long?,
+    val pubDate: String?,
+    val lastModified: Long,
+    val showTitle: String,
+    val artworkUrl: String?,
 )
 
 data class PinnedWebsite(
