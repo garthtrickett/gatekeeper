@@ -407,13 +407,13 @@ private fun AddChoiceDialog(
                 Spacer(modifier = Modifier.height(24.dp))
                 IndustrialButton(
                     onClick = onAddApp,
-                    text = "Add an App",
+                    text = "Manage Apps",
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 IndustrialButton(
                     onClick = onAddWebsite,
-                    text = "Add a Website",
+                    text = "Manage Websites",
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
