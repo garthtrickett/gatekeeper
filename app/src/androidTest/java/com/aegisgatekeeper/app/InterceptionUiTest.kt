@@ -201,15 +201,15 @@ class InterceptionUiTest {
         }
 
         // 1. Click "Choose a positive habit"
-        composeTestRule.onNodeWithText("Choose a positive habit").performClick()
+        composeTestRule.onAllNodesWithText("Choose a positive habit")[0].performClick()
         composeTestRule.waitForIdle()
 
         // 2. Verify habit list is shown
-        composeTestRule.onNodeWithText("Do one of these instead:").assertExists()
-        composeTestRule.onNodeWithText(habitDesc).assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("Do one of these instead:")[0].assertExists()
+        composeTestRule.onAllNodesWithText(habitDesc)[0].assertIsDisplayed()
 
         // 3. Select the habit
-        composeTestRule.onNodeWithText(habitDesc).performClick()
+        composeTestRule.onAllNodesWithText(habitDesc)[0].performClick()
         composeTestRule.waitForIdle()
 
         // 4. Verify state: Moat should be closed (Dismissed) and GiveUp logged
