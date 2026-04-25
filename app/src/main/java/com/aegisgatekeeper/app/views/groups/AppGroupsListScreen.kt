@@ -338,41 +338,43 @@ fun CheckInTokensRow(
 
     var showAccountabilityForTime by remember { mutableStateOf<Int?>(null) }
 
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
-        rule.checkInTimesMinutes.sorted().forEach { time ->
-            val isConsumed = consumedTimes.contains(time)
-            val isAvailable = !isConsumed && currentMinutes >= time
-            val label = String.format("%02d:%02d", time / 60, time % 60)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
+            rule.checkInTimesMinutes.sorted().forEach { time ->
+                val isConsumed = consumedTimes.contains(time)
+                val isAvailable = !isConsumed && currentMinutes >= time
+                val label = String.format("%02d:%02d", time / 60, time % 60)
 
-            FilterChip(
-                selected = isConsumed,
-                onClick = {
-                    if (isConsumed) return@FilterChip
-                    if (isAvailable) {
-                        GatekeeperStateManager.dispatch(
-                            GatekeeperAction.RedeemCheckInToken(group.id, time, rule.durationMinutes, null, System.currentTimeMillis()),
-                        )
-                    } else {
-                        showAccountabilityForTime = time
-                    }
-                },
-                label = { Text(if (isConsumed) "$label (Used)" else label) },
-                colors =
-                    FilterChipDefaults.filterChipColors(
-                        containerColor =
-                            if (isAvailable) {
-                                MaterialTheme.colorScheme.primary.copy(
-                                    alpha = 0.4f,
-                                )
-                            } else {
-                                MaterialTheme.colorScheme.surfaceVariant
-                            },
-                        labelColor = if (isAvailable) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                        selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        selectedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    ),
-                border = BorderStroke(1.dp, if (isAvailable) MaterialTheme.colorScheme.primary else Color.Transparent),
-            )
+                FilterChip(
+                    selected = isConsumed,
+                    onClick = {
+                        if (isConsumed) return@FilterChip
+                        if (isAvailable) {
+                            GatekeeperStateManager.dispatch(
+                                GatekeeperAction.RedeemCheckInToken(group.id, time, rule.durationMinutes, null, System.currentTimeMillis()),
+                            )
+                        } else {
+                            showAccountabilityForTime = time
+                        }
+                    },
+                    label = { Text(if (isConsumed) "$label (Used)" else label) },
+                    colors =
+                        FilterChipDefaults.filterChipColors(
+                            containerColor =
+                                if (isAvailable) {
+                                    MaterialTheme.colorScheme.primary.copy(
+                                        alpha = 0.4f,
+                                    )
+                                } else {
+                                    MaterialTheme.colorScheme.surfaceVariant
+                                },
+                            labelColor = if (isAvailable) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                            selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            selectedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                    border = BorderStroke(1.dp, if (isAvailable) MaterialTheme.colorScheme.primary else Color.Transparent),
+                )
+            }
         }
         IndustrialButton(onClick = { showAccountabilityForTime = -1 }, text = "+ Unscheduled")
     }
