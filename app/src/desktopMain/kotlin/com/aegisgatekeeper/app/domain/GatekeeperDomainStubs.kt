@@ -163,6 +163,14 @@ sealed interface GatekeeperAction {
         val token: String,
     ) : GatekeeperAction
 
+    data class RequestMagicLink(
+        val email: String,
+    ) : GatekeeperAction
+
+    data class LoginSuccess(
+        val token: String,
+    ) : GatekeeperAction
+
     object Logout : GatekeeperAction
 
     data class UpdateSyncUrl(
