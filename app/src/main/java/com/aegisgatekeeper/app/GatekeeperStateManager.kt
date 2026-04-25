@@ -345,4 +345,123 @@ object GatekeeperStateManager {
             mediaEffectHandler.handle(action, newState, ::dispatch)
         }
     }
+    
+    private var lastDetectedPackage: String? = null
+    private var ticksSinceLastUsageCheck = 0
+    private val cachedUsageMinutes = mutableMapOf<String, Int>()
+
+    /**
+     * Centralized validation logic called by both the Foreground Heartbeat (Alpha)
+     * and the Accessibility Event Stream (Omega) for zero-latency blocking.
+     */
+    fun performAppValidation(
+        context: Context,
+        currentApp: String,
+    ) {
+        val state = state.value
+        val activeGroups = state.appGroups.filter { it.apps.contains(currentApp) }
+
+        Log.d("Gatekeeper", "👁️ Validating app: $currentApp | Active Groups Found: ${activeGroups.size}")
+
+        if (activeGroups.isNotEmpty()) {
+            val calendar = java.util.Calendar.getInstance()
+            val currentMinutes = calendar.get(java.util.Calendar.HOUR_OF_DAY) * 60 + calendar.get(java.util.Calendar.MINUTE)
+            val currentDay =
+                when (calendar.get(java.util.Calendar.DAY_OF_WEEK)) {
+                    java.util.Calendar.MONDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY
+                    java.util.Calendar.TUESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.TUESDAY
+                    java.util.Calendar.WEDNESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.WEDNESDAY
+                    java.util.Calendar.THURSDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.THURSDAY
+                    java.util.Calendar.FRIDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.FRIDAY
+                    java.util.Calendar.SATURDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.SATURDAY
+                    else -> com.aegisgatekeeper.app.domain.DayOfWeek.SUNDAY
+                }
+
+            var isBlocked = false
+            var blockReason = ""
+
+            val isNewApp = currentApp != lastDetectedPackage
+            val checkUsage = isNewApp || ticksSinceLastUsageCheck >= 5
+            if (checkUsage) ticksSinceLastUsageCheck = 0
+
+            if (state.isManualLockdownActive) {
+                isBlocked = true
+                blockReason = "Manual Lockdown Engaged"
+            } else {
+                for (group in activeGroups) {
+                    val groupViolations = mutableListOf<String>()
+                    val enabledRules = group.rules.filter { it.isEnabled }
+
+                    if (enabledRules.isEmpty()) continue
+
+                    for (rule in enabledRules) {
+                        when (rule) {
+                            is com.aegisgatekeeper.app.domain.BlockingRule.ScheduledBlock -> {
+                                if (rule.daysOfWeek.contains(currentDay)) {
+                                    val isAnySlotActive = rule.timeSlots.any { currentMinutes in it.startTimeMinutes..it.endTimeMinutes }
+                                    if (isAnySlotActive) groupViolations.add("Scheduled Block")
+                                }
+                            }
+                            is com.aegisgatekeeper.app.domain.BlockingRule.TimeLimit -> {
+                                val usageMinutes =
+                                    if (checkUsage) {
+                                        val usage = getDailyUsageMinutes(context, group.apps)
+                                        cachedUsageMinutes[group.id] = usage
+                                        usage
+                                    } else {
+                                        cachedUsageMinutes[group.id] ?: 0
+                                    }
+                                if (usageMinutes >= rule.timeLimitMinutes) groupViolations.add("Time Limit (${rule.timeLimitMinutes}m)")
+                            }
+                            is com.aegisgatekeeper.app.domain.BlockingRule.CheckIn -> {
+                                if (rule.daysOfWeek.contains(currentDay)) groupViolations.add("Check-In Required")
+                            }
+                            is com.aegisgatekeeper.app.domain.BlockingRule.DomainBlock -> {}
+                        }
+                    }
+
+                    val groupIsBlocked = when (group.combinator) {
+                        com.aegisgatekeeper.app.domain.RuleCombinator.ANY -> groupViolations.isNotEmpty()
+                        com.aegisgatekeeper.app.domain.RuleCombinator.ALL -> groupViolations.size == enabledRules.size && enabledRules.isNotEmpty()
+                    }
+
+                    if (groupIsBlocked) {
+                        isBlocked = true
+                        blockReason = "Policy Violation: " + groupViolations.joinToString(" AND ") + " for '${group.name}'"
+                        break
+                    }
+                }
+            }
+
+            if (isBlocked) {
+                dispatch(GatekeeperAction.RuleViolationDetected(currentApp, blockReason, System.currentTimeMillis()))
+            } else if (currentApp != lastDetectedPackage) {
+                dispatch(GatekeeperAction.AppBroughtToForeground(currentApp, System.currentTimeMillis()))
+            }
+
+            ticksSinceLastUsageCheck++
+        } else if (currentApp != lastDetectedPackage) {
+            dispatch(GatekeeperAction.AppBroughtToForeground(currentApp, System.currentTimeMillis()))
+        }
+
+        lastDetectedPackage = currentApp
+    }
+
+    private fun getDailyUsageMinutes(context: Context, packages: Set<String>): Int {
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as android.app.usage.UsageStatsManager
+        val calendar = java.util.Calendar.getInstance()
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+        calendar.set(java.util.Calendar.MINUTE, 0)
+        calendar.set(java.util.Calendar.SECOND, 0)
+        calendar.set(java.util.Calendar.MILLISECOND, 0)
+        val startTime = calendar.timeInMillis
+        val endTime = System.currentTimeMillis()
+
+        val stats = usageStatsManager.queryAndAggregateUsageStats(startTime, endTime)
+        var totalTime = 0L
+        for (pkg in packages) {
+            stats[pkg]?.let { totalTime += it.totalTimeInForeground }
+        }
+        return (totalTime / 60000).toInt()
+    }
 }

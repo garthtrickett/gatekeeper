@@ -61,7 +61,7 @@ class GatekeeperAccessibilityService : AccessibilityService() {
 
         // Instead of just reporting the app is open, we force an immediate rule check
         // to prevent the "flash" of the distracted app.
-        GatekeeperForegroundService.performAppValidation(this, packageName)
+        stateManager.performAppValidation(this, packageName)
     }
 
     override fun onInterrupt() {

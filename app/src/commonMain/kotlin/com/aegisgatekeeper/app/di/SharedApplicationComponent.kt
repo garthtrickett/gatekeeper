@@ -8,11 +8,19 @@ import me.tatarka.inject.annotations.Scope
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
 annotation class Singleton
 
+import com.aegisgatekeeper.app.GatekeeperStateManager
+import com.aegisgatekeeper.app.auth.TokenProvider
+import com.aegisgatekeeper.app.media.MediaDownloader
+import com.aegisgatekeeper.app.sync.SyncClient
+import me.tatarka.inject.annotations.Scope
+
+@Scope
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
+annotation class Singleton
+
 interface SharedApplicationComponent {
     val tokenProvider: TokenProvider
     val mediaDownloader: MediaDownloader
-}
-
-object GlobalDI {
-    lateinit var component: SharedApplicationComponent
+    val gatekeeperStateManager: GatekeeperStateManager
+    val syncClient: SyncClient
 }

@@ -96,15 +96,16 @@ fun main() =
         }
 
         DisposableEffect(Unit) {
-            onDispose { KCEF.disposeBlocking() }
-        }
+                ) {
+                    onDispose { KCEF.disposeBlocking() }
+                }
 
-        val state by GatekeeperStateManager.state.collectAsState()
+        val state by stateManager.state.collectAsState()
 
         // E2E Auto-Login Injection
         LaunchedEffect(Unit) {
             System.getenv("GATEKEEPER_DEV_TOKEN")?.let { token ->
-                GatekeeperStateManager.dispatch(
+                stateManager.dispatch(
                     com.aegisgatekeeper.app.domain.GatekeeperAction
                         .LoginSuccess(token),
                 )
@@ -116,6 +117,7 @@ fun main() =
         LaunchedEffect(state.isAuthenticated) {
             if (state.isAuthenticated) {
                 withContext(Dispatchers.IO) {
+                    val syncClient = component.syncClient
                     while (true) {
                         try {
                             val pushPayload =
@@ -149,12 +151,9 @@ fun main() =
                                             )
                                         },
                                 )
-                            com.aegisgatekeeper.app.sync.SyncClient
-                                .pushChanges(pushPayload)
+                            syncClient.pushChanges(pushPayload)
 
-                            val pullResult =
-                                com.aegisgatekeeper.app.sync.SyncClient
-                                    .pullChanges(0L)
+                            val pullResult = syncClient.pullChanges(0L)
                             pullResult.fold(
                                 ifLeft = { error ->
                                     println("❌ SyncWorker: Pull failed: $error")

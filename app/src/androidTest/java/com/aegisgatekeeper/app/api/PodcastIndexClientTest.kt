@@ -80,21 +80,19 @@ class PodcastIndexClientTest {
                     }
                 }
 
-            val originalClient = PodcastIndexClient.client
-            try {
-                PodcastIndexClient.client = mockHttpClient
-                val result = PodcastIndexClient.searchPodcasts("test")
+            val client = PodcastIndexClient(mockHttpClient)
+            val result = client.searchPodcasts("test")
 
-                assertThat(result.isLeft()).isTrue()
-            } finally {
-                PodcastIndexClient.client = originalClient
-            }
+            assertThat(result.isLeft()).isTrue()
         }
 
     @Test
     fun testSearchPodcasts_BlankQuery_ReturnsSuccessWithEmptyList() =
         runTest {
-            val result = PodcastIndexClient.searchPodcasts("  ")
+            // The client is no longer a singleton, so we need to instantiate it
+            val mockHttpClient = HttpClient(MockEngine { respond("") })
+            val client = PodcastIndexClient(mockHttpClient)
+            val result = client.searchPodcasts("  ")
             assertThat(result.isRight()).isTrue()
             result.fold(
                 ifLeft = { throw AssertionError("Expected Right but got Left: $it") },

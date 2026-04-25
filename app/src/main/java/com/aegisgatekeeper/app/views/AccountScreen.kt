@@ -104,7 +104,7 @@ private fun LoginView() {
             Spacer(Modifier.height(8.dp))
             IndustrialButton(
                 onClick = {
-                    GatekeeperStateManager.dispatch(GatekeeperAction.LoginSuccess(devToken))
+                    stateManager.dispatch(GatekeeperAction.LoginSuccess(devToken))
                 },
                 enabled = devToken.isNotBlank(),
                 modifier = Modifier.fillMaxWidth(),

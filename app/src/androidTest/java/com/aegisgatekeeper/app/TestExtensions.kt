@@ -26,10 +26,6 @@ fun GatekeeperStateManager.resetStateForTest() {
         @Suppress("UNCHECKED_CAST")
         (stateFlowField.get(this) as MutableStateFlow<GatekeeperState>).value = GatekeeperState()
     } catch (e: Exception) {
-        // Fallback for an unlikely but possible issue with Proguard/R8 in release test builds.
-        // This re-initializes the entire object, which is heavier but effective.
-        val instanceField = this.javaClass.getDeclaredField("INSTANCE")
-        instanceField.isAccessible = true
-        instanceField.set(null, this.javaClass.getConstructor().newInstance())
+        throw IllegalStateException("Failed to reset GatekeeperStateManager via reflection", e)
     }
 }

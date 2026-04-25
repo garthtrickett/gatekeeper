@@ -66,8 +66,7 @@ class App :
                 this,
                 databaseProvider,
                 downloadCache,
-                androidx.media3.datasource.DefaultHttpDataSource
-                    .Factory(),
+                androidx.media3.datasource.DefaultHttpDataSource.Factory(),
                 Executors.newFixedThreadPool(6),
             )
     }

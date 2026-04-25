@@ -16,10 +16,13 @@ import org.junit.runner.RunWith
  * Instrumented integration tests for the Dual-Moat handoff logic.
  * Verifies that Layer Alpha throttles its dispatching based on Layer Omega's status.
  */
+import androidx.test.core.app.ApplicationProvider
+
 @RunWith(AndroidJUnit4::class)
 class DualMoatIntegrationTest {
     private val testAppPackage = "com.aegisgatekeeper.app.test"
-    private val stateManager = GatekeeperStateManager
+    private val stateManager: GatekeeperStateManager
+        get() = (ApplicationProvider.getApplicationContext<App>()).stateManager
 
     @Before
     fun setup() {

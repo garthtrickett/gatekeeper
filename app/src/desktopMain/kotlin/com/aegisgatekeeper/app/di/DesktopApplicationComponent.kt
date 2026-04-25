@@ -3,7 +3,14 @@ package com.aegisgatekeeper.app.di
 import com.aegisgatekeeper.app.auth.DesktopTokenProvider
 import com.aegisgatekeeper.app.auth.TokenProvider
 import com.aegisgatekeeper.app.media.DesktopMediaDownloader
+import com.aegisgatekeeper.app.GatekeeperStateManager
+import com.aegisgatekeeper.app.auth.DesktopTokenProvider
+import com.aegisgatekeeper.app.auth.TokenProvider
+import com.aegisgatekeeper.app.db.DesktopSqlDriverFactory
+import com.aegisgatekeeper.app.db.SqlDriverFactory
+import com.aegisgatekeeper.app.media.DesktopMediaDownloader
 import com.aegisgatekeeper.app.media.MediaDownloader
+import com.aegisgatekeeper.app.sync.SyncClient
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
 
@@ -11,9 +18,15 @@ import me.tatarka.inject.annotations.Provides
 @Singleton
 abstract class DesktopApplicationComponent : SharedApplicationComponent {
 
-    @Provides
-    fun tokenProvider(impl: DesktopTokenProvider): TokenProvider = impl
+    abstract override val gatekeeperStateManager: GatekeeperStateManager
+    abstract override val syncClient: SyncClient
+
+    @get:Provides
+    abstract override val tokenProvider: DesktopTokenProvider
+
+    @get:Provides
+    abstract override val mediaDownloader: DesktopMediaDownloader
 
     @Provides
-    fun mediaDownloader(impl: DesktopMediaDownloader): MediaDownloader = impl
+    fun sqlDriverFactory(factory: DesktopSqlDriverFactory): SqlDriverFactory = factory
 }

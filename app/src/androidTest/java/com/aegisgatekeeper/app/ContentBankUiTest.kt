@@ -24,18 +24,24 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+import androidx.test.core.app.ApplicationProvider
+
 @RunWith(AndroidJUnit4::class)
 class ContentBankUiTest {
+
+    private val stateManager: GatekeeperStateManager
+        get() = (ApplicationProvider.getApplicationContext<App>()).stateManager
+
     @Before
     fun setup() {
-        GatekeeperStateManager.resetStateForTest()
-        GatekeeperStateManager.dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.UpgradeToProTier)
+        stateManager.resetStateForTest()
+        stateManager.dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.UpgradeToProTier)
     }
 
     @After
     fun tearDown() {
         // Reset the singleton state to prevent test leakage
-        GatekeeperStateManager.resetStateForTest()
+        stateManager.resetStateForTest()
     }
 
     @get:Rule

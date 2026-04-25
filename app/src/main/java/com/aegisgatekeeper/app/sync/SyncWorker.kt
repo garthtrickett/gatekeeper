@@ -100,7 +100,7 @@ class SyncWorker(
                             )
                         }
 
-                    GatekeeperStateManager.dispatch(GatekeeperAction.RemoteSyncCompleted(newVaultItems, newContentItems))
+                    stateManager.dispatch(GatekeeperAction.RemoteSyncCompleted(newVaultItems, newContentItems))
                     Log.i("Gatekeeper", "✅ SyncWorker: Background sync completed successfully.")
                     Result.success()
                 },
