@@ -22,13 +22,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.domain.GatekeeperAction
+import com.aegisgatekeeper.app.domain.IndustrialButton
 import com.aegisgatekeeper.app.domain.IndustrialTextField
+import kotlinx.coroutines.delay
 
 @Suppress("FunctionName")
 @Composable
 fun SettingsScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
     var showAdvanced by remember { mutableStateOf(false) }
+    var showSaveConfirmation by remember { mutableStateOf(false) }
+
+    if (showSaveConfirmation) {
+        LaunchedEffect(showSaveConfirmation) {
+            delay(2000L)
+            showSaveConfirmation = false
+        }
+    }
 
     fun formatTime(minutes: Int): String {
         val h = minutes / 60
@@ -107,12 +117,15 @@ fun SettingsScreen() {
                 val pDwEnd = parseTime(dwEnd)
                 val pGStart = parseTime(gStart)
                 val pGEnd = parseTime(gEnd)
-                
+
                 if (pDwStart != null && pDwEnd != null && pGStart != null && pGEnd != null) {
                     GatekeeperStateManager.dispatch(GatekeeperAction.UpdatePhaseWindows(pDwStart, pDwEnd, pGStart, pGEnd))
+                    showSaveConfirmation = true
                 }
             },
-            text = "Save Phase Times",
+            text = if (showSaveConfirmation) "SAVED ✓" else "Save Phase Times",
+            enabled = !showSaveConfirmation,
+            invertEnabledColor = showSaveConfirmation,
             modifier = Modifier.align(Alignment.End)
         )
 
