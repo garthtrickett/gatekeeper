@@ -9,7 +9,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.aegisgatekeeper.app.domain.GatekeeperTheme
 import com.aegisgatekeeper.app.views.interception.EmergencyBypassUi
 import com.aegisgatekeeper.app.views.interception.InterceptionChoiceUi
-import com.aegisgatekeeper.app.views.interception.TimeBoxSwapUi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
