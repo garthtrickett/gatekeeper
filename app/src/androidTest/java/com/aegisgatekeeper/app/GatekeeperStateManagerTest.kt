@@ -129,6 +129,8 @@ class GatekeeperStateManagerTest {
                     ),
             )
 
+        db.appSettingsQueries.insertDefault()
+
         mutableState = MutableStateFlow(GatekeeperState())
     }
 

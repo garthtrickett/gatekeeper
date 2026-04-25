@@ -28,6 +28,8 @@ object GatekeeperStateManager {
 
     private val initialState: GatekeeperState by lazy {
         // --- Database Seeding (one-time on first launch) ---
+        db.appSettingsQueries.insertDefault()
+
         if (db.appGroupQueries
                 .selectAllGroups()
                 .executeAsList()
