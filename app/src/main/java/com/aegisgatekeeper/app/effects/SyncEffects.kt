@@ -61,7 +61,6 @@ fun handleSyncAndAuthEffects(
             }
         }
 
-            else -> { /* Other actions don't interact with sync/auth in this handler */ }
-        }
+        else -> { /* Other actions don't interact with sync/auth in this handler */ }
     }
 }

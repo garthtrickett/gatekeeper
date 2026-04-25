@@ -3,9 +3,15 @@ package com.aegisgatekeeper.app.api
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import com.aegisgatekeeper.app.di.Singleton
 import com.aegisgatekeeper.app.domain.parseItunesDuration
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import me.tatarka.inject.annotations.Inject
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -21,13 +27,6 @@ data class RssFeedData(
     val artworkUrl: String?,
     val episodes: List<RssEpisode>,
 )
-
-import me.tatarka.inject.annotations.Inject
-import com.aegisgatekeeper.app.di.Singleton
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.statement.bodyAsText
 
 @Inject
 @Singleton

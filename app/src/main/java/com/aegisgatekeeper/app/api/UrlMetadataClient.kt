@@ -3,10 +3,16 @@ package com.aegisgatekeeper.app.api
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import com.aegisgatekeeper.app.di.Singleton
 import com.aegisgatekeeper.app.domain.estimateReadTimeSeconds
 import com.aegisgatekeeper.app.domain.parseIso8601Duration
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import me.tatarka.inject.annotations.Inject
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
@@ -21,13 +27,6 @@ data class ContentMetadata(
     val durationSeconds: Long? = null,
     val resolvedUrl: String? = null,
 )
-
-import me.tatarka.inject.annotations.Inject
-import com.aegisgatekeeper.app.di.Singleton
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.statement.bodyAsText
 
 @Inject
 @Singleton

@@ -1,13 +1,5 @@
 package com.aegisgatekeeper.app.di
 
-import com.aegisgatekeeper.app.auth.TokenProvider
-import com.aegisgatekeeper.app.media.MediaDownloader
-import me.tatarka.inject.annotations.Scope
-
-@Scope
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
-annotation class Singleton
-
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.auth.TokenProvider
 import com.aegisgatekeeper.app.media.MediaDownloader

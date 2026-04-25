@@ -3,6 +3,7 @@ package com.aegisgatekeeper.app.api
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import com.aegisgatekeeper.app.di.Singleton
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -16,6 +17,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import me.tatarka.inject.annotations.Inject
 
 @Serializable
 data class ItunesSearchResponse(
@@ -30,9 +32,6 @@ data class ItunesPodcastDto(
     val artworkUrl600: String? = null,
     val artistName: String? = null,
 )
-
-import me.tatarka.inject.annotations.Inject
-import com.aegisgatekeeper.app.di.Singleton
 
 @Inject
 @Singleton
