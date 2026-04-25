@@ -120,7 +120,7 @@ kotlin {
                 implementation("androidx.media3:media3-exoplayer:1.4.0")
                 implementation("androidx.media3:media3-session:1.4.0")
                 implementation("androidx.media3:media3-ui:1.4.0")
-                implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
+                implementation(enforcedPlatform("com.google.firebase:firebase-bom:33.1.0"))
                 implementation("com.google.firebase:firebase-analytics")
                 implementation("com.google.firebase:firebase-messaging-ktx")
             }
