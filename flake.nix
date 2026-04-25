@@ -210,8 +210,14 @@
                     alias logs='adb logcat | grep -iE "Gatekeeper|AndroidRuntime|WindowManager|FATAL"'
                     alias deploy='adb reverse tcp:8081 tcp:8081 && gradle installDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app/.MainActivity && echo "✅ Deployed & Port 8081 Reversed. Waiting for logs..." && logs'
                     alias backend-logs='docker-compose logs -f'
-                    alias lint='ktlint "app/src/**/*.kt"'
+
+                    # Linting & Quality
+                    alias lint-style='ktlint "app/src/**/*.kt"'
                     alias format='ktlint --format "app/src/**/*.kt"'
+                    alias lint-logic='./gradlew :app:lintDebug'
+                    alias lint-baseline='./gradlew :app:updateLintBaseline'
+                    alias lint-view='xdg-open app/build/reports/lint-results-debug.html'
+
                     alias wipe='adb shell pm clear com.aegisgatekeeper.app'
                     alias test-unit='gradle :app:test'
                     alias test-ui='adb logcat -c && (adb logcat -s Gatekeeper & LOG_PID=$!; gradle :app:connectedAndroidTest; kill $LOG_PID)'
