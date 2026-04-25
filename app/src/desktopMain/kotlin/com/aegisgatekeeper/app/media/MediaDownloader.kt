@@ -89,7 +89,7 @@ actual object MediaDownloader {
         }
     }
 
-    override fun removeDownload(id: String) {
+    actual fun removeDownload(id: String) {
         val osName = System.getProperty("os.name").lowercase()
         val userHome = System.getProperty("user.home")
         val cacheDirPath =

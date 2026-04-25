@@ -97,7 +97,7 @@ class GatekeeperForegroundService : Service() {
                     }
 
                 if (currentApp != null) {
-                    performAppValidation(this@GatekeeperForegroundService, currentApp)
+                    GatekeeperStateManager.performAppValidation(this@GatekeeperForegroundService, currentApp)
                 }
 
                 // snappier polling (500ms) to reduce the "flash" on the free tier

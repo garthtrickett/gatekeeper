@@ -5,12 +5,7 @@ import com.aegisgatekeeper.app.domain.GatekeeperState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-import me.tatarka.inject.annotations.Inject
-import com.aegisgatekeeper.app.di.Singleton
-
-@Inject
-@Singleton
-class GatekeeperStateManager {
+object GatekeeperStateManager {
     private val _state = MutableStateFlow(GatekeeperState())
     val state = _state.asStateFlow()
 
@@ -203,11 +198,7 @@ class GatekeeperStateManager {
             is GatekeeperAction.TriggerMetacognition -> {
                 _state.value =
                     _state.value.copy(
-                        lastModified =
-                            com.aegisgatekeeper.app.domain
-                                .parseRssPubDate(ep.pubDate, 0L - index),
-                                action.durationMillis,
-                            ),
+                        pendingMetacognition = com.aegisgatekeeper.app.domain.MetacognitionRequest(action.packageName, action.durationMillis)
                     )
             }
 

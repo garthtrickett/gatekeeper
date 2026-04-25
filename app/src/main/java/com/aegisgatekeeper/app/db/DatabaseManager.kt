@@ -65,8 +65,9 @@ object DatabaseManager {
             override fun encode(value: com.aegisgatekeeper.app.domain.RuleCombinator): String = value.name
         }
 
-    val db: GatekeeperDatabase by lazy {
-        GatekeeperDatabase(
+    lateinit var db: GatekeeperDatabase
+    fun init(driverFactory: SqlDriverFactory) {
+        db = GatekeeperDatabase(
             driver = driverFactory.createDriver(),
             AppGroupAdapter =
                 AppGroup.Adapter(

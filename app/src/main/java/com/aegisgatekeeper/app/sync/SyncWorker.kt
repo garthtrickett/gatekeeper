@@ -56,7 +56,7 @@ class SyncWorker(
                     )
                 }
 
-            val pushResult = SyncClient.pushChanges(SyncPushPayload(vaultDtos, contentDtos))
+            val pushResult = com.aegisgatekeeper.app.di.GlobalDI.component.syncClient.pushChanges(SyncPushPayload(vaultDtos, contentDtos))
             val pushFailed =
                 pushResult.fold(
                     ifLeft = { error ->
@@ -68,7 +68,7 @@ class SyncWorker(
             if (pushFailed) return Result.retry()
 
             // 2. Pull Remote Changes
-            val pullResult = SyncClient.pullChanges(0L)
+            val pullResult = com.aegisgatekeeper.app.di.GlobalDI.component.syncClient.pullChanges(0L)
             return pullResult.fold(
                 ifLeft = { error ->
                     Log.w("Gatekeeper", "❌ SyncWorker: Pull failed: $error")
@@ -100,7 +100,7 @@ class SyncWorker(
                             )
                         }
 
-                    stateManager.dispatch(GatekeeperAction.RemoteSyncCompleted(newVaultItems, newContentItems))
+                    GatekeeperStateManager.dispatch(GatekeeperAction.RemoteSyncCompleted(newVaultItems, newContentItems))
                     Log.i("Gatekeeper", "✅ SyncWorker: Background sync completed successfully.")
                     Result.success()
                 },

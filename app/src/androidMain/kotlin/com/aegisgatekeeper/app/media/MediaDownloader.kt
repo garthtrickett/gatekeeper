@@ -20,7 +20,7 @@ actual object MediaDownloader {
         )
     }
 
-    override fun removeDownload(id: String) {
+    actual fun removeDownload(id: String) {
         DownloadService.sendRemoveDownload(
             App.instance,
             GatekeeperDownloadService::class.java,

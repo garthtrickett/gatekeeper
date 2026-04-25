@@ -5,15 +5,11 @@ import com.aegisgatekeeper.app.api.PodcastIndexClient
 import com.aegisgatekeeper.app.api.RssClient
 import com.aegisgatekeeper.app.api.UrlMetadataClient
 import com.aegisgatekeeper.app.auth.AndroidTokenProvider
+import android.content.Context
 import com.aegisgatekeeper.app.auth.TokenProvider
 import com.aegisgatekeeper.app.db.AndroidSqlDriverFactory
-import com.aegisgatekeeper.app.db.DatabaseProvider
 import com.aegisgatekeeper.app.db.GatekeeperDatabase
 import com.aegisgatekeeper.app.db.SqlDriverFactory
-import com.aegisgatekeeper.app.effects.DatabaseEffectHandler
-import com.aegisgatekeeper.app.effects.MediaEffectHandler
-import com.aegisgatekeeper.app.effects.SyncEffectHandler
-import com.aegisgatekeeper.app.media.AndroidMediaDownloader
 import com.aegisgatekeeper.app.media.MediaDownloader
 import com.aegisgatekeeper.app.sync.SyncClient
 import io.ktor.client.HttpClient
@@ -34,7 +30,6 @@ abstract class AndroidApplicationComponent(
     @get:Provides val context: Context
 ) : SharedApplicationComponent {
 
-    abstract override val gatekeeperStateManager: GatekeeperStateManager
     abstract override val syncClient: SyncClient
 
     @get:Provides
@@ -43,28 +38,16 @@ abstract class AndroidApplicationComponent(
     abstract val rssClient: RssClient
     @get:Provides
     abstract val urlMetadataClient: UrlMetadataClient
-    @get:Provides
-    abstract val dbEffectHandler: DatabaseEffectHandler
-    @get:Provides
-    abstract val syncEffectHandler: SyncEffectHandler
-    @get:Provides
-    abstract val mediaEffectHandler: MediaEffectHandler
-
-    @get:Provides
-    abstract val dbProvider: DatabaseProvider
 
     @Provides
     @Singleton
-    fun provideDatabase(provider: DatabaseProvider): GatekeeperDatabase = provider.db
+    fun provideDatabase(): GatekeeperDatabase = com.aegisgatekeeper.app.db.DatabaseManager.db
 
     @Provides
     fun sqlDriverFactory(factory: AndroidSqlDriverFactory): SqlDriverFactory = factory
 
     @get:Provides
     override val tokenProvider: AndroidTokenProvider
-
-    @get:Provides
-    override val mediaDownloader: AndroidMediaDownloader
 
     @Provides
     @Singleton

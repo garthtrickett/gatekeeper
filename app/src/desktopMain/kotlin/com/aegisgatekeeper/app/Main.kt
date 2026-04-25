@@ -41,7 +41,8 @@ import java.io.File
 
 fun main() =
     application {
-        GlobalDI.component = DesktopApplicationComponent::class.create()
+        com.aegisgatekeeper.app.db.DatabaseManager.init(com.aegisgatekeeper.app.db.DesktopSqlDriverFactory())
+        com.aegisgatekeeper.app.di.GlobalDI.component = com.aegisgatekeeper.app.di.DesktopApplicationComponent::class.create()
         // Initialize Surgical Web Engine (Chromium)
         var webViewReady by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
@@ -100,7 +101,7 @@ fun main() =
                     onDispose { KCEF.disposeBlocking() }
                 }
 
-        val state by stateManager.state.collectAsState()
+        val state by GatekeeperStateManager.state.collectAsState()
 
         // E2E Auto-Login Injection
         LaunchedEffect(Unit) {
@@ -117,7 +118,7 @@ fun main() =
         LaunchedEffect(state.isAuthenticated) {
             if (state.isAuthenticated) {
                 withContext(Dispatchers.IO) {
-                    val syncClient = component.syncClient
+                    val syncClient = com.aegisgatekeeper.app.di.GlobalDI.component.syncClient
                     while (true) {
                         try {
                             val pushPayload =

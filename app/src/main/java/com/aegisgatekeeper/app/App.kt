@@ -39,7 +39,8 @@ class App :
     override fun onCreate() {
         super.onCreate()
         instance = this
-        GlobalDI.component = AndroidApplicationComponent::class.create(this)
+        com.aegisgatekeeper.app.db.DatabaseManager.init(com.aegisgatekeeper.app.db.AndroidSqlDriverFactory(this))
+        com.aegisgatekeeper.app.di.GlobalDI.component = com.aegisgatekeeper.app.di.AndroidApplicationComponent::class.create(this)
 
         // Schedule periodic podcast refresh (every 6 hours)
         val podcastConstraints =

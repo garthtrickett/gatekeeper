@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
                         val token = task.result
                         if (token != null) {
                             lifecycleScope.launch {
-                                SyncClient.registerDevice(token)
+                                com.aegisgatekeeper.app.di.GlobalDI.component.syncClient.registerDevice(token)
                             }
                         }
                     }
@@ -342,8 +342,8 @@ class MainActivity : ComponentActivity() {
                             com.aegisgatekeeper.app.views.CleanPlayerModal(
                                 videoId = state.activeVideoId!!,
                                 isVisible = state.isPlayerModalVisible,
-                                onMinimize = { stateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },
-                                onStop = { stateManager.dispatch(GatekeeperAction.StopCleanPlayer) },
+                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },
+                                onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) },
                             )
                         }
 
@@ -351,8 +351,8 @@ class MainActivity : ComponentActivity() {
                             com.aegisgatekeeper.app.views.CleanAudioPlayerModal(
                                 url = state.activeAudioUrl!!,
                                 isVisible = state.isPlayerModalVisible,
-                                onMinimize = { stateManager.dispatch(GatekeeperAction.MinimizeCleanAudioPlayer) },
-                                onStop = { stateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
+                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanAudioPlayer) },
+                                onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
                             )
                         }
 
@@ -360,35 +360,35 @@ class MainActivity : ComponentActivity() {
                             com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
                                 contentItem = state.activeNativeMediaItem!!,
                                 isVisible = state.isNativeAudioPlayerModalVisible,
-                                onMinimize = { stateManager.dispatch(GatekeeperAction.MinimizeNativePlayer) },
-                                onClose = { stateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
+                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeNativePlayer) },
+                                onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
                             )
                         }
 
                         if (state.activeFacebookUrl != null) {
                             com.aegisgatekeeper.app.views.SurgicalFacebookScreen(
                                 url = state.activeFacebookUrl!!,
-                                onClose = { stateManager.dispatch(GatekeeperAction.CloseSurgicalFacebook) },
+                                onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalFacebook) },
                             )
                         }
 
                         if (state.activePinnedWebsiteUrl != null) {
                             com.aegisgatekeeper.app.views.PinnedWebModal(
                                 url = state.activePinnedWebsiteUrl!!,
-                                onClose = { stateManager.dispatch(GatekeeperAction.ClosePinnedWebsite) },
+                                onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.ClosePinnedWebsite) },
                             )
                         }
 
                         if (state.pendingMetacognition != null) {
                             com.aegisgatekeeper.app.views.MetacognitionDialog(
                                 request = state.pendingMetacognition!!,
-                                onDismiss = { stateManager.dispatch(GatekeeperAction.ClearMetacognition) },
+                                onDismiss = { GatekeeperStateManager.dispatch(GatekeeperAction.ClearMetacognition) },
                             )
                         }
 
                         if (state.isSurgicalSearchVisible) {
                             com.aegisgatekeeper.app.views.CleanYouTubeDialog(
-                                onDismiss = { stateManager.dispatch(GatekeeperAction.HideSurgicalSearch) },
+                                onDismiss = { GatekeeperStateManager.dispatch(GatekeeperAction.HideSurgicalSearch) },
                             )
                         }
                     }

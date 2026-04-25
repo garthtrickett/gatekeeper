@@ -137,6 +137,15 @@ class GatekeeperStateManagerTest {
         driver.close()
     }
 
+    private fun dispatchWithSideEffects(action: GatekeeperAction) {
+        val oldState = mutableState.value
+        val newState = com.aegisgatekeeper.app.domain.reduce(oldState, action)
+        mutableState.value = newState
+        com.aegisgatekeeper.app.effects.handleDatabaseEffects(action, oldState, newState, db) {
+            dispatchWithSideEffects(it)
+        }
+    }
+
     @Test
     fun testEmergencyBypassLogging() =
         runTest {

@@ -1,6 +1,6 @@
 package com.aegisgatekeeper.app.media
 
-interface MediaDownloader {
+expect object MediaDownloader {
     fun enqueueDownload(
         id: String,
         url: String,

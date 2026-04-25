@@ -12,7 +12,5 @@ annotation class Singleton
 
 interface SharedApplicationComponent {
     val tokenProvider: TokenProvider
-    val mediaDownloader: MediaDownloader
-    val gatekeeperStateManager: GatekeeperStateManager
     val syncClient: SyncClient
 }

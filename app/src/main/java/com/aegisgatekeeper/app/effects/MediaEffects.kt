@@ -25,7 +25,7 @@ suspend fun handleMediaAndSystemEffects(
     when (action) {
         is GatekeeperAction.SearchPodcastsRequested -> {
             Log.d("Gatekeeper", "📡 Searching Podcasts for '${action.query}'")
-            com.aegisgatekeeper.app.api.PodcastIndexClient.searchPodcasts(action.query).fold(
+            (com.aegisgatekeeper.app.di.GlobalDI.component as com.aegisgatekeeper.app.di.AndroidApplicationComponent).podcastIndexClient.searchPodcasts(action.query).fold(
                 ifLeft = { error ->
                     Log.e("Gatekeeper", "❌ Podcast Search Failed: $error")
                     dispatch(GatekeeperAction.PodcastSearchCompleted(emptyList()))
@@ -40,18 +40,18 @@ suspend fun handleMediaAndSystemEffects(
             val item = state.contentItems.find { it.id == action.id }
             if (item != null) {
                 Log.d("Gatekeeper", "⬇️ Starting download for ${item.title}")
-                com.aegisgatekeeper.app.di.GlobalDI.component.mediaDownloader.enqueueDownload(item.id, item.videoId)
+                com.aegisgatekeeper.app.media.MediaDownloader.enqueueDownload(item.id, item.videoId)
             }
         }
 
         is GatekeeperAction.DeleteDownloadedMedia -> {
             Log.d("Gatekeeper", "🗑️ Deleting offline media for ${action.id}")
-            com.aegisgatekeeper.app.di.GlobalDI.component.mediaDownloader.removeDownload(action.id)
+            com.aegisgatekeeper.app.media.MediaDownloader.removeDownload(action.id)
         }
 
         is GatekeeperAction.ProcessPodcastUrl -> {
             Log.i("Gatekeeper", "📡 Fetching Podcast RSS: ${action.url}")
-            val result = RssClient.fetchFeed(action.url)
+            val result = (com.aegisgatekeeper.app.di.GlobalDI.component as com.aegisgatekeeper.app.di.AndroidApplicationComponent).rssClient.fetchFeed(action.url)
             result.fold(
                 ifLeft = { error ->
                     Log.e("Gatekeeper", "❌ Failed to parse RSS: $error")
@@ -77,7 +77,7 @@ suspend fun handleMediaAndSystemEffects(
 
         is GatekeeperAction.LoadPodcastEpisodes -> {
             Log.i("Gatekeeper", "📡 Loading Podcast Episodes from RSS: ${action.feedUrl}")
-            val result = RssClient.fetchFeed(action.feedUrl)
+            val result = (com.aegisgatekeeper.app.di.GlobalDI.component as com.aegisgatekeeper.app.di.AndroidApplicationComponent).rssClient.fetchFeed(action.feedUrl)
             result.fold(
                 ifLeft = { error ->
                     Log.e("Gatekeeper", "❌ Failed to load podcast episodes: $error")
@@ -111,7 +111,7 @@ suspend fun handleMediaAndSystemEffects(
 
         is GatekeeperAction.SavePodcastSubscription -> {
             Log.i("Gatekeeper", "📡 Fetching episodes for new subscription: ${action.subscription.showTitle}")
-            val result = RssClient.fetchFeed(action.subscription.feedUrl)
+            val result = (com.aegisgatekeeper.app.di.GlobalDI.component as com.aegisgatekeeper.app.di.AndroidApplicationComponent).rssClient.fetchFeed(action.subscription.feedUrl)
             result.fold(
                 ifLeft = { error ->
                     Log.e("Gatekeeper", "❌ Failed to fetch feed for new subscription: $error")
@@ -140,7 +140,7 @@ suspend fun handleMediaAndSystemEffects(
             if (videoId != null) {
                 dispatch(GatekeeperAction.ShowSurgicalSearch(action.url))
             } else if (action.url.contains("soundcloud.com", ignoreCase = true)) {
-                val metadataResult = UrlMetadataClient.fetchMetadata(action.url, isSoundCloud = true)
+                val metadataResult = (com.aegisgatekeeper.app.di.GlobalDI.component as com.aegisgatekeeper.app.di.AndroidApplicationComponent).urlMetadataClient.fetchMetadata(action.url, isSoundCloud = true)
                 val title = metadataResult.fold({ action.providedTitle ?: "SoundCloud Audio" }, { it.title })
                 val durationSeconds = metadataResult.getOrNull()?.durationSeconds
                 var resolvedUrl = metadataResult.getOrNull()?.resolvedUrl ?: action.url
@@ -161,7 +161,7 @@ suspend fun handleMediaAndSystemEffects(
                 )
             } else {
                 // Generic link handling
-                val metadataResult = UrlMetadataClient.fetchMetadata(action.url, isGeneric = true)
+                val metadataResult = (com.aegisgatekeeper.app.di.GlobalDI.component as com.aegisgatekeeper.app.di.AndroidApplicationComponent).urlMetadataClient.fetchMetadata(action.url, isGeneric = true)
                 val title = metadataResult.fold({ action.providedTitle ?: "Saved Link" }, { it.title })
                 val durationSeconds = metadataResult.getOrNull()?.durationSeconds
                 val resolvedUrl = metadataResult.getOrNull()?.resolvedUrl ?: action.url

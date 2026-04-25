@@ -12,6 +12,7 @@ import com.aegisgatekeeper.app.domain.reduce
 import com.aegisgatekeeper.app.effects.handleDatabaseEffects
 import com.aegisgatekeeper.app.effects.handleMediaAndSystemEffects
 import com.aegisgatekeeper.app.effects.handleSyncAndAuthEffects
+import android.content.Context
 import com.aegisgatekeeper.app.widget.VaultWidget
 import com.aegisgatekeeper.app.widget.updateAll
 import kotlinx.coroutines.CoroutineScope
@@ -340,9 +341,9 @@ object GatekeeperStateManager {
         newState: GatekeeperState,
     ) {
         scope.launch {
-            dbEffectHandler.handle(action, oldState, newState, ::dispatch)
-            syncEffectHandler.handle(action, newState)
-            mediaEffectHandler.handle(action, newState, ::dispatch)
+            handleDatabaseEffects(action, oldState, newState, db, ::dispatch)
+            handleSyncAndAuthEffects(action, newState, db)
+            handleMediaAndSystemEffects(action, newState, ::dispatch)
         }
     }
     

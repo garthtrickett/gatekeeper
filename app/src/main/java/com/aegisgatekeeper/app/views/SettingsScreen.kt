@@ -24,8 +24,8 @@ import com.aegisgatekeeper.app.domain.IndustrialTextField
 
 @Suppress("FunctionName")
 @Composable
-fun SettingsScreen(stateManager: GatekeeperStateManager) {
-    val state by stateManager.state.collectAsState()
+fun SettingsScreen() {
+    val state by GatekeeperStateManager.state.collectAsState()
     var showAdvanced by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
@@ -48,7 +48,7 @@ fun SettingsScreen(stateManager: GatekeeperStateManager) {
             Spacer(modifier = Modifier.height(16.dp))
             IndustrialTextField(
                 value = state.syncServerUrl,
-                onValueChange = { stateManager.dispatch(GatekeeperAction.UpdateSyncUrl(it)) },
+                onValueChange = { GatekeeperStateManager.dispatch(GatekeeperAction.UpdateSyncUrl(it)) },
                 label = { Text("Custom Sync Server URL") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
