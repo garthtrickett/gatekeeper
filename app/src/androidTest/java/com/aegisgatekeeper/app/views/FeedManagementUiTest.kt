@@ -123,6 +123,60 @@ class FeedManagementUiTest {
     }
 
     @Test
+    fun testFeedManagement_LatestEpisodesFeed_RendersAndAddsToBank() {
+        // Arrange: Seed a subscription and global episodes state
+        val sub = PodcastSubscription(
+            id = "podcast_123",
+            feedUrl = "https://example.com/feed.xml",
+            showTitle = "The Sovereign Podcast",
+            artworkUrl = null
+        )
+        GatekeeperStateManager.dispatch(GatekeeperAction.SavePodcastSubscription(sub))
+
+        val mockUnified = listOf(
+            com.aegisgatekeeper.app.domain.UnifiedEpisode(
+                id = "ep_1",
+                podcastId = "podcast_123",
+                title = "Global Episode 1",
+                audioUrl = "https://example.com/global1.mp3",
+                durationSeconds = 1800L,
+                pubDate = "Feb 01",
+                lastModified = 0L,
+                showTitle = "The Sovereign Podcast",
+                artworkUrl = null
+            )
+        )
+        GatekeeperStateManager.dispatch(GatekeeperAction.LatestGlobalEpisodesLoaded(mockUnified))
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                FeedManagementDialog(onDismiss = {})
+            }
+        }
+
+        // Act: Switch to Latest Episodes tab
+        composeTestRule.onNodeWithText("Latest Episodes").performClick()
+        composeTestRule.waitForIdle()
+
+        // Assert: Verify unified content renders correctly with the parent show title
+        composeTestRule.onNodeWithText("Global Episode 1").assertIsDisplayed()
+        composeTestRule.onNodeWithText("The Sovereign Podcast • Feb 01 • 30m").assertIsDisplayed()
+
+        // Act: Click the '+' button to add to bank
+        composeTestRule.onNodeWithText("+").performClick()
+        composeTestRule.waitForIdle()
+
+        // Assert: Check that it was added to the bank (button should now be 'Download')
+        val state = GatekeeperStateManager.state.value
+        val bankedItem = state.contentItems.find { it.videoId == "https://example.com/global1.mp3" }
+        assertThat(bankedItem).isNotNull()
+        assertThat(bankedItem?.title).isEqualTo("Global Episode 1")
+        assertThat(bankedItem?.channelName).isEqualTo("The Sovereign Podcast")
+
+        composeTestRule.onNodeWithText("Download").assertIsDisplayed()
+    }
+
+    @Test
     fun testFeedManagement_BackButton_ClearsActivePodcast() {
         // Arrange: Start deep in the episodes view
         val sub = PodcastSubscription(id = "podcast_123", feedUrl = "https://example.com/feed.xml", showTitle = "Title", artworkUrl = null)

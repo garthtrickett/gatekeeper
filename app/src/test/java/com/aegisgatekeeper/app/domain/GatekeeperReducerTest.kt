@@ -686,6 +686,37 @@ class GatekeeperReducerTest {
     }
 
     @Test
+    fun testLoadLatestGlobalEpisodes_setsLoading() {
+        val action = GatekeeperAction.LoadLatestGlobalEpisodes
+        val newState = reduce(initialState, action)
+
+        assertThat(newState.isLoadingGlobalEpisodes).isTrue()
+    }
+
+    @Test
+    fun testLatestGlobalEpisodesLoaded_setsActiveEpisodes() {
+        val stateWithLoading = initialState.copy(isLoadingGlobalEpisodes = true)
+        val mockUnified = listOf(
+            UnifiedEpisode(
+                id = "ep_1",
+                podcastId = "podcast1",
+                title = "Global Episode 1",
+                audioUrl = "https://example.com/global1.mp3",
+                durationSeconds = 1800L,
+                pubDate = "Feb 01",
+                lastModified = 0L,
+                showTitle = "The Sovereign Podcast",
+                artworkUrl = null
+            )
+        )
+        val action = GatekeeperAction.LatestGlobalEpisodesLoaded(mockUnified)
+        val newState = reduce(stateWithLoading, action)
+
+        assertThat(newState.isLoadingGlobalEpisodes).isFalse()
+        assertThat(newState.latestGlobalEpisodes).isEqualTo(mockUnified)
+    }
+
+    @Test
     fun testCacheParsedEpisodes_leavesStateUnchanged() {
         // CacheParsedEpisodes is a pure side-effect trigger; it should not modify state directly.
         val action = GatekeeperAction.CacheParsedEpisodes(emptyList(), "podcast1")
