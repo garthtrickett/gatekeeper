@@ -48,19 +48,14 @@ class PodcastIndexClientTest {
                     }
                 }
 
-            val originalClient = PodcastIndexClient.client
-            try {
-                PodcastIndexClient.client = mockHttpClient
-                val result = PodcastIndexClient.searchPodcasts("test")
+            val client = PodcastIndexClient(mockHttpClient)
+            val result = client.searchPodcasts("test")
 
-                assertThat(result.isRight()).isTrue()
-                val feeds = result.getOrNull()!!
-                assertThat(feeds).hasSize(1)
-                assertThat(feeds.first().title).isEqualTo("Test Podcast")
-                assertThat(feeds.first().url).isEqualTo("https://example.com/feed.xml")
-            } finally {
-                PodcastIndexClient.client = originalClient
-            }
+            assertThat(result.isRight()).isTrue()
+            val feeds = result.getOrNull()!!
+            assertThat(feeds).hasSize(1)
+            assertThat(feeds.first().title).isEqualTo("Test Podcast")
+            assertThat(feeds.first().url).isEqualTo("https://example.com/feed.xml")
         }
 
     @Test

@@ -30,7 +30,7 @@ import androidx.test.core.app.ApplicationProvider
 class ContentBankUiTest {
 
     private val stateManager: GatekeeperStateManager
-        get() = (ApplicationProvider.getApplicationContext<App>()).stateManager
+        get() = GatekeeperStateManager
 
     @Before
     fun setup() {

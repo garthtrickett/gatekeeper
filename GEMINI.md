@@ -25,7 +25,7 @@ When providing file updates in the JSON response, NEVER use standard unified dif
 # GEMINI.md - System Context & Coding Standards for "The Gatekeeper"
 
 ## AI Persona Context
-You are an expert Android Kotlin Developer contributing to "The Gatekeeper," a highly performant, native Android system-level cognitive orthotic. Your code must be intentional, highly predictable, deeply integrated with native Android APIs, and written in a strict functional programming style. 
+You are an expert Android Kotlin Developer contributing to "The Gatekeeper," a highly performant, native Android system-level cognitive orthotic. Your code must be intentional, highly predictable, deeply integrated with native Android APIs, and written in a strict functional programming style.
 
 Do not generate boilerplate object-oriented patterns (no `Manager`, `Helper`, or `Service` classes for business logic). Follow the strict State-Action-Model (SAM) architecture and Functional Kotlin guidelines detailed below.
 
@@ -36,16 +36,17 @@ All features must be governed by the SAM pattern using a strict unidirectional d
 
 *   **State (Model):** A single, immutable `data class` representing the complete state of the UI or domain (e.g., `GatekeeperState`).
 *   **Actions (Messages):** A `sealed interface` defining a closed, finite set of user intents or system events (e.g., `Action.UnlockRequested`).
-*   **The Reducer (Pure Calculation):** A pure top-level function that takes the current `State` and an `Action`, returning the *new* `State`. 
+*   **The Reducer (Pure Calculation):** A pure top-level function that takes the current `State` and an `Action`, returning the *new* `State`.
     *   *Rule:* Reducers must have **ZERO side effects**. No database calls, no network requests, no shared preferences.
-*   **The ViewModel/Actor (Impure Execution):** A Native Android `ViewModel` that hosts the `StateFlow`. It receives `Actions`, passes them to the pure `reduce` function, and executes required side effects (like database writes) based on the resulting state using Coroutines.
+*   **The ViewModel/Actor (Impure Execution):** A Native Android `ViewModel` (or other lifecycle-aware component) that hosts the `StateFlow`. It receives `Actions`, passes them to the pure `reduce` function, and executes required side effects (like database writes).
+    *   **Dependencies:** This layer receives its dependencies (e.g., API clients, database instances) via **constructor injection**, managed by our `kotlin-inject` component.
 
 ---
 
 ## 2. Functional Kotlin Rules (Strict Immutability)
 Code must be declarative. Do not mutate state.
 
-*   **Immutability by Default:** 
+*   **Immutability by Default:**
     *   Always use `val`. Never use `var` unless contained within a pure function's highly localized scope for extreme performance reasons.
     *   Always use immutable collections (`List`, `Set`, `Map`). Never use `ArrayList` or `MutableList` in public APIs or State.
 *   **Transform, Don't Mutate:** To update state, use the `.copy()` method on data classes to create a new instance.
@@ -59,7 +60,7 @@ Code must be declarative. Do not mutate state.
 ## 3. Functions & Logic
 Business logic should not be wrapped in stateful classes.
 
-*   **No Managers or Services:** Avoid OOP anti-patterns like `AuthManager` or `ValidatorService`. 
+*   **No Managers or Services:** Avoid OOP anti-patterns like `AuthManager` or `ValidatorService`. We use classes for *capabilities* (like an API client) but not for holding mutable state or business logic.
 *   **Top-Level Functions:** Place general domain logic in pure top-level functions (e.g., `validateIntent(intent: Intent): Boolean`).
 *   **Extension Functions:** Use extension functions heavily to add behavior to data types without modifying them. This keeps code readable and chained (e.g., `fun VaultItem.toDisplayString(): String`).
 *   **Higher-Order Functions:** Prefer functional collection operators (`.map`, `.filter`, `.fold`, `.flatMap`) over imperative `for` loops.
@@ -70,26 +71,46 @@ Business logic should not be wrapped in stateful classes.
 Do not use Exceptions for control flow.
 
 *   **No `try/catch` in Business Logic:** Exceptions should only be caught at the absolute boundary of the app (e.g., direct API calls or DB interactions).
-*   **Use `Result` Types:** Wrap expected failures in Kotlin's native `Result<T>` or a custom `sealed class` (e.g., `sealed interface DomainError`).
-*   Functions that can fail should return `Result<SuccessType, ErrorType>`. The UI/ViewModel layer will fold or unwrap this result.
+*   **Use `Either` or `Result`:** Wrap expected failures in `arrow.core.Either` or Kotlin's native `Result<T>`.
+*   Functions that can fail should return an `Either<ErrorType, SuccessType>`. The UI/ViewModel layer will `fold` this result to handle both cases.
 
 ---
 
 ## 5. Technology Stack & Hard Constraints
-*   **UI:** Strict Jetpack Compose. No XML. 
+*   **UI:** Strict Jetpack Compose. No XML.
 *   **Zero Web-Jank:** NEVER suggest or use web wrappers (WebView, Capacitor, React Native) for core UI. The Interceptor must run natively to prevent RAM spikes and OS deprioritization. Headless WebViews are ONLY permitted for the Audio Engine.
-*   **Persistence:** Use **SQLDelight** ONLY. Do not use Room, SQLiteOpenHelper, or SharedPreferences for core data. All schemas and queries must be written in raw `.sq` files to guarantee compile-time safety and zero-reflection. Do not use LocalStorage.
-
-    *   **Migrations (Dev vs Prod):** We use environment-aware schema evolution in `DatabaseDriverFactory`. 
+*   **Persistence:** Use **SQLDelight** ONLY. Do not use Room, SQLiteOpenHelper, or SharedPreferences for core data. All schemas and queries must be written in raw `.sq` files to guarantee compile-time safety and zero-reflection.
+    *   **Migrations (Dev vs Prod):** We use environment-aware schema evolution in `DatabaseDriverFactory`.
         *   **In DEBUG mode (`BuildConfig.DEBUG == true`):** If a migration fails (schema mismatch), the database is permitted to destructively recreate tables (wipe data) to allow rapid iteration.
         *   **In RELEASE mode (`BuildConfig.DEBUG == false`):** Destructive fallbacks are STRICTLY FORBIDDEN. Migration failures must throw exceptions to trigger crash reporting. Production schema changes must use `.sqm` files.
 *   **Concurrency:** Strict Structured Concurrency using Kotlin Coroutines and `Flow`/`StateFlow`. Ensure all long-running background tasks are tied to specific `CoroutineScopes` to prevent memory leaks in the Interceptor.
+*   **Dependency Injection:** Use **`kotlin-inject`** for compile-time, type-safe dependency injection. Avoid manual dependency wiring and reflection-based frameworks.
 *   **Hardware Sensors:** Code interfacing with hardware (e.g., Gyroscope for the Friction Engine) must talk directly to Android native APIs.
 *   **Next-Action Predicates (NAPs):** Use Compose `LaunchedEffect` to observe state and trigger automatic side-effects (e.g., automatically unlocking an app when `State.frictionProgress == 1.0`).
 
 ---
 
-## 6. Logging Standards: Grug-Brained Visibility
+## 6. Dependency Injection (DI) with `kotlin-inject`
+We use `kotlin-inject` for performant, compile-time DI. Follow these patterns:
+
+*   **`@Component`:** The DI graph is defined in an `abstract class` annotated with `@Component`. We have platform-specific components like `AndroidApplicationComponent` that inherit from a `SharedApplicationComponent`.
+*   **Constructor Injection:** This is the default. Any class that needs dependencies should declare them in its primary constructor and be annotated with **`@Inject`**.
+    ```kotlin
+    @Inject class MyRepository(private val database: GatekeeperDatabase) {
+        // ...
+    }
+    ```
+*   **`@Provides`:** Use `@Provides` functions inside a Component for dependencies that you don't own, such as library classes (`HttpClient`) or instances requiring the Android `Context`.
+    ```kotlin
+    @Provides @Singleton
+    fun httpClient(): HttpClient = HttpClient(OkHttp) { /* ... */ }
+    ```
+*   **Scoping:** Use the **`@Singleton`** annotation (or other custom scopes defined in the component) on `@Provides` functions or on `@Inject` classes to manage their lifecycle.
+*   **Global Access:** The platform-specific component is initialized and assigned to `GlobalDI.component` at app startup. This allows shared code to access cross-platform dependencies like the `SyncClient`.
+
+---
+
+## 7. Logging Standards: Grug-Brained Visibility
 To ensure debuggability across all layers of the system (UI, background services, state logic), all log entries MUST use a single, consistent tag and be prefixed with an emoji to denote the log's category. This allows for rapid visual parsing in Logcat.
 
 *   **Log Tag:** Always use `"Gatekeeper"`.
@@ -109,7 +130,7 @@ To ensure debuggability across all layers of the system (UI, background services
 
 ---
 
-## Example: The SAM Loop
+## Example: The SAM Loop with DI
 
 ```kotlin
 // 1. State
@@ -135,21 +156,24 @@ fun reduce(state: FrictionState, action: FrictionAction): FrictionState = when (
     FrictionAction.BypassConfirmed -> state.copy(isLocked = false)
 }
 
-// 4. ViewModel (Execution)
-class FrictionViewModel : ViewModel() {
+// 4. ViewModel (Execution) with DI
+@Inject
+class FrictionViewModel(
+    private val database: GatekeeperDatabase // Injected by kotlin-inject
+) : ViewModel() {
     private val _state = MutableStateFlow(FrictionState())
     val state = _state.asStateFlow()
 
     fun dispatch(action: FrictionAction) {
         _state.value = reduce(_state.value, action)
-        
+
         // Handle side effects based on new state
         if (action is FrictionAction.BypassConfirmed) {
             viewModelScope.launch {
-                database.logBypassReason(_state.value.bypassReason)
+                database.emergencyBypassLogQueries.insert(
+                    /* ... reason = _state.value.bypassReason ... */
+                )
             }
         }
     }
 }
-
-

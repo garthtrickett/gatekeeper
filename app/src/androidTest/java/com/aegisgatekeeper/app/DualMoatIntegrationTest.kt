@@ -22,7 +22,7 @@ import androidx.test.core.app.ApplicationProvider
 class DualMoatIntegrationTest {
     private val testAppPackage = "com.aegisgatekeeper.app.test"
     private val stateManager: GatekeeperStateManager
-        get() = (ApplicationProvider.getApplicationContext<App>()).stateManager
+        get() = GatekeeperStateManager
 
     @Before
     fun setup() {
@@ -113,7 +113,7 @@ class DualMoatIntegrationTest {
             (stateFlowField.get(stateManager) as MutableStateFlow<GatekeeperState>).value = stateWithLockdown
 
             // Act: Force the Foreground Service to evaluate the current app.
-            GatekeeperForegroundService.performAppValidation(
+            GatekeeperStateManager.performAppValidation(
                 InstrumentationRegistry.getInstrumentation().targetContext,
                 testAppPackage,
             )
