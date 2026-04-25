@@ -319,16 +319,26 @@ fun EditAppsDialog(
 @Composable
 fun CheckInDialog(
     group: AppGroup,
+    existingRule: com.aegisgatekeeper.app.domain.BlockingRule.CheckIn? = null,
     onDismiss: () -> Unit,
 ) {
-    var duration by remember { mutableStateOf("15") }
+    var duration by remember { mutableStateOf(existingRule?.durationMinutes?.toString() ?: "15") }
 
     data class UiTime(
         val hour: String = "10",
         val min: String = "30",
     )
-    var times by remember { mutableStateOf(listOf(UiTime())) }
-    var selectedDays by remember { mutableStateOf(DayOfWeek.values().toSet()) }
+    var times by remember {
+        mutableStateOf(
+            existingRule?.checkInTimesMinutes?.map {
+                UiTime(
+                    (it / 60).toString().padStart(2, '0'),
+                    (it % 60).toString().padStart(2, '0')
+                )
+            } ?: listOf(UiTime())
+        )
+    }
+    var selectedDays by remember { mutableStateOf(existingRule?.daysOfWeek ?: DayOfWeek.values().toSet()) }
 
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(shape = MaterialTheme.shapes.medium, modifier = Modifier.padding(16.dp).fillMaxWidth()) {
@@ -413,18 +423,30 @@ fun CheckInDialog(
                                 times.map {
                                     (it.hour.toIntOrNull() ?: 10) * 60 + (it.min.toIntOrNull() ?: 0)
                                 }
-                            GatekeeperStateManager.dispatch(
-                                GatekeeperAction.AddCheckInRule(
-                                    id =
-                                        java.util.UUID
-                                            .randomUUID()
-                                            .toString(),
-                                    groupId = group.id,
-                                    checkInTimesMinutes = domainTimes,
-                                    durationMinutes = duration.toIntOrNull() ?: 15,
-                                    daysOfWeek = selectedDays,
-                                ),
-                            )
+                            if (existingRule != null) {
+                                GatekeeperStateManager.dispatch(
+                                    GatekeeperAction.UpdateCheckInRule(
+                                        id = existingRule.id,
+                                        groupId = group.id,
+                                        checkInTimesMinutes = domainTimes,
+                                        durationMinutes = duration.toIntOrNull() ?: 15,
+                                        daysOfWeek = selectedDays,
+                                    ),
+                                )
+                            } else {
+                                GatekeeperStateManager.dispatch(
+                                    GatekeeperAction.AddCheckInRule(
+                                        id =
+                                            java.util.UUID
+                                                .randomUUID()
+                                                .toString(),
+                                        groupId = group.id,
+                                        checkInTimesMinutes = domainTimes,
+                                        durationMinutes = duration.toIntOrNull() ?: 15,
+                                        daysOfWeek = selectedDays,
+                                    ),
+                                )
+                            }
                             onDismiss()
                         },
                         text = "Save",

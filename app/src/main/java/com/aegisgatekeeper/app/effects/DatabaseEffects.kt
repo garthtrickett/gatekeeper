@@ -303,6 +303,15 @@ fun handleDatabaseEffects(
             }
         }
 
+        is GatekeeperAction.UpdateCheckInRule -> {
+            db.blockingRuleQueries.insertCheckInRule(
+                action.id,
+                action.checkInTimesMinutes.joinToString(","),
+                action.durationMinutes.toLong(),
+                action.daysOfWeek.joinToString(","),
+            )
+        }
+
         is GatekeeperAction.RedeemCheckInToken -> {
             val log = (newState.consumedCheckIns - oldState.consumedCheckIns.toSet()).firstOrNull()
             if (log != null) {

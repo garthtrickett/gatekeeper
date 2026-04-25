@@ -50,6 +50,7 @@ fun GroupDetailScreen(
     var showTimeLimitDialog by remember { mutableStateOf(false) }
     var showScheduledBlockDialog by remember { mutableStateOf(false) }
     var showCheckInDialog by remember { mutableStateOf(false) }
+    var editingCheckInRule by remember { mutableStateOf<BlockingRule.CheckIn?>(null) }
     var showEditAppsDialog by remember { mutableStateOf(false) }
     var showDomainBlockDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -245,22 +246,33 @@ fun GroupDetailScreen(
                                     }
                                 }
                             }
-                            Switch(
-                                checked = rule.isEnabled,
-                                onCheckedChange = { GatekeeperStateManager.dispatch(GatekeeperAction.ToggleRule(rule.id, group.id, it)) },
-                                colors =
-                                    SwitchDefaults.colors(
-                                        checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                        checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                                        uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        uncheckedTrackColor = MaterialTheme.colorScheme.surface,
-                                    ),
-                            )
-                            IndustrialButton(
-                                onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DeleteRule(rule.id, group.id)) },
-                                text = "DEL",
-                                isWarning = true,
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Switch(
+                                    checked = rule.isEnabled,
+                                    onCheckedChange = { GatekeeperStateManager.dispatch(GatekeeperAction.ToggleRule(rule.id, group.id, it)) },
+                                    colors =
+                                        SwitchDefaults.colors(
+                                            checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                            checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                                            uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            uncheckedTrackColor = MaterialTheme.colorScheme.surface,
+                                        ),
+                                )
+                                if (rule is BlockingRule.CheckIn) {
+                                    IndustrialButton(
+                                        onClick = {
+                                            editingCheckInRule = rule
+                                            showCheckInDialog = true
+                                        },
+                                        text = "EDIT",
+                                    )
+                                }
+                                IndustrialButton(
+                                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DeleteRule(rule.id, group.id)) },
+                                    text = "DEL",
+                                    isWarning = true,
+                                )
+                            }
                         }
                     }
                 }
@@ -292,6 +304,7 @@ fun GroupDetailScreen(
             },
             onSelectCheckIn = {
                 showRuleChoice = false
+                editingCheckInRule = null
                 showCheckInDialog = true
             },
         )
@@ -302,7 +315,7 @@ fun GroupDetailScreen(
     }
 
     if (showCheckInDialog) {
-        CheckInDialog(group = group, onDismiss = { showCheckInDialog = false })
+        CheckInDialog(group = group, existingRule = editingCheckInRule, onDismiss = { showCheckInDialog = false })
     }
 
     if (showTimeLimitDialog) {

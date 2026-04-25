@@ -279,6 +279,32 @@ private fun reduceRulesAndIntercepts(
             state.copy(appGroups = state.appGroups.map { if (it.id == action.groupId) it.copy(rules = it.rules + newRule) else it })
         }
 
+        is GatekeeperAction.UpdateCheckInRule -> {
+            state.copy(
+                appGroups =
+                    state.appGroups.map { group ->
+                        if (group.id == action.groupId) {
+                            group.copy(
+                                rules =
+                                    group.rules.map { rule ->
+                                        if (rule.id == action.id && rule is BlockingRule.CheckIn) {
+                                            rule.copy(
+                                                checkInTimesMinutes = action.checkInTimesMinutes,
+                                                durationMinutes = action.durationMinutes,
+                                                daysOfWeek = action.daysOfWeek
+                                            )
+                                        } else {
+                                            rule
+                                        }
+                                    }
+                            )
+                        } else {
+                            group
+                        }
+                    }
+            )
+        }
+
         is GatekeeperAction.RedeemCheckInToken -> {
             val newLog =
                 ConsumedCheckIn(
