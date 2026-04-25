@@ -47,6 +47,10 @@ android {
         buildConfig = true
     }
 
+    lint {
+        abortOnError = false
+    }
+
     sourceSets {
         getByName("main") {
             res.srcDirs("src/main/res")

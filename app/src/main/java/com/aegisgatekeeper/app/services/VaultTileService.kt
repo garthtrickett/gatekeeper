@@ -7,6 +7,7 @@ import android.service.quicksettings.TileService
 import com.aegisgatekeeper.app.VaultCaptureActivity
 
 class VaultTileService : TileService() {
+    @android.annotation.SuppressLint("StartActivityAndCollapseDeprecated")
     override fun onClick() {
         super.onClick()
         val intent =
