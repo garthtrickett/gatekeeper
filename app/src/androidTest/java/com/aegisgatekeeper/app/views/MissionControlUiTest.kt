@@ -87,7 +87,7 @@ class MissionControlUiTest {
 
         // Verify the headers and the group label appear correctly
         composeTestRule.onNodeWithText("Safe Apps").assertIsDisplayed()
-        composeTestRule.onAllNodesWithText("Test Block Group", substring = true)[0].assertIsDisplayed()
+        composeTestRule.onNodeWithText("Test Block Group").assertIsDisplayed()
     }
 
     @Test
