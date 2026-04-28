@@ -194,7 +194,7 @@ fun MissionControlScreen() {
                     val restrictedApps = pinnedAppsInfo.filter { it.groupNames.isNotEmpty() }
 
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
+                        columns = GridCells.Fixed(4),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.weight(1f),
