@@ -931,6 +931,15 @@ class GatekeeperReducerTest {
     }
 
     @Test
+    fun testAddAlwaysBlockRule_appendsRuleToGroup() {
+        val action = GatekeeperAction.AddAlwaysBlockRule("alwaysBlock1", "group1")
+        val newState = reduce(initialState, action)
+        val group = newState.appGroups.find { it.id == "group1" }
+        assertThat(group?.rules).hasSize(1)
+        assertThat(group?.rules?.first()).isInstanceOf(BlockingRule.AlwaysBlock::class.java)
+    }
+
+    @Test
     fun testAddCheckInRule_AppendsRule() {
         val action =
             GatekeeperAction.AddCheckInRule(

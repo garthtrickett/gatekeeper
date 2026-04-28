@@ -513,6 +513,24 @@ class GatekeeperStateManagerTest {
         }
 
     @Test
+    fun testAddAlwaysBlockRuleLogging() =
+        runTest {
+            // Arrange: Create a group first
+            dispatchWithSideEffects(GatekeeperAction.CreateAppGroup("group1", "Test Group", emptySet()))
+
+            val action = GatekeeperAction.AddAlwaysBlockRule(id = "always_block_1", groupId = "group1")
+
+            // Act
+            dispatchWithSideEffects(action)
+
+            // Assert
+            val rules = db.blockingRuleQueries.selectAllRules().executeAsList()
+            assertThat(rules).hasSize(1)
+            assertThat(rules.first().ruleType).isEqualTo("ALWAYS_BLOCK")
+            assertThat(rules.first().groupId).isEqualTo("group1")
+        }
+
+    @Test
     fun testUpdatePhaseWindowsLogging() =
         runTest {
             // Arrange

@@ -66,7 +66,7 @@ class GroupDetailUiTest {
     }
 
     @Test
-    fun testRuleChoiceDialog_doesNotContainDomainBlock() {
+    fun testRuleChoiceDialog_containsAllRuleTypes() {
         val mockGroup = AppGroup(id = "test-group", name = "Test Group")
 
         composeTestRule.setContent {
@@ -79,8 +79,37 @@ class GroupDetailUiTest {
         composeTestRule.onNodeWithText("+ Add Rule").performClick()
         composeTestRule.waitForIdle()
 
-        // Verify Domain Block is removed from this menu
+        // Verify All rule types are present
         composeTestRule.onNodeWithText("Select Rule Type").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Domain Block").assertDoesNotExist()
+        composeTestRule.onNodeWithText("Daily Time Limit").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Scheduled Block").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Strict Check-In").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Always Block").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Domain Block").assertDoesNotExist() // This is now in its own section
+    }
+
+    @Test
+    fun testAlwaysBlockRule_rendersCorrectlyInList() {
+        val mockGroup =
+            AppGroup(
+                id = "test-group",
+                name = "Test Group",
+                rules =
+                    listOf(
+                        BlockingRule.AlwaysBlock(
+                            id = "rule1",
+                            groupId = "test-group",
+                        ),
+                    ),
+            )
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                GroupDetailScreen(group = mockGroup, onBack = {})
+            }
+        }
+
+        composeTestRule.onNodeWithText("Always Block").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Blocked 24/7").assertIsDisplayed()
     }
 }

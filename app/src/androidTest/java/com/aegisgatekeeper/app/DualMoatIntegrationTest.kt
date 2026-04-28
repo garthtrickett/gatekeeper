@@ -124,6 +124,31 @@ class DualMoatIntegrationTest {
         }
 
     @Test
+    fun whenAlwaysBlockRuleIsActive_blocksApp() =
+        runTest {
+            // Arrange: Add an Always Block rule to the test group
+            val rule = BlockingRule.AlwaysBlock(id = "test-rule", groupId = "test-group-id")
+            val group = stateManager.state.value.appGroups.first()
+            val updatedGroup = group.copy(rules = listOf(rule))
+            val stateWithRule = GatekeeperState(appGroups = listOf(updatedGroup))
+
+            val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
+            stateFlowField.isAccessible = true
+            @Suppress("UNCHECKED_CAST")
+            (stateFlowField.get(stateManager) as MutableStateFlow<GatekeeperState>).value = stateWithRule
+
+            // Act: Simulate a Layer Alpha tick which calls performAppValidation
+            GatekeeperStateManager.performAppValidation(
+                InstrumentationRegistry.getInstrumentation().targetContext,
+                testAppPackage,
+            )
+
+            // Assert: The overlay should be active with the correct reason.
+            assertThat(stateManager.state.value.isOverlayActive).isTrue()
+            assertThat(stateManager.state.value.activeBlockReason).isEqualTo("Policy Violation: Always Block for 'Test Group'")
+        }
+
+    @Test
     fun whenRuleIsBroken_layerAlphaDispatchesViolation() =
         runTest {
             // Arrange: Add a time limit rule to the test group
