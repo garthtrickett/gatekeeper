@@ -297,7 +297,7 @@
           echo "✅ ADB Tunnel Established"
 
           echo "📱 Deploying Android App..."
-          gradle :app:installDebug
+          gradle :app:installDevDebug
           adb shell pm clear com.aegisgatekeeper.app.dev || true
           adb shell am start -n com.aegisgatekeeper.app.dev/com.aegisgatekeeper.app.MainActivity
           sleep 4

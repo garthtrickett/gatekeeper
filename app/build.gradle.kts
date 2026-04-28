@@ -41,8 +41,20 @@ android {
 
     buildTypes {
         getByName("debug") {
+            // Standard debug configurations
+        }
+    }
+
+    flavorDimensions.add("env")
+    productFlavors {
+        create("dev") {
+            dimension = "env"
             applicationIdSuffix = ".dev"
             manifestPlaceholders["appName"] = "Gatekeeper (Dev)"
+        }
+        create("prod") {
+            dimension = "env"
+            manifestPlaceholders["appName"] = "Aegis Gatekeeper"
         }
     }
 
