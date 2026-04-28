@@ -188,8 +188,18 @@ private val IndustrialShapes =
 @Suppress("FunctionName")
 @Composable
 fun GatekeeperTheme(content: @Composable () -> Unit) {
+    // Check if we are in the .dev sandbox to shift UI colors
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val isDev = context.packageName.endsWith(".dev")
+
+    val colorScheme = if (isDev) {
+        IndustrialColorScheme.copy(primary = SafetyOrange)
+    } else {
+        IndustrialColorScheme
+    }
+
     MaterialTheme(
-        colorScheme = IndustrialColorScheme,
+        colorScheme = colorScheme,
         typography = IndustrialTypography,
         shapes = IndustrialShapes,
         content = content,
