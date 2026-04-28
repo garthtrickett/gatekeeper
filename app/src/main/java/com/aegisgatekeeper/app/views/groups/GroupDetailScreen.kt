@@ -241,6 +241,11 @@ fun GroupDetailScreen(
                                         )
                                     }
 
+                                    is BlockingRule.AlwaysBlock -> {
+                                        Text("Always Block", fontWeight = FontWeight.Bold)
+                                        Text("Blocked 24/7", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+
                                     is BlockingRule.DomainBlock -> {
                                         // Rendered separately in the blocked domains section above
                                     }
@@ -307,6 +312,10 @@ fun GroupDetailScreen(
                 editingCheckInRule = null
                 showCheckInDialog = true
             },
+            onSelectAlwaysBlock = {
+                showRuleChoice = false
+                GatekeeperStateManager.dispatch(GatekeeperAction.AddAlwaysBlockRule(java.util.UUID.randomUUID().toString(), group.id))
+            }
         )
     }
 

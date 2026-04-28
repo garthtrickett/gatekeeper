@@ -262,6 +262,10 @@ fun handleDatabaseEffects(
             db.appGroupQueries.deleteGroup(action.groupId)
         }
 
+        is GatekeeperAction.AddAlwaysBlockRule -> {
+            db.blockingRuleQueries.insertBlockingRule(action.id, action.groupId, "ALWAYS_BLOCK", true)
+        }
+
         is GatekeeperAction.AddDomainBlockRule -> {
             db.transaction {
                 db.blockingRuleQueries.insertBlockingRule(action.id, action.groupId, "DOMAIN_BLOCK", true)

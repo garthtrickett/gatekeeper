@@ -182,6 +182,11 @@ private fun reduceRulesAndIntercepts(
             state.copy(appGroups = state.appGroups.filter { it.id != action.groupId })
         }
 
+        is GatekeeperAction.AddAlwaysBlockRule -> {
+            val newRule = BlockingRule.AlwaysBlock(id = action.id, groupId = action.groupId)
+            state.copy(appGroups = state.appGroups.map { if (it.id == action.groupId) it.copy(rules = it.rules + newRule) else it })
+        }
+
         is GatekeeperAction.AddDomainBlockRule -> {
             val newRule = BlockingRule.DomainBlock(id = action.id, groupId = action.groupId, domains = action.domains)
             state.copy(appGroups = state.appGroups.map { if (it.id == action.groupId) it.copy(rules = it.rules + newRule) else it })
@@ -254,6 +259,7 @@ private fun reduceRulesAndIntercepts(
                                                 is BlockingRule.ScheduledBlock -> r.copy(isEnabled = action.isEnabled)
                                                 is BlockingRule.CheckIn -> r.copy(isEnabled = action.isEnabled)
                                                 is BlockingRule.DomainBlock -> r.copy(isEnabled = action.isEnabled)
+                                                is BlockingRule.AlwaysBlock -> r.copy(isEnabled = action.isEnabled)
                                             }
                                         } else {
                                             r

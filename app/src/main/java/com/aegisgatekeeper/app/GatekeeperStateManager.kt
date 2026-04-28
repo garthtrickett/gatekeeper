@@ -184,6 +184,14 @@ object GatekeeperStateManager {
                                 }
                             }
 
+                            "ALWAYS_BLOCK" -> {
+                                com.aegisgatekeeper.app.domain.BlockingRule.AlwaysBlock(
+                                    id = rule.id,
+                                    groupId = rule.groupId,
+                                    isEnabled = rule.isEnabled,
+                                )
+                            }
+
                             else -> {
                                 null
                             }
@@ -428,6 +436,9 @@ object GatekeeperStateManager {
                                 if (rule.daysOfWeek.contains(currentDay)) groupViolations.add("Check-In Required")
                             }
                             is com.aegisgatekeeper.app.domain.BlockingRule.DomainBlock -> {}
+                            is com.aegisgatekeeper.app.domain.BlockingRule.AlwaysBlock -> {
+                                groupViolations.add("Always Block")
+                            }
                         }
                     }
 

@@ -51,6 +51,7 @@ fun RuleChoiceDialog(
     onSelectTimeLimit: () -> Unit,
     onSelectScheduledBlock: () -> Unit,
     onSelectCheckIn: () -> Unit,
+    onSelectAlwaysBlock: () -> Unit,
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(shape = MaterialTheme.shapes.medium, modifier = Modifier.padding(16.dp)) {
@@ -73,6 +74,12 @@ fun RuleChoiceDialog(
                     onClick = onSelectCheckIn,
                     modifier = Modifier.fillMaxWidth(),
                     text = "Strict Check-In",
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                IndustrialButton(
+                    onClick = onSelectAlwaysBlock,
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Always Block",
                 )
             }
         }

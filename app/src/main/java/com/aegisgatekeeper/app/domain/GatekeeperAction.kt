@@ -292,6 +292,11 @@ sealed interface GatekeeperAction {
         val domains: Set<String>,
     ) : GatekeeperAction
 
+    data class AddAlwaysBlockRule(
+        val id: String,
+        val groupId: String,
+    ) : GatekeeperAction
+
     data class UpdateDomainBlockRule(
         val ruleId: String,
         val groupId: String,

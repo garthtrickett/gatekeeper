@@ -45,6 +45,12 @@ sealed interface BlockingRule {
         override val isEnabled: Boolean = true,
         val domains: Set<String>,
     ) : BlockingRule
+
+    data class AlwaysBlock(
+        override val id: String = UUID.randomUUID().toString(),
+        override val groupId: String,
+        override val isEnabled: Boolean = true,
+    ) : BlockingRule
 }
 
 data class ConsumedCheckIn(
