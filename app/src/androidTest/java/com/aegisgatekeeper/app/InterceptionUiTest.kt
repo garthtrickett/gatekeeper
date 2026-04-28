@@ -233,5 +233,4 @@ class InterceptionUiTest {
         composeTestRule.onNodeWithText("Why do you need to open Interceptedapp?").assertExists()
         composeTestRule.onNodeWithText("Unlock for 5 minutes").assertExists()
     }
-
 }

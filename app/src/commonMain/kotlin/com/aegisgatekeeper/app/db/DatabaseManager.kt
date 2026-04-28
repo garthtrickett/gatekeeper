@@ -59,27 +59,29 @@ object DatabaseManager {
         }
 
     lateinit var db: GatekeeperDatabase
+
     fun init(driverFactory: SqlDriverFactory) {
-        db = GatekeeperDatabase(
-            driver = driverFactory.createDriver(),
-            AppGroupAdapter =
-                AppGroup.Adapter(
-                    ruleCombinatorAdapter = ruleCombinatorAdapter,
-                ),
-            AppSettingsAdapter =
-                AppSettings.Adapter(
-                    activeFrictionGameAdapter = frictionGameAdapter,
-                ),
-            SessionLogAdapter =
-                SessionLog.Adapter(
-                    emotionAdapter = emotionAdapter,
-                ),
-            ContentItemAdapter =
-                ContentItem.Adapter(
-                    sourceAdapter = contentSourceAdapter,
-                    typeAdapter = contentTypeAdapter,
-                    downloadStatusAdapter = downloadStatusAdapter,
-                ),
-        )
+        db =
+            GatekeeperDatabase(
+                driver = driverFactory.createDriver(),
+                AppGroupAdapter =
+                    AppGroup.Adapter(
+                        ruleCombinatorAdapter = ruleCombinatorAdapter,
+                    ),
+                AppSettingsAdapter =
+                    AppSettings.Adapter(
+                        activeFrictionGameAdapter = frictionGameAdapter,
+                    ),
+                SessionLogAdapter =
+                    SessionLog.Adapter(
+                        emotionAdapter = emotionAdapter,
+                    ),
+                ContentItemAdapter =
+                    ContentItem.Adapter(
+                        sourceAdapter = contentSourceAdapter,
+                        typeAdapter = contentTypeAdapter,
+                        downloadStatusAdapter = downloadStatusAdapter,
+                    ),
+            )
     }
 }

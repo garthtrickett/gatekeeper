@@ -340,9 +340,9 @@ fun CheckInDialog(
             existingRule?.checkInTimesMinutes?.map {
                 UiTime(
                     (it / 60).toString().padStart(2, '0'),
-                    (it % 60).toString().padStart(2, '0')
+                    (it % 60).toString().padStart(2, '0'),
                 )
-            } ?: listOf(UiTime())
+            } ?: listOf(UiTime()),
         )
     }
     var selectedDays by remember { mutableStateOf(existingRule?.daysOfWeek ?: DayOfWeek.values().toSet()) }

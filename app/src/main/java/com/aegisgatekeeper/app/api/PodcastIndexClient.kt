@@ -35,7 +35,9 @@ data class ItunesPodcastDto(
 
 @Inject
 @Singleton
-class PodcastIndexClient(private val client: HttpClient) {
+class PodcastIndexClient(
+    private val client: HttpClient,
+) {
     private val jsonParser = Json { ignoreUnknownKeys = true }
 
     suspend fun searchPodcasts(query: String): Either<String, List<PodcastFeedDto>> {

@@ -141,7 +141,9 @@ class GatekeeperStateManagerTest {
 
     private fun dispatchWithSideEffects(action: GatekeeperAction) {
         val oldState = mutableState.value
-        val newState = com.aegisgatekeeper.app.domain.reduce(oldState, action)
+        val newState =
+            com.aegisgatekeeper.app.domain
+                .reduce(oldState, action)
         mutableState.value = newState
         com.aegisgatekeeper.app.effects.handleDatabaseEffects(action, oldState, newState, db) {
             dispatchWithSideEffects(it)
@@ -421,8 +423,8 @@ class GatekeeperStateManagerTest {
                     groupId = "group1",
                     checkInTimesMinutes = listOf(600),
                     durationMinutes = 15,
-                    daysOfWeek = setOf(com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY)
-                )
+                    daysOfWeek = setOf(com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY),
+                ),
             )
 
             // Act 1: Verify Initial Insertion
@@ -437,8 +439,8 @@ class GatekeeperStateManagerTest {
                     groupId = "group1",
                     checkInTimesMinutes = listOf(600, 720),
                     durationMinutes = 30,
-                    daysOfWeek = setOf(com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY)
-                )
+                    daysOfWeek = setOf(com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY),
+                ),
             )
 
             // Assert 2: Verify Update
@@ -597,5 +599,4 @@ class GatekeeperStateManagerTest {
             assertThat(item.capturedAtTimestamp).isEqualTo(5555L)
             assertThat(item.isResolved).isFalse()
         }
-
 }

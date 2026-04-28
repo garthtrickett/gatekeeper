@@ -1,7 +1,6 @@
 package com.aegisgatekeeper.app.auth
 
 import com.aegisgatekeeper.app.GatekeeperStateManager
-
 import me.tatarka.inject.annotations.Inject
 
 @Inject

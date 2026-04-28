@@ -179,7 +179,7 @@ fun SettingsScreen() {
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         Text("Phase Boundaries", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(12.dp))
-        
+
         Text("Focus Phase (Deep Work)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
             IndustrialTextField(
@@ -187,7 +187,7 @@ fun SettingsScreen() {
                 onValueChange = { dwStart = it },
                 label = { Text("Start HH:MM") },
                 modifier = Modifier.weight(1f),
-                singleLine = true
+                singleLine = true,
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text("to", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -197,7 +197,7 @@ fun SettingsScreen() {
                 onValueChange = { dwEnd = it },
                 label = { Text("End HH:MM") },
                 modifier = Modifier.weight(1f),
-                singleLine = true
+                singleLine = true,
             )
         }
         Spacer(modifier = Modifier.height(12.dp))
@@ -209,7 +209,7 @@ fun SettingsScreen() {
                 onValueChange = { gStart = it },
                 label = { Text("Start HH:MM") },
                 modifier = Modifier.weight(1f),
-                singleLine = true
+                singleLine = true,
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text("to", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -219,10 +219,10 @@ fun SettingsScreen() {
                 onValueChange = { gEnd = it },
                 label = { Text("End HH:MM") },
                 modifier = Modifier.weight(1f),
-                singleLine = true
+                singleLine = true,
             )
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
         IndustrialButton(
             onClick = {
@@ -239,7 +239,7 @@ fun SettingsScreen() {
             text = if (showSaveConfirmation) "SAVED ✓" else "Save Phase Times",
             enabled = !showSaveConfirmation,
             invertEnabledColor = showSaveConfirmation,
-            modifier = Modifier.align(Alignment.End)
+            modifier = Modifier.align(Alignment.End),
         )
 
         Spacer(modifier = Modifier.height(24.dp))

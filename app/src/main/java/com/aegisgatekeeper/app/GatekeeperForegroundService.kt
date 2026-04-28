@@ -106,7 +106,6 @@ class GatekeeperForegroundService : Service() {
         }
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
         serviceScope.cancel()

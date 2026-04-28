@@ -138,11 +138,15 @@ class VaultReviewUiTest {
 
         // Assert: Verify state triggered the Surgical Search
         val state = GatekeeperStateManager.state.value
-        com.google.common.truth.Truth.assertThat(state.isSurgicalSearchVisible).isTrue()
-        
+        com.google.common.truth.Truth
+            .assertThat(state.isSurgicalSearchVisible)
+            .isTrue()
+
         // Assert: Item should be resolved
         val item = state.vaultItems.find { it.query == query }
-        com.google.common.truth.Truth.assertThat(item?.isResolved).isTrue()
+        com.google.common.truth.Truth
+            .assertThat(item?.isResolved)
+            .isTrue()
     }
 
     @Test

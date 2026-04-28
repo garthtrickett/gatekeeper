@@ -35,8 +35,13 @@ object SyncClient {
         }
 
     suspend fun registerDevice(token: String): Either<SyncError, Unit> {
-        val jwtToken = com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider.getToken() ?: return SyncError.Unauthorized.left()
-        val baseUrl = com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider.getSyncServerUrl().trimEnd('/')
+        val jwtToken =
+            com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider
+                .getToken() ?: return SyncError.Unauthorized.left()
+        val baseUrl =
+            com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider
+                .getSyncServerUrl()
+                .trimEnd('/')
 
         return try {
             val response =
@@ -61,8 +66,13 @@ object SyncClient {
     }
 
     suspend fun pushChanges(payload: SyncPushPayload): Either<SyncError, Unit> {
-        val token = com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider.getToken() ?: return SyncError.Unauthorized.left()
-        val baseUrl = com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider.getSyncServerUrl().trimEnd('/')
+        val token =
+            com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider
+                .getToken() ?: return SyncError.Unauthorized.left()
+        val baseUrl =
+            com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider
+                .getSyncServerUrl()
+                .trimEnd('/')
 
         return try {
             val response =
@@ -84,8 +94,13 @@ object SyncClient {
     }
 
     suspend fun pullChanges(lastSyncTimestamp: Long = 0L): Either<SyncError, SyncPullPayload> {
-        val token = com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider.getToken() ?: return SyncError.Unauthorized.left()
-        val baseUrl = com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider.getSyncServerUrl().trimEnd('/')
+        val token =
+            com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider
+                .getToken() ?: return SyncError.Unauthorized.left()
+        val baseUrl =
+            com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider
+                .getSyncServerUrl()
+                .trimEnd('/')
 
         return try {
             val response =

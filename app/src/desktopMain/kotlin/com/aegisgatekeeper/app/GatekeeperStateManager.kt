@@ -131,7 +131,6 @@ object GatekeeperStateManager {
                     )
             }
 
-
             GatekeeperAction.ClearPodcastEpisodes -> {
                 _state.value =
                     _state.value.copy(
@@ -195,7 +194,11 @@ object GatekeeperStateManager {
             is GatekeeperAction.TriggerMetacognition -> {
                 _state.value =
                     _state.value.copy(
-                        pendingMetacognition = com.aegisgatekeeper.app.domain.MetacognitionRequest(action.packageName, action.durationMillis)
+                        pendingMetacognition =
+                            com.aegisgatekeeper.app.domain.MetacognitionRequest(
+                                action.packageName,
+                                action.durationMillis,
+                            ),
                     )
             }
 
@@ -204,12 +207,13 @@ object GatekeeperStateManager {
             }
 
             is GatekeeperAction.UpdatePhaseWindows -> {
-                _state.value = _state.value.copy(
-                    deepWorkStartMinutes = action.deepWorkStartMinutes,
-                    deepWorkEndMinutes = action.deepWorkEndMinutes,
-                    gatheringStartMinutes = action.gatheringStartMinutes,
-                    gatheringEndMinutes = action.gatheringEndMinutes
-                )
+                _state.value =
+                    _state.value.copy(
+                        deepWorkStartMinutes = action.deepWorkStartMinutes,
+                        deepWorkEndMinutes = action.deepWorkEndMinutes,
+                        gatheringStartMinutes = action.gatheringStartMinutes,
+                        gatheringEndMinutes = action.gatheringEndMinutes,
+                    )
             }
 
             else -> { /* Not all actions are handled on desktop */ }

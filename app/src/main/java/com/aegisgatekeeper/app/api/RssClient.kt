@@ -30,14 +30,20 @@ data class RssFeedData(
 
 @Inject
 @Singleton
-class RssClient(private val client: HttpClient) {
+class RssClient(
+    private val client: HttpClient,
+) {
     suspend fun fetchFeed(feedUrl: String): Either<String, RssFeedData> =
         withContext(Dispatchers.IO) {
             try {
-                val response = client.get(feedUrl) {
-                    header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
-                    header("Accept", "application/rss+xml, application/xml, text/xml, */*")
-                }
+                val response =
+                    client.get(feedUrl) {
+                        header(
+                            "User-Agent",
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+                        )
+                        header("Accept", "application/rss+xml, application/xml, text/xml, */*")
+                    }
                 if (response.status.value !in 200..299) {
                     return@withContext "HTTP Error: ${response.status.value}".left()
                 }
@@ -83,9 +89,13 @@ class RssClient(private val client: HttpClient) {
                                     "<itunes:duration[^>]*>(.*?)</itunes:duration>",
                                     RegexOption.IGNORE_CASE,
                                 ).find(itemXml)?.groupValues?.get(1)
-                            val pubDate = Regex("<pubDate[^>]*>(.*?)</pubDate>", RegexOption.IGNORE_CASE).find(itemXml)?.groupValues?.get(1)
-                                ?: Regex("<published[^>]*>(.*?)</published>", RegexOption.IGNORE_CASE).find(itemXml)?.groupValues?.get(1)
-                                ?: Regex("<dc:date[^>]*>(.*?)</dc:date>", RegexOption.IGNORE_CASE).find(itemXml)?.groupValues?.get(1)
+                            val pubDate =
+                                Regex("<pubDate[^>]*>(.*?)</pubDate>", RegexOption.IGNORE_CASE).find(itemXml)?.groupValues?.get(1)
+                                    ?: Regex(
+                                        "<published[^>]*>(.*?)</published>",
+                                        RegexOption.IGNORE_CASE,
+                                    ).find(itemXml)?.groupValues?.get(1)
+                                    ?: Regex("<dc:date[^>]*>(.*?)</dc:date>", RegexOption.IGNORE_CASE).find(itemXml)?.groupValues?.get(1)
 
                             if (title != null && enclosure != null) {
                                 val duration = durationStr?.let { parseItunesDuration(it) }

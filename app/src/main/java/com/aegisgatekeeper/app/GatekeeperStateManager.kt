@@ -1,5 +1,6 @@
 package com.aegisgatekeeper.app
 
+import android.content.Context
 import android.util.Log
 import com.aegisgatekeeper.app.auth.SecureTokenStorage
 import com.aegisgatekeeper.app.db.DatabaseManager
@@ -12,7 +13,6 @@ import com.aegisgatekeeper.app.domain.reduce
 import com.aegisgatekeeper.app.effects.handleDatabaseEffects
 import com.aegisgatekeeper.app.effects.handleMediaAndSystemEffects
 import com.aegisgatekeeper.app.effects.handleSyncAndAuthEffects
-import android.content.Context
 import com.aegisgatekeeper.app.widget.VaultWidget
 import com.aegisgatekeeper.app.widget.updateAll
 import kotlinx.coroutines.CoroutineScope
@@ -227,9 +227,12 @@ object GatekeeperStateManager {
                 com.aegisgatekeeper.app.domain
                     .PinnedWebsite(it.id, it.label, it.url)
             }
-            
+
         val missionControlAppsFromDb =
-            db.missionControlAppQueries.selectAll().executeAsList().map { it.packageName }
+            db.missionControlAppQueries
+                .selectAll()
+                .executeAsList()
+                .map { it.packageName }
 
         val token = SecureTokenStorage.getToken()
 
@@ -364,7 +367,7 @@ object GatekeeperStateManager {
             handleMediaAndSystemEffects(action, newState, ::dispatch)
         }
     }
-    
+
     private var lastDetectedPackage: String? = null
     private var ticksSinceLastUsageCheck = 0
     private val cachedUsageMinutes = mutableMapOf<String, Int>()
@@ -421,6 +424,7 @@ object GatekeeperStateManager {
                                     if (isAnySlotActive) groupViolations.add("Scheduled Block")
                                 }
                             }
+
                             is com.aegisgatekeeper.app.domain.BlockingRule.TimeLimit -> {
                                 val usageMinutes =
                                     if (checkUsage) {
@@ -432,20 +436,30 @@ object GatekeeperStateManager {
                                     }
                                 if (usageMinutes >= rule.timeLimitMinutes) groupViolations.add("Time Limit (${rule.timeLimitMinutes}m)")
                             }
+
                             is com.aegisgatekeeper.app.domain.BlockingRule.CheckIn -> {
                                 if (rule.daysOfWeek.contains(currentDay)) groupViolations.add("Check-In Required")
                             }
+
                             is com.aegisgatekeeper.app.domain.BlockingRule.DomainBlock -> {}
+
                             is com.aegisgatekeeper.app.domain.BlockingRule.AlwaysBlock -> {
                                 groupViolations.add("Always Block")
                             }
                         }
                     }
 
-                    val groupIsBlocked = when (group.combinator) {
-                        com.aegisgatekeeper.app.domain.RuleCombinator.ANY -> groupViolations.isNotEmpty()
-                        com.aegisgatekeeper.app.domain.RuleCombinator.ALL -> groupViolations.size == enabledRules.size && enabledRules.isNotEmpty()
-                    }
+                    val groupIsBlocked =
+                        when (group.combinator) {
+                            com.aegisgatekeeper.app.domain.RuleCombinator.ANY -> {
+                                groupViolations.isNotEmpty()
+                            }
+
+                            com.aegisgatekeeper.app.domain.RuleCombinator.ALL -> {
+                                groupViolations.size == enabledRules.size &&
+                                    enabledRules.isNotEmpty()
+                            }
+                        }
 
                     if (groupIsBlocked) {
                         isBlocked = true
@@ -469,7 +483,10 @@ object GatekeeperStateManager {
         lastDetectedPackage = currentApp
     }
 
-    private fun getDailyUsageMinutes(context: Context, packages: Set<String>): Int {
+    private fun getDailyUsageMinutes(
+        context: Context,
+        packages: Set<String>,
+    ): Int {
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as android.app.usage.UsageStatsManager
         val calendar = java.util.Calendar.getInstance()
         calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)

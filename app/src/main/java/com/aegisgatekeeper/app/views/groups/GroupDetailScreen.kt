@@ -254,7 +254,11 @@ fun GroupDetailScreen(
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Switch(
                                     checked = rule.isEnabled,
-                                    onCheckedChange = { GatekeeperStateManager.dispatch(GatekeeperAction.ToggleRule(rule.id, group.id, it)) },
+                                    onCheckedChange = {
+                                        GatekeeperStateManager.dispatch(
+                                            GatekeeperAction.ToggleRule(rule.id, group.id, it),
+                                        )
+                                    },
                                     colors =
                                         SwitchDefaults.colors(
                                             checkedThumbColor = MaterialTheme.colorScheme.primary,
@@ -314,8 +318,15 @@ fun GroupDetailScreen(
             },
             onSelectAlwaysBlock = {
                 showRuleChoice = false
-                GatekeeperStateManager.dispatch(GatekeeperAction.AddAlwaysBlockRule(java.util.UUID.randomUUID().toString(), group.id))
-            }
+                GatekeeperStateManager.dispatch(
+                    GatekeeperAction.AddAlwaysBlockRule(
+                        java.util.UUID
+                            .randomUUID()
+                            .toString(),
+                        group.id,
+                    ),
+                )
+            },
         )
     }
 

@@ -49,11 +49,12 @@ fun NotificationDigestScreen() {
     }
 
     // Dynamic check using user-configured phase windows from state
-    val isUnlocked = isVaultUnlocked(
-        currentTime, 
-        state.gatheringStartMinutes, 
-        state.gatheringEndMinutes
-    )
+    val isUnlocked =
+        isVaultUnlocked(
+            currentTime,
+            state.gatheringStartMinutes,
+            state.gatheringEndMinutes,
+        )
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -72,13 +73,14 @@ fun NotificationDigestScreen() {
                         Text("\uD83D\uDD14", fontSize = 64.sp)
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            text = "The Moat is Active", 
-                            style = MaterialTheme.typography.headlineMedium, 
-                            fontWeight = FontWeight.Bold
+                            text = "The Moat is Active",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Your notifications are being intercepted and pooled safely.\nYou can review them during the Gathering Phase.",
+                            text = "Your notifications are being intercepted and pooled safely.\n" +
+                                "You can review them during the Gathering Phase.",
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -87,8 +89,8 @@ fun NotificationDigestScreen() {
             } else if (state.notificationDigest.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text(
-                        "No intercepted notifications. Your focus is pristine.", 
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        "No intercepted notifications. Your focus is pristine.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             } else {
@@ -114,9 +116,9 @@ fun NotificationDigestScreen() {
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    log.title, 
-                                    style = MaterialTheme.typography.titleMedium, 
-                                    fontWeight = FontWeight.Bold
+                                    log.title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(log.content, style = MaterialTheme.typography.bodyMedium)

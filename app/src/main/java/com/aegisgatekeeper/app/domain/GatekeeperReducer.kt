@@ -297,17 +297,17 @@ private fun reduceRulesAndIntercepts(
                                             rule.copy(
                                                 checkInTimesMinutes = action.checkInTimesMinutes,
                                                 durationMinutes = action.durationMinutes,
-                                                daysOfWeek = action.daysOfWeek
+                                                daysOfWeek = action.daysOfWeek,
                                             )
                                         } else {
                                             rule
                                         }
-                                    }
+                                    },
                             )
                         } else {
                             group
                         }
-                    }
+                    },
             )
         }
 

@@ -38,7 +38,10 @@ import com.aegisgatekeeper.app.domain.IndustrialTextField
 
 @Suppress("FunctionName")
 @Composable
-fun FeedManagementDialog(onDismiss: () -> Unit, initialSearchQuery: String? = null) {
+fun FeedManagementDialog(
+    onDismiss: () -> Unit,
+    initialSearchQuery: String? = null,
+) {
     val state by GatekeeperStateManager.state.collectAsState()
 
     val handleDismiss = {
@@ -107,7 +110,7 @@ fun FeedManagementDialog(onDismiss: () -> Unit, initialSearchQuery: String? = nu
 private fun PodcastSubscriptionsView(
     state: GatekeeperState,
     onDismiss: () -> Unit,
-    initialSearchQuery: String? = null
+    initialSearchQuery: String? = null,
 ) {
     var query by remember { mutableStateOf(initialSearchQuery ?: "") }
     var isSearchMode by remember { mutableStateOf(!initialSearchQuery.isNullOrBlank()) }

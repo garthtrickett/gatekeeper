@@ -30,7 +30,9 @@ data class ContentMetadata(
 
 @Inject
 @Singleton
-class UrlMetadataClient(private val client: HttpClient) {
+class UrlMetadataClient(
+    private val client: HttpClient,
+) {
     suspend fun fetchMetadata(
         url: String,
         isSoundCloud: Boolean = false,
@@ -38,10 +40,14 @@ class UrlMetadataClient(private val client: HttpClient) {
     ): Either<UrlMetadataError, ContentMetadata> =
         withContext(Dispatchers.IO) {
             try {
-                val response = client.get(url) {
-                    header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
-                    header("Accept-Language", "en-US,en;q=0.9")
-                }
+                val response =
+                    client.get(url) {
+                        header(
+                            "User-Agent",
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+                        )
+                        header("Accept-Language", "en-US,en;q=0.9")
+                    }
 
                 val html = response.bodyAsText()
 

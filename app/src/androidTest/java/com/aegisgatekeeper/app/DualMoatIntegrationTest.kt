@@ -1,5 +1,6 @@
 package com.aegisgatekeeper.app
 
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.aegisgatekeeper.app.domain.BlockingRule
@@ -11,12 +12,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-
-/**
- * Instrumented integration tests for the Dual-Moat handoff logic.
- * Verifies that Layer Alpha throttles its dispatching based on Layer Omega's status.
- */
-import androidx.test.core.app.ApplicationProvider
 
 @RunWith(AndroidJUnit4::class)
 class DualMoatIntegrationTest {
@@ -128,7 +123,9 @@ class DualMoatIntegrationTest {
         runTest {
             // Arrange: Add an Always Block rule to the test group
             val rule = BlockingRule.AlwaysBlock(id = "test-rule", groupId = "test-group-id")
-            val group = stateManager.state.value.appGroups.first()
+            val group =
+                stateManager.state.value.appGroups
+                    .first()
             val updatedGroup = group.copy(rules = listOf(rule))
             val stateWithRule = GatekeeperState(appGroups = listOf(updatedGroup))
 

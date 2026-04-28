@@ -74,7 +74,8 @@ class MainActivity : ComponentActivity() {
                         val token = task.result
                         if (token != null) {
                             lifecycleScope.launch {
-                                com.aegisgatekeeper.app.di.GlobalDI.component.syncClient.registerDevice(token)
+                                com.aegisgatekeeper.app.di.GlobalDI.component.syncClient
+                                    .registerDevice(token)
                             }
                         }
                     }

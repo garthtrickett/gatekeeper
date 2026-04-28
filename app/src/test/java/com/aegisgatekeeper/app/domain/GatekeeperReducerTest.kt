@@ -961,25 +961,31 @@ class GatekeeperReducerTest {
 
     @Test
     fun testUpdateCheckInRule_UpdatesRule() {
-        val addAction = GatekeeperAction.AddCheckInRule(
-            id = "rule1",
-            groupId = "group1",
-            checkInTimesMinutes = listOf(600),
-            durationMinutes = 15,
-            daysOfWeek = setOf(DayOfWeek.MONDAY)
-        )
+        val addAction =
+            GatekeeperAction.AddCheckInRule(
+                id = "rule1",
+                groupId = "group1",
+                checkInTimesMinutes = listOf(600),
+                durationMinutes = 15,
+                daysOfWeek = setOf(DayOfWeek.MONDAY),
+            )
         val stateWithRule = reduce(initialState, addAction)
 
-        val updateAction = GatekeeperAction.UpdateCheckInRule(
-            id = "rule1",
-            groupId = "group1",
-            checkInTimesMinutes = listOf(600, 720),
-            durationMinutes = 30,
-            daysOfWeek = setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)
-        )
+        val updateAction =
+            GatekeeperAction.UpdateCheckInRule(
+                id = "rule1",
+                groupId = "group1",
+                checkInTimesMinutes = listOf(600, 720),
+                durationMinutes = 30,
+                daysOfWeek = setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
+            )
         val newState = reduce(stateWithRule, updateAction)
 
-        val rule = newState.appGroups.first().rules.first() as BlockingRule.CheckIn
+        val rule =
+            newState.appGroups
+                .first()
+                .rules
+                .first() as BlockingRule.CheckIn
         assertThat(rule.checkInTimesMinutes).containsExactly(600, 720)
         assertThat(rule.durationMinutes).isEqualTo(30)
         assertThat(rule.daysOfWeek).containsExactly(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)

@@ -1,11 +1,11 @@
 package com.aegisgatekeeper.app.di
 
+import android.content.Context
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.api.PodcastIndexClient
 import com.aegisgatekeeper.app.api.RssClient
 import com.aegisgatekeeper.app.api.UrlMetadataClient
 import com.aegisgatekeeper.app.auth.AndroidTokenProvider
-import android.content.Context
 import com.aegisgatekeeper.app.auth.TokenProvider
 import com.aegisgatekeeper.app.db.AndroidSqlDriverFactory
 import com.aegisgatekeeper.app.db.GatekeeperDatabase
@@ -27,9 +27,8 @@ import me.tatarka.inject.annotations.Provides
 @Component
 @Singleton
 abstract class AndroidApplicationComponent(
-    @get:Provides val context: Context
+    @get:Provides val context: Context,
 ) : SharedApplicationComponent {
-
     @get:Provides
     override val syncClient: SyncClient = SyncClient
 
@@ -52,14 +51,15 @@ abstract class AndroidApplicationComponent(
 
     @Provides
     @Singleton
-    fun httpClient(): HttpClient = HttpClient(OkHttp) {
-        install(HttpTimeout) {
-            requestTimeoutMillis = 30_000
-            connectTimeoutMillis = 30_000
-            socketTimeoutMillis = 30_000
+    fun httpClient(): HttpClient =
+        HttpClient(OkHttp) {
+            install(HttpTimeout) {
+                requestTimeoutMillis = 30_000
+                connectTimeoutMillis = 30_000
+                socketTimeoutMillis = 30_000
+            }
+            install(ContentNegotiation) {
+                json(Json { ignoreUnknownKeys = true })
+            }
         }
-        install(ContentNegotiation) {
-            json(Json { ignoreUnknownKeys = true })
-        }
-    }
 }

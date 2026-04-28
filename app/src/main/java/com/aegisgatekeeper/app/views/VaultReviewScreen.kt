@@ -39,7 +39,7 @@ import java.time.LocalTime
 @Composable
 fun VaultReviewScreen(
     overrideTime: LocalTime? = null,
-    onNavigateToWeb: () -> Unit = {}
+    onNavigateToWeb: () -> Unit = {},
 ) {
     val state by GatekeeperStateManager.state.collectAsState()
     var currentTime by remember { mutableStateOf(overrideTime ?: LocalTime.now()) }
@@ -56,7 +56,9 @@ fun VaultReviewScreen(
         }
     }
 
-    val isUnlocked = com.aegisgatekeeper.app.domain.isVaultUnlocked(currentTime, state.gatheringStartMinutes, state.gatheringEndMinutes)
+    val isUnlocked =
+        com.aegisgatekeeper.app.domain
+            .isVaultUnlocked(currentTime, state.gatheringStartMinutes, state.gatheringEndMinutes)
     // Transform, don't mutate: Filter only unresolved items
     val unresolvedItems = state.vaultItems.filter { !it.isResolved && !it.isDeleted }
 
@@ -82,7 +84,7 @@ fun VaultReviewScreen(
                         feedSearchQuery = query
                         showFeedManagement = true
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             } else {
                 LockedVaultMessage(state.gatheringStartMinutes, Modifier.weight(1f))
@@ -96,7 +98,7 @@ fun VaultReviewScreen(
                 showFeedManagement = false
                 feedSearchQuery = null
             },
-            initialSearchQuery = feedSearchQuery
+            initialSearchQuery = feedSearchQuery,
         )
     }
 }
@@ -114,7 +116,9 @@ private fun VaultList(
         modifier = modifier.fillMaxWidth(),
     ) {
         Text(
-            text = "The Gathering Phase ends at ${com.aegisgatekeeper.app.domain.formatMinutesToAmPm(gatheringEndMinutes)}. Review your captured thoughts.",
+            text = "The Gathering Phase ends at ${com.aegisgatekeeper.app.domain.formatMinutesToAmPm(
+                gatheringEndMinutes,
+            )}. Review your captured thoughts.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -133,7 +137,7 @@ private fun VaultList(
                     VaultItemCard(
                         item = it,
                         onNavigateToWeb = onNavigateToWeb,
-                        onOpenPodcasts = onOpenPodcasts
+                        onOpenPodcasts = onOpenPodcasts,
                     )
                 }
             }
@@ -146,14 +150,14 @@ private fun VaultList(
 private fun VaultItemCard(
     item: VaultItem,
     onNavigateToWeb: () -> Unit,
-    onOpenPodcasts: (String) -> Unit
+    onOpenPodcasts: (String) -> Unit,
 ) {
     TerminalPanel(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
                     text = item.query,
@@ -171,7 +175,7 @@ private fun VaultItemCard(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             ) {
                 IndustrialButton(
                     onClick = {
@@ -180,22 +184,24 @@ private fun VaultItemCard(
                         GatekeeperStateManager.dispatch(GatekeeperAction.SurgicalNavigationRequested("https://duckduckgo.com/?q=$encoded"))
                         onNavigateToWeb()
                     },
-                    text = "🌐 Web"
+                    text = "🌐 Web",
                 )
                 IndustrialButton(
                     onClick = {
                         GatekeeperStateManager.dispatch(GatekeeperAction.MarkVaultItemResolved(item.id, System.currentTimeMillis()))
                         val encoded = java.net.URLEncoder.encode(item.query, "UTF-8")
-                        GatekeeperStateManager.dispatch(GatekeeperAction.ShowSurgicalSearch("https://m.youtube.com/results?search_query=$encoded"))
+                        GatekeeperStateManager.dispatch(
+                            GatekeeperAction.ShowSurgicalSearch("https://m.youtube.com/results?search_query=$encoded"),
+                        )
                     },
-                    text = "🎬 YouTube"
+                    text = "🎬 YouTube",
                 )
                 IndustrialButton(
                     onClick = {
                         GatekeeperStateManager.dispatch(GatekeeperAction.MarkVaultItemResolved(item.id, System.currentTimeMillis()))
                         onOpenPodcasts(item.query)
                     },
-                    text = "🎙️ Podcasts"
+                    text = "🎙️ Podcasts",
                 )
             }
         }
@@ -204,7 +210,10 @@ private fun VaultItemCard(
 
 @Suppress("FunctionName")
 @Composable
-private fun LockedVaultMessage(gatheringStartMinutes: Int, modifier: Modifier = Modifier) {
+private fun LockedVaultMessage(
+    gatheringStartMinutes: Int,
+    modifier: Modifier = Modifier,
+) {
     var query by remember { mutableStateOf("") }
     var showConfirmation by remember { mutableStateOf(false) }
 
@@ -243,7 +252,9 @@ private fun LockedVaultMessage(gatheringStartMinutes: Int, modifier: Modifier = 
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Your thoughts are captured.\nThe Gathering Phase begins at ${com.aegisgatekeeper.app.domain.formatMinutesToAmPm(gatheringStartMinutes)}.",
+            text = "Your thoughts are captured.\nThe Gathering Phase begins at ${com.aegisgatekeeper.app.domain.formatMinutesToAmPm(
+                gatheringStartMinutes,
+            )}.",
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

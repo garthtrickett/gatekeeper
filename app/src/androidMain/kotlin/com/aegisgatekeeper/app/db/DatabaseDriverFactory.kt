@@ -7,7 +7,9 @@ import com.aegisgatekeeper.app.db.GatekeeperDatabase
 import me.tatarka.inject.annotations.Inject
 
 @Inject
-class AndroidSqlDriverFactory(private val context: Context) : SqlDriverFactory {
+class AndroidSqlDriverFactory(
+    private val context: Context,
+) : SqlDriverFactory {
     override fun createDriver(): SqlDriver =
         AndroidSqliteDriver(
             schema = GatekeeperDatabase.Schema,

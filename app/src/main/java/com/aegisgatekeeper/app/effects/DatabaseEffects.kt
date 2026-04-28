@@ -360,7 +360,7 @@ fun handleDatabaseEffects(
                 deepWorkStart = action.deepWorkStartMinutes.toLong(),
                 deepWorkEnd = action.deepWorkEndMinutes.toLong(),
                 gatheringStart = action.gatheringStartMinutes.toLong(),
-                gatheringEnd = action.gatheringEndMinutes.toLong()
+                gatheringEnd = action.gatheringEndMinutes.toLong(),
             )
         }
 

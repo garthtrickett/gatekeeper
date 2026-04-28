@@ -40,7 +40,11 @@ class App :
     override fun onCreate() {
         super.onCreate()
         instance = this
-        com.aegisgatekeeper.app.db.DatabaseManager.init(com.aegisgatekeeper.app.db.AndroidSqlDriverFactory(this))
+        com.aegisgatekeeper.app.db.DatabaseManager
+            .init(
+                com.aegisgatekeeper.app.db
+                    .AndroidSqlDriverFactory(this),
+            )
         com.aegisgatekeeper.app.di.GlobalDI.component = com.aegisgatekeeper.app.di.AndroidApplicationComponent::class.create(this)
 
         // Schedule periodic podcast refresh (every 6 hours)
@@ -68,7 +72,8 @@ class App :
                 this,
                 databaseProvider,
                 downloadCache,
-                androidx.media3.datasource.DefaultHttpDataSource.Factory(),
+                androidx.media3.datasource.DefaultHttpDataSource
+                    .Factory(),
                 Executors.newFixedThreadPool(6),
             )
     }

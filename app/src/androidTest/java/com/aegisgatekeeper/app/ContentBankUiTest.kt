@@ -12,6 +12,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.aegisgatekeeper.app.domain.ContentSource
 import com.aegisgatekeeper.app.domain.ContentType
@@ -24,11 +25,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-import androidx.test.core.app.ApplicationProvider
-
 @RunWith(AndroidJUnit4::class)
 class ContentBankUiTest {
-
     private val stateManager: GatekeeperStateManager
         get() = GatekeeperStateManager
 

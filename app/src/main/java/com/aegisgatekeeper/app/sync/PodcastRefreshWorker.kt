@@ -28,7 +28,12 @@ class PodcastRefreshWorker(
         var anyFailures = false
 
         for (sub in subscriptions) {
-            val result = (com.aegisgatekeeper.app.di.GlobalDI.component as com.aegisgatekeeper.app.di.AndroidApplicationComponent).rssClient.fetchFeed(sub.feedUrl)
+            val result =
+                (com.aegisgatekeeper.app.di.GlobalDI.component as com.aegisgatekeeper.app.di.AndroidApplicationComponent)
+                    .rssClient
+                    .fetchFeed(
+                        sub.feedUrl,
+                    )
             result.fold(
                 ifLeft = { error ->
                     Log.w("Gatekeeper", "❌ PodcastRefreshWorker: Failed to fetch feed ${sub.feedUrl}: $error")
@@ -47,7 +52,9 @@ class PodcastRefreshWorker(
                                 audioUrl = ep.audioUrl,
                                 durationSeconds = ep.durationSeconds,
                                 pubDate = ep.pubDate,
-                                lastModified = com.aegisgatekeeper.app.domain.parseRssPubDate(ep.pubDate, 0L - index),
+                                lastModified =
+                                    com.aegisgatekeeper.app.domain
+                                        .parseRssPubDate(ep.pubDate, 0L - index),
                             )
                         }
                         db.podcastEpisodeQueries.deleteOldEpisodes(sub.id, 200)

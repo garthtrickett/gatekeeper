@@ -28,8 +28,8 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import com.aegisgatekeeper.app.domain.GatekeeperTheme
 import com.aegisgatekeeper.app.di.create
+import com.aegisgatekeeper.app.domain.GatekeeperTheme
 import com.aegisgatekeeper.app.sync.SyncClient
 import com.aegisgatekeeper.app.views.ContentBankScreen
 import com.aegisgatekeeper.app.views.DesktopInterceptionOverlay
@@ -42,7 +42,11 @@ import java.io.File
 
 fun main() =
     application {
-        com.aegisgatekeeper.app.db.DatabaseManager.init(com.aegisgatekeeper.app.db.DesktopSqlDriverFactory())
+        com.aegisgatekeeper.app.db.DatabaseManager
+            .init(
+                com.aegisgatekeeper.app.db
+                    .DesktopSqlDriverFactory(),
+            )
         com.aegisgatekeeper.app.di.GlobalDI.component = com.aegisgatekeeper.app.di.DesktopApplicationComponent::class.create()
         // Initialize Surgical Web Engine (Chromium)
         var webViewReady by remember { mutableStateOf(false) }
