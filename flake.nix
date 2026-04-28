@@ -95,35 +95,35 @@
         '';
 
         installPhase = ''
-                              mkdir -p $out/bin
-                              mkdir -p $out/lib/gatekeeper
-                              mkdir -p $out/share/applications
-                              mkdir -p $out/share/icons/hicolor/512x512/apps
+          mkdir -p $out/bin
+          mkdir -p $out/lib/gatekeeper
+          mkdir -p $out/share/applications
+          mkdir -p $out/share/icons/hicolor/512x512/apps
 
-                              # 1. Install the JVM UI Uber JAR
-                              # Note: The filename depends on your gradle project versioning
-                              cp app/build/compose/jars/*.jar $out/lib/gatekeeper/gatekeeper-ui.jar
+          # 1. Install the JVM UI Uber JAR
+          # Note: The filename depends on your gradle project versioning
+          cp app/build/compose/jars/*.jar $out/lib/gatekeeper/gatekeeper-ui.jar
 
-                              # 2. Create the UI Wrapper Script
-                              # This ensures the UI runs using the bundled custom JRE and has access to graphics
-                              makeWrapper ${customJre}/bin/java $out/bin/gatekeeper \
-                                --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath (with pkgs;[ libx11 libxcursor libxext libxrandr libxrender libxi libGL fontconfig freetype wayland libxkbcommon mesa ])}" \
-                                --add-flags "-Djava.awt.headless=false" \
-                                --add-flags "-jar $out/lib/gatekeeper/gatekeeper-ui.jar"
+          # 2. Create the UI Wrapper Script
+          # This ensures the UI runs using the bundled custom JRE and has access to graphics
+          makeWrapper ${customJre}/bin/java $out/bin/gatekeeper \
+            --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath (with pkgs;[ libx11 libxcursor libxext libxrandr libxrender libxi libGL fontconfig freetype wayland libxkbcommon mesa ])}" \
+            --add-flags "-Djava.awt.headless=false" \
+            --add-flags "-jar $out/lib/gatekeeper/gatekeeper-ui.jar"
 
-                              # 3. Generate the .desktop entry for your application launcher
-                              cat > $out/share/applications/gatekeeper.desktop <<EOF
+          # 3. Generate the .desktop entry for your application launcher
+          cat > $out/share/applications/gatekeeper.desktop <<EOF
           [Desktop Entry]
-                    Version=1.0
-                    Type=Application
-                    Name=The Gatekeeper
-                    Comment=System-Level Cognitive Orthotic
-                    Exec=$out/bin/gatekeeper
-                    Icon=security-high
-                    Terminal=false
-                    Categories=Utility;Security;
-                    StartupWMClass=Gatekeeper
-                    EOF
+          Version=1.0
+          Type=Application
+          Name=The Gatekeeper
+          Comment=System-Level Cognitive Orthotic
+          Exec=$out/bin/gatekeeper
+          Icon=security-high
+          Terminal=false
+          Categories=Utility;Security;
+          StartupWMClass=Gatekeeper
+          EOF
         '';
       };
 
@@ -152,7 +152,7 @@
 
       # Developer Shell Output
       devShells.${system}.default = pkgs.mkShell {
-        nativeBuildInputs = with pkgs; [
+        nativeBuildInputs = with pkgs;[
           python3
           bashInteractive
           pkg-config
@@ -204,11 +204,11 @@
                     alias adb="${pkgs.android-tools}/bin/adb"
                     alias desktop='gradle :app:run'
                     alias backend='./gradlew :backend:run -Dio.ktor.development=true'
-                    alias apk='./gradlew :app:assembleDebug'
-
+                    alias apk='./gradlew :app:assembleDevDebug'
 
                     alias logs='adb logcat | grep -iE "Gatekeeper|AndroidRuntime|WindowManager|FATAL"'
-                    alias deploy='adb reverse tcp:8081 tcp:8081 && gradle installDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app/.MainActivity && echo "✅ Deployed & Port 8081 Reversed. Waiting for logs..." && logs'
+                    alias deploy-dev='adb reverse tcp:8081 tcp:8081 && gradle installDevDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app.dev/com.aegisgatekeeper.app.MainActivity && echo "✅ DEV Deployed & Port 8081 Reversed. Waiting for logs..." && logs'
+                    alias deploy-prod='adb reverse tcp:8081 tcp:8081 && gradle installProdDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app/com.aegisgatekeeper.app.MainActivity && echo "✅ PROD Deployed & Port 8081 Reversed. Waiting for logs..." && logs'
                     alias backend-logs='docker-compose logs -f'
 
                     # Linting & Quality
@@ -220,7 +220,7 @@
 
                     alias wipe='adb shell pm clear com.aegisgatekeeper.app.dev'
                     alias test-unit='gradle :app:test'
-                    alias test-ui='adb logcat -c && (adb logcat -s Gatekeeper & LOG_PID=$!; gradle :app:connectedAndroidTest; kill $LOG_PID)'
+                    alias test-ui='adb logcat -c && (adb logcat -s Gatekeeper & LOG_PID=$!; gradle :app:connectedDevDebugAndroidTest; kill $LOG_PID)'
 
                     # E2E Orchestration Pipeline
                     dev-sync() {
@@ -252,8 +252,8 @@
           adb reverse tcp:8081 tcp:8081
           echo "✅ ADB Tunnel Established"
 
-          echo "📱 Deploying & logging in Android App..."
-          gradle :app:installDebug
+          echo "📱 Deploying & logging in Android App (DEV flavor)..."
+          gradle :app:installDevDebug
           adb shell am start -n com.aegisgatekeeper.app.dev/com.aegisgatekeeper.app.MainActivity
           sleep 4
           adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -p com.aegisgatekeeper.app.dev -e action LOGIN -e token '$DEV_TOKEN'"
@@ -296,7 +296,7 @@
           adb reverse tcp:8081 tcp:8081
           echo "✅ ADB Tunnel Established"
 
-          echo "📱 Deploying Android App..."
+          echo "📱 Deploying Android App (DEV flavor)..."
           gradle :app:installDevDebug
           adb shell pm clear com.aegisgatekeeper.app.dev || true
           adb shell am start -n com.aegisgatekeeper.app.dev/com.aegisgatekeeper.app.MainActivity
