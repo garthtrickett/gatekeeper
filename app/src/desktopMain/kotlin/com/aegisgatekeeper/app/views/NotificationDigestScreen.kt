@@ -79,8 +79,9 @@ fun NotificationDigestScreen() {
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Your notifications are being intercepted and pooled safely.\n" +
-                                "You can review them during the Gathering Phase.",
+                            text =
+                                "Your notifications are being intercepted and pooled safely.\n" +
+                                    "You can review them during the Gathering Phase.",
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

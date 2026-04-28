@@ -218,7 +218,7 @@
                     alias lint-baseline='./gradlew :app:updateLintBaseline'
                     alias lint-view='xdg-open app/build/reports/lint-results-debug.html'
 
-                    alias wipe='adb shell pm clear com.aegisgatekeeper.app'
+                    alias wipe='adb shell pm clear com.aegisgatekeeper.app.dev'
                     alias test-unit='gradle :app:test'
                     alias test-ui='adb logcat -c && (adb logcat -s Gatekeeper & LOG_PID=$!; gradle :app:connectedAndroidTest; kill $LOG_PID)'
 
@@ -231,7 +231,7 @@
 
           # Clean up previous state for a fresh start
           rm -f gatekeeper_backend.db
-          adb shell pm clear com.aegisgatekeeper.app || true
+          adb shell pm clear com.aegisgatekeeper.app.dev || true
 
           # Force local sync server URL for the Android emulator/device via adb reverse
           touch local.properties
@@ -254,9 +254,9 @@
 
           echo "📱 Deploying & logging in Android App..."
           gradle :app:installDebug
-          adb shell am start -n com.aegisgatekeeper.app/.MainActivity
+          adb shell am start -n com.aegisgatekeeper.app.dev/com.aegisgatekeeper.app.MainActivity
           sleep 4
-          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -e action LOGIN -e token '$DEV_TOKEN'"
+          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -p com.aegisgatekeeper.app.dev -e action LOGIN -e token '$DEV_TOKEN'"
 
           echo "💻 Starting & logging in Desktop UI..."
           gradle :app:run &
@@ -298,12 +298,12 @@
 
           echo "📱 Deploying Android App..."
           gradle :app:installDebug
-          adb shell pm clear com.aegisgatekeeper.app || true
-          adb shell am start -n com.aegisgatekeeper.app/.MainActivity
+          adb shell pm clear com.aegisgatekeeper.app.dev || true
+          adb shell am start -n com.aegisgatekeeper.app.dev/com.aegisgatekeeper.app.MainActivity
           sleep 4
 
           echo "🔐 Auto-Logging in Android App..."
-          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -e action LOGIN -e token '$DEV_TOKEN'"
+          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -p com.aegisgatekeeper.app.dev -e action LOGIN -e token '$DEV_TOKEN'"
 
           echo "💻 Starting Desktop UI in background..."
           rm -f /tmp/desktop-e2e.log
@@ -312,11 +312,11 @@
           sleep 6
 
           echo "📝 Creating Vault & Content Items on Android via ADB..."
-          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -e action CREATE_VAULT -e query 'E2E Auto-Sync Test Item'"
-          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -e action CREATE_CONTENT -e videoId 'dQw4w9WgXcQ'"
+          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -p com.aegisgatekeeper.app.dev -e action CREATE_VAULT -e query 'E2E Auto-Sync Test Item'"
+          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -p com.aegisgatekeeper.app.dev -e action CREATE_CONTENT -e videoId 'dQw4w9WgXcQ'"
 
           echo "🔄 Forcing Android to Push Changes..."
-          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -e action FORCE_SYNC"
+          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -p com.aegisgatekeeper.app.dev -e action FORCE_SYNC"
 
           echo "⏳ Waiting for Desktop app to pull BOTH items..."
           TIMEOUT=30
@@ -332,8 +332,8 @@
           fi
 
           echo "✅ Initial Sync verified! Now testing update/resolution propagation..."
-          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -e action RESOLVE_VAULT -e query 'E2E Auto-Sync Test Item'"
-          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -e action FORCE_SYNC"
+          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -p com.aegisgatekeeper.app.dev -e action RESOLVE_VAULT -e query 'E2E Auto-Sync Test Item'"
+          adb shell "am broadcast -a com.aegisgatekeeper.E2E_ACTION -p com.aegisgatekeeper.app.dev -e action FORCE_SYNC"
 
           TIMEOUT=30
           until grep -q "Desktop received RESOLVED Vault Item!" /tmp/desktop-e2e.log || [ $TIMEOUT -eq 0 ]; do

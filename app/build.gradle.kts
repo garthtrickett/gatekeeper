@@ -35,6 +35,15 @@ android {
 
         val syncUrl = properties.getProperty("SYNC_SERVER_URL") ?: "http://10.0.2.2:8081"
         buildConfigField("String", "SYNC_SERVER_URL", "\"$syncUrl\"")
+
+        manifestPlaceholders["appName"] = "Aegis Gatekeeper"
+    }
+
+    buildTypes {
+        getByName("debug") {
+            applicationIdSuffix = ".dev"
+            manifestPlaceholders["appName"] = "Gatekeeper (Dev)"
+        }
     }
 
     compileOptions {
