@@ -23,7 +23,8 @@
         android:name=".App"
         android:allowBackup="false"
         android:label="${appName}"
-        android:icon="${appIcon}"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
         android:supportsRtl="true">
 

@@ -52,12 +52,10 @@ android {
             dimension = "env"
             applicationIdSuffix = ".dev"
             manifestPlaceholders["appName"] = "Gatekeeper (Dev)"
-            manifestPlaceholders["appIcon"] = "@drawable/ic_launcher_dev"
         }
         create("prod") {
             dimension = "env"
             manifestPlaceholders["appName"] = "Aegis Gatekeeper"
-            manifestPlaceholders["appIcon"] = "@android:drawable/ic_lock_idle_lock"
         }
     }
 
