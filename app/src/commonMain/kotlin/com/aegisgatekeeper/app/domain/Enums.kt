@@ -192,11 +192,12 @@ fun GatekeeperTheme(content: @Composable () -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val isDev = context.packageName.endsWith(".dev")
 
-    val colorScheme = if (isDev) {
-        IndustrialColorScheme.copy(primary = SafetyOrange)
-    } else {
-        IndustrialColorScheme
-    }
+    val colorScheme =
+        if (isDev) {
+            IndustrialColorScheme.copy(primary = SafetyOrange)
+        } else {
+            IndustrialColorScheme
+        }
 
     MaterialTheme(
         colorScheme = colorScheme,

@@ -77,6 +77,26 @@ class GatekeeperForegroundService : Service() {
                     }
                 }
             }
+        // 4. Start the Layer Alpha Heartbeat (Polling)
+        startLayerAlphaHeartbeat()
+
+        // 4.5 Start VPN Service implicitly if rules exist
+        serviceScope.launch {
+            var vpnStarted = false
+            GatekeeperStateManager.state.collect { state ->
+                val hasDomainBlocks =
+                    state.appGroups.any { group ->
+                        group.rules.any { it is com.aegisgatekeeper.app.domain.BlockingRule.DomainBlock && it.isEnabled }
+                    }
+                if (hasDomainBlocks && !vpnStarted) {
+                    val vpnIntent = android.net.VpnService.prepare(this@GatekeeperForegroundService)
+                    if (vpnIntent == null) {
+                        val intent = Intent(this@GatekeeperForegroundService, GatekeeperVpnService::class.java)
+                        startService(intent)
+                        vpnStarted = true
+                    }
+                }
+            }
         }
 
         // 5. START_STICKY tells the OS: "If you must kill me for RAM, restart me ASAP"

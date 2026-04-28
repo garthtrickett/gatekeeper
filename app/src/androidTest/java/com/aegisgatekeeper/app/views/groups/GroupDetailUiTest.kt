@@ -96,7 +96,7 @@ class GroupDetailUiTest {
                 name = "Test Group",
                 rules =
                     listOf(
-                        BlockingRule.AlwaysBlock(
+                        com.aegisgatekeeper.app.domain.BlockingRule.AlwaysBlock(
                             id = "rule1",
                             groupId = "test-group",
                         ),

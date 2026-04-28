@@ -221,10 +221,11 @@ fun MissionControlScreen() {
                             }
                         }
 
-                        val groupsToPinnedApps = state.appGroups.mapNotNull { group ->
-                            val appsInGroup = restrictedApps.filter { group.name in it.groupNames }
-                            if (appsInGroup.isNotEmpty()) group to appsInGroup else null
-                        }
+                        val groupsToPinnedApps =
+                            state.appGroups.mapNotNull { group ->
+                                val appsInGroup = restrictedApps.filter { group.name in it.groupNames }
+                                if (appsInGroup.isNotEmpty()) group to appsInGroup else null
+                            }
 
                         groupsToPinnedApps.forEach { (group, apps) ->
                             item(span = {

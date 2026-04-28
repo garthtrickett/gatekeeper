@@ -38,7 +38,8 @@ import com.aegisgatekeeper.app.views.groups.CheckInDialog
 import com.aegisgatekeeper.app.views.groups.EditAppsDialog
 import com.aegisgatekeeper.app.views.groups.RuleChoiceDialog
 import com.aegisgatekeeper.app.views.groups.ScheduledBlockDialog
-import com.aegisgatekeeper.app.views.groups.TimeLimitDialog
+import com.aegisgatekeeper.app.domain.TimeSlot
+import java.util.UUID
 
 @Suppress("FunctionName")
 @Composable
@@ -50,7 +51,7 @@ fun GroupDetailScreen(
     var showTimeLimitDialog by remember { mutableStateOf(false) }
     var showScheduledBlockDialog by remember { mutableStateOf(false) }
     var showCheckInDialog by remember { mutableStateOf(false) }
-    var editingCheckInRule by remember { mutableStateOf<BlockingRule.CheckIn?>(null) }
+    var editingCheckInRule by remember { mutableStateOf<com.aegisgatekeeper.app.domain.BlockingRule.CheckIn?>(null) }
     var showEditAppsDialog by remember { mutableStateOf(false) }
     var showDomainBlockDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
