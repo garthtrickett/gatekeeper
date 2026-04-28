@@ -221,18 +221,23 @@ fun MissionControlScreen() {
                             }
                         }
 
-                        if (restrictedApps.isNotEmpty()) {
+                        val groupsToPinnedApps = state.appGroups.mapNotNull { group ->
+                            val appsInGroup = restrictedApps.filter { group.name in it.groupNames }
+                            if (appsInGroup.isNotEmpty()) group to appsInGroup else null
+                        }
+
+                        groupsToPinnedApps.forEach { (group, apps) ->
                             item(span = {
                                 androidx.compose.foundation.lazy.grid
                                     .GridItemSpan(maxLineSpan)
                             }) {
                                 Text(
-                                    "Restricted Apps",
+                                    group.name,
                                     style = MaterialTheme.typography.titleMedium,
                                     modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
                                 )
                             }
-                            items(restrictedApps, key = { it.packageName }) { app ->
+                            items(apps, key = { "${group.id}-${it.packageName}" }) { app ->
                                 AppDockButton(app = app) {
                                     val intent = pm.getLaunchIntentForPackage(app.packageName)
                                     if (intent != null) {
