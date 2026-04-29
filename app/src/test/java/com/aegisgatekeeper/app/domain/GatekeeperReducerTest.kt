@@ -1029,6 +1029,44 @@ class GatekeeperReducerTest {
         assertThat(newState.activeWhitelists).isEmpty()
     }
 
+    @Test
+    fun testEndAppSession_RemovesWhitelistAndClearsExitInterview() {
+        val stateWithWhitelistAndOverlay =
+            initialState.copy(
+                activeWhitelists = mapOf(blacklistedApp to TemporaryWhitelist(blacklistedApp, "Test", 0L, 1000L, 1000L)),
+                isOverlayActive = true,
+                pendingExitInterview = blacklistedApp
+            )
+        val action = GatekeeperAction.EndAppSession(blacklistedApp)
+        val newState = reduce(stateWithWhitelistAndOverlay, action)
+        
+        assertThat(newState.activeWhitelists).isEmpty()
+        assertThat(newState.isOverlayActive).isFalse()
+        assertThat(newState.pendingExitInterview).isNull()
+    }
+
+    @Test
+    fun testTriggerExitInterview_SetsOverlayAndPendingApp() {
+        val action = GatekeeperAction.TriggerExitInterview(blacklistedApp)
+        val newState = reduce(initialState, action)
+        
+        assertThat(newState.isOverlayActive).isTrue()
+        assertThat(newState.pendingExitInterview).isEqualTo(blacklistedApp)
+    }
+
+    @Test
+    fun testCancelExitInterview_ClearsOverlayAndPendingApp() {
+        val stateWithInterview = initialState.copy(
+            isOverlayActive = true,
+            pendingExitInterview = blacklistedApp
+        )
+        val action = GatekeeperAction.CancelExitInterview
+        val newState = reduce(stateWithInterview, action)
+        
+        assertThat(newState.isOverlayActive).isFalse()
+        assertThat(newState.pendingExitInterview).isNull()
+    }
+
     // --- Subscription Reducer Tests ---
 
     @Test

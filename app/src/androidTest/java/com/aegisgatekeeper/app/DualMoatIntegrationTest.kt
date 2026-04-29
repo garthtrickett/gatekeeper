@@ -146,6 +146,35 @@ class DualMoatIntegrationTest {
         }
 
     @Test
+    fun whenSwitchingAwayFromWhitelistedApp_triggersExitInterview() =
+        runTest {
+            // Arrange: App is whitelisted and active
+            val whitelist = com.aegisgatekeeper.app.domain.TemporaryWhitelist(testAppPackage, "Test", 0L, Long.MAX_VALUE, 1000L)
+            val stateWithWhitelist = GatekeeperState(
+                activeForegroundApp = testAppPackage,
+                activeWhitelists = mapOf(testAppPackage to whitelist),
+                appGroups = listOf(
+                    com.aegisgatekeeper.app.domain.AppGroup(id = "group1", name = "Test", apps = setOf(testAppPackage))
+                )
+            )
+            
+            val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
+            stateFlowField.isAccessible = true
+            @Suppress("UNCHECKED_CAST")
+            (stateFlowField.get(stateManager) as MutableStateFlow<GatekeeperState>).value = stateWithWhitelist
+
+            // Act: Simulate Layer Alpha detecting a switch to the Launcher (or any other safe app)
+            GatekeeperStateManager.performAppValidation(
+                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext,
+                "com.android.launcher",
+            )
+
+            // Assert: The exit interview should be triggered for the app we just left
+            assertThat(stateManager.state.value.isOverlayActive).isTrue()
+            assertThat(stateManager.state.value.pendingExitInterview).isEqualTo(testAppPackage)
+        }
+
+    @Test
     fun emptyAppGroup_doesNotInterceptForegroundApps() =
         runTest {
             // Arrange: A group with NO apps, but an Always Block rule.

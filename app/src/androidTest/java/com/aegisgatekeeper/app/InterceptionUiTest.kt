@@ -218,6 +218,30 @@ class InterceptionUiTest {
     }
 
     @Test
+    fun testExitInterviewUiRenderingAndClicks() {
+        var doneClicked = false
+        var keepOpenClicked = false
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                com.aegisgatekeeper.app.views.interception.ExitInterviewUi(
+                    packageName = "com.test.app",
+                    onDone = { doneClicked = true },
+                    onKeepOpen = { keepOpenClicked = true }
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Session Complete?").assertExists()
+        
+        composeTestRule.onNodeWithText("Yes, lock it").performClick()
+        assertThat(doneClicked).isTrue()
+
+        composeTestRule.onNodeWithText("No, keep it unlocked").performClick()
+        assertThat(keepOpenClicked).isTrue()
+    }
+
+    @Test
     fun testEmergencyBypassUiRendering() {
         // Arrange
         composeTestRule.setContent {
