@@ -163,6 +163,11 @@ class DualMoatIntegrationTest {
             @Suppress("UNCHECKED_CAST")
             (stateFlowField.get(stateManager) as MutableStateFlow<GatekeeperState>).value = stateWithWhitelist
 
+            // Initialize lastDetectedPackage to simulate we were already inside the app
+            val lastPackageField = stateManager.javaClass.getDeclaredField("lastDetectedPackage")
+            lastPackageField.isAccessible = true
+            lastPackageField.set(stateManager, testAppPackage)
+
             // Act: Simulate Layer Alpha detecting a switch to the Launcher (or any other safe app)
             GatekeeperStateManager.performAppValidation(
                 androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext,
