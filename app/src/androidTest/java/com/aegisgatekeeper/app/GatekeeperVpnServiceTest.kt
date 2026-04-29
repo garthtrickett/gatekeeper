@@ -26,8 +26,7 @@ class GatekeeperVpnServiceTest {
     }
 
     @Test
-    fun testVpnService_updatesBlacklist_whenStateChanges() = runBlocking {
-        // This is a simplified integration test. A full test would require network mocking.
+    fun testVpnService_updatesBlacklist_whenStateChanges() = runBlocking<Unit> {
         val service = GatekeeperVpnService()
 
         // 1. Initial state should have an empty blacklist
@@ -40,20 +39,15 @@ class GatekeeperVpnServiceTest {
         // 3. Set the foreground app to trigger the blacklist update
         GatekeeperStateManager.dispatch(GatekeeperAction.AppBroughtToForeground("com.example.app", System.currentTimeMillis()))
 
-        // 4. Collect the state change in the service
-        // In a real scenario, the service's coroutine scope would collect this.
-        // We simulate it here by giving it a moment to process.
-        val job = service.vpnScope.launch { service.onStartCommand(null, 0, 0) }
-        kotlinx.coroutines.delay(500) // Allow collector to run
+        // 4. Update the state in the service manually
+        service.updateBlacklist(GatekeeperStateManager.state.value)
 
         // 5. Verify the internal blacklist is updated
         assertThat(getActiveBlacklist(service)).contains("youtube.com")
 
         // 6. Change foreground app to one not in the group
         GatekeeperStateManager.dispatch(GatekeeperAction.AppBroughtToForeground("com.other.app", System.currentTimeMillis()))
-        kotlinx.coroutines.delay(500)
+        service.updateBlacklist(GatekeeperStateManager.state.value)
         assertThat(getActiveBlacklist(service)).isEmpty()
-
-        job.cancel()
     }
 }

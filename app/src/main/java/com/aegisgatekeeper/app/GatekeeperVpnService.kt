@@ -57,29 +57,33 @@ class GatekeeperVpnService : VpnService() {
 
         vpnScope.launch {
             GatekeeperStateManager.state.collect { state ->
-                val currentApp = state.activeForegroundApp ?: ""
-                val blockedDomains = mutableSetOf<String>()
-
-                if (state.isManualLockdownActive) {
-                    state.appGroups.forEach { group ->
-                        group.rules.filterIsInstance<BlockingRule.DomainBlock>().filter { it.isEnabled }.forEach {
-                            blockedDomains.addAll(it.domains)
-                        }
-                    }
-                } else {
-                    val activeGroups = state.appGroups.filter { it.apps.contains(currentApp) }
-                    activeGroups.forEach { group ->
-                        group.rules.filterIsInstance<BlockingRule.DomainBlock>().filter { it.isEnabled }.forEach {
-                            blockedDomains.addAll(it.domains)
-                        }
-                    }
-                }
-                activeBlacklist = blockedDomains
+                updateBlacklist(state)
             }
         }
 
         startVpn()
         return START_STICKY
+    }
+
+    internal fun updateBlacklist(state: com.aegisgatekeeper.app.domain.GatekeeperState) {
+        val currentApp = state.activeForegroundApp ?: ""
+        val blockedDomains = mutableSetOf<String>()
+
+        if (state.isManualLockdownActive) {
+            state.appGroups.forEach { group ->
+                group.rules.filterIsInstance<BlockingRule.DomainBlock>().filter { it.isEnabled }.forEach {
+                    blockedDomains.addAll(it.domains)
+                }
+            }
+        } else {
+            val activeGroups = state.appGroups.filter { it.apps.contains(currentApp) }
+            activeGroups.forEach { group ->
+                group.rules.filterIsInstance<BlockingRule.DomainBlock>().filter { it.isEnabled }.forEach {
+                    blockedDomains.addAll(it.domains)
+                }
+            }
+        }
+        activeBlacklist = blockedDomains
     }
 
     private fun startVpn() {
