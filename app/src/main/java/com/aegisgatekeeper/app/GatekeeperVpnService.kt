@@ -49,7 +49,11 @@ class GatekeeperVpnService : VpnService() {
                 .setOngoing(true)
                 .build()
 
-        startForeground(2, notification)
+        if (Build.VERSION.SDK_INT >= 34) {
+            startForeground(2, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        } else {
+            startForeground(2, notification)
+        }
 
         vpnScope.launch {
             GatekeeperStateManager.state.collect { state ->

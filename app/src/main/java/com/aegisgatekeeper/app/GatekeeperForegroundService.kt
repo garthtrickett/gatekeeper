@@ -55,7 +55,11 @@ class GatekeeperForegroundService : Service() {
                 .build()
 
         // 3. Anchor the service to the notification to prevent OS battery kills
-        startForeground(1, notification)
+        if (android.os.Build.VERSION.SDK_INT >= 34) {
+            startForeground(1, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        } else {
+            startForeground(1, notification)
+        }
 
         // 4. Start the Layer Alpha Heartbeat (Polling)
         startLayerAlphaHeartbeat()
