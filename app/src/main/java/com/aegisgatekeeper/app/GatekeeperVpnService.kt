@@ -76,7 +76,7 @@ class GatekeeperVpnService : VpnService() {
                 }
             }
         } else {
-            val activeGroups = state.appGroups.filter { it.apps.contains(currentApp) }
+            val activeGroups = state.appGroups.filter { it.apps.isEmpty() || it.apps.contains(currentApp) }
             activeGroups.forEach { group ->
                 group.rules.filterIsInstance<BlockingRule.DomainBlock>().filter { it.isEnabled }.forEach {
                     blockedDomains.addAll(it.domains)

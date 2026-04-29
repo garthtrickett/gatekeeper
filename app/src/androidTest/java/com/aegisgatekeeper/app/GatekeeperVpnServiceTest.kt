@@ -67,4 +67,28 @@ class GatekeeperVpnServiceTest {
             service.updateBlacklist(stateOtherApp)
             assertThat(getActiveBlacklist(service)).isEmpty()
         }
+
+    @Test
+    fun testVpnService_emptyAppGroup_isGloballyActive() =
+        runBlocking<Unit> {
+            val service = GatekeeperVpnService()
+            val group = AppGroup(
+                id = "group1",
+                name = "Test Global",
+                apps = emptySet(),
+                rules = listOf(
+                    BlockingRule.DomainBlock(
+                        id = "rule1",
+                        groupId = "group1",
+                        domains = setOf("global.com")
+                    )
+                )
+            )
+            val state = GatekeeperState(
+                appGroups = listOf(group),
+                activeForegroundApp = "com.any.app"
+            )
+            service.updateBlacklist(state)
+            assertThat(getActiveBlacklist(service)).contains("global.com")
+        }
 }

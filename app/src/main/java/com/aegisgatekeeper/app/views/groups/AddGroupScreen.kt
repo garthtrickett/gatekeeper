@@ -80,7 +80,7 @@ fun AddGroupScreen(
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "SELECT APPS TO BLOCK:",
+                text = "SELECT APPS TO BLOCK (OPTIONAL):",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
@@ -142,7 +142,7 @@ fun AddGroupScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 IndustrialButton(
                     onClick = { onSave(name, selectedApps) },
-                    enabled = name.isNotBlank() && selectedApps.isNotEmpty(),
+                    enabled = name.isNotBlank(),
                     text = "Save Group",
                 )
             }
