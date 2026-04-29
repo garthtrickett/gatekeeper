@@ -92,6 +92,7 @@ class UrlMetadataClient(
 
                 ContentMetadata(title, durationSeconds, resolvedUrl).right()
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 UrlMetadataError.NetworkFailure(e.message ?: "Failed to fetch metadata").left()
             }
         }

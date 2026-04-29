@@ -111,6 +111,7 @@ class RssClient(
 
                 RssFeedData(channelTitle, artworkUrl, episodes).right()
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 android.util.Log.e("Gatekeeper", "❌ RssClient Exception", e)
                 (e.message ?: "Unknown error").left()
             }

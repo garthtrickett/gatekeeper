@@ -62,9 +62,8 @@ class FeedManagementUiTest {
         // Act: Click the subscription row to drill down
         composeTestRule.onNodeWithText("The Sovereign Podcast").performClick()
         composeTestRule.waitForIdle()
-        Thread.sleep(500) // Wait for Coroutine side-effect dispatch
 
-        // Assert: State updated to active podcast
+        // Assert: State updated to active podcast (don't sleep, avoid network failure race)
         val state = GatekeeperStateManager.state.value
         assertThat(state.activePodcastId).isEqualTo("podcast_123")
         assertThat(state.isLoadingEpisodes).isTrue() // Because we dispatched LoadPodcastEpisodes
@@ -165,11 +164,6 @@ class FeedManagementUiTest {
         composeTestRule.onNodeWithText("Global Episode 1").assertIsDisplayed()
         composeTestRule.onNodeWithText("The Sovereign Podcast • Feb 01 • 30m").assertIsDisplayed()
 
-        // Act: Click Refresh and verify state update
-        composeTestRule.onNodeWithText("Refresh").performClick()
-        composeTestRule.waitForIdle()
-        assertThat(GatekeeperStateManager.state.value.isSyncingPodcasts).isTrue()
-
         // Act: Click the '+' button to add to bank
         composeTestRule.onNodeWithText("+").performClick()
         composeTestRule.waitForIdle()
@@ -183,6 +177,11 @@ class FeedManagementUiTest {
         assertThat(bankedItem?.channelName).isEqualTo("The Sovereign Podcast")
 
         composeTestRule.onNodeWithText("Download").assertExists()
+
+        // Act: Click Refresh and verify state update
+        composeTestRule.onNodeWithText("Refresh").performClick()
+        composeTestRule.waitForIdle()
+        assertThat(GatekeeperStateManager.state.value.isSyncingPodcasts).isTrue()
     }
 
     @Test
@@ -205,7 +204,6 @@ class FeedManagementUiTest {
         // Act: Click "Back"
         composeTestRule.onNodeWithText("Back").performClick()
         composeTestRule.waitForIdle()
-        Thread.sleep(500) // Wait for Coroutine side-effect dispatch
 
         // Assert: We are back at the subscriptions list
         assertThat(GatekeeperStateManager.state.value.activePodcastId).isNull()
