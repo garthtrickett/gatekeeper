@@ -125,6 +125,7 @@ object GatekeeperOverlay {
                     ).apply {
                         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
                         // Ensure the system power menu can still cut through in an emergency
+                        @Suppress("DEPRECATION")
                         systemUiVisibility = android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     }
 
