@@ -574,7 +574,53 @@ class GatekeeperStateManagerTest {
 
             // Assert 2
             sites = db.missionControlWebsiteQueries.selectAll().executeAsList()
-            assertThat(sites).isEmpty()
+        assertThat(sites).isEmpty()
+    }
+
+    @Test
+    fun testDomainBlockRuleLogging() =
+        runTest {
+            // Arrange: Create a group first to satisfy foreign key constraints
+            dispatchWithSideEffects(
+                GatekeeperAction.CreateAppGroup(
+                    id = "group1",
+                    name = "Blocklist",
+                    apps = setOf("com.test.app"),
+                ),
+            )
+
+            val action =
+                GatekeeperAction.AddDomainBlockRule(
+                    id = "domain_rule_1",
+                    groupId = "group1",
+                    domains = setOf("reddit.com", "twitter.com"),
+                )
+
+            // Act
+            dispatchWithSideEffects(action)
+
+            // Assert
+            val rules = db.blockingRuleQueries.selectAllRules().executeAsList()
+            assertThat(rules).hasSize(1)
+            assertThat(rules.first().ruleType).isEqualTo("DOMAIN_BLOCK")
+
+            val domains = db.domainBlockRuleQueries.selectAll().executeAsList()
+            assertThat(domains).hasSize(1)
+            assertThat(domains.first().domains).isEqualTo("reddit.com,twitter.com")
+
+            // Act 2: Test Updating
+            val updateAction =
+                GatekeeperAction.UpdateDomainBlockRule(
+                    ruleId = "domain_rule_1",
+                    groupId = "group1",
+                    domains = setOf("reddit.com", "youtube.com"),
+                )
+            dispatchWithSideEffects(updateAction)
+
+            // Assert 2
+            val updatedDomains = db.domainBlockRuleQueries.selectAll().executeAsList()
+            assertThat(updatedDomains).hasSize(1)
+            assertThat(updatedDomains.first().domains).isEqualTo("reddit.com,youtube.com")
         }
 
     @Test
