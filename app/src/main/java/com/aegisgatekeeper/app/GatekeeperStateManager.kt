@@ -384,6 +384,14 @@ object GatekeeperStateManager {
         currentApp: String,
     ) {
         val state = state.value
+        val isNewApp = currentApp != lastDetectedPackage
+
+        if (isNewApp) {
+            if (lastDetectedPackage != null && state.activeWhitelists.containsKey(lastDetectedPackage)) {
+                dispatch(GatekeeperAction.TriggerExitInterview(lastDetectedPackage!!))
+            }
+        }
+
         val activeGroups = state.appGroups.filter { it.apps.contains(currentApp) }
 
         Log.d("Gatekeeper", "👁️ Validating app: $currentApp | Active Groups Found: ${activeGroups.size}")
@@ -405,7 +413,6 @@ object GatekeeperStateManager {
             var isBlocked = false
             var blockReason = ""
 
-            val isNewApp = currentApp != lastDetectedPackage
             val checkUsage = isNewApp || ticksSinceLastUsageCheck >= 5
             if (checkUsage) ticksSinceLastUsageCheck = 0
 
