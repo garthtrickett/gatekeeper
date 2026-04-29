@@ -313,7 +313,6 @@ fun EditAppsDialog(
                             GatekeeperStateManager.dispatch(GatekeeperAction.UpdateGroupApps(group.id, selectedApps))
                             onDismiss()
                         },
-                        enabled = selectedApps.isNotEmpty(),
                         text = "Save",
                     )
                 }
