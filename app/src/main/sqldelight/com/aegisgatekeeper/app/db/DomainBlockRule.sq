@@ -12,17 +12,3 @@ INSERT OR REPLACE INTO DomainBlockRule(ruleId, domains) VALUES (:ruleId, :domain
 
 delete:
 DELETE FROM DomainBlockRule WHERE ruleId = :ruleId;
-CREATE TABLE IF NOT EXISTS DomainBlockRule (
-    ruleId TEXT NOT NULL PRIMARY KEY,
-    domains TEXT NOT NULL,
-    FOREIGN KEY (ruleId) REFERENCES BlockingRule(id) ON DELETE CASCADE
-);
-
-selectAll:
-SELECT * FROM DomainBlockRule;
-
-insert:
-INSERT OR REPLACE INTO DomainBlockRule(ruleId, domains) VALUES (:ruleId, :domains);
-
-delete:
-DELETE FROM DomainBlockRule WHERE ruleId = :ruleId;
