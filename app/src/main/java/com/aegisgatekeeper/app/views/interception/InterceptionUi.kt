@@ -63,6 +63,15 @@ fun InterceptionScreen() {
     }
 
     if (state.currentlyInterceptedApp == null && state.pendingExitInterview != null) {
+        ExitInterviewUi(
+            packageName = state.pendingExitInterview!!,
+            onDone = { GatekeeperStateManager.dispatch(GatekeeperAction.EndAppSession(state.pendingExitInterview!!)) },
+            onKeepOpen = { GatekeeperStateManager.dispatch(GatekeeperAction.CancelExitInterview) }
+        )
+        return
+    }
+
+    val interceptedPackage = state.currentlyInterceptedApp ?: return
 
     // This local state determines which screen to show: CHOICE, BYPASS, or FRICTION
     var screen by remember { mutableStateOf("CHOICE") }
