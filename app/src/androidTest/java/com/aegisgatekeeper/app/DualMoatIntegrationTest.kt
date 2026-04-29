@@ -146,6 +146,34 @@ class DualMoatIntegrationTest {
         }
 
     @Test
+    fun emptyAppGroup_doesNotInterceptForegroundApps() =
+        runTest {
+            // Arrange: A group with NO apps, but an Always Block rule.
+            // This simulates a "Global Domain" group. We must ensure it doesn't brick the phone by blocking everything.
+            val emptyGroup = com.aegisgatekeeper.app.domain.AppGroup(
+                id = "empty-group",
+                name = "Global Domains",
+                apps = emptySet(),
+                rules = listOf(BlockingRule.AlwaysBlock(id = "rule1", groupId = "empty-group"))
+            )
+            val stateWithEmptyGroup = GatekeeperState(appGroups = listOf(emptyGroup))
+
+            val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
+            stateFlowField.isAccessible = true
+            @Suppress("UNCHECKED_CAST")
+            (stateFlowField.get(stateManager) as MutableStateFlow<GatekeeperState>).value = stateWithEmptyGroup
+
+            // Act: Simulate a Layer Alpha tick for an arbitrary app
+            GatekeeperStateManager.performAppValidation(
+                InstrumentationRegistry.getInstrumentation().targetContext,
+                "com.any.random.app",
+            )
+
+            // Assert: The overlay should NOT activate for app interception.
+            assertThat(stateManager.state.value.isOverlayActive).isFalse()
+        }
+
+    @Test
     fun whenRuleIsBroken_layerAlphaDispatchesViolation() =
         runTest {
             // Arrange: Add a time limit rule to the test group

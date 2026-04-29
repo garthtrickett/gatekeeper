@@ -895,6 +895,14 @@ class GatekeeperReducerTest {
     }
 
     @Test
+    fun testUpdateGroupApps_ToEmpty_UpdatesState() {
+        // Verifies we can successfully strip all apps from a group (e.g. for a global domain block)
+        val action = GatekeeperAction.UpdateGroupApps("group1", emptySet())
+        val newState = reduce(initialState, action)
+        assertThat(newState.appGroups.first().apps).isEmpty()
+    }
+
+    @Test
     fun testAddDomainBlockRule_AppendsRule() {
         val action =
             GatekeeperAction.AddDomainBlockRule(
