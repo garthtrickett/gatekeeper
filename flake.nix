@@ -225,7 +225,7 @@
 
                     alias wipe='adb shell pm clear com.aegisgatekeeper.app.dev'
                     alias test-unit='gradle :app:test'
-                    alias test-ui='adb logcat -c && (adb logcat -s Gatekeeper & LOG_PID=$!; gradle :app:connectedAndroidTest; kill $LOG_PID)'
+                    alias test-ui='adb logcat -c && (adb logcat -s Gatekeeper & LOG_PID=$!; gradle :app:connectedDevDebugAndroidTest; kill $LOG_PID)'
 
                     # E2E Orchestration Pipeline
                     dev-sync() {

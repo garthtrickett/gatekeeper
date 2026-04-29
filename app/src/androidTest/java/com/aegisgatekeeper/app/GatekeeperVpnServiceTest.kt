@@ -1,9 +1,10 @@
 package com.aegisgatekeeper.app
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.aegisgatekeeper.app.domain.GatekeeperAction
+import com.aegisgatekeeper.app.domain.AppGroup
+import com.aegisgatekeeper.app.domain.BlockingRule
+import com.aegisgatekeeper.app.domain.GatekeeperState
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -14,6 +15,11 @@ import java.lang.reflect.Field
 class GatekeeperVpnServiceTest {
     @Before
     fun setup() {
+        GatekeeperStateManager.resetStateForTest()
+    }
+
+    @org.junit.After
+    fun tearDown() {
         GatekeeperStateManager.resetStateForTest()
     }
 
@@ -32,22 +38,33 @@ class GatekeeperVpnServiceTest {
             // 1. Initial state should have an empty blacklist
             assertThat(getActiveBlacklist(service)).isEmpty()
 
-            // 2. Add a group and a domain block rule
-            GatekeeperStateManager.dispatch(GatekeeperAction.CreateAppGroup("group1", "Test", setOf("com.example.app")))
-            GatekeeperStateManager.dispatch(GatekeeperAction.AddDomainBlockRule("rule1", "group1", setOf("youtube.com")))
-
-            // 3. Set the foreground app to trigger the blacklist update
-            GatekeeperStateManager.dispatch(GatekeeperAction.AppBroughtToForeground("com.example.app", System.currentTimeMillis()))
+            // 2. Manually construct state to isolate unit test from global Database side-effects
+            val group = AppGroup(
+                id = "group1",
+                name = "Test",
+                apps = setOf("com.example.app"),
+                rules = listOf(
+                    BlockingRule.DomainBlock(
+                        id = "rule1",
+                        groupId = "group1",
+                        domains = setOf("youtube.com")
+                    )
+                )
+            )
+            val stateWithRule = GatekeeperState(
+                appGroups = listOf(group),
+                activeForegroundApp = "com.example.app"
+            )
 
             // 4. Update the state in the service manually
-            service.updateBlacklist(GatekeeperStateManager.state.value)
+            service.updateBlacklist(stateWithRule)
 
             // 5. Verify the internal blacklist is updated
             assertThat(getActiveBlacklist(service)).contains("youtube.com")
 
             // 6. Change foreground app to one not in the group
-            GatekeeperStateManager.dispatch(GatekeeperAction.AppBroughtToForeground("com.other.app", System.currentTimeMillis()))
-            service.updateBlacklist(GatekeeperStateManager.state.value)
+            val stateOtherApp = stateWithRule.copy(activeForegroundApp = "com.other.app")
+            service.updateBlacklist(stateOtherApp)
             assertThat(getActiveBlacklist(service)).isEmpty()
         }
 }

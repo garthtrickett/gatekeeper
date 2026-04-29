@@ -3,7 +3,7 @@ package com.aegisgatekeeper.app.sync
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import com.aegisgatekeeper.app.auth.TokenProvider
+import com.aegisgatekeeper.app.di.GlobalDI
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpTimeout
@@ -36,10 +36,10 @@ object SyncClient {
 
     suspend fun registerDevice(token: String): Either<SyncError, Unit> {
         val jwtToken =
-            com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider
+            GlobalDI.component.tokenProvider
                 .getToken() ?: return SyncError.Unauthorized.left()
         val baseUrl =
-            com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider
+            GlobalDI.component.tokenProvider
                 .getSyncServerUrl()
                 .trimEnd('/')
 
@@ -49,8 +49,7 @@ object SyncClient {
                     header("Authorization", "Bearer $jwtToken")
                     contentType(ContentType.Application.Json)
                     setBody(
-                        com.aegisgatekeeper.app.sync
-                            .DeviceRegistrationRequest(token),
+                        DeviceRegistrationRequest(token),
                     )
                 }
             if (response.status.value in 200..299) {
@@ -61,16 +60,17 @@ object SyncClient {
                 SyncError.ServerError(response.status.value).left()
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
         }
     }
 
     suspend fun pushChanges(payload: SyncPushPayload): Either<SyncError, Unit> {
         val token =
-            com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider
+            GlobalDI.component.tokenProvider
                 .getToken() ?: return SyncError.Unauthorized.left()
         val baseUrl =
-            com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider
+            GlobalDI.component.tokenProvider
                 .getSyncServerUrl()
                 .trimEnd('/')
 
@@ -89,16 +89,17 @@ object SyncClient {
                 SyncError.ServerError(response.status.value).left()
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
         }
     }
 
     suspend fun pullChanges(lastSyncTimestamp: Long = 0L): Either<SyncError, SyncPullPayload> {
         val token =
-            com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider
+            GlobalDI.component.tokenProvider
                 .getToken() ?: return SyncError.Unauthorized.left()
         val baseUrl =
-            com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider
+            GlobalDI.component.tokenProvider
                 .getSyncServerUrl()
                 .trimEnd('/')
 
@@ -116,6 +117,7 @@ object SyncClient {
                 SyncError.ServerError(response.status.value).left()
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
         }
     }
