@@ -213,6 +213,12 @@ tasks.withType<JavaExec> {
         environment("LD_LIBRARY_PATH", ldLibraryPath)
         systemProperty("java.library.path", ldLibraryPath)
     }
+
+    // Fix for JogAmp / JOGL "Could not determine a temporary executable directory" on NixOS
+    val jogampTmp = project.layout.buildDirectory.dir("jogamp-tmp").get().asFile
+    jogampTmp.mkdirs()
+    systemProperty("java.io.tmpdir", jogampTmp.absolutePath)
+    systemProperty("jogamp.gluegen.tmpdir", jogampTmp.absolutePath)
 }
 
 compose.desktop {
