@@ -53,7 +53,16 @@ import com.aegisgatekeeper.app.views.MovingCloseButton
 @Composable
 fun InterceptionScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
-    val interceptedPackage = state.currentlyInterceptedApp ?: return
+
+    // SAFETY VALVE: If the overlay is active but we have no reason to be here, auto-dismiss
+    if (state.currentlyInterceptedApp == null && state.pendingExitInterview == null) {
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+            GatekeeperStateManager.dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.DismissOverlay)
+        }
+        return
+    }
+
+    if (state.currentlyInterceptedApp == null && state.pendingExitInterview != null) {
 
     // This local state determines which screen to show: CHOICE, BYPASS, or FRICTION
     var screen by remember { mutableStateOf("CHOICE") }
