@@ -344,6 +344,16 @@ sealed interface GatekeeperAction {
         val groupId: String,
     ) : GatekeeperAction
 
+    data class EndAppSession(
+        val packageName: String,
+    ) : GatekeeperAction
+
+    data class TriggerExitInterview(
+        val packageName: String,
+    ) : GatekeeperAction
+
+    object CancelExitInterview : GatekeeperAction
+
     data class DeleteRule(
         val ruleId: String,
         val groupId: String,

@@ -347,6 +347,28 @@ private fun reduceRulesAndIntercepts(
             )
         }
 
+        is GatekeeperAction.EndAppSession -> {
+            state.copy(
+                activeWhitelists = state.activeWhitelists - action.packageName,
+                isOverlayActive = if (state.pendingExitInterview == action.packageName) false else state.isOverlayActive,
+                pendingExitInterview = if (state.pendingExitInterview == action.packageName) null else state.pendingExitInterview,
+            )
+        }
+
+        is GatekeeperAction.TriggerExitInterview -> {
+            state.copy(
+                isOverlayActive = true,
+                pendingExitInterview = action.packageName,
+            )
+        }
+
+        GatekeeperAction.CancelExitInterview -> {
+            state.copy(
+                isOverlayActive = false,
+                pendingExitInterview = null,
+            )
+        }
+
         is GatekeeperAction.SetFrictionGame -> {
             state.copy(activeFrictionGame = action.game)
         }

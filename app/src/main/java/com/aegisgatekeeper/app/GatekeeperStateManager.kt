@@ -474,7 +474,10 @@ object GatekeeperStateManager {
 
             if (isBlocked) {
                 dispatch(GatekeeperAction.RuleViolationDetected(currentApp, blockReason, System.currentTimeMillis()))
-            } else if (currentApp != lastDetectedPackage) {
+            } else if (isNewApp) {
+                if (lastDetectedPackage != null && state.activeWhitelists.containsKey(lastDetectedPackage)) {
+                    dispatch(GatekeeperAction.TriggerExitInterview(lastDetectedPackage!!))
+                }
                 dispatch(GatekeeperAction.AppBroughtToForeground(currentApp, System.currentTimeMillis()))
             }
 

@@ -14,6 +14,7 @@ data class GatekeeperState(
     val activeForegroundApp: String? = null,
     val expiredSessionDurationMillis: Long? = null,
     val activeBlockReason: String? = null,
+    val pendingExitInterview: String? = null,
     // --- Dual-Moat Handoff State ---
     val isLayerOmegaActive: Boolean = false,
     // --- Subscription State ---

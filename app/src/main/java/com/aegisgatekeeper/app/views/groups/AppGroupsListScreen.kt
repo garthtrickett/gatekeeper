@@ -299,13 +299,33 @@ fun CheckInTokensRow(
     rule: BlockingRule.CheckIn,
     state: GatekeeperState,
 ) {
-    val isGroupActive = group.apps.any { state.activeWhitelists.containsKey(it) }
-    if (isGroupActive) {
-        IndustrialButton(
-            onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.EndGroupSession(group.id)) },
-            text = "Mark Done (Close Gate)",
-            isWarning = true,
-        )
+    val activeAppsInGroup = group.apps.filter { state.activeWhitelists.containsKey(it) }
+
+    if (activeAppsInGroup.isNotEmpty()) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Active Sessions:", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+            activeAppsInGroup.forEach { pkg ->
+                val appName = com.aegisgatekeeper.app.views.interception.getAppName(pkg)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(appName, fontWeight = FontWeight.Bold)
+                    IndustrialButton(
+                        onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.EndAppSession(pkg)) },
+                        text = "Done",
+                        isWarning = true,
+                    )
+                }
+            }
+            IndustrialButton(
+                onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.EndGroupSession(group.id)) },
+                modifier = Modifier.fillMaxWidth(),
+                text = "Close All",
+                isWarning = true,
+            )
+        }
         return
     }
 
