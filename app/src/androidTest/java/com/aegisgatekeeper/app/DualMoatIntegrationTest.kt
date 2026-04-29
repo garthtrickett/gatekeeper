@@ -149,7 +149,12 @@ class DualMoatIntegrationTest {
     fun whenRuleIsBroken_layerAlphaDispatchesViolation() =
         runTest {
             // Arrange: Add a time limit rule to the test group
-            val rule = com.aegisgatekeeper.app.domain.BlockingRule.TimeLimit(id = "test-rule", groupId = "test-group-id", timeLimitMinutes = 0) // 0 minute limit
+            val rule =
+                com.aegisgatekeeper.app.domain.BlockingRule.TimeLimit(
+                    id = "test-rule",
+                    groupId = "test-group-id",
+                    timeLimitMinutes = 0,
+                ) // 0 minute limit
             val group =
                 stateManager.state.value.appGroups
                     .first()

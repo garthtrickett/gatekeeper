@@ -574,8 +574,8 @@ class GatekeeperStateManagerTest {
 
             // Assert 2
             sites = db.missionControlWebsiteQueries.selectAll().executeAsList()
-        assertThat(sites).isEmpty()
-    }
+            assertThat(sites).isEmpty()
+        }
 
     @Test
     fun testSaveToVaultLogging() =

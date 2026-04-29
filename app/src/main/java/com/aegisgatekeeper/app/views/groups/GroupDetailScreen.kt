@@ -34,11 +34,11 @@ import com.aegisgatekeeper.app.domain.AppGroup
 import com.aegisgatekeeper.app.domain.BlockingRule
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.IndustrialButton
+import com.aegisgatekeeper.app.domain.TimeSlot
 import com.aegisgatekeeper.app.views.groups.CheckInDialog
 import com.aegisgatekeeper.app.views.groups.EditAppsDialog
 import com.aegisgatekeeper.app.views.groups.RuleChoiceDialog
 import com.aegisgatekeeper.app.views.groups.ScheduledBlockDialog
-import com.aegisgatekeeper.app.domain.TimeSlot
 import java.util.UUID
 
 @Suppress("FunctionName")

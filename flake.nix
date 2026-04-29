@@ -107,8 +107,11 @@
                               # 2. Create the UI Wrapper Script
                               # This ensures the UI runs using the bundled custom JRE and has access to graphics
                               makeWrapper ${customJre}/bin/java $out/bin/gatekeeper \
+                                --run "mkdir -p \$HOME/.cache/gatekeeper-tmp" \
                                 --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath (with pkgs;[ libx11 libxcursor libxext libxrandr libxrender libxi libGL fontconfig freetype wayland libxkbcommon mesa ])}" \
                                 --add-flags "-Djava.awt.headless=false" \
+                                --add-flags "-Djava.io.tmpdir=\$HOME/.cache/gatekeeper-tmp" \
+                                --add-flags "-Djogamp.gluegen.tmpdir=\$HOME/.cache/gatekeeper-tmp" \
                                 --add-flags "-jar $out/lib/gatekeeper/gatekeeper-ui.jar"
 
                               # 3. Generate the .desktop entry for your application launcher
@@ -357,7 +360,7 @@
 
                     # Local Linux Deployment Helpers
                     alias build-linux='gradle :app:packageReleaseUberJarForCurrentOS'
-                    alias install-linux='build-linux && mkdir -p ~/.local/bin && cp app/build/compose/jars/*.jar ~/.local/bin/gatekeeper-ui.jar && printf "#!/bin/sh\nexport LD_LIBRARY_PATH=\"${pkgs.lib.makeLibraryPath (with pkgs;[ libx11 libxcursor libxext libxrandr libxrender libxi libGL fontconfig freetype wayland libxkbcommon mesa ])}:\$LD_LIBRARY_PATH\"\n${customJre}/bin/java -jar ~/.local/bin/gatekeeper-ui.jar \"\$@\"" > ~/.local/bin/gatekeeper && chmod +x ~/.local/bin/gatekeeper && echo "✅ Installed to ~/.local/bin/gatekeeper"'
+                    alias install-linux='build-linux && mkdir -p ~/.local/bin && cp app/build/compose/jars/*.jar ~/.local/bin/gatekeeper-ui.jar && printf "#!/bin/sh\nexport LD_LIBRARY_PATH=\"${pkgs.lib.makeLibraryPath (with pkgs;[ libx11 libxcursor libxext libxrandr libxrender libxi libGL fontconfig freetype wayland libxkbcommon mesa ])}:\$LD_LIBRARY_PATH\"\nmkdir -p \$HOME/.cache/gatekeeper-tmp\n${customJre}/bin/java -Djava.io.tmpdir=\$HOME/.cache/gatekeeper-tmp -Djogamp.gluegen.tmpdir=\$HOME/.cache/gatekeeper-tmp -jar ~/.local/bin/gatekeeper-ui.jar \"\$@\"" > ~/.local/bin/gatekeeper && chmod +x ~/.local/bin/gatekeeper && echo "✅ Installed to ~/.local/bin/gatekeeper"'
 
                     # QEMU Compatibility for unpatched x86_64 binaries (AAPT2, etc)
                     QEMU_ROOT="$HOME/.local/share/qemu-x86-root"
