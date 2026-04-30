@@ -62,7 +62,8 @@ class GatekeeperForegroundService : Service() {
         }
 
         // 4. Start the Layer Alpha Heartbeat (Polling)
-        startLayerAlphaHeartbeat()
+                startLayerAlphaHeartbeat()
+        startPhaseNotificationLoop()
 
         // 4.5 Start VPN Service implicitly if rules exist
         serviceScope.launch {
@@ -85,6 +86,71 @@ class GatekeeperForegroundService : Service() {
 
         // 5. START_STICKY tells the OS: "If you must kill me for RAM, restart me ASAP"
         return START_STICKY
+    }
+
+        private fun startPhaseNotificationLoop() {
+        serviceScope.launch {
+            var lastNotifiedDay = -1
+            while (isActive) {
+                val state = GatekeeperStateManager.state.value
+                val calendar = java.util.Calendar.getInstance()
+                val currentMinutes = calendar.get(java.util.Calendar.HOUR_OF_DAY) * 60 + calendar.get(java.util.Calendar.MINUTE)
+                val currentDay = calendar.get(java.util.Calendar.DAY_OF_YEAR)
+
+                val isGathering = if (state.gatheringStartMinutes <= state.gatheringEndMinutes) {
+                    currentMinutes in state.gatheringStartMinutes until state.gatheringEndMinutes
+                } else {
+                    currentMinutes >= state.gatheringStartMinutes || currentMinutes < state.gatheringEndMinutes
+                }
+
+                if (isGathering && currentDay != lastNotifiedDay) {
+                    lastNotifiedDay = currentDay
+                    
+                    val unresolvedVaultItems = state.vaultItems.count { !it.isResolved && !it.isDeleted }
+                    val newNotifications = state.notificationDigest.size
+                    
+                    sendGatheringNotification(unresolvedVaultItems, newNotifications)
+                }
+                delay(60_000L)
+            }
+        }
+    }
+
+    private fun sendGatheringNotification(vaultCount: Int, digestCount: Int) {
+        val channelId = "gatekeeper_phase_channel"
+        val manager = getSystemService(NotificationManager::class.java)
+        
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                "Phase Transitions",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            manager.createNotificationChannel(channel)
+        }
+
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent = android.app.PendingIntent.getActivity(
+            this, 0, intent, android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val text = buildString {
+            if (vaultCount > 0) append("$vaultCount thoughts to process. ")
+            if (digestCount > 0) append("$digestCount notifications intercepted. ")
+            if (isEmpty()) append("Time to review your digital intake.")
+        }
+
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("The Gathering Phase has begun")
+            .setContentText(text)
+            .setSmallIcon(android.R.drawable.ic_secure)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .build()
+
+        manager.notify(3, notification)
     }
 
     private fun startLayerAlphaHeartbeat() {
