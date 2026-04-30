@@ -71,3 +71,6 @@ SELECT * FROM ConsumedCheckIn ORDER BY timestamp DESC;
 
 insertConsumedCheckIn:
 INSERT OR REPLACE INTO ConsumedCheckIn(id, groupId, timeMinutes, timestamp) VALUES (:id, :groupId, :timeMinutes, :timestamp);
+
+deleteConsumedCheckInsForGroup:
+DELETE FROM ConsumedCheckIn WHERE groupId = :groupId;

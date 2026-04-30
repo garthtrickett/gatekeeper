@@ -307,13 +307,18 @@ fun handleDatabaseEffects(
             }
         }
 
-        is GatekeeperAction.UpdateCheckInRule -> {
+                is GatekeeperAction.UpdateCheckInRule -> {
             db.blockingRuleQueries.insertCheckInRule(
                 action.id,
                 action.checkInTimesMinutes.joinToString(","),
                 action.durationMinutes.toLong(),
                 action.daysOfWeek.joinToString(","),
             )
+        }
+
+        is GatekeeperAction.ResetCheckIns -> {
+            Log.i("Gatekeeper", "DB: Resetting check-ins for group ${action.groupId}")
+            db.blockingRuleQueries.deleteConsumedCheckInsForGroup(action.groupId)
         }
 
         is GatekeeperAction.RedeemCheckInToken -> {

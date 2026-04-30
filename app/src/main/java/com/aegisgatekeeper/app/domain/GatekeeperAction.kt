@@ -324,12 +324,16 @@ sealed interface GatekeeperAction {
         val daysOfWeek: Set<com.aegisgatekeeper.app.domain.DayOfWeek>,
     ) : GatekeeperAction
 
-    data class UpdateCheckInRule(
+        data class UpdateCheckInRule(
         val id: String,
         val groupId: String,
         val checkInTimesMinutes: List<Int>,
         val durationMinutes: Int,
         val daysOfWeek: Set<com.aegisgatekeeper.app.domain.DayOfWeek>,
+    ) : GatekeeperAction
+
+    data class ResetCheckIns(
+        val groupId: String,
     ) : GatekeeperAction
 
     data class RedeemCheckInToken(

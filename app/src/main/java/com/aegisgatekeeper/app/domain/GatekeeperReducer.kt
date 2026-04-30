@@ -285,6 +285,12 @@ private fun reduceRulesAndIntercepts(
             state.copy(appGroups = state.appGroups.map { if (it.id == action.groupId) it.copy(rules = it.rules + newRule) else it })
         }
 
+                is GatekeeperAction.ResetCheckIns -> {
+            state.copy(
+                consumedCheckIns = state.consumedCheckIns.filter { it.groupId != action.groupId }
+            )
+        }
+
         is GatekeeperAction.UpdateCheckInRule -> {
             state.copy(
                 appGroups =

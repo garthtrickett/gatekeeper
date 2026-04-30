@@ -272,7 +272,14 @@ fun GroupDetailScreen(
                                             uncheckedTrackColor = MaterialTheme.colorScheme.surface,
                                         ),
                                 )
-                                if (rule is BlockingRule.CheckIn) {
+                                                                if (rule is BlockingRule.CheckIn) {
+                                    IndustrialButton(
+                                        onClick = {
+                                            GatekeeperStateManager.dispatch(GatekeeperAction.ResetCheckIns(group.id))
+                                        },
+                                        text = "RESET",
+                                        isWarning = true,
+                                    )
                                     IndustrialButton(
                                         onClick = {
                                             editingCheckInRule = rule
