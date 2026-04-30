@@ -49,9 +49,10 @@ class FeedManagementUiTest {
             )
         GatekeeperStateManager.dispatch(GatekeeperAction.SavePodcastSubscription(sub))
 
+                val showDialog = androidx.compose.runtime.mutableStateOf(true)
         composeTestRule.setContent {
             GatekeeperTheme {
-                FeedManagementDialog(onDismiss = {})
+                if (showDialog.value) FeedManagementDialog(onDismiss = { showDialog.value = false })
             }
         }
 
@@ -66,7 +67,10 @@ class FeedManagementUiTest {
         // Assert: State updated to active podcast (don't sleep, avoid network failure race)
         val state = GatekeeperStateManager.state.value
         assertThat(state.activePodcastId).isEqualTo("podcast_123")
-        assertThat(state.isLoadingEpisodes).isTrue() // Because we dispatched LoadPodcastEpisodes
+                assertThat(state.isLoadingEpisodes).isTrue() // Because we dispatched LoadPodcastEpisodes
+
+        showDialog.value = false
+        composeTestRule.waitForIdle()
     }
 
     @Test
@@ -92,12 +96,13 @@ class FeedManagementUiTest {
                 ),
             )
 
-        // Force the drill-down state manually without triggering network side-effects
+                // Force the drill-down state manually without triggering network side-effects
         GatekeeperStateManager.dispatch(GatekeeperAction.PodcastEpisodesLoaded(mockEpisodes, sub.id))
 
+        val showDialog = androidx.compose.runtime.mutableStateOf(true)
         composeTestRule.setContent {
             GatekeeperTheme {
-                FeedManagementDialog(onDismiss = {})
+                if (showDialog.value) FeedManagementDialog(onDismiss = { showDialog.value = false })
             }
         }
 
@@ -118,8 +123,11 @@ class FeedManagementUiTest {
         assertThat(bankedItem).isNotNull()
         assertThat(bankedItem?.title).isEqualTo("Episode 1: Focus")
 
-        // The button should now say "Download" because it's added to the content bank
+                // The button should now say "Download" because it's added to the content bank
         composeTestRule.onNodeWithText("Download").assertExists()
+
+        showDialog.value = false
+        composeTestRule.waitForIdle()
     }
 
     @Test
@@ -148,11 +156,12 @@ class FeedManagementUiTest {
                     artworkUrl = null,
                 ),
             )
-        GatekeeperStateManager.dispatch(GatekeeperAction.LatestGlobalEpisodesLoaded(mockUnified))
+                GatekeeperStateManager.dispatch(GatekeeperAction.LatestGlobalEpisodesLoaded(mockUnified))
 
+        val showDialog = androidx.compose.runtime.mutableStateOf(true)
         composeTestRule.setContent {
             GatekeeperTheme {
-                FeedManagementDialog(onDismiss = {})
+                if (showDialog.value) FeedManagementDialog(onDismiss = { showDialog.value = false })
             }
         }
 
@@ -178,10 +187,13 @@ class FeedManagementUiTest {
 
         composeTestRule.onNodeWithText("Download").assertExists()
 
-        // Act: Click Refresh and verify state update
+                // Act: Click Refresh and verify state update
         composeTestRule.onNodeWithText("Refresh").performClick()
         composeTestRule.waitForIdle()
         assertThat(GatekeeperStateManager.state.value.isSyncingPodcasts).isTrue()
+
+        showDialog.value = false
+        composeTestRule.waitForIdle()
     }
 
     @Test
@@ -190,11 +202,12 @@ class FeedManagementUiTest {
         val sub = PodcastSubscription(id = "podcast_123", feedUrl = "https://example.com/feed.xml", showTitle = "Title", artworkUrl = null)
         GatekeeperStateManager.dispatch(GatekeeperAction.SavePodcastSubscription(sub))
         // We directly dispatch PodcastEpisodesLoaded to set the state and avoid triggering an actual network request.
-        GatekeeperStateManager.dispatch(GatekeeperAction.PodcastEpisodesLoaded(emptyList(), sub.id))
+                GatekeeperStateManager.dispatch(GatekeeperAction.PodcastEpisodesLoaded(emptyList(), sub.id))
 
+        val showDialog = androidx.compose.runtime.mutableStateOf(true)
         composeTestRule.setContent {
             GatekeeperTheme {
-                FeedManagementDialog(onDismiss = {})
+                if (showDialog.value) FeedManagementDialog(onDismiss = { showDialog.value = false })
             }
         }
 
@@ -205,8 +218,11 @@ class FeedManagementUiTest {
         composeTestRule.onNodeWithText("Back").performClick()
         composeTestRule.waitForIdle()
 
-        // Assert: We are back at the subscriptions list
+                // Assert: We are back at the subscriptions list
         assertThat(GatekeeperStateManager.state.value.activePodcastId).isNull()
         composeTestRule.onNodeWithText("Manage Podcasts").assertIsDisplayed()
+
+        showDialog.value = false
+        composeTestRule.waitForIdle()
     }
 }

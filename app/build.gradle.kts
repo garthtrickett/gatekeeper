@@ -159,8 +159,8 @@ kotlin {
                 implementation("junit:junit:4.13.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 
-                // AndroidX Compose UI Testing dependencies
-                val composeTestVersion = "1.6.8"
+                                // AndroidX Compose UI Testing dependencies
+                val composeTestVersion = "1.7.0"
                 implementation("androidx.compose.ui:ui-test-junit4:$composeTestVersion")
 
                 implementation("io.ktor:ktor-client-mock:2.3.12")
@@ -238,7 +238,7 @@ compose.desktop {
 }
 
 dependencies {
-    "debugImplementation"("androidx.compose.ui:ui-test-manifest:1.6.8")
+        "debugImplementation"("androidx.compose.ui:ui-test-manifest:1.7.0")
     
     add("kspCommonMainMetadata", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.2")
     add("kspAndroid", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.2")
