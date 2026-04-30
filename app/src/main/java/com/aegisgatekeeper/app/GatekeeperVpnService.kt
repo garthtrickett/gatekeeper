@@ -152,10 +152,10 @@ class GatekeeperVpnService : VpnService() {
         if (dstPort == 53) {
             // DNS Packet
             val dnsPayloadOffset = ipHeaderLength + 8
-            val dnsPayloadLength = udpLength - 8
+                        val dnsPayloadLength = udpLength - 8
             if (dnsPayloadLength <= 0) return
 
-            val domainName = extractDomainName(buffer.array(), dnsPayloadOffset)
+            val domainName = extractDomainName(buffer.array(), dnsPayloadOffset, dnsPayloadOffset + dnsPayloadLength)
 
             if (isDomainBlocked(domainName)) {
                 Log.d("Gatekeeper", "🛡️ VPN Blocked Domain: $domainName")
@@ -167,20 +167,24 @@ class GatekeeperVpnService : VpnService() {
         }
     }
 
-    private fun isDomainBlocked(domain: String): Boolean = activeBlacklist.any { domain.endsWith(it, ignoreCase = true) }
+        private fun isDomainBlocked(domain: String): Boolean = activeBlacklist.any { 
+        domain.equals(it, ignoreCase = true) || domain.endsWith(".$it", ignoreCase = true) 
+    }
 
-    private fun extractDomainName(
+        private fun extractDomainName(
         payload: ByteArray,
         offset: Int,
+        limit: Int,
     ): String {
         var pos = offset + 12 // Skip DNS header (12 bytes)
         val sb = java.lang.StringBuilder()
-        while (pos < payload.size) {
+        while (pos < limit && pos < payload.size) {
             val len = payload[pos].toInt() and 0xFF
             if (len == 0) break
             if (len >= 192) break // Compression pointer
             pos++
             for (i in 0 until len) {
+                if (pos >= limit || pos >= payload.size) break
                 sb.append(payload[pos].toInt().toChar())
                 pos++
             }
