@@ -12,6 +12,24 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class GatekeeperForegroundServiceTest {
+
+    @Test
+    fun testSendCheckInNotification_CreatesNotificationWithoutCrashing() {
+        val service = GatekeeperForegroundService()
+        val context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
+
+        // Attach base context to avoid NPEs when Service calls getSystemService
+        val attachBaseContextMethod = android.content.ContextWrapper::class.java.getDeclaredMethod("attachBaseContext", android.content.Context::class.java)
+        attachBaseContextMethod.isAccessible = true
+        attachBaseContextMethod.invoke(service, context)
+
+        val method = GatekeeperForegroundService::class.java.getDeclaredMethod("sendCheckInNotification", String::class.java, Int::class.java)
+        method.isAccessible = true
+
+        // Should not crash
+        method.invoke(service, "Test Group", 600)
+    }
+
     @Test
     fun testServiceLifecycle_CancelsCoroutineScopeOnDestroy_PreventsMemoryLeak() {
         // Arrange
