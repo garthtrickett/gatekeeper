@@ -428,10 +428,15 @@ object GatekeeperStateManager {
 
                     for (rule in enabledRules) {
                         when (rule) {
-                            is com.aegisgatekeeper.app.domain.BlockingRule.ScheduledBlock -> {
+                                                        is com.aegisgatekeeper.app.domain.BlockingRule.ScheduledBlock -> {
                                 if (rule.daysOfWeek.contains(currentDay)) {
-                                    val isAnySlotActive = rule.timeSlots.any { currentMinutes in it.startTimeMinutes..it.endTimeMinutes }
-                                    if (isAnySlotActive) groupViolations.add("Scheduled Block")
+                                    val activeSlots = rule.timeSlots.filter { currentMinutes in it.startTimeMinutes..it.endTimeMinutes }
+                                    if (activeSlots.isNotEmpty()) {
+                                        val slotsStr = activeSlots.joinToString(", ") { 
+                                            String.format("%02d:%02d - %02d:%02d", it.startTimeMinutes / 60, it.startTimeMinutes % 60, it.endTimeMinutes / 60, it.endTimeMinutes % 60)
+                                        }
+                                        groupViolations.add("Scheduled Block ($slotsStr)")
+                                    }
                                 }
                             }
 
@@ -444,11 +449,19 @@ object GatekeeperStateManager {
                                     } else {
                                         cachedUsageMinutes[group.id] ?: 0
                                     }
-                                if (usageMinutes >= rule.timeLimitMinutes) groupViolations.add("Time Limit (${rule.timeLimitMinutes}m)")
+                                if (usageMinutes >= rule.timeLimitMinutes) {
+                                    val timeLeft = maxOf(0, rule.timeLimitMinutes - usageMinutes)
+                                    groupViolations.add("Time Limit Reached (${timeLeft}m left, used $usageMinutes/${rule.timeLimitMinutes}m)")
+                                }
                             }
 
                             is com.aegisgatekeeper.app.domain.BlockingRule.CheckIn -> {
-                                if (rule.daysOfWeek.contains(currentDay)) groupViolations.add("Check-In Required")
+                                if (rule.daysOfWeek.contains(currentDay)) {
+                                    val timesStr = rule.checkInTimesMinutes.sorted().joinToString(", ") {
+                                        String.format("%02d:%02d", it / 60, it % 60)
+                                    }
+                                    groupViolations.add("Check-In Required ($timesStr)")
+                                }
                             }
 
                             is com.aegisgatekeeper.app.domain.BlockingRule.DomainBlock -> {}

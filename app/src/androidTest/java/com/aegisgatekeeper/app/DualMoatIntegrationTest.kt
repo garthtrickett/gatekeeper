@@ -238,16 +238,16 @@ class DualMoatIntegrationTest {
 
             // Act: Simulate a Layer Alpha tick. The logic inside the service would evaluate the rule.
             // We are directly dispatching the result of that evaluation for this test.
-            stateManager.dispatch(
+                        stateManager.dispatch(
                 GatekeeperAction.RuleViolationDetected(
                     packageName = testAppPackage,
-                    reason = "Policy Violation: Time Limit (0m) for 'Test Group'",
+                    reason = "Policy Violation: Time Limit Reached (0m left, used 0/0m) for 'Test Group'",
                     currentTimestamp = System.currentTimeMillis(),
                 ),
             )
 
             // Assert: The overlay should be active with the correct reason.
             assertThat(stateManager.state.value.isOverlayActive).isTrue()
-            assertThat(stateManager.state.value.activeBlockReason).isEqualTo("Policy Violation: Time Limit (0m) for 'Test Group'")
+            assertThat(stateManager.state.value.activeBlockReason).isEqualTo("Policy Violation: Time Limit Reached (0m left, used 0/0m) for 'Test Group'")
         }
 }
