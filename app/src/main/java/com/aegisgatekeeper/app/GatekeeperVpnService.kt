@@ -247,57 +247,7 @@ class GatekeeperVpnService : VpnService() {
                 outputStream.write(outPacket)
             } catch (e: Exception) {
                 Log.e("Gatekeeper", "❌ VPN DNS Forward Error: ${e.message}")
-            } finally {
-                socket?.close()
-            }
-        }
-    }
-        dnsPayload: ByteArray,
-        offset: Int,
-        length: Int,
-        originalSrcIp: Int,
-        originalSrcPort: Int,
-        originalDstIp: Int,
-        outputStream: FileOutputStream,
-    ) {
-        vpnScope.launch(Dispatchers.IO) {
-            var socket: DatagramSocket? = null
-            try {
-                socket = DatagramSocket()
-                protect(socket)
-
-                val serverAddr =
-                    InetAddress.getByAddress(
-                        byteArrayOf(
-                            (originalDstIp shr 24).toByte(),
-                            (originalDstIp shr 16).toByte(),
-                            (originalDstIp shr 8).toByte(),
-                            originalDstIp.toByte(),
-                        ),
-                    )
-
-                val requestPacket = DatagramPacket(dnsPayload, offset, length, serverAddr, 53)
-                socket.send(requestPacket)
-
-                val responseBuffer = ByteArray(4096)
-                val responsePacket = DatagramPacket(responseBuffer, responseBuffer.size)
-                socket.soTimeout = 3000
-                socket.receive(responsePacket)
-
-                val outPacket =
-                    constructUdpIpPacket(
-                        srcIp = originalDstIp,
-                        dstIp = originalSrcIp,
-                        srcPort = 53,
-                        dstPort = originalSrcPort,
-                        payload = responseBuffer,
-                        payloadLength = responsePacket.length,
-                    )
-
-                outputStream.write(outPacket)
-            } catch (e: Exception) {
-                Log.e("Gatekeeper", "❌ VPN DNS Forward Error: ${e.message}")
-            } finally {
+                        } finally {
                 socket?.close()
             }
         }
