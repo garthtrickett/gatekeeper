@@ -24,23 +24,25 @@ class PodcastMediaServiceTest {
         attachBaseContextMethod.isAccessible = true
         attachBaseContextMethod.invoke(service, context)
 
-        // Act
-        service.onCreate()
+                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            // Act
+            service.onCreate()
 
-        // Extract the MediaSession via reflection
-        val sessionField = PodcastMediaService::class.java.getDeclaredField("mediaSession")
-        sessionField.isAccessible = true
-        val mediaSession = sessionField.get(service) as MediaSession
-        
-        val player = mediaSession.player
+            // Extract the MediaSession via reflection
+            val sessionField = PodcastMediaService::class.java.getDeclaredField("mediaSession")
+            sessionField.isAccessible = true
+            val mediaSession = sessionField.get(service) as MediaSession
+            
+            val player = mediaSession.player
 
-        // Assert: 
-        // If the AudioFocus fix is missing, the content type defaults to C.AUDIO_CONTENT_TYPE_UNKNOWN (0).
-        // The fix explicitly sets it to C.AUDIO_CONTENT_TYPE_SPEECH (1) alongside handleAudioFocus = true.
-        assertThat(player.audioAttributes.contentType).isEqualTo(C.AUDIO_CONTENT_TYPE_SPEECH)
-        assertThat(player.audioAttributes.usage).isEqualTo(C.USAGE_MEDIA)
-        
-        // Cleanup
-        service.onDestroy()
+            // Assert: 
+            // If the AudioFocus fix is missing, the content type defaults to C.AUDIO_CONTENT_TYPE_UNKNOWN (0).
+            // The fix explicitly sets it to C.AUDIO_CONTENT_TYPE_SPEECH (1) alongside handleAudioFocus = true.
+            assertThat(player.audioAttributes.contentType).isEqualTo(C.AUDIO_CONTENT_TYPE_SPEECH)
+            assertThat(player.audioAttributes.usage).isEqualTo(C.USAGE_MEDIA)
+            
+            // Cleanup
+            service.onDestroy()
+        }
     }
 }
