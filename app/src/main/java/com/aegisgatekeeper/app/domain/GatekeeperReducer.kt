@@ -311,7 +311,7 @@ private fun reduceRulesAndIntercepts(
             )
         }
 
-        is GatekeeperAction.RedeemCheckInToken -> {
+                is GatekeeperAction.RedeemCheckInToken -> {
             val newLog =
                 ConsumedCheckIn(
                     groupId = action.groupId,
@@ -332,7 +332,11 @@ private fun reduceRulesAndIntercepts(
                         )
                 } ?: emptyMap()
 
+            val dismissed = state.currentlyInterceptedApp in (group?.apps ?: emptySet())
+
             state.copy(
+                isOverlayActive = if (dismissed) false else state.isOverlayActive,
+                currentlyInterceptedApp = if (dismissed) null else state.currentlyInterceptedApp,
                 consumedCheckIns = state.consumedCheckIns + newLog,
                 activeWhitelists = state.activeWhitelists + whitelists,
                 analyticsBypasses = if (action.reason != null) state.analyticsBypasses + 1 else state.analyticsBypasses,

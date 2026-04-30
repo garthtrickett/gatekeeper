@@ -19,7 +19,8 @@ import kotlinx.coroutines.delay
 
 suspend fun handleMediaAndSystemEffects(
     action: GatekeeperAction,
-    state: GatekeeperState,
+    oldState: GatekeeperState,
+    newState: GatekeeperState,
     dispatch: (GatekeeperAction) -> Unit,
 ) {
     when (action) {
@@ -40,8 +41,8 @@ suspend fun handleMediaAndSystemEffects(
                 )
         }
 
-        is GatekeeperAction.DownloadMediaRequested -> {
-            val item = state.contentItems.find { it.id == action.id }
+                is GatekeeperAction.DownloadMediaRequested -> {
+            val item = newState.contentItems.find { it.id == action.id }
             if (item != null) {
                 Log.d("Gatekeeper", "⬇️ Starting download for ${item.title}")
                 com.aegisgatekeeper.app.media.MediaDownloader
@@ -86,7 +87,7 @@ suspend fun handleMediaAndSystemEffects(
             )
         }
 
-        is GatekeeperAction.LoadPodcastEpisodes -> {
+                is GatekeeperAction.LoadPodcastEpisodes -> {
             Log.i("Gatekeeper", "📡 Loading Podcast Episodes from RSS: ${action.feedUrl}")
             val result =
                 (com.aegisgatekeeper.app.di.GlobalDI.component as com.aegisgatekeeper.app.di.AndroidApplicationComponent)
@@ -97,10 +98,10 @@ suspend fun handleMediaAndSystemEffects(
             result.fold(
                 ifLeft = { error ->
                     Log.e("Gatekeeper", "❌ Failed to load podcast episodes: $error")
-                    if (state.activePodcastEpisodes == null) {
+                    if (newState.activePodcastEpisodes == null) {
                         dispatch(GatekeeperAction.ClearPodcastEpisodes)
                     } else {
-                        dispatch(GatekeeperAction.PodcastEpisodesLoaded(state.activePodcastEpisodes, action.podcastId))
+                        dispatch(GatekeeperAction.PodcastEpisodesLoaded(newState.activePodcastEpisodes, action.podcastId))
                     }
                 },
                 ifRight = { data ->
@@ -237,7 +238,7 @@ suspend fun handleMediaAndSystemEffects(
             }
         }
 
-        is GatekeeperAction.EmergencyBypassRequested -> {
+                is GatekeeperAction.EmergencyBypassRequested -> {
             Log.d("Gatekeeper", "⚙️ EmergencyBypassRequested: Relaunching app to ensure it wasn't killed")
             val launchIntent = App.instance.packageManager.getLaunchIntentForPackage(action.packageName)
             if (launchIntent != null) {
@@ -249,6 +250,27 @@ suspend fun handleMediaAndSystemEffects(
             delay(action.allocatedDurationMillis)
             if (GatekeeperStateManager.state.value.activeForegroundApp == action.packageName) {
                 dispatch(GatekeeperAction.SessionExpired(action.packageName, action.allocatedDurationMillis))
+            }
+        }
+
+        is GatekeeperAction.RedeemCheckInToken -> {
+            val group = newState.appGroups.find { it.id == action.groupId }
+            val apps = group?.apps ?: emptySet()
+            if (oldState.currentlyInterceptedApp in apps) {
+                val packageName = oldState.currentlyInterceptedApp!!
+                Log.d("Gatekeeper", "⚙️ RedeemCheckInToken: Relaunching app to ensure it wasn't killed")
+                val launchIntent = App.instance.packageManager.getLaunchIntentForPackage(packageName)
+                if (launchIntent != null) {
+                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    App.instance.startActivity(launchIntent)
+                }
+
+                val durationMillis = action.durationMinutes * 60_000L
+                Log.d("Gatekeeper", "⚙️ RedeemCheckInToken: Scheduling SessionExpired in ${durationMillis}ms")
+                delay(durationMillis)
+                if (GatekeeperStateManager.state.value.activeForegroundApp == packageName) {
+                    dispatch(GatekeeperAction.SessionExpired(packageName, durationMillis))
+                }
             }
         }
 

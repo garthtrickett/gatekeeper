@@ -45,6 +45,7 @@ import com.aegisgatekeeper.app.domain.ContentItem
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.IndustrialButton
 import com.aegisgatekeeper.app.domain.IndustrialTextField
+import androidx.compose.foundation.horizontalScroll
 import com.aegisgatekeeper.app.views.BallBalancingUi
 import com.aegisgatekeeper.app.views.MovingCloseButton
 
@@ -261,6 +262,21 @@ fun InterceptionChoiceUi(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
+                                        val activeGroups = state.appGroups.filter { it.apps.contains(interceptedPackage) }
+                    val checkInGroupRules = activeGroups.mapNotNull { group ->
+                        val rule = group.rules.filterIsInstance<com.aegisgatekeeper.app.domain.BlockingRule.CheckIn>().firstOrNull { it.isEnabled }
+                        if (rule != null) group to rule else null
+                    }
+
+                    if (checkInGroupRules.isNotEmpty()) {
+                        IndustrialButton(
+                            onClick = { step = "CHECK_IN" },
+                            text = "Redeem Check-In Token",
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
                     IndustrialButton(
                         onClick = {
                             selectedTimeMillis = 15 * 60_000L
@@ -270,6 +286,145 @@ fun InterceptionChoiceUi(
                         isWarning = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
+                } else if (step == "CHECK_IN") {
+                    Text(
+                        text = "Check-In Tokens",
+                        color = Color.White,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    val activeGroups = state.appGroups.filter { it.apps.contains(interceptedPackage) }
+                    val checkInGroupRules = activeGroups.mapNotNull { group ->
+                        val rule = group.rules.filterIsInstance<com.aegisgatekeeper.app.domain.BlockingRule.CheckIn>().firstOrNull { it.isEnabled }
+                        if (rule != null) group to rule else null
+                    }
+
+                    val calendar = java.util.Calendar.getInstance()
+                    val currentMinutes = calendar.get(java.util.Calendar.HOUR_OF_DAY) * 60 + calendar.get(java.util.Calendar.MINUTE)
+                    val currentDay =
+                        when (calendar.get(java.util.Calendar.DAY_OF_WEEK)) {
+                            java.util.Calendar.MONDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY
+                            java.util.Calendar.TUESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.TUESDAY
+                            java.util.Calendar.WEDNESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.WEDNESDAY
+                            java.util.Calendar.THURSDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.THURSDAY
+                            java.util.Calendar.FRIDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.FRIDAY
+                            java.util.Calendar.SATURDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.SATURDAY
+                            else -> com.aegisgatekeeper.app.domain.DayOfWeek.SUNDAY
+                        }
+
+                    calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+                    calendar.set(java.util.Calendar.MINUTE, 0)
+                    calendar.set(java.util.Calendar.SECOND, 0)
+                    calendar.set(java.util.Calendar.MILLISECOND, 0)
+                    val startOfDay = calendar.timeInMillis
+
+                    var showAccountabilityForTime by remember { mutableStateOf<Pair<com.aegisgatekeeper.app.domain.AppGroup, Int>?>(null) }
+                    var reason by remember { mutableStateOf("") }
+
+                    if (showAccountabilityForTime != null) {
+                        val (group, time) = showAccountabilityForTime!!
+                        val rule = checkInGroupRules.find { it.first.id == group.id }?.second
+                        
+                        Text(
+                            text = if (time == -1) "Unscheduled Check-In" else "Early Check-In",
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "This token is not yet available. Why do you need access now?",
+                            color = Color.White.copy(alpha = 0.8f),
+                            textAlign = TextAlign.Center,
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        IndustrialTextField(
+                            value = reason,
+                            onValueChange = { reason = it },
+                            label = { Text("Accountability Reason") },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Spacer(modifier = Modifier.height(32.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                            IndustrialButton(onClick = { showAccountabilityForTime = null }, text = "Cancel", isWarning = true)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            IndustrialButton(
+                                onClick = {
+                                    if (reason.trim().isNotEmpty()) {
+                                        GatekeeperStateManager.dispatch(
+                                            GatekeeperAction.RedeemCheckInToken(
+                                                group.id,
+                                                time,
+                                                rule?.durationMinutes ?: 15,
+                                                reason.trim(),
+                                                System.currentTimeMillis(),
+                                            ),
+                                        )
+                                    }
+                                },
+                                enabled = reason.trim().isNotEmpty(),
+                                text = "Redeem",
+                            )
+                        }
+                    } else {
+                        LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.weight(1f, fill = false)) {
+                            items(checkInGroupRules) { (group, rule) ->
+                                Text(group.name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                
+                                if (!rule.daysOfWeek.contains(currentDay)) {
+                                    Text("No check-ins scheduled for today.", color = Color.Gray)
+                                } else {
+                                    val consumedToday = state.consumedCheckIns.filter { it.groupId == group.id && it.timestamp >= startOfDay }
+                                    val consumedTimes = consumedToday.map { it.timeMinutes }
+                                    
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
+                                        rule.checkInTimesMinutes.sorted().forEach { time ->
+                                            val isConsumed = consumedTimes.contains(time)
+                                            val isAvailable = !isConsumed && currentMinutes >= time
+                                            val label = String.format("%02d:%02d", time / 60, time % 60)
+                                            
+                                            FilterChip(
+                                                selected = isConsumed,
+                                                onClick = {
+                                                    if (isConsumed) return@FilterChip
+                                                    if (isAvailable) {
+                                                        GatekeeperStateManager.dispatch(
+                                                            GatekeeperAction.RedeemCheckInToken(
+                                                                group.id,
+                                                                time,
+                                                                rule.durationMinutes,
+                                                                null,
+                                                                System.currentTimeMillis()
+                                                            )
+                                                        )
+                                                    } else {
+                                                        showAccountabilityForTime = Pair(group, time)
+                                                    }
+                                                },
+                                                label = { Text(if (isConsumed) "$label (Used)" else label) },
+                                                colors = FilterChipDefaults.filterChipColors(
+                                                    containerColor = if (isAvailable) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surfaceVariant,
+                                                    labelColor = if (isAvailable) MaterialTheme.colorScheme.primary else Color.White,
+                                                    selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                                    selectedLabelColor = Color.Gray,
+                                                ),
+                                                border = androidx.compose.foundation.BorderStroke(1.dp, if (isAvailable) MaterialTheme.colorScheme.primary else Color.Transparent)
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    IndustrialButton(onClick = { showAccountabilityForTime = Pair(group, -1) }, text = "+ Unscheduled")
+                                }
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(32.dp))
+                        IndustrialButton(onClick = { step = "PROMPT" }, text = "Back", modifier = Modifier.fillMaxWidth())
+                    }
                 } else if (step == "CURATED") {
                     Text(
                         text = "How long do you want to spend here?",

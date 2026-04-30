@@ -359,7 +359,7 @@ object GatekeeperStateManager {
         handleSideEffects(action, currentState, newState)
     }
 
-    private fun handleSideEffects(
+        private fun handleSideEffects(
         action: GatekeeperAction,
         oldState: GatekeeperState,
         newState: GatekeeperState,
@@ -367,7 +367,7 @@ object GatekeeperStateManager {
         scope.launch {
             handleDatabaseEffects(action, oldState, newState, db, ::dispatch)
             handleSyncAndAuthEffects(action, newState, db)
-            handleMediaAndSystemEffects(action, newState, ::dispatch)
+            handleMediaAndSystemEffects(action, oldState, newState, ::dispatch)
         }
     }
 
