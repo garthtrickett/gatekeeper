@@ -97,7 +97,13 @@ class GatekeeperVpnService : VpnService() {
                 "9.9.9.9", "149.112.112.112", // Quad9
                 "94.140.14.14", "94.140.15.15" // AdGuard
             )
-            dohIps.forEach { builder.addRoute(it, 32) }
+                        dohIps.forEach { builder.addRoute(it, 32) }
+
+            try {
+                builder.addDisallowedApplication(packageName)
+            } catch (e: Exception) {
+                Log.e("Gatekeeper", "❌ VPN Exclude Self Error: ${e.message}")
+            }
 
             builder.setSession("Gatekeeper VPN")
             tunInterface = builder.establish()
