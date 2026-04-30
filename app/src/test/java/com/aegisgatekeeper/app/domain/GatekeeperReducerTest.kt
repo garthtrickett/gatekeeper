@@ -562,12 +562,21 @@ class GatekeeperReducerTest {
         assertThat(newState.activeVideoId).isNull()
     }
 
-    @Test
+        @Test
     fun testSaveMediaPosition_UpdatesSavedPositions() {
         val action = GatekeeperAction.SaveMediaPosition("testVideoId", 120.5f)
         val newState = reduce(initialState, action)
 
         assertThat(newState.savedMediaPositions["testVideoId"]).isEqualTo(120.5f)
+    }
+
+    @Test
+    fun testSaveMediaPosition_ResetsPositionToZero() {
+        val stateWithPosition = initialState.copy(savedMediaPositions = mapOf("testVideoId" to 120.5f))
+        val action = GatekeeperAction.SaveMediaPosition("testVideoId", 0f)
+        val newState = reduce(stateWithPosition, action)
+
+        assertThat(newState.savedMediaPositions["testVideoId"]).isEqualTo(0f)
     }
 
     // --- Podcast Reducer Tests ---

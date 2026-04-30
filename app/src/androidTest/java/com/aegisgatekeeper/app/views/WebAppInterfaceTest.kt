@@ -31,6 +31,31 @@ class WebAppInterfaceTest {
         assertThat(callbackTriggered).isTrue()
     }
 
+        @Test
+    fun onStateChange_whenStateIs0_executesStateChangeCallbackBeforeVideoEnded() {
+        val latch = CountDownLatch(1)
+        val executionOrder = mutableListOf<String>()
+
+        val webAppInterface =
+            WebAppInterface(
+                onVideoEnded = {
+                    executionOrder.add("onVideoEnded")
+                    latch.countDown()
+                },
+                onStateChangeCallback = { state ->
+                    executionOrder.add("onStateChangeCallback: $state")
+                }
+            )
+
+        // Act
+        webAppInterface.onStateChange(0) // State: ENDED
+
+        // Assert: Wait for the main looper to execute the callbacks
+        val success = latch.await(2, TimeUnit.SECONDS)
+        assertThat(success).isTrue()
+        assertThat(executionOrder).containsExactly("onStateChangeCallback: 0", "onVideoEnded").inOrder()
+    }
+
     @Test
     fun onStateChange_whenStateIsNot0_doesNotTriggerCallback() {
         var callbackTriggered = false
