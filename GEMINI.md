@@ -1,56 +1,108 @@
 # Gemini Customization File
 
+
+---
 CRITICAL: SMART PATCH FORMATTING RULES
-You are equipped with a custom Python Smart Patcher (`apply_patch.py`). Do NOT use Aider-style SEARCH/REPLACE blocks anymore.
+You are equipped with a custom Python Smart Patcher (`apply_patch.py`). Follow these instructions precisely to ensure patches apply successfully.
 
-1. The root of your response MUST be a SINGLE JSON object.
-2. Update multiple files inside the `"files"` array.
-3. Every change must be formatted as a list of `"edits"` using specific strategies.
+### Golden Rule
+Your primary objective is to generate a patch that can be applied **non-interactively**. Be conservative and precise. When in doubt, prefer the more robust `smart_replace` strategy over entity replacement.
 
-**Strategy 1: "smart_replace"**
-Use this for 95% of edits (variables, imports, inside functions, SQL, XML). It is whitespace-agnostic. You do not need to worry about exact indentation or line breaks.
+### Strategy Decision Guide
+Before generating an edit, ask yourself these questions in order:
+
+1.  **Is this a brand new file?**
+    *   YES: Use **one** `smart_replace` edit with an empty `\"search\": \"\"` block. The `replace` block will become the entire content of the new file.
+
+2.  **Am I replacing an entire `fun`, `class`, `object`, or `interface` that HAS curly braces `{...}`?**
+    *   YES: Use the appropriate **`replace_function`**, **`replace_class`**, **`replace_object`**, or **`replace_interface`** strategy. It is robust and doesn't require a search block.
+
+3.  **Is it anything else?** (e.g., modifying imports, changing a few lines inside a function, updating a `data class` without a body, editing XML/SQL/JSON files, etc.)
+    *   YES: Use the **`smart_replace`** strategy. This should be your default choice for most modifications.
+
+--- 
+
+### Strategy Details & Best Practices
+
+**1. `smart_replace`**
+Use this for the majority of edits. It is whitespace-agnostic.
+
+*   **Best Practice for `search` blocks:**
+    *   The `search` block **MUST be unique** within the file.
+    *   Include enough context (1-2 lines before and after your change) to guarantee uniqueness, but keep the block as small as possible.
+    *   The content must be an *exact match*, but indentation and extra blank lines **do not matter**.
+
 ```json
 {
   "type": "smart_replace",
-  "search": "val x = 1\nval y = 2",
-  "replace": "val x = 1\nval y = 3"
+  "search": "val x = 1\\nval y = 2",
+  "replace": "val x = 1\\nval y = 3"
 }
 ```
 
-**Strategy 2: "replace_function" or "replace_class" (AST-Lite)**
-Use this to replace an ENTIRE function or class. You DO NOT need a search block. The script will find the declaration and match the brackets automatically.
+**2. `replace_function` | `replace_class` | `replace_object` | `replace_interface`**
+Use this *only* for replacing an entire, brace-enclosed code block. 
+
+*   **CRITICAL EXCEPTION:** If the entity does **not** have curly braces (like a simple `data class` or a single-expression function), **DO NOT** use this strategy. Use `smart_replace` instead.
+*   **Best Practice:**
+    *   Provide the full name of the entity in the `\"name\"` field.
+    *   Provide the full, correctly formatted code for the new entity in the `\"replace\"` field.
+    *   **DO NOT** provide a `\"search\"` field.
+
 ```json
 {
   "type": "replace_function",
-  "name": "reduceRulesAndIntercepts",
-  "replace": "fun reduceRulesAndIntercepts(state: State, action: Action): State {\n    // new code here\n}"
+  "name": "myFunction",
+  "replace": "fun myFunction(arg: String): Int {\\n    // new implementation here\\n}"
 }
 ```
 
-**Full Example Response:**
+**3. Creating New Files**
+To create a new file, use a single `smart_replace` edit with an empty `search` string. The `replace` content will become the entire file.
+
 ```json
 {
-  "summary": "Refactored rules.",
-  "files":[
+  "type": "smart_replace",
+  "search": "",
+  "replace": "package com.aegisgatekeeper.app\\n\\nclass NewFile {\\n}"
+}
+```
+
+--- 
+
+### Full Example Response
+```json
+{
+  "summary": "Refactor rules and add a new utility file.",
+  "files": [
     {
-      "file_path": "app/src/main/java/com/aegisgatekeeper/app/domain/GatekeeperAction.kt",
-      "edits":[
+      "file_path": "app/src/main/java/com/aegisgatekeeper/app/domain/Models.kt",
+      "edits": [
         {
-          "type": "smart_replace",
-          "search": "data class OldAction(val id: String)",
-          "replace": "data class NewAction(val id: String)"
+          "type": "replace_function",
+          "name": "getAppName",
+          "replace": "@Composable\\nfun getAppName(packageName: String): String {\\n    // ... new implementation ...\\n}"
         },
         {
-          "type": "replace_class",
-          "name": "GatekeeperState",
-          "replace": "data class GatekeeperState(\n    val isReady: Boolean = false\n)"
+          "type": "smart_replace",
+          "search": "data class TemporaryWhitelist(",
+          "replace": "data class TemporaryWhitelist(\\n    val newField: Boolean = false,"
+        }
+      ]
+    },
+    {
+      "file_path": "app/src/main/java/com/aegisgatekeeper/app/utils/NewUtil.kt",
+      "edits": [
+        {
+          "type": "smart_replace",
+          "search": "",
+          "replace": "package com.aegisgatekeeper.app.utils\\n\\nobject NewUtil {\\n    fun doSomething() {}\\n}"
         }
       ]
     }
   ]
 }
 ```
-
 
 # GEMINI.md - System Context & Coding Standards for "The Gatekeeper"
 
