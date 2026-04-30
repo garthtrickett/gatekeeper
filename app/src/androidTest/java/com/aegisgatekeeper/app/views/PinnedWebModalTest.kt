@@ -31,15 +31,15 @@ class PinnedWebModalTest {
     }
 
     @Test
-        fun testModalRendersAndCloses() {
+    fun testModalRendersAndCloses() {
         var closed = false
         val showDialog = androidx.compose.runtime.mutableStateOf(true)
 
         composeTestRule.setContent {
             GatekeeperTheme {
                 if (showDialog.value) {
-                    PinnedWebModal(url = "https://example.com", onClose = { 
-                        closed = true 
+                    PinnedWebModal(url = "https://example.com", onClose = {
+                        closed = true
                         showDialog.value = false
                     })
                 }

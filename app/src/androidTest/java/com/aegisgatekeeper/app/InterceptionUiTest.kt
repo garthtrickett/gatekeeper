@@ -227,13 +227,13 @@ class InterceptionUiTest {
                 com.aegisgatekeeper.app.views.interception.ExitInterviewUi(
                     packageName = "com.test.app",
                     onDone = { doneClicked = true },
-                    onKeepOpen = { keepOpenClicked = true }
+                    onKeepOpen = { keepOpenClicked = true },
                 )
             }
         }
 
         composeTestRule.onNodeWithText("Session Complete?").assertExists()
-        
+
         composeTestRule.onNodeWithText("Yes, lock it").performClick()
         assertThat(doneClicked).isTrue()
 

@@ -84,7 +84,7 @@ class GroupDetailUiTest {
         composeTestRule.onNodeWithText("Daily Time Limit").assertIsDisplayed()
         composeTestRule.onNodeWithText("Scheduled Block").assertIsDisplayed()
         composeTestRule.onNodeWithText("Strict Check-In").assertIsDisplayed()
-                composeTestRule.onNodeWithText("Always Block").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Always Block").assertIsDisplayed()
         composeTestRule.onNodeWithText("Domain Block").assertDoesNotExist() // This is now in its own section
 
         // Close dialog to prevent Compose detach crashes during Activity destruction

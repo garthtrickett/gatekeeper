@@ -33,14 +33,16 @@ class CleanYouTubeScreenTest {
 
     @Test
     fun testDialogRenderingAndDismissal() {
-                var dismissed = false
+        var dismissed = false
         val showDialog = androidx.compose.runtime.mutableStateOf(true)
         composeTestRule.setContent {
             GatekeeperTheme {
-                if (showDialog.value) CleanYouTubeDialog(onDismiss = { 
-                    dismissed = true 
-                    showDialog.value = false
-                })
+                if (showDialog.value) {
+                    CleanYouTubeDialog(onDismiss = {
+                        dismissed = true
+                        showDialog.value = false
+                    })
+                }
             }
         }
 
@@ -59,7 +61,7 @@ class CleanYouTubeScreenTest {
 
     @Test
     fun testSearchInput_updatesCurrentUrl() {
-                val showDialog = androidx.compose.runtime.mutableStateOf(true)
+        val showDialog = androidx.compose.runtime.mutableStateOf(true)
         composeTestRule.setContent {
             GatekeeperTheme {
                 if (showDialog.value) CleanYouTubeDialog(onDismiss = { showDialog.value = false })
@@ -73,14 +75,14 @@ class CleanYouTubeScreenTest {
         composeTestRule.onNodeWithText("Search").performClick()
 
         // Assert: Since we can't easily inspect the internal WebView URL in this test,
-                // we verify the search bar still holds the query and the WebView is likely active.
+        // we verify the search bar still holds the query and the WebView is likely active.
         composeTestRule.onNodeWithText(query).assertExists()
 
         showDialog.value = false
         composeTestRule.waitForIdle()
     }
 
-        @Test
+    @Test
     fun testAuthButton_triggersNavigation() {
         val showDialog = androidx.compose.runtime.mutableStateOf(true)
         composeTestRule.setContent {
@@ -93,7 +95,7 @@ class CleanYouTubeScreenTest {
         composeTestRule.onNodeWithText("Auth").performClick()
 
         // Assert: Verify state manager triggered the Pinned Website modal
-                val state = GatekeeperStateManager.state.value
+        val state = GatekeeperStateManager.state.value
         assertThat(state.activePinnedWebsiteUrl).contains("accounts.google.com")
 
         showDialog.value = false

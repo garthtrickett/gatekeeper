@@ -79,24 +79,25 @@ fun GroupDetailScreen(
             IndustrialButton(onClick = { showEditAppsDialog = true }, text = "Edit Apps")
         }
         Spacer(modifier = Modifier.height(8.dp))
-                Text(
-            text = if (group.apps.isEmpty()) {
-                "Global (Domain blocks apply to all apps. App rules are inactive.)"
-            } else {
-                group.apps
-                    .take(5)
-                    .map { pkg ->
-                        try {
-                            pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString()
-                        } catch (e: Exception) {
-                            val parts = pkg.split('.')
-                            val name =
-                                parts.lastOrNull { it != "com" && it != "android" && it != "app" && it != "org" && it != "net" }
-                                    ?: parts.last()
-                            name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-                        }
-                    }.joinToString(", ") + if (group.apps.size > 5) "..." else ""
-            },
+        Text(
+            text =
+                if (group.apps.isEmpty()) {
+                    "Global (Domain blocks apply to all apps. App rules are inactive.)"
+                } else {
+                    group.apps
+                        .take(5)
+                        .map { pkg ->
+                            try {
+                                pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString()
+                            } catch (e: Exception) {
+                                val parts = pkg.split('.')
+                                val name =
+                                    parts.lastOrNull { it != "com" && it != "android" && it != "app" && it != "org" && it != "net" }
+                                        ?: parts.last()
+                                name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                            }
+                        }.joinToString(", ") + if (group.apps.size > 5) "..." else ""
+                },
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 

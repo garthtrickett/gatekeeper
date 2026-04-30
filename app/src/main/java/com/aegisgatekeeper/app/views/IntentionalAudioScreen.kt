@@ -575,7 +575,7 @@ fun CleanAudioPlayerModal(
                                         )
                                         onStop()
                                     },
-                                                                        onStateChangeCallback = { state ->
+                                    onStateChangeCallback = { state ->
                                         playerStateCallback(state)
                                         if (state == 0) { // ENDED
                                             currentPosition = 0f

@@ -39,22 +39,25 @@ class GatekeeperVpnServiceTest {
             assertThat(getActiveBlacklist(service)).isEmpty()
 
             // 2. Manually construct state to isolate unit test from global Database side-effects
-            val group = AppGroup(
-                id = "group1",
-                name = "Test",
-                apps = setOf("com.example.app"),
-                rules = listOf(
-                    BlockingRule.DomainBlock(
-                        id = "rule1",
-                        groupId = "group1",
-                        domains = setOf("youtube.com")
-                    )
+            val group =
+                AppGroup(
+                    id = "group1",
+                    name = "Test",
+                    apps = setOf("com.example.app"),
+                    rules =
+                        listOf(
+                            BlockingRule.DomainBlock(
+                                id = "rule1",
+                                groupId = "group1",
+                                domains = setOf("youtube.com"),
+                            ),
+                        ),
                 )
-            )
-            val stateWithRule = GatekeeperState(
-                appGroups = listOf(group),
-                activeForegroundApp = "com.example.app"
-            )
+            val stateWithRule =
+                GatekeeperState(
+                    appGroups = listOf(group),
+                    activeForegroundApp = "com.example.app",
+                )
 
             // 4. Update the state in the service manually
             service.updateBlacklist(stateWithRule)
@@ -72,23 +75,76 @@ class GatekeeperVpnServiceTest {
     fun testVpnService_emptyAppGroup_isGloballyActive() =
         runBlocking<Unit> {
             val service = GatekeeperVpnService()
-            val group = AppGroup(
-                id = "group1",
-                name = "Test Global",
-                apps = emptySet(),
-                rules = listOf(
-                    BlockingRule.DomainBlock(
-                        id = "rule1",
-                        groupId = "group1",
-                        domains = setOf("global.com")
-                    )
+            val group =
+                AppGroup(
+                    id = "group1",
+                    name = "Test Global",
+                    apps = emptySet(),
+                    rules =
+                        listOf(
+                            BlockingRule.DomainBlock(
+                                id = "rule1",
+                                groupId = "group1",
+                                domains = setOf("global.com"),
+                            ),
+                        ),
                 )
-            )
-            val state = GatekeeperState(
-                appGroups = listOf(group),
-                activeForegroundApp = "com.any.app"
-            )
-            service.updateBlacklist(state)
+            val state =
+                GatekeeperState(
+                    appGroups = listOf(group),
+                    activeForegroundApp = "com.any.app",
+                )
+                        service.updateBlacklist(state)
             assertThat(getActiveBlacklist(service)).contains("global.com")
         }
+
+    @Test
+    fun testVpnService_isDomainBlocked_matchesCorrectly() = runBlocking<Unit> {
+        val service = GatekeeperVpnService()
+
+        val group = AppGroup(
+            id = "group1",
+            name = "Test",
+            apps = setOf("com.example.app"),
+            rules = listOf(
+                BlockingRule.DomainBlock(id = "rule1", groupId = "group1", domains = setOf("reddit.com"))
+            )
+        )
+        val state = GatekeeperState(appGroups = listOf(group), activeForegroundApp = "com.example.app")
+        service.updateBlacklist(state)
+
+        val method = GatekeeperVpnService::class.java.getDeclaredMethod("isDomainBlocked", String::class.java)
+        method.isAccessible = true
+
+        // Assert correct exact and subdomain blocking behavior
+        assertThat(method.invoke(service, "reddit.com")).isEqualTo(true)
+        assertThat(method.invoke(service, "www.reddit.com")).isEqualTo(true)
+        assertThat(method.invoke(service, "np.reddit.com")).isEqualTo(true)
+
+        // Assert it does NOT over-block (which the old .endsWith logic would have done)
+        assertThat(method.invoke(service, "myreddit.com")).isEqualTo(false)
+        assertThat(method.invoke(service, "reddit.com.org")).isEqualTo(false)
+    }
+
+    @Test
+    fun testVpnService_extractDomainName_handlesMalformedPacketsSafely() {
+        val service = GatekeeperVpnService()
+        val method = GatekeeperVpnService::class.java.getDeclaredMethod(
+            "extractDomainName", 
+            ByteArray::class.java, 
+            Int::class.java, 
+            Int::class.java
+        )
+        method.isAccessible = true
+
+        // DNS Header = 12 bytes. So offset = 0 means domain starts at index 12.
+        val payload = ByteArray(15)
+        payload[12] = 3 // Length of first part is 3
+        payload[13] = 'a'.code.toByte()
+        payload[14] = 'b'.code.toByte()
+        // End of array, no null terminator, should not crash due to our new limit checks
+
+        val result = method.invoke(service, payload, 0, 15) as String
+        assertThat(result).isEqualTo("ab") // Extracted what it could safely before hitting limit
+    }
 }

@@ -129,7 +129,7 @@ fun NativeAudioPlayerModal(
             ContextCompat.getMainExecutor(context),
         )
 
-                onDispose {
+        onDispose {
             controller?.let {
                 val posToSave = if (it.playbackState == Player.STATE_ENDED) 0f else it.currentPosition / 1000f
                 GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(contentItem.videoId, posToSave))
@@ -150,7 +150,7 @@ fun NativeAudioPlayerModal(
         }
     }
 
-        androidx.activity.compose.BackHandler(enabled = isVisible) {
+    androidx.activity.compose.BackHandler(enabled = isVisible) {
         val posToSave = if (controller?.playbackState == Player.STATE_ENDED) 0f else currentPosition / 1000f
         GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(contentItem.videoId, posToSave))
         onMinimize()
@@ -236,7 +236,7 @@ fun NativeAudioPlayerModal(
                             contentAlignment = Alignment.TopEnd,
                         ) {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                                IndustrialButton(onClick = {
+                                IndustrialButton(onClick = {
                                     val posToSave = if (controller?.playbackState == Player.STATE_ENDED) 0f else currentPosition / 1000f
                                     GatekeeperStateManager.dispatch(
                                         GatekeeperAction.SaveMediaPosition(

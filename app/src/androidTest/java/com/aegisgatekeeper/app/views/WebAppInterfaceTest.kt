@@ -31,7 +31,7 @@ class WebAppInterfaceTest {
         assertThat(callbackTriggered).isTrue()
     }
 
-        @Test
+    @Test
     fun onStateChange_whenStateIs0_executesStateChangeCallbackBeforeVideoEnded() {
         val latch = CountDownLatch(1)
         val executionOrder = mutableListOf<String>()
@@ -44,7 +44,7 @@ class WebAppInterfaceTest {
                 },
                 onStateChangeCallback = { state ->
                     executionOrder.add("onStateChangeCallback: $state")
-                }
+                },
             )
 
         // Act

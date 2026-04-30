@@ -78,7 +78,7 @@ fun AddGroupScreen(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
-                        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             Text(
                 text = "SELECT APPS TO BLOCK (OPTIONAL):",
                 style = MaterialTheme.typography.titleMedium,

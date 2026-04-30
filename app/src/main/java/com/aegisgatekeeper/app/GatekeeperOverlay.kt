@@ -119,8 +119,8 @@ object GatekeeperOverlay {
                         WindowManager.LayoutParams.MATCH_PARENT,
                         WindowManager.LayoutParams.MATCH_PARENT,
                         WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or 
-                        WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
                         PixelFormat.TRANSLUCENT,
                     ).apply {
                         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN

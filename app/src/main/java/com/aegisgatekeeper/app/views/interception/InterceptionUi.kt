@@ -66,7 +66,7 @@ fun InterceptionScreen() {
         ExitInterviewUi(
             packageName = state.pendingExitInterview!!,
             onDone = { GatekeeperStateManager.dispatch(GatekeeperAction.EndAppSession(state.pendingExitInterview!!)) },
-            onKeepOpen = { GatekeeperStateManager.dispatch(GatekeeperAction.CancelExitInterview) }
+            onKeepOpen = { GatekeeperStateManager.dispatch(GatekeeperAction.CancelExitInterview) },
         )
         return
     }
@@ -526,20 +526,29 @@ fun AlternativeSuggestionUi(
 
 @Suppress("FunctionName")
 @Composable
-fun ExitInterviewUi(packageName: String, onDone: () -> Unit, onKeepOpen: () -> Unit) {
+fun ExitInterviewUi(
+    packageName: String,
+    onDone: () -> Unit,
+    onKeepOpen: () -> Unit,
+) {
     val appName = getAppName(packageName)
     Surface(modifier = Modifier.fillMaxSize(), color = Color.Transparent) {
         androidx.compose.foundation.layout.Box(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background.copy(alpha = 0.95f))
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background.copy(alpha = 0.95f)),
         ) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(32.dp),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text("Session Complete?", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("You just left $appName.\nAre you done with it for now?", color = Color.White.copy(alpha = 0.8f), fontSize = 18.sp, textAlign = TextAlign.Center)
+                Text(
+                    "You just left $appName.\nAre you done with it for now?",
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Center,
+                )
                 Spacer(modifier = Modifier.height(48.dp))
                 IndustrialButton(onClick = onDone, text = "Yes, lock it", modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(16.dp))

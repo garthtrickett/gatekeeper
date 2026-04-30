@@ -60,8 +60,10 @@ fun AppGroupsListScreen(
     Box(Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 88.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            contentPadding =
+                androidx.compose.foundation.layout
+                    .PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 88.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
                 Column {
@@ -77,7 +79,14 @@ fun AppGroupsListScreen(
                     modifier = Modifier.fillMaxWidth(),
                     colors =
                         CardDefaults.cardColors(
-                            containerColor = if (state.isManualLockdownActive) Color(0xFF93000A) else MaterialTheme.colorScheme.surfaceVariant,
+                            containerColor =
+                                if (state.isManualLockdownActive) {
+                                    Color(
+                                        0xFF93000A,
+                                    )
+                                } else {
+                                    MaterialTheme.colorScheme.surfaceVariant
+                                },
                             contentColor = if (state.isManualLockdownActive) Color.White else MaterialTheme.colorScheme.onSurface,
                         ),
                 ) {
@@ -103,7 +112,11 @@ fun AppGroupsListScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         IndustrialButton(
-                            onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.SetManualLockdown(!state.isManualLockdownActive)) },
+                            onClick = {
+                                GatekeeperStateManager.dispatch(
+                                    GatekeeperAction.SetManualLockdown(!state.isManualLockdownActive),
+                                )
+                            },
                             modifier = Modifier.fillMaxWidth().height(56.dp),
                             text = if (state.isManualLockdownActive) "DISENGAGE" else "ENGAGE LOCKDOWN",
                             isWarning = !state.isManualLockdownActive,
@@ -210,7 +223,7 @@ fun AppGroupsListScreen(
                 }
             }
         }
-                IndustrialButton(
+        IndustrialButton(
             onClick = onAddGroupClick,
             text = "+",
             modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
@@ -317,7 +330,9 @@ fun CheckInTokensRow(
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Active Sessions:", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
             activeAppsInGroup.forEach { pkg ->
-                val appName = com.aegisgatekeeper.app.views.interception.getAppName(pkg)
+                val appName =
+                    com.aegisgatekeeper.app.views.interception
+                        .getAppName(pkg)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
