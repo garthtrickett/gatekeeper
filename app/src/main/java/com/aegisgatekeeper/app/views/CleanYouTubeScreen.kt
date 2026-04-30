@@ -274,7 +274,46 @@ fun CleanYouTubeDialog(onDismiss: () -> Unit) {
                                             container.appendChild(channelBtn);
                                         }
 
-                                        video.appendChild(container);
+                                                                                video.appendChild(container);
+                                    });
+
+                                    var channels = document.querySelectorAll('ytm-compact-channel-renderer, ytm-channel-list-item-renderer');
+                                    channels.forEach(function(channelNode) {
+                                        if (channelNode.querySelector('.gatekeeper-button-container')) return;
+
+                                        var a = channelNode.querySelector('a');
+                                        if (!a || !a.href) return;
+
+                                        var channelLink = a.href;
+
+                                        var container = document.createElement('div');
+                                        container.className = 'gatekeeper-button-container';
+                                        container.style.display = 'flex';
+                                        container.style.flexDirection = 'row';
+                                        container.style.width = '100%';
+                                        container.style.marginTop = '8px';
+
+                                        var channelBtn = document.createElement('button');
+                                        channelBtn.className = 'gatekeeper-channel-btn';
+                                        channelBtn.innerText = 'Go to Channel';
+                                        channelBtn.style.flex = '1';
+                                        channelBtn.style.padding = '12px';
+                                        channelBtn.style.backgroundColor = '#FF9800';
+                                        channelBtn.style.color = '#121212';
+                                        channelBtn.style.border = 'none';
+                                        channelBtn.style.borderRadius = '4px';
+                                        channelBtn.style.fontWeight = 'bold';
+                                        channelBtn.style.fontFamily = 'monospace';
+                                        channelBtn.style.fontSize = '14px';
+
+                                        channelBtn.onclick = function(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            window.location.href = channelLink;
+                                        };
+                                        
+                                        container.appendChild(channelBtn);
+                                        channelNode.appendChild(container);
                                     });
                                 }
                                 
