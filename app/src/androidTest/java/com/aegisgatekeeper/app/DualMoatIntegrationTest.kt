@@ -215,22 +215,29 @@ class DualMoatIntegrationTest {
             assertThat(stateManager.state.value.isOverlayActive).isFalse()
         }
 
-        @Test
+    @Test
     fun formattedBlockReasons_areCorrectlyGenerated() =
         runTest {
             val scheduledRule =
                 com.aegisgatekeeper.app.domain.BlockingRule.ScheduledBlock(
                     id = "scheduled",
                     groupId = "test-group-id",
-                    timeSlots = listOf(com.aegisgatekeeper.app.domain.TimeSlot(0, 1440)),
-                    daysOfWeek = com.aegisgatekeeper.app.domain.DayOfWeek.values().toSet()
+                    timeSlots =
+                        listOf(
+                            com.aegisgatekeeper.app.domain
+                                .TimeSlot(0, 1440),
+                        ),
+                    daysOfWeek =
+                        com.aegisgatekeeper.app.domain.DayOfWeek
+                            .values()
+                            .toSet(),
                 )
 
             val timeLimitRule =
                 com.aegisgatekeeper.app.domain.BlockingRule.TimeLimit(
                     id = "timelimit",
                     groupId = "test-group-id",
-                    timeLimitMinutes = 0
+                    timeLimitMinutes = 0,
                 )
 
             val checkInRule =
@@ -239,16 +246,20 @@ class DualMoatIntegrationTest {
                     groupId = "test-group-id",
                     checkInTimesMinutes = listOf(600, 720),
                     durationMinutes = 15,
-                    daysOfWeek = com.aegisgatekeeper.app.domain.DayOfWeek.values().toSet()
+                    daysOfWeek =
+                        com.aegisgatekeeper.app.domain.DayOfWeek
+                            .values()
+                            .toSet(),
                 )
 
             val group =
                 stateManager.state.value.appGroups
                     .first()
-            val updatedGroup = group.copy(
-                rules = listOf(scheduledRule, timeLimitRule, checkInRule),
-                combinator = com.aegisgatekeeper.app.domain.RuleCombinator.ALL
-            )
+            val updatedGroup =
+                group.copy(
+                    rules = listOf(scheduledRule, timeLimitRule, checkInRule),
+                    combinator = com.aegisgatekeeper.app.domain.RuleCombinator.ALL,
+                )
             val stateWithRule = GatekeeperState(appGroups = listOf(updatedGroup))
 
             val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
@@ -257,8 +268,10 @@ class DualMoatIntegrationTest {
             (stateFlowField.get(stateManager) as MutableStateFlow<GatekeeperState>).value = stateWithRule
 
             GatekeeperStateManager.performAppValidation(
-                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext,
-                testAppPackage
+                androidx.test.platform.app.InstrumentationRegistry
+                    .getInstrumentation()
+                    .targetContext,
+                testAppPackage,
             )
 
             assertThat(stateManager.state.value.isOverlayActive).isTrue()
@@ -291,7 +304,7 @@ class DualMoatIntegrationTest {
 
             // Act: Simulate a Layer Alpha tick. The logic inside the service would evaluate the rule.
             // We are directly dispatching the result of that evaluation for this test.
-                        stateManager.dispatch(
+            stateManager.dispatch(
                 GatekeeperAction.RuleViolationDetected(
                     packageName = testAppPackage,
                     reason = "Policy Violation: Time Limit Reached (0m left, used 0/0m) for 'Test Group'",
@@ -301,6 +314,8 @@ class DualMoatIntegrationTest {
 
             // Assert: The overlay should be active with the correct reason.
             assertThat(stateManager.state.value.isOverlayActive).isTrue()
-            assertThat(stateManager.state.value.activeBlockReason).isEqualTo("Policy Violation: Time Limit Reached (0m left, used 0/0m) for 'Test Group'")
+            assertThat(
+                stateManager.state.value.activeBlockReason,
+            ).isEqualTo("Policy Violation: Time Limit Reached (0m left, used 0/0m) for 'Test Group'")
         }
 }

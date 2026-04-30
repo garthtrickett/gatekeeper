@@ -307,7 +307,7 @@ fun handleDatabaseEffects(
             }
         }
 
-                is GatekeeperAction.UpdateCheckInRule -> {
+        is GatekeeperAction.UpdateCheckInRule -> {
             db.blockingRuleQueries.insertCheckInRule(
                 action.id,
                 action.checkInTimesMinutes.joinToString(","),

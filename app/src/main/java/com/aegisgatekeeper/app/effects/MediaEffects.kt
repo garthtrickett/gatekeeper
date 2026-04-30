@@ -41,7 +41,7 @@ suspend fun handleMediaAndSystemEffects(
                 )
         }
 
-                is GatekeeperAction.DownloadMediaRequested -> {
+        is GatekeeperAction.DownloadMediaRequested -> {
             val item = newState.contentItems.find { it.id == action.id }
             if (item != null) {
                 Log.d("Gatekeeper", "⬇️ Starting download for ${item.title}")
@@ -87,7 +87,7 @@ suspend fun handleMediaAndSystemEffects(
             )
         }
 
-                is GatekeeperAction.LoadPodcastEpisodes -> {
+        is GatekeeperAction.LoadPodcastEpisodes -> {
             Log.i("Gatekeeper", "📡 Loading Podcast Episodes from RSS: ${action.feedUrl}")
             val result =
                 (com.aegisgatekeeper.app.di.GlobalDI.component as com.aegisgatekeeper.app.di.AndroidApplicationComponent)
@@ -238,7 +238,7 @@ suspend fun handleMediaAndSystemEffects(
             }
         }
 
-                is GatekeeperAction.EmergencyBypassRequested -> {
+        is GatekeeperAction.EmergencyBypassRequested -> {
             Log.d("Gatekeeper", "⚙️ EmergencyBypassRequested: Relaunching app to ensure it wasn't killed")
             val launchIntent = App.instance.packageManager.getLaunchIntentForPackage(action.packageName)
             if (launchIntent != null) {

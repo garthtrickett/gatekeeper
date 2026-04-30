@@ -62,7 +62,7 @@ class GatekeeperForegroundService : Service() {
         }
 
         // 4. Start the Layer Alpha Heartbeat (Polling)
-                startLayerAlphaHeartbeat()
+        startLayerAlphaHeartbeat()
         startPhaseNotificationLoop()
 
         // 4.5 Start VPN Service implicitly if rules exist
@@ -88,7 +88,7 @@ class GatekeeperForegroundService : Service() {
         return START_STICKY
     }
 
-            private fun startPhaseNotificationLoop() {
+    private fun startPhaseNotificationLoop() {
         serviceScope.launch {
             var lastNotifiedDay = -1
             val notifiedCheckIns = mutableSetOf<String>()
@@ -98,37 +98,40 @@ class GatekeeperForegroundService : Service() {
                 val currentMinutes = calendar.get(java.util.Calendar.HOUR_OF_DAY) * 60 + calendar.get(java.util.Calendar.MINUTE)
                 val currentDay = calendar.get(java.util.Calendar.DAY_OF_YEAR)
 
-                val isGathering = if (state.gatheringStartMinutes <= state.gatheringEndMinutes) {
-                    currentMinutes in state.gatheringStartMinutes until state.gatheringEndMinutes
-                } else {
-                    currentMinutes >= state.gatheringStartMinutes || currentMinutes < state.gatheringEndMinutes
-                }
+                val isGathering =
+                    if (state.gatheringStartMinutes <= state.gatheringEndMinutes) {
+                        currentMinutes in state.gatheringStartMinutes until state.gatheringEndMinutes
+                    } else {
+                        currentMinutes >= state.gatheringStartMinutes || currentMinutes < state.gatheringEndMinutes
+                    }
 
                 if (isGathering && currentDay != lastNotifiedDay) {
                     lastNotifiedDay = currentDay
-                    
+
                     val unresolvedVaultItems = state.vaultItems.count { !it.isResolved && !it.isDeleted }
                     val newNotifications = state.notificationDigest.size
-                    
+
                     sendGatheringNotification(unresolvedVaultItems, newNotifications)
                 }
 
-                val currentDayOfWeek = when (calendar.get(java.util.Calendar.DAY_OF_WEEK)) {
-                    java.util.Calendar.MONDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY
-                    java.util.Calendar.TUESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.TUESDAY
-                    java.util.Calendar.WEDNESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.WEDNESDAY
-                    java.util.Calendar.THURSDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.THURSDAY
-                    java.util.Calendar.FRIDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.FRIDAY
-                    java.util.Calendar.SATURDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.SATURDAY
-                    else -> com.aegisgatekeeper.app.domain.DayOfWeek.SUNDAY
-                }
+                val currentDayOfWeek =
+                    when (calendar.get(java.util.Calendar.DAY_OF_WEEK)) {
+                        java.util.Calendar.MONDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY
+                        java.util.Calendar.TUESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.TUESDAY
+                        java.util.Calendar.WEDNESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.WEDNESDAY
+                        java.util.Calendar.THURSDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.THURSDAY
+                        java.util.Calendar.FRIDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.FRIDAY
+                        java.util.Calendar.SATURDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.SATURDAY
+                        else -> com.aegisgatekeeper.app.domain.DayOfWeek.SUNDAY
+                    }
 
-                val startOfDayCalendar = java.util.Calendar.getInstance().apply {
-                    set(java.util.Calendar.HOUR_OF_DAY, 0)
-                    set(java.util.Calendar.MINUTE, 0)
-                    set(java.util.Calendar.SECOND, 0)
-                    set(java.util.Calendar.MILLISECOND, 0)
-                }
+                val startOfDayCalendar =
+                    java.util.Calendar.getInstance().apply {
+                        set(java.util.Calendar.HOUR_OF_DAY, 0)
+                        set(java.util.Calendar.MINUTE, 0)
+                        set(java.util.Calendar.SECOND, 0)
+                        set(java.util.Calendar.MILLISECOND, 0)
+                    }
                 val startOfDay = startOfDayCalendar.timeInMillis
 
                 state.appGroups.forEach { group ->
@@ -137,7 +140,11 @@ class GatekeeperForegroundService : Service() {
                             rule.checkInTimesMinutes.forEach { time ->
                                 val checkInKey = "${group.id}_${time}_$currentDay"
                                 if (currentMinutes >= time && !notifiedCheckIns.contains(checkInKey)) {
-                                    val isConsumed = state.consumedCheckIns.any { it.groupId == group.id && it.timeMinutes == time && it.timestamp >= startOfDay }
+                                    val isConsumed =
+                                        state.consumedCheckIns.any {
+                                            it.groupId == group.id && it.timeMinutes == time &&
+                                                it.timestamp >= startOfDay
+                                        }
                                     if (!isConsumed) {
                                         sendCheckInNotification(group.name, time)
                                     }
@@ -155,72 +162,95 @@ class GatekeeperForegroundService : Service() {
         }
     }
 
-        private fun sendCheckInNotification(groupName: String, time: Int) {
+    private fun sendCheckInNotification(
+        groupName: String,
+        time: Int,
+    ) {
         val channelId = "gatekeeper_phase_channel"
         val manager = getSystemService(NotificationManager::class.java)
-        
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Phase Transitions",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
+            val channel =
+                NotificationChannel(
+                    channelId,
+                    "Phase Transitions",
+                    NotificationManager.IMPORTANCE_DEFAULT,
+                )
             manager.createNotificationChannel(channel)
         }
 
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingIntent = android.app.PendingIntent.getActivity(
-            this, 0, intent, android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
-        )
+        val intent =
+            Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+        val pendingIntent =
+            android.app.PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE,
+            )
 
         val timeString = String.format("%02d:%02d", time / 60, time % 60)
 
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Check-In Available")
-            .setContentText("A check-in token for $groupName is now available ($timeString).")
-            .setSmallIcon(android.R.drawable.ic_secure)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .build()
+        val notification =
+            NotificationCompat
+                .Builder(this, channelId)
+                .setContentTitle("Check-In Available")
+                .setContentText("A check-in token for $groupName is now available ($timeString).")
+                .setSmallIcon(android.R.drawable.ic_secure)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build()
 
         manager.notify(groupName.hashCode(), notification)
     }
 
-    private fun sendGatheringNotification(vaultCount: Int, digestCount: Int) {
+    private fun sendGatheringNotification(
+        vaultCount: Int,
+        digestCount: Int,
+    ) {
         val channelId = "gatekeeper_phase_channel"
         val manager = getSystemService(NotificationManager::class.java)
-        
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Phase Transitions",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
+            val channel =
+                NotificationChannel(
+                    channelId,
+                    "Phase Transitions",
+                    NotificationManager.IMPORTANCE_DEFAULT,
+                )
             manager.createNotificationChannel(channel)
         }
 
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingIntent = android.app.PendingIntent.getActivity(
-            this, 0, intent, android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
-        )
+        val intent =
+            Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+        val pendingIntent =
+            android.app.PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE,
+            )
 
-        val text = buildString {
-            if (vaultCount > 0) append("$vaultCount thoughts to process. ")
-            if (digestCount > 0) append("$digestCount notifications intercepted. ")
-            if (isEmpty()) append("Time to review your digital intake.")
-        }
+        val text =
+            buildString {
+                if (vaultCount > 0) append("$vaultCount thoughts to process. ")
+                if (digestCount > 0) append("$digestCount notifications intercepted. ")
+                if (isEmpty()) append("Time to review your digital intake.")
+            }
 
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("The Gathering Phase has begun")
-            .setContentText(text)
-            .setSmallIcon(android.R.drawable.ic_secure)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .build()
+        val notification =
+            NotificationCompat
+                .Builder(this, channelId)
+                .setContentTitle("The Gathering Phase has begun")
+                .setContentText(text)
+                .setSmallIcon(android.R.drawable.ic_secure)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build()
 
         manager.notify(3, notification)
     }

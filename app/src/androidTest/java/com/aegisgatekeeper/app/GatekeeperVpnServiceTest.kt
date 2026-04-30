@@ -94,47 +94,51 @@ class GatekeeperVpnServiceTest {
                     appGroups = listOf(group),
                     activeForegroundApp = "com.any.app",
                 )
-                        service.updateBlacklist(state)
+            service.updateBlacklist(state)
             assertThat(getActiveBlacklist(service)).contains("global.com")
         }
 
     @Test
-    fun testVpnService_isDomainBlocked_matchesCorrectly() = runBlocking<Unit> {
-        val service = GatekeeperVpnService()
+    fun testVpnService_isDomainBlocked_matchesCorrectly() =
+        runBlocking<Unit> {
+            val service = GatekeeperVpnService()
 
-        val group = AppGroup(
-            id = "group1",
-            name = "Test",
-            apps = setOf("com.example.app"),
-            rules = listOf(
-                BlockingRule.DomainBlock(id = "rule1", groupId = "group1", domains = setOf("reddit.com"))
-            )
-        )
-        val state = GatekeeperState(appGroups = listOf(group), activeForegroundApp = "com.example.app")
-        service.updateBlacklist(state)
+            val group =
+                AppGroup(
+                    id = "group1",
+                    name = "Test",
+                    apps = setOf("com.example.app"),
+                    rules =
+                        listOf(
+                            BlockingRule.DomainBlock(id = "rule1", groupId = "group1", domains = setOf("reddit.com")),
+                        ),
+                )
+            val state = GatekeeperState(appGroups = listOf(group), activeForegroundApp = "com.example.app")
+            service.updateBlacklist(state)
 
-        val method = GatekeeperVpnService::class.java.getDeclaredMethod("isDomainBlocked", String::class.java)
-        method.isAccessible = true
+            val method = GatekeeperVpnService::class.java.getDeclaredMethod("isDomainBlocked", String::class.java)
+            method.isAccessible = true
 
-        // Assert correct exact and subdomain blocking behavior
-        assertThat(method.invoke(service, "reddit.com")).isEqualTo(true)
-        assertThat(method.invoke(service, "www.reddit.com")).isEqualTo(true)
-        assertThat(method.invoke(service, "np.reddit.com")).isEqualTo(true)
+            // Assert correct exact and subdomain blocking behavior
+            assertThat(method.invoke(service, "reddit.com")).isEqualTo(true)
+            assertThat(method.invoke(service, "www.reddit.com")).isEqualTo(true)
+            assertThat(method.invoke(service, "np.reddit.com")).isEqualTo(true)
 
-        // Assert it does NOT over-block (which the old .endsWith logic would have done)
-        assertThat(method.invoke(service, "myreddit.com")).isEqualTo(false)
-        assertThat(method.invoke(service, "reddit.com.org")).isEqualTo(false)
-    }
+            // Assert it does NOT over-block (which the old .endsWith logic would have done)
+            assertThat(method.invoke(service, "myreddit.com")).isEqualTo(false)
+            assertThat(method.invoke(service, "reddit.com.org")).isEqualTo(false)
+        }
 
     @Test
     fun testVpnService_extractDomainName_handlesMalformedPacketsSafely() {
         val service = GatekeeperVpnService()
-        val method = GatekeeperVpnService::class.java.getDeclaredMethod(
-            "extractDomainName", 
-            ByteArray::class.java, 
-            Int::class.java, 
-            Int::class.java
-        )
+        val method =
+            GatekeeperVpnService::class.java.getDeclaredMethod(
+                "extractDomainName",
+                ByteArray::class.java,
+                Int::class.java,
+                Int::class.java,
+            )
         method.isAccessible = true
 
         // DNS Header = 12 bytes. So offset = 0 means domain starts at index 12.

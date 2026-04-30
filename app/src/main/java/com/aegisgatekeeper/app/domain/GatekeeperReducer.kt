@@ -285,9 +285,9 @@ private fun reduceRulesAndIntercepts(
             state.copy(appGroups = state.appGroups.map { if (it.id == action.groupId) it.copy(rules = it.rules + newRule) else it })
         }
 
-                is GatekeeperAction.ResetCheckIns -> {
+        is GatekeeperAction.ResetCheckIns -> {
             state.copy(
-                consumedCheckIns = state.consumedCheckIns.filter { it.groupId != action.groupId }
+                consumedCheckIns = state.consumedCheckIns.filter { it.groupId != action.groupId },
             )
         }
 
@@ -317,7 +317,7 @@ private fun reduceRulesAndIntercepts(
             )
         }
 
-                is GatekeeperAction.RedeemCheckInToken -> {
+        is GatekeeperAction.RedeemCheckInToken -> {
             val newLog =
                 ConsumedCheckIn(
                     groupId = action.groupId,

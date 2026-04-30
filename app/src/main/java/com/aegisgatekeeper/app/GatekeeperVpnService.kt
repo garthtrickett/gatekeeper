@@ -92,8 +92,20 @@ class GatekeeperVpnService : VpnService() {
         try {
             val builder = Builder()
             builder.addAddress("10.0.0.2", 32)
-            builder.addRoute("8.8.8.8", 32)
-            builder.addDnsServer("8.8.8.8")
+            
+            // Dummy DNS Server to force interception
+            builder.addDnsServer("10.0.0.3")
+            builder.addRoute("10.0.0.3", 32)
+            
+            // Sinkhole known DoH (DNS over HTTPS) providers to force fallback to system DNS
+            val dohIps = listOf(
+                "8.8.8.8", "8.8.4.4", // Google
+                "1.1.1.1", "1.0.0.1", // Cloudflare
+                "9.9.9.9", "149.112.112.112", // Quad9
+                "94.140.14.14", "94.140.15.15" // AdGuard
+            )
+            dohIps.forEach { builder.addRoute(it, 32) }
+
             builder.setSession("Gatekeeper VPN")
             tunInterface = builder.establish()
 
@@ -152,7 +164,7 @@ class GatekeeperVpnService : VpnService() {
         if (dstPort == 53) {
             // DNS Packet
             val dnsPayloadOffset = ipHeaderLength + 8
-                        val dnsPayloadLength = udpLength - 8
+            val dnsPayloadLength = udpLength - 8
             if (dnsPayloadLength <= 0) return
 
             val domainName = extractDomainName(buffer.array(), dnsPayloadOffset, dnsPayloadOffset + dnsPayloadLength)
@@ -167,11 +179,12 @@ class GatekeeperVpnService : VpnService() {
         }
     }
 
-        private fun isDomainBlocked(domain: String): Boolean = activeBlacklist.any { 
-        domain.equals(it, ignoreCase = true) || domain.endsWith(".$it", ignoreCase = true) 
-    }
+    private fun isDomainBlocked(domain: String): Boolean =
+        activeBlacklist.any {
+            domain.equals(it, ignoreCase = true) || domain.endsWith(".$it", ignoreCase = true)
+        }
 
-        private fun extractDomainName(
+    private fun extractDomainName(
         payload: ByteArray,
         offset: Int,
         limit: Int,
@@ -194,6 +207,51 @@ class GatekeeperVpnService : VpnService() {
     }
 
     private fun forwardDns(
+        dnsPayload: ByteArray,
+        offset: Int,
+        length: Int,
+        originalSrcIp: Int,
+        originalSrcPort: Int,
+        originalDstIp: Int,
+        outputStream: FileOutputStream,
+    ) {
+        vpnScope.launch(Dispatchers.IO) {
+            var socket: DatagramSocket? = null
+            try {
+                socket = DatagramSocket()
+                // VERY IMPORTANT: protect() prevents this socket's traffic from being routed back into the VPN
+                protect(socket)
+
+                // Hardcode upstream to Cloudflare DNS (1.1.1.1) to resolve the actual query
+                val serverAddr = InetAddress.getByAddress(byteArrayOf(1, 1, 1, 1))
+
+                val requestPacket = DatagramPacket(dnsPayload, offset, length, serverAddr, 53)
+                socket.send(requestPacket)
+
+                val responseBuffer = ByteArray(4096)
+                val responsePacket = DatagramPacket(responseBuffer, responseBuffer.size)
+                socket.soTimeout = 3000
+                socket.receive(responsePacket)
+
+                // Rewrite response so it looks like it came from the dummy IP Android requested (10.0.0.3)
+                val outPacket =
+                    constructUdpIpPacket(
+                        srcIp = originalDstIp,
+                        dstIp = originalSrcIp,
+                        srcPort = 53,
+                        dstPort = originalSrcPort,
+                        payload = responseBuffer,
+                        payloadLength = responsePacket.length,
+                    )
+
+                outputStream.write(outPacket)
+            } catch (e: Exception) {
+                Log.e("Gatekeeper", "❌ VPN DNS Forward Error: ${e.message}")
+            } finally {
+                socket?.close()
+            }
+        }
+    }
         dnsPayload: ByteArray,
         offset: Int,
         length: Int,

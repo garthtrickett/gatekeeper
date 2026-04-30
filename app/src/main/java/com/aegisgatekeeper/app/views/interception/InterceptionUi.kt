@@ -3,6 +3,7 @@ package com.aegisgatekeeper.app.views.interception
 import android.content.pm.PackageManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -45,7 +46,6 @@ import com.aegisgatekeeper.app.domain.ContentItem
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.IndustrialButton
 import com.aegisgatekeeper.app.domain.IndustrialTextField
-import androidx.compose.foundation.horizontalScroll
 import com.aegisgatekeeper.app.views.BallBalancingUi
 import com.aegisgatekeeper.app.views.MovingCloseButton
 
@@ -262,11 +262,15 @@ fun InterceptionChoiceUi(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                                        val activeGroups = state.appGroups.filter { it.apps.contains(interceptedPackage) }
-                    val checkInGroupRules = activeGroups.mapNotNull { group ->
-                        val rule = group.rules.filterIsInstance<com.aegisgatekeeper.app.domain.BlockingRule.CheckIn>().firstOrNull { it.isEnabled }
-                        if (rule != null) group to rule else null
-                    }
+                    val activeGroups = state.appGroups.filter { it.apps.contains(interceptedPackage) }
+                    val checkInGroupRules =
+                        activeGroups.mapNotNull { group ->
+                            val rule =
+                                group.rules.filterIsInstance<com.aegisgatekeeper.app.domain.BlockingRule.CheckIn>().firstOrNull {
+                                    it.isEnabled
+                                }
+                            if (rule != null) group to rule else null
+                        }
 
                     if (checkInGroupRules.isNotEmpty()) {
                         IndustrialButton(
@@ -297,10 +301,14 @@ fun InterceptionChoiceUi(
                     Spacer(modifier = Modifier.height(32.dp))
 
                     val activeGroups = state.appGroups.filter { it.apps.contains(interceptedPackage) }
-                    val checkInGroupRules = activeGroups.mapNotNull { group ->
-                        val rule = group.rules.filterIsInstance<com.aegisgatekeeper.app.domain.BlockingRule.CheckIn>().firstOrNull { it.isEnabled }
-                        if (rule != null) group to rule else null
-                    }
+                    val checkInGroupRules =
+                        activeGroups.mapNotNull { group ->
+                            val rule =
+                                group.rules.filterIsInstance<com.aegisgatekeeper.app.domain.BlockingRule.CheckIn>().firstOrNull {
+                                    it.isEnabled
+                                }
+                            if (rule != null) group to rule else null
+                        }
 
                     val calendar = java.util.Calendar.getInstance()
                     val currentMinutes = calendar.get(java.util.Calendar.HOUR_OF_DAY) * 60 + calendar.get(java.util.Calendar.MINUTE)
@@ -327,7 +335,7 @@ fun InterceptionChoiceUi(
                     if (showAccountabilityForTime != null) {
                         val (group, time) = showAccountabilityForTime!!
                         val rule = checkInGroupRules.find { it.first.id == group.id }?.second
-                        
+
                         Text(
                             text = if (time == -1) "Unscheduled Check-In" else "Early Check-In",
                             color = Color.White,
@@ -374,19 +382,25 @@ fun InterceptionChoiceUi(
                             items(checkInGroupRules) { (group, rule) ->
                                 Text(group.name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                                 Spacer(modifier = Modifier.height(8.dp))
-                                
+
                                 if (!rule.daysOfWeek.contains(currentDay)) {
                                     Text("No check-ins scheduled for today.", color = Color.Gray)
                                 } else {
-                                    val consumedToday = state.consumedCheckIns.filter { it.groupId == group.id && it.timestamp >= startOfDay }
+                                    val consumedToday =
+                                        state.consumedCheckIns.filter {
+                                            it.groupId == group.id && it.timestamp >= startOfDay
+                                        }
                                     val consumedTimes = consumedToday.map { it.timeMinutes }
-                                    
-                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
+
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                                    ) {
                                         rule.checkInTimesMinutes.sorted().forEach { time ->
                                             val isConsumed = consumedTimes.contains(time)
                                             val isAvailable = !isConsumed && currentMinutes >= time
                                             val label = String.format("%02d:%02d", time / 60, time % 60)
-                                            
+
                                             FilterChip(
                                                 selected = isConsumed,
                                                 onClick = {
@@ -398,21 +412,33 @@ fun InterceptionChoiceUi(
                                                                 time,
                                                                 rule.durationMinutes,
                                                                 null,
-                                                                System.currentTimeMillis()
-                                                            )
+                                                                System.currentTimeMillis(),
+                                                            ),
                                                         )
                                                     } else {
                                                         showAccountabilityForTime = Pair(group, time)
                                                     }
                                                 },
                                                 label = { Text(if (isConsumed) "$label (Used)" else label) },
-                                                colors = FilterChipDefaults.filterChipColors(
-                                                    containerColor = if (isAvailable) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surfaceVariant,
-                                                    labelColor = if (isAvailable) MaterialTheme.colorScheme.primary else Color.White,
-                                                    selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                                    selectedLabelColor = Color.Gray,
-                                                ),
-                                                border = androidx.compose.foundation.BorderStroke(1.dp, if (isAvailable) MaterialTheme.colorScheme.primary else Color.Transparent)
+                                                colors =
+                                                    FilterChipDefaults.filterChipColors(
+                                                        containerColor =
+                                                            if (isAvailable) {
+                                                                MaterialTheme.colorScheme.primary.copy(
+                                                                    alpha = 0.4f,
+                                                                )
+                                                            } else {
+                                                                MaterialTheme.colorScheme.surfaceVariant
+                                                            },
+                                                        labelColor = if (isAvailable) MaterialTheme.colorScheme.primary else Color.White,
+                                                        selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                                        selectedLabelColor = Color.Gray,
+                                                    ),
+                                                border =
+                                                    androidx.compose.foundation.BorderStroke(
+                                                        1.dp,
+                                                        if (isAvailable) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                                    ),
                                             )
                                         }
                                     }
@@ -421,7 +447,7 @@ fun InterceptionChoiceUi(
                                 }
                             }
                         }
-                        
+
                         Spacer(modifier = Modifier.height(32.dp))
                         IndustrialButton(onClick = { step = "PROMPT" }, text = "Back", modifier = Modifier.fillMaxWidth())
                     }
