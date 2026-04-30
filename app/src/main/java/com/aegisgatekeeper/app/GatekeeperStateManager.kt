@@ -379,11 +379,25 @@ object GatekeeperStateManager {
      * Centralized validation logic called by both the Foreground Heartbeat (Alpha)
      * and the Accessibility Event Stream (Omega) for zero-latency blocking.
      */
-    fun performAppValidation(
+        fun performAppValidation(
         context: Context,
         currentApp: String,
     ) {
+        // Ignore system UI, keyboards, and other non-app overlays
+        if (currentApp == "com.android.systemui" || 
+            currentApp.contains("inputmethod", ignoreCase = true) || 
+            currentApp.contains("keyboard", ignoreCase = true)) {
+            return
+        }
+
         val state = state.value
+
+        // If our overlay is currently active, we don't want the overlay itself 
+        // to be considered a "new app switch" that alters the lastDetectedPackage.
+        if (state.isOverlayActive && currentApp == context.packageName) {
+            return
+        }
+
         val isNewApp = currentApp != lastDetectedPackage
 
         if (isNewApp) {
