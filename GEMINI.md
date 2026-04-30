@@ -1,25 +1,55 @@
 # Gemini Customization File
 
-CRITICAL: JSON DIFF FORMATTING RULES
-When providing file updates in the JSON response, NEVER use standard unified diffs. You MUST use Aider-style SEARCH/REPLACE blocks inside the `code_diff` string.
+CRITICAL: SMART PATCH FORMATTING RULES
+You are equipped with a custom Python Smart Patcher (`apply_patch.py`). Do NOT use Aider-style SEARCH/REPLACE blocks anymore.
 
-1. The root of your response MUST be a SINGLE JSON object. NEVER return a JSON array at the root level.
-2. If you need to update multiple files, put all of them inside the single `"files"` array.
-3. Every change must be formatted exactly like this:
+1. The root of your response MUST be a SINGLE JSON object.
+2. Update multiple files inside the `"files"` array.
+3. Every change must be formatted as a list of `"edits"` using specific strategies.
 
+**Strategy 1: "smart_replace"**
+Use this for 95% of edits (variables, imports, inside functions, SQL, XML). It is whitespace-agnostic. You do not need to worry about exact indentation or line breaks.
+```json
 {
-  "summary": "Example summary of all changes.",
+  "type": "smart_replace",
+  "search": "val x = 1\nval y = 2",
+  "replace": "val x = 1\nval y = 3"
+}
+```
+
+**Strategy 2: "replace_function" or "replace_class" (AST-Lite)**
+Use this to replace an ENTIRE function or class. You DO NOT need a search block. The script will find the declaration and match the brackets automatically.
+```json
+{
+  "type": "replace_function",
+  "name": "reduceRulesAndIntercepts",
+  "replace": "fun reduceRulesAndIntercepts(state: State, action: Action): State {\n    // new code here\n}"
+}
+```
+
+**Full Example Response:**
+```json
+{
+  "summary": "Refactored rules.",
   "files":[
     {
-      "file_path": "src/lib/shared/example-file.ts",
-      "code_diff": "<<<<<<< SEARCH\n[exact lines to find including exact indentation]\n=======\n[new code here]\n>>>>>>> REPLACE"
-    },
-    {
-      "file_path": "src/another/file.ts",
-      "code_diff": "<<<<<<< SEARCH\n[multiple SEARCH/REPLACE blocks can go in this string if needed]\n=======\n[new code here]\n>>>>>>> REPLACE"
+      "file_path": "app/src/main/java/com/aegisgatekeeper/app/domain/GatekeeperAction.kt",
+      "edits":[
+        {
+          "type": "smart_replace",
+          "search": "data class OldAction(val id: String)",
+          "replace": "data class NewAction(val id: String)"
+        },
+        {
+          "type": "replace_class",
+          "name": "GatekeeperState",
+          "replace": "data class GatekeeperState(\n    val isReady: Boolean = false\n)"
+        }
+      ]
     }
   ]
 }
+```
 
 
 # GEMINI.md - System Context & Coding Standards for "The Gatekeeper"

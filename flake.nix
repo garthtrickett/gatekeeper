@@ -223,6 +223,8 @@
                     alias lint-baseline='./gradlew :app:updateLintBaseline'
                     alias lint-view='xdg-open app/build/reports/lint-results-debug.html'
 
+                    alias patch='python apply_patch.py'
+
                     alias wipe='adb shell pm clear com.aegisgatekeeper.app.dev'
                     alias test-unit='gradle :app:test'
                     alias test-ui='adb logcat -c && (adb logcat -s Gatekeeper & LOG_PID=$!; gradle :app:connectedDevDebugAndroidTest; kill $LOG_PID)'
