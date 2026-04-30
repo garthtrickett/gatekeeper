@@ -22,6 +22,12 @@ def find_block_end(text, start_idx):
     in_block_comment = False
     found_first_brace = False
 
+    # Move to the first opening brace
+    first_brace_search = text.find('{', i)
+    if first_brace_search == -1:
+        return -1 # No block to find
+    i = first_brace_search
+
     while i < len(text):
         c = text[i]
         next_c = text[i+1] if i+1 < len(text) else ''
@@ -78,42 +84,56 @@ def find_block_end(text, start_idx):
     return -1
 
 def apply_smart_replace(text, search, replace):
-    if not search:
+    if not search.strip():
         if not text.strip():
             return replace
-        return text + "\n" + replace
+        return text.rstrip() + "\n" + replace + "\n"
 
     target_s, target_m = strip_and_map(text)
     search_s, _ = strip_and_map(search)
 
     idx = target_s.find(search_s)
-    if idx == -1:
-        if search in text:
-            return text.replace(search, replace, 1)
-        raise Exception("Could not find match for smart_replace")
+    if idx != -1:
+        start_orig = target_m[idx]
+        end_orig = target_m[idx + len(search_s) - 1]
+        return text[:start_orig] + replace + text[end_orig + 1:]
 
-    start_orig = target_m[idx]
-    end_orig = target_m[idx + len(search_s) - 1]
+    # Fallback to literal search if normalized search fails
+    if search in text:
+        return text.replace(search, replace, 1)
 
-    return text[:start_orig] + replace + text[end_orig + 1:]
+    raise Exception("Could not find a match for smart_replace block. Searched for:\n" + search)
 
 def apply_entity_replace(text, entity_type, name, replace):
+    entity_pattern = ''
     if entity_type == "replace_function":
-        pattern = r"(?:override\s+|private\s+|public\s+|protected\s+|internal\s+|suspend\s+|inline\s+)*fun\s+(?:[\w<>_,\s]*\.)?" + re.escape(name) + r"\b"
-    else:
-        pattern = r"(?:data\s+|sealed\s+|open\s+|abstract\s+|inner\s+|enum\s+|annotation\s+)?(?:class|interface|object)\s+" + re.escape(name) + r"\b"
+        entity_pattern = r"(?:@\w+\s*)*(?:override\s+|private\s+|public\s+|protected\s+|internal\s+|suspend\s+|inline\s+)*fun\s+(?:<[\w\s,<>]+>\s*)?" + re.escape(name) + r"\b"
+    else: # class, interface, object
+        entity_pattern = r"(?:@\w+\s*)*(?:data\s+|sealed\s+|open\s+|abstract\s+|inner\s+|enum\s+|annotation\s+)?(?:class|interface|object)\s+" + re.escape(name) + r"\b"
 
-    match = re.search(pattern, text)
+    match = re.search(entity_pattern, text)
     if not match:
-        raise Exception(f"Could not find entity declaration for '{name}'")
+        raise Exception(f"Could not find entity declaration for '{name}' matching pattern: {entity_pattern}")
 
     start_idx = match.start()
-    end_idx = find_block_end(text, start_idx)
-
-    if end_idx == -1:
-        raise Exception(f"Could not find matching brackets for entity '{name}'")
-
-    return text[:start_idx] + replace + text[end_idx + 1:]
+    
+    # Find end of declaration (start of body `{` or end of line for expression body)
+    declaration_end_match = re.search(r"[{=]|\n", text[match.end():])
+    if declaration_end_match is None:
+        # It's a declaration without a body at end of file
+        return text[:start_idx] + replace
+    
+    # Check if there is a body
+    if text[match.end() + declaration_end_match.start()] == '{':
+        end_idx = find_block_end(text, match.end())
+        if end_idx == -1:
+            raise Exception(f"Could not find matching brackets for entity '{name}'")
+        return text[:start_idx] + replace + text[end_idx + 1:]
+    else: # No curly braces, it's a single-line expression or declaration
+        line_end = text.find('\n', match.end())
+        if line_end == -1:
+             line_end = len(text)
+        return text[:start_idx] + replace + text[line_end:]
 
 def main():
     if len(sys.argv) < 2:
@@ -124,47 +144,56 @@ def main():
     with open(json_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    print(f"\n🤖 Applying Patch: {data.get('summary', 'No summary provided')}\n")
+    summary = data.get('summary', 'No summary provided')
+    print(f"\n🤖 Summary: {summary}\n")
 
-    success_count = 0
-    fail_count = 0
+    file_updates = {}
 
-    for file_info in data.get('files',[]):
-        file_path = file_info['file_path']
-        edits = file_info.get('edits',[])
-        
-        if 'code_diff' in file_info:
-            print(f"⚠️ {file_path}: Uses old code_diff format. Ignoring in smart patcher.")
-            continue
+    try:
+        # Phase 1: Calculate all changes in-memory (Dry Run)
+        for file_info in data.get('files', []):
+            file_path = file_info['file_path']
+            edits = file_info.get('edits',[])
+            
+            # Legacy Aider format support
+            if 'code_diff' in file_info:
+                diff = file_info['code_diff']
+                parts = diff.split('=======')
+                search = parts[0].replace('<<<<<<< SEARCH\n', '', 1)
+                replace = parts[1].replace('\n>>>>>>> REPLACE', '', 1)
+                edits.append({'type': 'smart_replace', 'search': search, 'replace': replace})
 
-        try:
             if os.path.exists(file_path):
                 with open(file_path, 'r', encoding='utf-8') as f:
                     text = f.read()
             else:
                 text = ""
-                os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
             for edit in edits:
                 edit_type = edit.get('type')
                 if edit_type == 'smart_replace':
                     text = apply_smart_replace(text, edit.get('search', ''), edit['replace'])
-                elif edit_type in ('replace_function', 'replace_class'):
+                elif edit_type in ('replace_function', 'replace_class', 'replace_object', 'replace_interface'):
                     text = apply_entity_replace(text, edit_type, edit['name'], edit['replace'])
                 else:
-                    raise Exception(f"Unknown edit type: {edit_type}")
+                    raise Exception(f"Unknown edit type: {edit_type} in file {file_path}")
 
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(text)
-            
-            print(f"✅ {file_path} updated successfully.")
-            success_count += 1
-        except Exception as e:
-            print(f"❌ Failed to patch {file_path}: {e}")
-            fail_count += 1
+            file_updates[file_path] = text
 
-    print(f"\nDone. {success_count} files updated, {fail_count} files failed.")
-    if fail_count > 0:
+        # Phase 2: Write to disk only if EVERYTHING succeeded
+        for path, new_text in file_updates.items():
+            dir_name = os.path.dirname(path)
+            if dir_name:
+                os.makedirs(dir_name, exist_ok=True)
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(new_text)
+            print(f"✅ {path} updated successfully.")
+
+        print(f"\nDone. {len(file_updates)} files updated successfully.")
+
+    except Exception as e:
+        print(f"\n❌ FATAL ERROR: {e}")
+        print("🛑 Transaction aborted. No files were modified on disk.")
         sys.exit(1)
 
 if __name__ == "__main__":
