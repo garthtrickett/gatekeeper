@@ -13,19 +13,25 @@ import com.aegisgatekeeper.app.App
 class PodcastMediaService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
 
-    override fun onCreate() {
+        override fun onCreate() {
         super.onCreate()
         val cacheDataSourceFactory =
             CacheDataSource
                 .Factory()
                 .setCache(App.downloadCache)
                 .setUpstreamDataSourceFactory(DefaultHttpDataSource.Factory())
-                .setCacheWriteDataSinkFactory(null) // Do not write to cache during playback, let DownloadManager handle it
+                .setCacheWriteDataSinkFactory(null) // Do not write to cache during playback
+
+        val audioAttributes = androidx.media3.common.AudioAttributes.Builder()
+            .setUsage(androidx.media3.common.C.USAGE_MEDIA)
+            .setContentType(androidx.media3.common.C.AUDIO_CONTENT_TYPE_SPEECH)
+            .build()
 
         val player =
             ExoPlayer
                 .Builder(this)
                 .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSourceFactory))
+                .setAudioAttributes(audioAttributes, true) // Enable Audio Focus!
                 .build()
         mediaSession = MediaSession.Builder(this, player).build()
     }
