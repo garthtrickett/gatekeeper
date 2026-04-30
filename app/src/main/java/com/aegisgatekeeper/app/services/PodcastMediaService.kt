@@ -13,7 +13,7 @@ import com.aegisgatekeeper.app.App
 class PodcastMediaService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
 
-        override fun onCreate() {
+            override fun onCreate() {
         super.onCreate()
         val cacheDataSourceFactory =
             CacheDataSource
@@ -33,7 +33,9 @@ class PodcastMediaService : MediaSessionService() {
                 .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSourceFactory))
                 .setAudioAttributes(audioAttributes, true) // Enable Audio Focus!
                 .build()
-        mediaSession = MediaSession.Builder(this, player).build()
+        mediaSession = MediaSession.Builder(this, player)
+            .setId("PodcastMediaSession_${java.util.UUID.randomUUID()}")
+            .build()
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = mediaSession
