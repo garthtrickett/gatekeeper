@@ -24,14 +24,14 @@ class WebAppInterface(
      * This method is called from the JavaScript inside the WebView.
      * @param playerState The state code from the YouTube player. 0 means the video has ended.
      */
-    @JavascriptInterface
+        @JavascriptInterface
     fun onStateChange(playerState: Int) {
         // Must run on main thread to update Compose state
         Handler(Looper.getMainLooper()).post {
+            onStateChangeCallback(playerState)
             if (playerState == 0) {
                 onVideoEnded()
             }
-            onStateChangeCallback(playerState)
         }
     }
 

@@ -575,9 +575,12 @@ fun CleanAudioPlayerModal(
                                         )
                                         onStop()
                                     },
-                                    onStateChangeCallback = { state ->
+                                                                        onStateChangeCallback = { state ->
                                         playerStateCallback(state)
-                                        if (state == 2 || state == 0) { // PAUSED or ENDED
+                                        if (state == 0) { // ENDED
+                                            currentPosition = 0f
+                                            GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(url, 0f))
+                                        } else if (state == 2) { // PAUSED
                                             GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(url, currentPosition))
                                         }
                                     },
