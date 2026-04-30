@@ -51,8 +51,173 @@ import com.aegisgatekeeper.app.views.TerminalPanel
 import kotlinx.coroutines.delay
 
 @Suppress("FunctionName")
+@Suppress("FunctionName")
 @Composable
 fun AppGroupsListScreen(
+    state: GatekeeperState,
+    onGroupSelected: (AppGroup) -> Unit,
+    onAddGroupClick: () -> Unit,
+) {
+    Box(Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 88.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                Column {
+                    Text("App Groups", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onSurface)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Group apps and apply blocking rules.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+
+            item {
+                // Manual Lockdown Toggle
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor = if (state.isManualLockdownActive) Color(0xFF93000A) else MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = if (state.isManualLockdownActive) Color.White else MaterialTheme.colorScheme.onSurface,
+                        ),
+                ) {
+                    Column(modifier = Modifier.padding(24.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = if (state.isManualLockdownActive) "LOCKDOWN ENGAGED" else "MANUAL LOCKDOWN",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 2.sp,
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Overrides all schedules. Blocks all apps in groups.",
+                            textAlign = TextAlign.Center,
+                            color =
+                                if (state.isManualLockdownActive) {
+                                    Color.White.copy(
+                                        alpha = 0.8f,
+                                    )
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        IndustrialButton(
+                            onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.SetManualLockdown(!state.isManualLockdownActive)) },
+                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            text = if (state.isManualLockdownActive) "DISENGAGE" else "ENGAGE LOCKDOWN",
+                            isWarning = !state.isManualLockdownActive,
+                        )
+                    }
+                }
+            }
+
+            if (state.activeWhitelists.isNotEmpty()) {
+                item {
+                    ShieldStatusCard(state.activeWhitelists)
+                }
+            }
+
+            item {
+                // Global Settings
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Global Settings", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("Friction Type", fontWeight = FontWeight.SemiBold)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            FilterChip(
+                                selected = state.activeFrictionGame == com.aegisgatekeeper.app.domain.FrictionGame.HOLD_STEADY,
+                                onClick = {
+                                    GatekeeperStateManager.dispatch(
+                                        GatekeeperAction.SetFrictionGame(com.aegisgatekeeper.app.domain.FrictionGame.HOLD_STEADY),
+                                    )
+                                },
+                                label = { Text("Hold Steady") },
+                                colors =
+                                    FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                    ),
+                            )
+                            FilterChip(
+                                selected = state.activeFrictionGame == com.aegisgatekeeper.app.domain.FrictionGame.GAUNTLET,
+                                onClick = {
+                                    GatekeeperStateManager.dispatch(
+                                        GatekeeperAction.SetFrictionGame(com.aegisgatekeeper.app.domain.FrictionGame.GAUNTLET),
+                                    )
+                                },
+                                label = { Text("The Gauntlet") },
+                                colors =
+                                    FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                    ),
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (state.appGroups.isEmpty()) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                        Text("No groups configured. Create one to get started.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            } else {
+                items(state.appGroups) { group ->
+                    TerminalPanel(modifier = Modifier.fillMaxWidth().clickable { onGroupSelected(group) }) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                                Text(
+                                    text = group.name.uppercase(),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Black,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                                Text(
+                                    text = if (group.apps.isEmpty()) "[GLOBAL DOMAINS]" else "[${group.apps.size} APPS]",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = ">> ${group.rules.size} ACTIVE BLOCKING RULES",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                            )
+
+                            val checkInRule =
+                                group.rules
+                                    .filterIsInstance<com.aegisgatekeeper.app.domain.BlockingRule.CheckIn>()
+                                    .firstOrNull { it.isEnabled }
+                            if (checkInRule != null) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text("Check-In Tokens", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                CheckInTokensRow(group = group, rule = checkInRule, state = state)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        IndustrialButton(
+            onClick = onAddGroupClick,
+            text = "+",
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+        )
+    }
+}
     state: GatekeeperState,
     onGroupSelected: (AppGroup) -> Unit,
     onAddGroupClick: () -> Unit,
