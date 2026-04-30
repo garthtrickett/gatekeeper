@@ -215,6 +215,59 @@ class DualMoatIntegrationTest {
             assertThat(stateManager.state.value.isOverlayActive).isFalse()
         }
 
+        @Test
+    fun formattedBlockReasons_areCorrectlyGenerated() =
+        runTest {
+            val scheduledRule =
+                com.aegisgatekeeper.app.domain.BlockingRule.ScheduledBlock(
+                    id = "scheduled",
+                    groupId = "test-group-id",
+                    timeSlots = listOf(com.aegisgatekeeper.app.domain.TimeSlot(0, 1440)),
+                    daysOfWeek = com.aegisgatekeeper.app.domain.DayOfWeek.values().toSet()
+                )
+
+            val timeLimitRule =
+                com.aegisgatekeeper.app.domain.BlockingRule.TimeLimit(
+                    id = "timelimit",
+                    groupId = "test-group-id",
+                    timeLimitMinutes = 0
+                )
+
+            val checkInRule =
+                com.aegisgatekeeper.app.domain.BlockingRule.CheckIn(
+                    id = "checkin",
+                    groupId = "test-group-id",
+                    checkInTimesMinutes = listOf(600, 720),
+                    durationMinutes = 15,
+                    daysOfWeek = com.aegisgatekeeper.app.domain.DayOfWeek.values().toSet()
+                )
+
+            val group =
+                stateManager.state.value.appGroups
+                    .first()
+            val updatedGroup = group.copy(
+                rules = listOf(scheduledRule, timeLimitRule, checkInRule),
+                combinator = com.aegisgatekeeper.app.domain.RuleCombinator.ALL
+            )
+            val stateWithRule = GatekeeperState(appGroups = listOf(updatedGroup))
+
+            val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
+            stateFlowField.isAccessible = true
+            @Suppress("UNCHECKED_CAST")
+            (stateFlowField.get(stateManager) as MutableStateFlow<GatekeeperState>).value = stateWithRule
+
+            GatekeeperStateManager.performAppValidation(
+                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext,
+                testAppPackage
+            )
+
+            assertThat(stateManager.state.value.isOverlayActive).isTrue()
+            val reason = stateManager.state.value.activeBlockReason
+            assertThat(reason).contains("Scheduled Block (00:00 - 24:00)")
+            assertThat(reason).contains("Time Limit Reached")
+            assertThat(reason).contains("Check-In Required (10:00, 12:00)")
+        }
+
     @Test
     fun whenRuleIsBroken_layerAlphaDispatchesViolation() =
         runTest {
