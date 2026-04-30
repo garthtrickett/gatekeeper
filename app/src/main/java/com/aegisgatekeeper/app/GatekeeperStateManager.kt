@@ -516,8 +516,10 @@ object GatekeeperStateManager {
                 }
             }
 
-            if (isBlocked) {
-                dispatch(GatekeeperAction.RuleViolationDetected(currentApp, blockReason, System.currentTimeMillis()))
+                        if (isBlocked) {
+                if (isNewApp || !state.isOverlayActive) {
+                    dispatch(GatekeeperAction.RuleViolationDetected(currentApp, blockReason, System.currentTimeMillis()))
+                }
             } else if (isNewApp) {
                 dispatch(GatekeeperAction.AppBroughtToForeground(currentApp, System.currentTimeMillis()))
             }

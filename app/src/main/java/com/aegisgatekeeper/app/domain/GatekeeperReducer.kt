@@ -21,7 +21,7 @@ private fun reduceRulesAndIntercepts(
     action: GatekeeperAction,
 ): GatekeeperState =
     when (action) {
-        is GatekeeperAction.RuleViolationDetected -> {
+                is GatekeeperAction.RuleViolationDetected -> {
             val whitelist = state.activeWhitelists[action.packageName]
             val isWhitelistValid = whitelist != null && action.currentTimestamp < whitelist.expiresAtTimestamp
 
@@ -34,6 +34,7 @@ private fun reduceRulesAndIntercepts(
                     currentlyInterceptedApp = action.packageName,
                     expiredSessionDurationMillis = if (wasExpired) whitelist.allocatedDurationMillis else null,
                     activeBlockReason = action.reason,
+                    pendingExitInterview = null
                 )
             } else {
                 newState
@@ -41,7 +42,17 @@ private fun reduceRulesAndIntercepts(
         }
 
         is GatekeeperAction.AppBroughtToForeground -> {
-            state.copy(activeForegroundApp = action.packageName)
+            if (state.pendingExitInterview != null) {
+                state.copy(activeForegroundApp = action.packageName)
+            } else {
+                state.copy(
+                    activeForegroundApp = action.packageName,
+                    isOverlayActive = false,
+                    currentlyInterceptedApp = null,
+                    expiredSessionDurationMillis = null,
+                    activeBlockReason = null
+                )
+            }
         }
 
                 GatekeeperAction.DismissOverlay -> {
