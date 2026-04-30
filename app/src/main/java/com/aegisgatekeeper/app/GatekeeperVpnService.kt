@@ -66,23 +66,16 @@ class GatekeeperVpnService : VpnService() {
     }
 
     internal fun updateBlacklist(state: com.aegisgatekeeper.app.domain.GatekeeperState) {
-        val currentApp = state.activeForegroundApp ?: ""
         val blockedDomains = mutableSetOf<String>()
 
-        if (state.isManualLockdownActive) {
-            state.appGroups.forEach { group ->
-                group.rules.filterIsInstance<BlockingRule.DomainBlock>().filter { it.isEnabled }.forEach {
-                    blockedDomains.addAll(it.domains)
-                }
-            }
-        } else {
-            val activeGroups = state.appGroups.filter { it.apps.isEmpty() || it.apps.contains(currentApp) }
-            activeGroups.forEach { group ->
-                group.rules.filterIsInstance<BlockingRule.DomainBlock>().filter { it.isEnabled }.forEach {
-                    blockedDomains.addAll(it.domains)
-                }
+        // Domain blocks are now ALWAYS GLOBAL across the entire device,
+        // regardless of which apps are assigned to the group.
+        state.appGroups.forEach { group ->
+            group.rules.filterIsInstance<BlockingRule.DomainBlock>().filter { it.isEnabled }.forEach {
+                blockedDomains.addAll(it.domains)
             }
         }
+        
         activeBlacklist = blockedDomains
     }
 
