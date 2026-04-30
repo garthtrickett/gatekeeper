@@ -400,9 +400,12 @@ object GatekeeperStateManager {
 
         val isNewApp = currentApp != lastDetectedPackage
 
-        if (isNewApp) {
-            if (lastDetectedPackage != null && state.activeWhitelists.containsKey(lastDetectedPackage)) {
-                dispatch(GatekeeperAction.TriggerExitInterview(lastDetectedPackage!!))
+                if (isNewApp) {
+            if (lastDetectedPackage != null) {
+                val whitelist = state.activeWhitelists[lastDetectedPackage]
+                if (whitelist != null && System.currentTimeMillis() < whitelist.expiresAtTimestamp && whitelist.reason != "GIVE_UP_GRACE_PERIOD") {
+                    dispatch(GatekeeperAction.TriggerExitInterview(lastDetectedPackage!!))
+                }
             }
         }
 

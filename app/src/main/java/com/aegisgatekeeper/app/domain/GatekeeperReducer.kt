@@ -21,11 +21,14 @@ private fun reduceRulesAndIntercepts(
     action: GatekeeperAction,
 ): GatekeeperState =
     when (action) {
-                is GatekeeperAction.RuleViolationDetected -> {
+                        is GatekeeperAction.RuleViolationDetected -> {
             val whitelist = state.activeWhitelists[action.packageName]
             val isWhitelistValid = whitelist != null && action.currentTimestamp < whitelist.expiresAtTimestamp
 
-            val newState = state.copy(activeForegroundApp = action.packageName)
+            val newState = state.copy(
+                activeForegroundApp = action.packageName,
+                activeWhitelists = if (whitelist != null && !isWhitelistValid) state.activeWhitelists - action.packageName else state.activeWhitelists
+            )
 
             if (!isWhitelistValid) {
                 val wasExpired = whitelist != null
@@ -41,16 +44,23 @@ private fun reduceRulesAndIntercepts(
             }
         }
 
-        is GatekeeperAction.AppBroughtToForeground -> {
+                is GatekeeperAction.AppBroughtToForeground -> {
+            val whitelist = state.activeWhitelists[action.packageName]
+            val isWhitelistValid = whitelist != null && action.currentTimestamp < whitelist.expiresAtTimestamp
+
             if (state.pendingExitInterview != null) {
-                state.copy(activeForegroundApp = action.packageName)
+                state.copy(
+                    activeForegroundApp = action.packageName,
+                    activeWhitelists = if (whitelist != null && !isWhitelistValid) state.activeWhitelists - action.packageName else state.activeWhitelists
+                )
             } else {
                 state.copy(
                     activeForegroundApp = action.packageName,
                     isOverlayActive = false,
                     currentlyInterceptedApp = null,
                     expiredSessionDurationMillis = null,
-                    activeBlockReason = null
+                    activeBlockReason = null,
+                    activeWhitelists = if (whitelist != null && !isWhitelistValid) state.activeWhitelists - action.packageName else state.activeWhitelists
                 )
             }
         }
