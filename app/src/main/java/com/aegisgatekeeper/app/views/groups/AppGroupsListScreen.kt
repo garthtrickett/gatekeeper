@@ -160,7 +160,7 @@ fun AppGroupsListScreen(
                     items(state.appGroups) { group ->
                         TerminalPanel(modifier = Modifier.fillMaxWidth().clickable { onGroupSelected(group) }) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                                                                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                                     Text(
                                         text = group.name.uppercase(),
                                         style = MaterialTheme.typography.titleLarge,
@@ -168,7 +168,7 @@ fun AppGroupsListScreen(
                                         color = MaterialTheme.colorScheme.primary,
                                     )
                                     Text(
-                                        text = "[${group.apps.size} APPS]",
+                                        text = if (group.apps.isEmpty()) "[GLOBAL DOMAINS]" else "[${group.apps.size} APPS]",
                                         style = MaterialTheme.typography.labelLarge,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurface,

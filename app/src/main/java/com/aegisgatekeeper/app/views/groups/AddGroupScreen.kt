@@ -78,12 +78,18 @@ fun AddGroupScreen(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
-            Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
             Text(
                 text = "SELECT APPS TO BLOCK (OPTIONAL):",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "If no apps are selected, domain blocks will apply globally.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(12.dp))
             IndustrialTextField(

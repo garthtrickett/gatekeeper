@@ -79,8 +79,10 @@ fun GroupDetailScreen(
             IndustrialButton(onClick = { showEditAppsDialog = true }, text = "Edit Apps")
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text =
+                Text(
+            text = if (group.apps.isEmpty()) {
+                "Global (Domain blocks apply to all apps. App rules are inactive.)"
+            } else {
                 group.apps
                     .take(5)
                     .map { pkg ->
@@ -93,7 +95,8 @@ fun GroupDetailScreen(
                                     ?: parts.last()
                             name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
                         }
-                    }.joinToString(", ") + if (group.apps.size > 5) "..." else "",
+                    }.joinToString(", ") + if (group.apps.size > 5) "..." else ""
+            },
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
