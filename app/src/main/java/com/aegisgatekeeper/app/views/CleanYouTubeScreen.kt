@@ -161,10 +161,9 @@ fun CleanYouTubeDialog(onDismiss: () -> Unit) {
                             ytm-mobile-topbar-renderer, 
                             ytm-pivot-bar-renderer, 
                             ytm-reel-shelf-renderer, 
-                            ytm-item-section-renderer[section-identifier="related-searches"],
+                                                        ytm-item-section-renderer[section-identifier="related-searches"],
                             ytm-chip-cloud-renderer,
                             .pivot-bar-container,
-                            [role="tablist"],
                             a[href="/"],
                             a[href^="/shorts"],
                             a[href="/feed/subscriptions"],
@@ -186,10 +185,10 @@ fun CleanYouTubeDialog(onDismiss: () -> Unit) {
                                     }
                                 }, 4000);
 
-                                function injectButtons() {
-                                    var videos = document.querySelectorAll('ytm-video-with-context-renderer');
+                                                                function injectButtons() {
+                                    var videos = document.querySelectorAll('ytm-video-with-context-renderer, ytm-compact-video-renderer');
                                     videos.forEach(function(video) {
-                                        if (video.querySelector('.gatekeeper-add-btn')) return;
+                                        if (video.querySelector('.gatekeeper-button-container')) return;
                                         
                                         var a = video.querySelector('a');
                                         if (!a || !a.href) return;
@@ -200,20 +199,38 @@ fun CleanYouTubeDialog(onDismiss: () -> Unit) {
                                         var videoId = videoIdMatch[1];
                                         
                                         var titleEl = video.querySelector('.media-item-headline');
+                                        if (!titleEl) titleEl = video.querySelector('h4');
                                         var title = titleEl ? titleEl.innerText : 'Unknown Video';
                                         
                                         var channelEl = video.querySelector('.bidi-matching-text');
+                                        if (!channelEl) channelEl = video.querySelector('.ytm-badge-and-byline-item-byline');
                                         var channel = channelEl ? channelEl.innerText : '';
 
                                         var durationEl = video.querySelector('ytm-thumbnail-overlay-time-status-renderer');
                                         var durationStr = durationEl ? durationEl.innerText.trim() : '0:00';
                                         
+                                        var channelLink = null;
+                                        var links = video.querySelectorAll('a');
+                                        for (var i = 0; i < links.length; i++) {
+                                            if (links[i].href && (links[i].href.includes('/@') || links[i].href.includes('/channel/') || links[i].href.includes('/c/'))) {
+                                                channelLink = links[i].href;
+                                                break;
+                                            }
+                                        }
+                                        
+                                        var container = document.createElement('div');
+                                        container.className = 'gatekeeper-button-container';
+                                        container.style.display = 'flex';
+                                        container.style.flexDirection = 'row';
+                                        container.style.gap = '8px';
+                                        container.style.width = '100%';
+                                        container.style.marginTop = '8px';
+
                                         var btn = document.createElement('button');
                                         btn.className = 'gatekeeper-add-btn';
                                         btn.innerText = '+ Add to Bank';
-                                        btn.style.width = '100%';
+                                        btn.style.flex = '1';
                                         btn.style.padding = '12px';
-                                        btn.style.marginTop = '8px';
                                         btn.style.backgroundColor = '#4AF626';
                                         btn.style.color = '#121212';
                                         btn.style.border = 'none';
@@ -233,7 +250,31 @@ fun CleanYouTubeDialog(onDismiss: () -> Unit) {
                                             }
                                         };
                                         
-                                        video.appendChild(btn);
+                                        container.appendChild(btn);
+
+                                        if (channelLink) {
+                                            var channelBtn = document.createElement('button');
+                                            channelBtn.className = 'gatekeeper-channel-btn';
+                                            channelBtn.innerText = 'Go to Channel';
+                                            channelBtn.style.flex = '1';
+                                            channelBtn.style.padding = '12px';
+                                            channelBtn.style.backgroundColor = '#FF9800';
+                                            channelBtn.style.color = '#121212';
+                                            channelBtn.style.border = 'none';
+                                            channelBtn.style.borderRadius = '4px';
+                                            channelBtn.style.fontWeight = 'bold';
+                                            channelBtn.style.fontFamily = 'monospace';
+                                            channelBtn.style.fontSize = '14px';
+
+                                            channelBtn.onclick = function(e) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                window.location.href = channelLink;
+                                            };
+                                            container.appendChild(channelBtn);
+                                        }
+
+                                        video.appendChild(container);
                                     });
                                 }
                                 
@@ -248,7 +289,11 @@ fun CleanYouTubeDialog(onDismiss: () -> Unit) {
                                 if (!window.gkGlobalClickCatcher) {
                                     window.gkGlobalClickCatcher = true;
                                     document.addEventListener('click', function(e) {
-                                        if (e.target && e.target.className === 'gatekeeper-add-btn') return;
+                                        if (e.target && (e.target.className === 'gatekeeper-add-btn' || e.target.className === 'gatekeeper-channel-btn')) return;
+                                        
+                                        var closestTab = e.target.closest ? e.target.closest('[role="tab"]') : null;
+                                        if (closestTab) return;
+
                                         e.preventDefault();
                                         e.stopPropagation();
                                     }, true); // capture phase prevents YouTube's SPA router from firing
