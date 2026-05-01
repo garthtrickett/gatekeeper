@@ -55,8 +55,8 @@ class InterceptionUiTest {
             }
         }
 
-        // Assert: Check that the primary UI elements exist on the initial prompt screen.
-        composeTestRule.onNodeWithText("Take a breath.").assertExists()
+                // Assert: Check that the primary UI elements exist on the initial prompt screen.
+        composeTestRule.onNodeWithText("Test Reason").assertExists()
         composeTestRule.onNodeWithText("You are about to open Interceptedapp.").assertExists()
         composeTestRule.onNodeWithText("Consume curated content instead").assertExists()
         composeTestRule.onNodeWithText("Choose a positive habit").assertExists()
