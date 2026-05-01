@@ -20,11 +20,11 @@ import java.util.concurrent.TimeUnit
 class App :
     Application(),
     Configuration.Provider {
-        companion object {
+    companion object {
         lateinit var instance: App
             private set
 
-                var isRunningTest: Boolean = false
+        var isRunningTest: Boolean = false
 
         lateinit var downloadCache: SimpleCache
             private set

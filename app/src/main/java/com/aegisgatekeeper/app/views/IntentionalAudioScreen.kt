@@ -494,14 +494,15 @@ fun CleanAudioPlayerModal(
                 }
             }
 
-            if (resolvedUrl == null) {
+                        if (resolvedUrl == null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     androidx.compose.material3.CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             } else {
-                AndroidView(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    factory = { context ->
+                androidx.compose.runtime.key(url) {
+                    AndroidView(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        factory = { context ->
                         object : WebView(context) {
                             override fun onWindowVisibilityChanged(visibility: Int) {
                                 super.onWindowVisibilityChanged(android.view.View.VISIBLE)
@@ -602,9 +603,9 @@ fun CleanAudioPlayerModal(
                                         body, html { margin:0; padding:0; height:100%; overflow:hidden; background-color:#000; }
                                         iframe { width:100%; height:100%; border:none; }
                                     </style>
-                                </head>
+                                                                </head>
                                 <body>
-                                    <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=$encodedUrl&color=%23ff5500&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false" allow="autoplay"></iframe>
+                                    <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=$encodedUrl&color=%23ff5500&auto_play=${if (isVisible) "true" else "false"}&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false" allow="autoplay"></iframe>
                                     <script src="https://w.soundcloud.com/player/api.js" type="text/javascript"></script>
                                     <script>
                                         var widgetIframe = document.getElementById('sc-widget');
@@ -658,11 +659,12 @@ fun CleanAudioPlayerModal(
                             loadDataWithBaseURL("https://app.aegisgatekeeper.com/", htmlData, "text/html", "UTF-8", null)
                         }
                     },
-                    onRelease = { webView ->
+                                        onRelease = { webView ->
                         webViewRef = null
                         webView.destroy()
                     },
                 )
+                }
             }
         }
     }

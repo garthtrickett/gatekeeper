@@ -1,5 +1,6 @@
 package com.aegisgatekeeper.app.views
 
+import android.util.Log
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -12,13 +13,14 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import android.util.Log
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AnalyticsUiTest {
     @get:Rule
-    val composeTestRule = androidx.compose.ui.test.junit4.createAndroidComposeRule<com.aegisgatekeeper.app.MainActivity>()
+    val composeTestRule =
+        androidx.compose.ui.test.junit4
+            .createAndroidComposeRule<com.aegisgatekeeper.app.MainActivity>()
 
     @Before
     fun setup() {
@@ -44,8 +46,8 @@ class AnalyticsUiTest {
 
     @Test
     fun testAnalytics_ProTier_ShowsMetrics() {
-        // We use reflection to set the state directly to avoid side-effects (like DB writes 
-        // from UpgradeToProTier or navigating to the home screen via LogGiveUp) that can 
+        // We use reflection to set the state directly to avoid side-effects (like DB writes
+        // from UpgradeToProTier or navigating to the home screen via LogGiveUp) that can
         // interfere with the test host Activity.
         val stateFlowField = GatekeeperStateManager.javaClass.getDeclaredField("_state")
         stateFlowField.isAccessible = true

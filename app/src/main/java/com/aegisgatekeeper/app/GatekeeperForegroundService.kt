@@ -255,7 +255,7 @@ class GatekeeperForegroundService : Service() {
         manager.notify(3, notification)
     }
 
-        private fun startLayerAlphaHeartbeat() {
+    private fun startLayerAlphaHeartbeat() {
         serviceScope.launch {
             while (isActive) {
                 if (!com.aegisgatekeeper.app.App.isRunningTest) {

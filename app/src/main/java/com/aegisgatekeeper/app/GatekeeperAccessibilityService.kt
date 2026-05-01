@@ -47,7 +47,7 @@ class GatekeeperAccessibilityService : AccessibilityService() {
         }
     }
 
-        override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
 
         if (com.aegisgatekeeper.app.App.isRunningTest) return

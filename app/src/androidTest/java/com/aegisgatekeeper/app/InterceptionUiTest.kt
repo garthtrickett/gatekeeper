@@ -37,7 +37,7 @@ class InterceptionUiTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-        @Test
+    @Test
     fun testInterceptionChoiceUiRendering() {
         // Arrange & Act: Render the composable directly.
         // We need to set up the state so InterceptionScreen doesn't exit early.
@@ -45,17 +45,18 @@ class InterceptionUiTest {
             com.aegisgatekeeper.app.domain.GatekeeperAction.RuleViolationDetected(
                 packageName = testPackage,
                 reason = "Test Reason",
-                currentTimestamp = System.currentTimeMillis()
-            )
+                currentTimestamp = System.currentTimeMillis(),
+            ),
         )
 
         composeTestRule.setContent {
             GatekeeperTheme {
-                com.aegisgatekeeper.app.views.interception.InterceptionScreen()
+                com.aegisgatekeeper.app.views.interception
+                    .InterceptionScreen()
             }
         }
 
-                // Assert: Check that the primary UI elements exist on the initial prompt screen.
+        // Assert: Check that the primary UI elements exist on the initial prompt screen.
         composeTestRule.onNodeWithText("Test Reason").assertExists()
         composeTestRule.onNodeWithText("You are about to open Interceptedapp.").assertExists()
         composeTestRule.onNodeWithText("Consume curated content instead").assertExists()
@@ -262,7 +263,7 @@ class InterceptionUiTest {
         composeTestRule.onNodeWithText("Unlock for 5 minutes").assertExists()
     }
 
-        @Test
+    @Test
     fun testInterceptionChoiceUi_ExpiredSessionRendering() {
         // Arrange: Seed state to simulate an expired session
         GatekeeperStateManager.dispatch(
@@ -272,7 +273,8 @@ class InterceptionUiTest {
 
         composeTestRule.setContent {
             GatekeeperTheme {
-                com.aegisgatekeeper.app.views.interception.InterceptionScreen()
+                com.aegisgatekeeper.app.views.interception
+                    .InterceptionScreen()
             }
         }
 

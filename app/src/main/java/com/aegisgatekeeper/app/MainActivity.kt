@@ -227,7 +227,7 @@ class MainActivity : ComponentActivity() {
         // Skip rendering the default UI if we are running instrumented tests.
         // This allows our tests to use MainActivity for its WakeLock properties
         // while calling composeTestRule.setContent { ... } to render specific isolated screens.
-                if (!com.aegisgatekeeper.app.App.isRunningTest) {
+        if (!com.aegisgatekeeper.app.App.isRunningTest) {
             setContent {
                 GatekeeperTheme {
                     val state by GatekeeperStateManager.state.collectAsState()

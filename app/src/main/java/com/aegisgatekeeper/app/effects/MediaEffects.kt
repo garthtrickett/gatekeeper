@@ -213,7 +213,7 @@ suspend fun handleMediaAndSystemEffects(
             }
         }
 
-                is GatekeeperAction.LogGiveUp -> {
+        is GatekeeperAction.LogGiveUp -> {
             // Go to the home screen to prevent re-interception loop
             if (!com.aegisgatekeeper.app.App.isRunningTest) {
                 val homeIntent =
@@ -225,7 +225,7 @@ suspend fun handleMediaAndSystemEffects(
             }
         }
 
-                is GatekeeperAction.FrictionCompleted -> {
+        is GatekeeperAction.FrictionCompleted -> {
             Log.d("Gatekeeper", "⚙️ FrictionCompleted: Relaunching app to ensure it wasn't killed")
             if (!com.aegisgatekeeper.app.App.isRunningTest) {
                 val launchIntent = App.instance.packageManager.getLaunchIntentForPackage(action.packageName)
@@ -242,7 +242,7 @@ suspend fun handleMediaAndSystemEffects(
             }
         }
 
-                is GatekeeperAction.EmergencyBypassRequested -> {
+        is GatekeeperAction.EmergencyBypassRequested -> {
             Log.d("Gatekeeper", "⚙️ EmergencyBypassRequested: Relaunching app to ensure it wasn't killed")
             if (!com.aegisgatekeeper.app.App.isRunningTest) {
                 val launchIntent = App.instance.packageManager.getLaunchIntentForPackage(action.packageName)
@@ -259,7 +259,7 @@ suspend fun handleMediaAndSystemEffects(
             }
         }
 
-                is GatekeeperAction.RedeemCheckInToken -> {
+        is GatekeeperAction.RedeemCheckInToken -> {
             val group = newState.appGroups.find { it.id == action.groupId }
             val apps = group?.apps ?: emptySet()
             if (oldState.currentlyInterceptedApp in apps) {

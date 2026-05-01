@@ -21,7 +21,7 @@ fun GatekeeperStateManager.resetStateForTest() {
         val scope = scopeField.get(this) as CoroutineScope
         scope.coroutineContext.cancelChildren()
 
-                val stateFlowField = this.javaClass.getDeclaredField("_state")
+        val stateFlowField = this.javaClass.getDeclaredField("_state")
         stateFlowField.isAccessible = true
         @Suppress("UNCHECKED_CAST")
         (stateFlowField.get(this) as MutableStateFlow<GatekeeperState>).value = GatekeeperState()

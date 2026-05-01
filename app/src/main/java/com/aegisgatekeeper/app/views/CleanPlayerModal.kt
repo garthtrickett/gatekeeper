@@ -218,10 +218,11 @@ actual fun CleanPlayerModal(
                 }
             }
 
-            // The WebView Player injected strictly with an iframe
-            AndroidView(
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-                factory = { context ->
+                        // The WebView Player injected strictly with an iframe
+            androidx.compose.runtime.key(videoId) {
+                AndroidView(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    factory = { context ->
                     object : WebView(context) {
                         override fun onWindowVisibilityChanged(visibility: Int) {
                             super.onWindowVisibilityChanged(android.view.View.VISIBLE)
@@ -341,9 +342,9 @@ actual fun CleanPlayerModal(
                                             height: '100%',
                                             width: '100%',
                                             videoId: '$videoId',
-                                            playerVars: {
+                                                                                        playerVars: {
                                                 'start': ${startSeconds.toInt()},
-                                                'autoplay': 1,
+                                                'autoplay': ${if (isVisible) 1 else 0},
                                                 'controls': 1,
                                                 'rel': 0,
                                                 'showinfo': 0,
@@ -401,11 +402,12 @@ actual fun CleanPlayerModal(
                         loadDataWithBaseURL("https://app.aegisgatekeeper.com/", htmlData, "text/html", "UTF-8", null)
                     }
                 },
-                onRelease = { webView ->
+                                onRelease = { webView ->
                     webViewRef = null
                     webView.destroy()
                 },
             )
+            }
         }
     }
 }
