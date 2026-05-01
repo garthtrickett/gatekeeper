@@ -34,8 +34,8 @@ class NativePlayerPersistenceTest {
     }
 
         @Test
-    fun testNativePlayer_MaintainsPosition_OnUiReentry() {
-        val podcastUrl = "https://example.com/audio.mp3"
+        fun testNativePlayer_MaintainsPosition_OnUiReentry() {
+        val podcastUrl = "https://example.com/audio_pers_${System.currentTimeMillis()}.mp3"
         val item = com.aegisgatekeeper.app.domain.ContentItem(
             id = "test_ep",
             videoId = podcastUrl,
@@ -83,12 +83,20 @@ class NativePlayerPersistenceTest {
             } catch (e: Throwable) { false }
         }
 
-        // 4. Minimize and re-open to trigger the "Re-attach" logic branch
-        GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeNativePlayer)
+                // 4. Close and re-open to trigger the "Re-attach" logic branch
+        GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer)
         composeTestRule.waitForIdle()
         
         GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
         composeTestRule.waitForIdle()
+
+        // Wait for re-attach to sync position
+        composeTestRule.waitUntil(5000) {
+            try {
+                composeTestRule.onNodeWithText("00:05").assertExists()
+                true
+            } catch (e: Throwable) { false }
+        }
 
         // 5. Assert: Still at 00:05 (or at least not reset to 00:00)
         composeTestRule.onNodeWithText("00:05").assertExists()
