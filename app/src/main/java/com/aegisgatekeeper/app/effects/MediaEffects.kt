@@ -213,22 +213,26 @@ suspend fun handleMediaAndSystemEffects(
             }
         }
 
-        is GatekeeperAction.LogGiveUp -> {
+                is GatekeeperAction.LogGiveUp -> {
             // Go to the home screen to prevent re-interception loop
-            val homeIntent =
-                Intent(Intent.ACTION_MAIN).apply {
-                    addCategory(Intent.CATEGORY_HOME)
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                }
-            App.instance.startActivity(homeIntent)
+            if (!com.aegisgatekeeper.app.App.isRunningTest) {
+                val homeIntent =
+                    Intent(Intent.ACTION_MAIN).apply {
+                        addCategory(Intent.CATEGORY_HOME)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                App.instance.startActivity(homeIntent)
+            }
         }
 
-        is GatekeeperAction.FrictionCompleted -> {
+                is GatekeeperAction.FrictionCompleted -> {
             Log.d("Gatekeeper", "⚙️ FrictionCompleted: Relaunching app to ensure it wasn't killed")
-            val launchIntent = App.instance.packageManager.getLaunchIntentForPackage(action.packageName)
-            if (launchIntent != null) {
-                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                App.instance.startActivity(launchIntent)
+            if (!com.aegisgatekeeper.app.App.isRunningTest) {
+                val launchIntent = App.instance.packageManager.getLaunchIntentForPackage(action.packageName)
+                if (launchIntent != null) {
+                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    App.instance.startActivity(launchIntent)
+                }
             }
 
             Log.d("Gatekeeper", "⚙️ FrictionCompleted: Scheduling SessionExpired in ${action.allocatedDurationMillis}ms")
@@ -238,12 +242,14 @@ suspend fun handleMediaAndSystemEffects(
             }
         }
 
-        is GatekeeperAction.EmergencyBypassRequested -> {
+                is GatekeeperAction.EmergencyBypassRequested -> {
             Log.d("Gatekeeper", "⚙️ EmergencyBypassRequested: Relaunching app to ensure it wasn't killed")
-            val launchIntent = App.instance.packageManager.getLaunchIntentForPackage(action.packageName)
-            if (launchIntent != null) {
-                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                App.instance.startActivity(launchIntent)
+            if (!com.aegisgatekeeper.app.App.isRunningTest) {
+                val launchIntent = App.instance.packageManager.getLaunchIntentForPackage(action.packageName)
+                if (launchIntent != null) {
+                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    App.instance.startActivity(launchIntent)
+                }
             }
 
             Log.d("Gatekeeper", "⚙️ EmergencyBypassRequested: Scheduling SessionExpired in ${action.allocatedDurationMillis}ms")
@@ -253,16 +259,18 @@ suspend fun handleMediaAndSystemEffects(
             }
         }
 
-        is GatekeeperAction.RedeemCheckInToken -> {
+                is GatekeeperAction.RedeemCheckInToken -> {
             val group = newState.appGroups.find { it.id == action.groupId }
             val apps = group?.apps ?: emptySet()
             if (oldState.currentlyInterceptedApp in apps) {
                 val packageName = oldState.currentlyInterceptedApp!!
                 Log.d("Gatekeeper", "⚙️ RedeemCheckInToken: Relaunching app to ensure it wasn't killed")
-                val launchIntent = App.instance.packageManager.getLaunchIntentForPackage(packageName)
-                if (launchIntent != null) {
-                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    App.instance.startActivity(launchIntent)
+                if (!com.aegisgatekeeper.app.App.isRunningTest) {
+                    val launchIntent = App.instance.packageManager.getLaunchIntentForPackage(packageName)
+                    if (launchIntent != null) {
+                        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        App.instance.startActivity(launchIntent)
+                    }
                 }
 
                 val durationMillis = action.durationMinutes * 60_000L

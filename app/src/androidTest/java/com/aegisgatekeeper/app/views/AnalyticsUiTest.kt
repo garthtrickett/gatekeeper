@@ -18,49 +18,32 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AnalyticsUiTest {
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = androidx.compose.ui.test.junit4.createAndroidComposeRule<com.aegisgatekeeper.app.MainActivity>()
 
-            @Before
+    @Before
     fun setup() {
-        Log.d("Gatekeeper", "--> setup: START")
         GatekeeperStateManager.resetStateForTest()
-        Log.d("Gatekeeper", "--> setup: END")
     }
 
-            @After
+    @After
     fun tearDown() {
-        Log.d("Gatekeeper", "--> tearDown: START")
         GatekeeperStateManager.resetStateForTest()
-        Log.d("Gatekeeper", "--> tearDown: END")
     }
 
-            @Test
+    @Test
     fun testAnalytics_FreeTier_ShowsPaywall() {
-        Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: START")
-        try {
-            Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: CALLING setContent")
-            composeTestRule.setContent {
-                Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: INSIDE setContent")
-                GatekeeperTheme {
-                    Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: INSIDE GatekeeperTheme")
-                    AnalyticsScreen()
-                }
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                AnalyticsScreen()
             }
-            Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: setContent COMPLETED")
-        } catch (e: Throwable) {
-            Log.e("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: EXCEPTION in setContent", e)
-            throw e
         }
 
-        Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: ASSERTING")
         composeTestRule.onNodeWithText("Pro Analytics & Export").assertIsDisplayed()
         composeTestRule.onNodeWithText("Unlock Lifetime Pro - $129").assertIsDisplayed()
-        Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: END")
     }
 
-                @Test
+    @Test
     fun testAnalytics_ProTier_ShowsMetrics() {
-        Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: START")
         // We use reflection to set the state directly to avoid side-effects (like DB writes 
         // from UpgradeToProTier or navigating to the home screen via LogGiveUp) that can 
         // interfere with the test host Activity.
@@ -73,26 +56,15 @@ class AnalyticsUiTest {
             ) as kotlinx.coroutines.flow.MutableStateFlow<com.aegisgatekeeper.app.domain.GatekeeperState>
         stateFlow.value = stateFlow.value.copy(isProTier = true, analyticsGiveUps = 1)
 
-        try {
-            Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: CALLING setContent")
-            composeTestRule.setContent {
-                Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: INSIDE setContent")
-                GatekeeperTheme {
-                    Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: INSIDE GatekeeperTheme")
-                    AnalyticsScreen()
-                }
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                AnalyticsScreen()
             }
-            Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: setContent COMPLETED")
-        } catch (e: Throwable) {
-            Log.e("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: EXCEPTION in setContent", e)
-            throw e
         }
 
-        Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: ASSERTING")
         composeTestRule.onNodeWithText("Insights").assertIsDisplayed()
         composeTestRule.onNodeWithText("100%").assertIsDisplayed()
         composeTestRule.onNodeWithText("~15 mins").assertIsDisplayed()
         composeTestRule.onNodeWithText("Export Data (Markdown/CSV)").assertIsDisplayed()
-        Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: END")
     }
 }
