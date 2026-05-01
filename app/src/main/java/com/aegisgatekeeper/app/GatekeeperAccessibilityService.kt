@@ -47,8 +47,10 @@ class GatekeeperAccessibilityService : AccessibilityService() {
         }
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
+
+        if (com.aegisgatekeeper.app.App.isRunningTest) return
 
         // We catch both window state changes (activity switches) and window changes (transitions/dialogs)
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&

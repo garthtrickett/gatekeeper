@@ -37,10 +37,19 @@ class InterceptionUiTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-    @Test
+        @Test
     fun testInterceptionChoiceUiRendering() {
         // Arrange & Act: Render the composable directly.
-                composeTestRule.setContent {
+        // We need to set up the state so InterceptionScreen doesn't exit early.
+        GatekeeperStateManager.dispatch(
+            com.aegisgatekeeper.app.domain.GatekeeperAction.RuleViolationDetected(
+                packageName = testPackage,
+                reason = "Test Reason",
+                currentTimestamp = System.currentTimeMillis()
+            )
+        )
+
+        composeTestRule.setContent {
             GatekeeperTheme {
                 com.aegisgatekeeper.app.views.interception.InterceptionScreen()
             }
@@ -253,7 +262,7 @@ class InterceptionUiTest {
         composeTestRule.onNodeWithText("Unlock for 5 minutes").assertExists()
     }
 
-    @Test
+        @Test
     fun testInterceptionChoiceUi_ExpiredSessionRendering() {
         // Arrange: Seed state to simulate an expired session
         GatekeeperStateManager.dispatch(
@@ -263,12 +272,7 @@ class InterceptionUiTest {
 
         composeTestRule.setContent {
             GatekeeperTheme {
-                InterceptionChoiceUi(
-                    interceptedPackage = testPackage,
-                    contentItems = emptyList(),
-                    onBypass = { _ -> },
-                    onFriction = { _ -> },
-                )
+                com.aegisgatekeeper.app.views.interception.InterceptionScreen()
             }
         }
 

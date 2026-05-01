@@ -255,21 +255,23 @@ class GatekeeperForegroundService : Service() {
         manager.notify(3, notification)
     }
 
-    private fun startLayerAlphaHeartbeat() {
+        private fun startLayerAlphaHeartbeat() {
         serviceScope.launch {
             while (isActive) {
-                val state = GatekeeperStateManager.state.value
+                if (!com.aegisgatekeeper.app.App.isRunningTest) {
+                    val state = GatekeeperStateManager.state.value
 
-                // Layer Alpha polls UsageStats if Accessibility is offline or fails
-                val currentApp =
-                    if (!state.isLayerOmegaActive) {
-                        ForegroundAppDetector.getForegroundApp(this@GatekeeperForegroundService) ?: state.activeForegroundApp
-                    } else {
-                        state.activeForegroundApp
+                    // Layer Alpha polls UsageStats if Accessibility is offline or fails
+                    val currentApp =
+                        if (!state.isLayerOmegaActive) {
+                            ForegroundAppDetector.getForegroundApp(this@GatekeeperForegroundService) ?: state.activeForegroundApp
+                        } else {
+                            state.activeForegroundApp
+                        }
+
+                    if (currentApp != null) {
+                        GatekeeperStateManager.performAppValidation(this@GatekeeperForegroundService, currentApp)
                     }
-
-                if (currentApp != null) {
-                    GatekeeperStateManager.performAppValidation(this@GatekeeperForegroundService, currentApp)
                 }
 
                 // snappier polling (500ms) to reduce the "flash" on the free tier

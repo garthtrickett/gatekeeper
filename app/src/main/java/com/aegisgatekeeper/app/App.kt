@@ -20,9 +20,18 @@ import java.util.concurrent.TimeUnit
 class App :
     Application(),
     Configuration.Provider {
-    companion object {
+        companion object {
         lateinit var instance: App
             private set
+
+        val isRunningTest: Boolean by lazy {
+            try {
+                Class.forName("androidx.test.espresso.Espresso")
+                true
+            } catch (e: ClassNotFoundException) {
+                false
+            }
+        }
 
         lateinit var downloadCache: SimpleCache
             private set

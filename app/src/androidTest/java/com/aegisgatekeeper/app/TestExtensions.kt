@@ -21,10 +21,14 @@ fun GatekeeperStateManager.resetStateForTest() {
         val scope = scopeField.get(this) as CoroutineScope
         scope.coroutineContext.cancelChildren()
 
-        val stateFlowField = this.javaClass.getDeclaredField("_state")
+                val stateFlowField = this.javaClass.getDeclaredField("_state")
         stateFlowField.isAccessible = true
         @Suppress("UNCHECKED_CAST")
         (stateFlowField.get(this) as MutableStateFlow<GatekeeperState>).value = GatekeeperState()
+
+        val lastPackageField = this.javaClass.getDeclaredField("lastDetectedPackage")
+        lastPackageField.isAccessible = true
+        lastPackageField.set(this, null)
     } catch (e: Exception) {
         throw IllegalStateException("Failed to reset GatekeeperStateManager via reflection", e)
     }
