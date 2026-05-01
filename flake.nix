@@ -228,6 +228,7 @@
                     alias wipe='adb shell pm clear com.aegisgatekeeper.app.dev'
                     alias test-unit='gradle :app:test'
                     alias test-ui='adb logcat -c && (adb logcat -s Gatekeeper & LOG_PID=$!; gradle :app:connectedDevDebugAndroidTest; kill $LOG_PID)'
+                    alias test-only-player='gradle :app:connectedDevDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.aegisgatekeeper.app.views.NativePlayerPersistenceTest#testNativePlayer_MaintainsPosition_OnUiReentry'
 
                     # E2E Orchestration Pipeline
                     dev-sync() {

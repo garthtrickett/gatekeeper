@@ -142,10 +142,12 @@ fun NativeAudioPlayerModal(
             ContextCompat.getMainExecutor(context),
         )
 
-        onDispose {
+                onDispose {
             controller?.let {
-                val posToSave = if (it.playbackState == Player.STATE_ENDED) 0f else it.currentPosition / 1000f
-                GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(contentItem.videoId, posToSave))
+                if (it.playerError == null) {
+                    val posToSave = if (it.playbackState == Player.STATE_ENDED) 0f else it.currentPosition / 1000f
+                    GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(contentItem.videoId, posToSave))
+                }
                 it.pause()
                 it.release()
             }
@@ -163,9 +165,13 @@ fun NativeAudioPlayerModal(
         }
     }
 
-    androidx.activity.compose.BackHandler(enabled = isVisible) {
-        val posToSave = if (controller?.playbackState == Player.STATE_ENDED) 0f else currentPosition / 1000f
-        GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(contentItem.videoId, posToSave))
+        androidx.activity.compose.BackHandler(enabled = isVisible) {
+        controller?.let {
+            if (it.playerError == null) {
+                val posToSave = if (it.playbackState == Player.STATE_ENDED) 0f else currentPosition / 1000f
+                GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(contentItem.videoId, posToSave))
+            }
+        }
         onMinimize()
     }
 
@@ -248,15 +254,19 @@ fun NativeAudioPlayerModal(
                             modifier = Modifier.fillMaxWidth().background(Color.DarkGray).padding(8.dp),
                             contentAlignment = Alignment.TopEnd,
                         ) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 IndustrialButton(onClick = {
-                                    val posToSave = if (controller?.playbackState == Player.STATE_ENDED) 0f else currentPosition / 1000f
-                                    GatekeeperStateManager.dispatch(
-                                        GatekeeperAction.SaveMediaPosition(
-                                            contentItem.videoId,
-                                            posToSave,
-                                        ),
-                                    )
+                                    controller?.let {
+                                        if (it.playerError == null) {
+                                            val posToSave = if (it.playbackState == Player.STATE_ENDED) 0f else currentPosition / 1000f
+                                            GatekeeperStateManager.dispatch(
+                                                GatekeeperAction.SaveMediaPosition(
+                                                    contentItem.videoId,
+                                                    posToSave,
+                                                ),
+                                            )
+                                        }
+                                    }
                                     onMinimize()
                                 }, text = "Minimize")
                                 IndustrialButton(onClick = { showMetacognition = true }, text = "End Session", isWarning = true)

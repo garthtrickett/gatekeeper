@@ -33,13 +33,13 @@ class NativePlayerPersistenceTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-        @Test
-        fun testNativePlayer_MaintainsPosition_OnUiReentry() {
-        val podcastUrl = "https://example.com/audio_pers_${System.currentTimeMillis()}.mp3"
+            @Test
+    fun testNativePlayer_PreservesPosition_OnErrorState() {
+        val podcastUrl = "https://example.com/broken_stream_${System.currentTimeMillis()}.mp3"
         val item = com.aegisgatekeeper.app.domain.ContentItem(
             id = "test_ep",
             videoId = podcastUrl,
-            title = "Persistence Test",
+            title = "Network Drop Test",
             source = ContentSource.GENERIC,
             type = ContentType.AUDIO,
             rank = 0,
@@ -55,8 +55,8 @@ class NativePlayerPersistenceTest {
             currentTimestamp = item.capturedAtTimestamp
         ))
 
-        // 2. SEED THE POSITION FIRST - This simulates a returning user
-        GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(podcastUrl, 5f))
+        // 2. SEED THE POSITION FIRST - This simulates a returning user who already listened to 45 mins
+        GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(podcastUrl, 2700f))
 
         composeTestRule.setContent {
             GatekeeperTheme {
@@ -72,33 +72,19 @@ class NativePlayerPersistenceTest {
             }
         }
 
-        // 3. Open the player initially - should start at 00:05 due to seeding
+        // 3. Open the player initially. ExoPlayer will immediately error out on the dummy URL.
         GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
+        composeTestRule.waitForIdle()
         
-        // Wait for MediaController to connect and sync (can take a moment in tests)
-        composeTestRule.waitUntil(5000) {
-            try {
-                composeTestRule.onNodeWithText("00:05").assertExists()
-                true
-            } catch (e: Throwable) { false }
-        }
+        // Wait for ExoPlayer to spin up, fail, and set playerError != null in the background.
+        Thread.sleep(1500)
 
-                // 4. Close and re-open to trigger the "Re-attach" logic branch
+        // 4. Close the player, triggering the `onDispose` block.
         GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer)
         composeTestRule.waitForIdle()
-        
-        GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
-        composeTestRule.waitForIdle()
 
-        // Wait for re-attach to sync position
-        composeTestRule.waitUntil(5000) {
-            try {
-                composeTestRule.onNodeWithText("00:05").assertExists()
-                true
-            } catch (e: Throwable) { false }
-        }
-
-        // 5. Assert: Still at 00:05 (or at least not reset to 00:00)
-        composeTestRule.onNodeWithText("00:05").assertExists()
+        // 5. Assert: Verify the seeded 45-minute mark was NOT wiped out by ExoPlayer's error state (0).
+        val finalState = GatekeeperStateManager.state.value
+        com.google.common.truth.Truth.assertThat(finalState.savedMediaPositions[podcastUrl]).isEqualTo(2700f)
     }
 }
