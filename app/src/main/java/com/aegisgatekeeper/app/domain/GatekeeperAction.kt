@@ -272,7 +272,7 @@ sealed interface GatekeeperAction {
         val combinator: RuleCombinator = RuleCombinator.ANY,
     ) : GatekeeperAction
 
-        data class UpdateGroupCombinator(
+    data class UpdateGroupCombinator(
         val groupId: String,
         val combinator: RuleCombinator,
     ) : GatekeeperAction

@@ -111,7 +111,7 @@ fun EditGroupNameDialog(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     IndustrialButton(onClick = onDismiss, text = "Cancel", isWarning = true)

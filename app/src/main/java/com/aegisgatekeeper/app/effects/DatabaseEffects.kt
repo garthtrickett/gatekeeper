@@ -245,7 +245,7 @@ fun handleDatabaseEffects(
             }
         }
 
-                is GatekeeperAction.UpdateGroupCombinator -> {
+        is GatekeeperAction.UpdateGroupCombinator -> {
             db.appGroupQueries.updateCombinator(action.combinator, action.groupId)
         }
 

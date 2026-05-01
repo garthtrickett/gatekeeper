@@ -213,7 +213,7 @@ private fun reduceRulesAndIntercepts(
             state.copy(appGroups = state.appGroups + newGroup)
         }
 
-                is GatekeeperAction.UpdateGroupCombinator -> {
+        is GatekeeperAction.UpdateGroupCombinator -> {
             state.copy(
                 appGroups =
                     state.appGroups.map {

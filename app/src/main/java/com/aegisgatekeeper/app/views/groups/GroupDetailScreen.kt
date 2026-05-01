@@ -55,13 +55,13 @@ fun GroupDetailScreen(
     var showScheduledBlockDialog by remember { mutableStateOf(false) }
     var showCheckInDialog by remember { mutableStateOf(false) }
     var editingCheckInRule by remember { mutableStateOf<com.aegisgatekeeper.app.domain.BlockingRule.CheckIn?>(null) }
-        var showEditAppsDialog by remember { mutableStateOf(false) }
+    var showEditAppsDialog by remember { mutableStateOf(false) }
     var showDomainBlockDialog by remember { mutableStateOf(false) }
     var showEditNameDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val pm = context.packageManager
 
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(group.name, style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.width(8.dp))
@@ -370,7 +370,7 @@ fun GroupDetailScreen(
         ScheduledBlockDialog(group = group, onDismiss = { showScheduledBlockDialog = false })
     }
 
-        if (showDomainBlockDialog) {
+    if (showDomainBlockDialog) {
         DomainBlockDialog(group = group, onDismiss = { showDomainBlockDialog = false })
     }
 
