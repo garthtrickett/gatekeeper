@@ -353,8 +353,12 @@ actual fun CleanPlayerModal(
                                                 'playsinline': 1,
                                                 'origin': 'https://app.aegisgatekeeper.com'
                                             },
-                                            events: {
-                                                'onReady': function(e) { e.target.playVideo(); },
+                                                                                        events: {
+                                                'onReady': function(e) {
+                                                    if (${if (isVisible) "true" else "false"}) {
+                                                        e.target.playVideo();
+                                                    }
+                                                },
                                                 'onStateChange': onPlayerStateChange,
                                                 'onError': onPlayerError
                                             }

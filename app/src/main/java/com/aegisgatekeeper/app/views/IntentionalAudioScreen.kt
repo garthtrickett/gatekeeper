@@ -612,9 +612,11 @@ fun CleanAudioPlayerModal(
                                         var widget = SC.Widget(widgetIframe);
                                         var lastState = -1;
 
-                                        widget.bind(SC.Widget.Events.READY, function() {
+                                                                                widget.bind(SC.Widget.Events.READY, function() {
                                             widget.seekTo(${startSeconds.toInt() * 1000});
-                                            widget.play();
+                                            if (${if (isVisible) "true" else "false"}) {
+                                                widget.play();
+                                            }
                                         });
 
                                         setInterval(function() {
