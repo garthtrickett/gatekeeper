@@ -24,14 +24,7 @@ class App :
         lateinit var instance: App
             private set
 
-        val isRunningTest: Boolean by lazy {
-            try {
-                Class.forName("androidx.test.espresso.Espresso")
-                true
-            } catch (e: ClassNotFoundException) {
-                false
-            }
-        }
+                var isRunningTest: Boolean = false
 
         lateinit var downloadCache: SimpleCache
             private set

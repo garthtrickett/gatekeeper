@@ -11,7 +11,19 @@ import androidx.test.runner.AndroidJUnitRunner
  * before any test code runs, preventing `NoClassDefFoundError`.
  */
 class CustomTestRunner : AndroidJUnitRunner() {
-    override fun newApplication(
+        override fun newApplication(
+        cl: ClassLoader?,
+        className: String?,
+        context: Context?,
+    ): Application {
+        com.aegisgatekeeper.app.App.isRunningTest = true
+        // Ensure a clean slate for instrumented tests by deleting any existing database
+        // before the Application (and GatekeeperStateManager singleton) initializes.
+        context?.deleteDatabase("gatekeeper.db")
+        context?.deleteDatabase("gatekeeper.db-wal")
+        context?.deleteDatabase("gatekeeper.db-shm")
+        return super.newApplication(cl, com.aegisgatekeeper.app.App::class.java.name, context)
+    }
         cl: ClassLoader?,
         className: String?,
         context: Context?,
