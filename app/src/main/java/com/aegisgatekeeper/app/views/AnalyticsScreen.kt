@@ -26,7 +26,7 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 @Suppress("FunctionName")
 @Composable
 fun AnalyticsScreen() {
-    android.util.Log.d("GatekeeperTest", "--> AnalyticsScreen: COMPOSING")
+    android.util.Log.d("Gatekeeper", "--> AnalyticsScreen: COMPOSING")
     val state by GatekeeperStateManager.state.collectAsState()
     val context = LocalContext.current
 

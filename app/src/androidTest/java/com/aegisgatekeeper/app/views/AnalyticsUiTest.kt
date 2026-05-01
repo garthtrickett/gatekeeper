@@ -20,47 +20,47 @@ class AnalyticsUiTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-        @Before
+            @Before
     fun setup() {
-        Log.d("GatekeeperTest", "--> setup: START")
+        Log.d("Gatekeeper", "--> setup: START")
         GatekeeperStateManager.resetStateForTest()
-        Log.d("GatekeeperTest", "--> setup: END")
+        Log.d("Gatekeeper", "--> setup: END")
     }
 
-        @After
+            @After
     fun tearDown() {
-        Log.d("GatekeeperTest", "--> tearDown: START")
+        Log.d("Gatekeeper", "--> tearDown: START")
         GatekeeperStateManager.resetStateForTest()
-        Log.d("GatekeeperTest", "--> tearDown: END")
-    }
-
-        @Test
-    fun testAnalytics_FreeTier_ShowsPaywall() {
-        Log.d("GatekeeperTest", "--> testAnalytics_FreeTier_ShowsPaywall: START")
-        try {
-            Log.d("GatekeeperTest", "--> testAnalytics_FreeTier_ShowsPaywall: CALLING setContent")
-            composeTestRule.setContent {
-                Log.d("GatekeeperTest", "--> testAnalytics_FreeTier_ShowsPaywall: INSIDE setContent")
-                GatekeeperTheme {
-                    Log.d("GatekeeperTest", "--> testAnalytics_FreeTier_ShowsPaywall: INSIDE GatekeeperTheme")
-                    AnalyticsScreen()
-                }
-            }
-            Log.d("GatekeeperTest", "--> testAnalytics_FreeTier_ShowsPaywall: setContent COMPLETED")
-        } catch (e: Throwable) {
-            Log.e("GatekeeperTest", "--> testAnalytics_FreeTier_ShowsPaywall: EXCEPTION in setContent", e)
-            throw e
-        }
-
-        Log.d("GatekeeperTest", "--> testAnalytics_FreeTier_ShowsPaywall: ASSERTING")
-        composeTestRule.onNodeWithText("Pro Analytics & Export").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Unlock Lifetime Pro - $129").assertIsDisplayed()
-        Log.d("GatekeeperTest", "--> testAnalytics_FreeTier_ShowsPaywall: END")
+        Log.d("Gatekeeper", "--> tearDown: END")
     }
 
             @Test
+    fun testAnalytics_FreeTier_ShowsPaywall() {
+        Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: START")
+        try {
+            Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: CALLING setContent")
+            composeTestRule.setContent {
+                Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: INSIDE setContent")
+                GatekeeperTheme {
+                    Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: INSIDE GatekeeperTheme")
+                    AnalyticsScreen()
+                }
+            }
+            Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: setContent COMPLETED")
+        } catch (e: Throwable) {
+            Log.e("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: EXCEPTION in setContent", e)
+            throw e
+        }
+
+        Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: ASSERTING")
+        composeTestRule.onNodeWithText("Pro Analytics & Export").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Unlock Lifetime Pro - $129").assertIsDisplayed()
+        Log.d("Gatekeeper", "--> testAnalytics_FreeTier_ShowsPaywall: END")
+    }
+
+                @Test
     fun testAnalytics_ProTier_ShowsMetrics() {
-        Log.d("GatekeeperTest", "--> testAnalytics_ProTier_ShowsMetrics: START")
+        Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: START")
         // We use reflection to set the state directly to avoid side-effects (like DB writes 
         // from UpgradeToProTier or navigating to the home screen via LogGiveUp) that can 
         // interfere with the test host Activity.
@@ -74,25 +74,25 @@ class AnalyticsUiTest {
         stateFlow.value = stateFlow.value.copy(isProTier = true, analyticsGiveUps = 1)
 
         try {
-            Log.d("GatekeeperTest", "--> testAnalytics_ProTier_ShowsMetrics: CALLING setContent")
+            Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: CALLING setContent")
             composeTestRule.setContent {
-                Log.d("GatekeeperTest", "--> testAnalytics_ProTier_ShowsMetrics: INSIDE setContent")
+                Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: INSIDE setContent")
                 GatekeeperTheme {
-                    Log.d("GatekeeperTest", "--> testAnalytics_ProTier_ShowsMetrics: INSIDE GatekeeperTheme")
+                    Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: INSIDE GatekeeperTheme")
                     AnalyticsScreen()
                 }
             }
-            Log.d("GatekeeperTest", "--> testAnalytics_ProTier_ShowsMetrics: setContent COMPLETED")
+            Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: setContent COMPLETED")
         } catch (e: Throwable) {
-            Log.e("GatekeeperTest", "--> testAnalytics_ProTier_ShowsMetrics: EXCEPTION in setContent", e)
+            Log.e("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: EXCEPTION in setContent", e)
             throw e
         }
 
-        Log.d("GatekeeperTest", "--> testAnalytics_ProTier_ShowsMetrics: ASSERTING")
+        Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: ASSERTING")
         composeTestRule.onNodeWithText("Insights").assertIsDisplayed()
         composeTestRule.onNodeWithText("100%").assertIsDisplayed()
         composeTestRule.onNodeWithText("~15 mins").assertIsDisplayed()
         composeTestRule.onNodeWithText("Export Data (Markdown/CSV)").assertIsDisplayed()
-        Log.d("GatekeeperTest", "--> testAnalytics_ProTier_ShowsMetrics: END")
+        Log.d("Gatekeeper", "--> testAnalytics_ProTier_ShowsMetrics: END")
     }
 }
