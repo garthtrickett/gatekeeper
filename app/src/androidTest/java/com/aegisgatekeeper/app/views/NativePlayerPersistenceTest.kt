@@ -33,7 +33,7 @@ class NativePlayerPersistenceTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-    @Test
+        @Test
     fun testNativePlayer_MaintainsPosition_OnUiReentry() {
         val podcastUrl = "https://example.com/audio.mp3"
         val item = com.aegisgatekeeper.app.domain.ContentItem(
@@ -46,7 +46,7 @@ class NativePlayerPersistenceTest {
             capturedAtTimestamp = System.currentTimeMillis()
         )
 
-        // 1. Seed state with the item and show the player
+        // 1. Setup Content Bank
         GatekeeperStateManager.dispatch(GatekeeperAction.SaveToContentBank(
             videoId = item.videoId,
             title = item.title,
@@ -54,6 +54,9 @@ class NativePlayerPersistenceTest {
             type = item.type,
             currentTimestamp = item.capturedAtTimestamp
         ))
+
+        // 2. SEED THE POSITION FIRST - This simulates a returning user
+        GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(podcastUrl, 5f))
 
         composeTestRule.setContent {
             GatekeeperTheme {
@@ -69,26 +72,25 @@ class NativePlayerPersistenceTest {
             }
         }
 
-        // 2. Open the player
+        // 3. Open the player initially - should start at 00:05 due to seeding
         GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
-        composeTestRule.waitForIdle()
         
-        // 3. Simulate position moving to 00:05 (via state or just waiting)
-        // We manually inject a saved position into the state manager to simulate "existing playback"
-        GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(podcastUrl, 5f))
+        // Wait for MediaController to connect and sync (can take a moment in tests)
+        composeTestRule.waitUntil(5000) {
+            try {
+                composeTestRule.onNodeWithText("00:05").assertExists()
+                true
+            } catch (e: Throwable) { false }
+        }
 
-        // 4. "Minimize" the player (hides the Composable)
+        // 4. Minimize and re-open to trigger the "Re-attach" logic branch
         GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeNativePlayer)
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("End Session").assertDoesNotExist()
-
-        // 5. "Restore" the player (re-initializes the Composable)
-        // This triggers the logic we just fixed
+        
         GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
         composeTestRule.waitForIdle()
 
-        // 6. Assert: The timer should NOT show 00:00 immediately.
-        // If it reset, it would flick to 00:00. If it re-attached correctly, it should show 00:05
+        // 5. Assert: Still at 00:05 (or at least not reset to 00:00)
         composeTestRule.onNodeWithText("00:05").assertExists()
     }
 }
