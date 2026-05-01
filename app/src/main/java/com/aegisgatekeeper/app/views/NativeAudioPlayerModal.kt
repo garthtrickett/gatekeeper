@@ -93,25 +93,32 @@ fun NativeAudioPlayerModal(
             {
                 val mediaController = controllerFuture?.get()
                 controller = mediaController
-                mediaController?.let { mc ->
-                    val mediaItem =
-                        MediaItem
-                            .Builder()
-                            .setMediaId(contentItem.videoId)
-                            .setUri(contentItem.videoId)
-                            .setMediaMetadata(
-                                MediaMetadata
-                                    .Builder()
-                                    .setTitle(contentItem.title)
-                                    .setArtist(contentItem.channelName ?: "Podcast")
-                                    .setArtworkUri(artworkUrl?.let { android.net.Uri.parse(it) })
-                                    .build(),
-                            ).build()
+                                mediaController?.let { mc ->
+                    val isAlreadyPlayingThis = mc.currentMediaItem?.mediaId == contentItem.videoId
 
-                    mc.setMediaItem(mediaItem)
-                    mc.prepare()
-                    mc.seekTo((savedPosition * 1000).toLong())
-                    mc.play()
+                    if (!isAlreadyPlayingThis) {
+                        android.util.Log.d("Gatekeeper", "🎵 NativePlayer: Initializing new media session for ${contentItem.title}")
+                        val mediaItem =
+                            MediaItem
+                                .Builder()
+                                .setMediaId(contentItem.videoId)
+                                .setUri(contentItem.videoId)
+                                .setMediaMetadata(
+                                    MediaMetadata
+                                        .Builder()
+                                        .setTitle(contentItem.title)
+                                        .setArtist(contentItem.channelName ?: "Podcast")
+                                        .setArtworkUri(artworkUrl?.let { android.net.Uri.parse(it) })
+                                        .build(),
+                                ).build()
+
+                        mc.setMediaItem(mediaItem)
+                        mc.prepare()
+                        mc.seekTo((savedPosition * 1000).toLong())
+                        mc.play()
+                    } else {
+                        android.util.Log.d("Gatekeeper", "🎵 NativePlayer: Re-attaching to existing background session at ${mc.currentPosition}ms")
+                    }
 
                     mc.addListener(
                         object : Player.Listener {
