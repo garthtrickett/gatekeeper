@@ -116,8 +116,14 @@ fun NativeAudioPlayerModal(
                         mc.prepare()
                         mc.seekTo((savedPosition * 1000).toLong())
                         mc.play()
-                    } else {
+                                        } else {
                         android.util.Log.d("Gatekeeper", "🎵 NativePlayer: Re-attaching to existing background session at ${mc.currentPosition}ms")
+                        // If the service is at 0 but we have a saved position, the service likely reset.
+                        // Resync it without a full media item reset to avoid a 'flicker'.
+                        if (mc.currentPosition < 1000 && savedPosition > 2f) {
+                            android.util.Log.d("Gatekeeper", "🎵 NativePlayer: Syncing existing session to saved position: ${savedPosition}s")
+                            mc.seekTo((savedPosition * 1000).toLong())
+                        }
                     }
 
                     mc.addListener(
