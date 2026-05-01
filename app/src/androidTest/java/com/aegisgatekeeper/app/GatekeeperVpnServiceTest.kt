@@ -69,45 +69,7 @@ class GatekeeperVpnServiceTest {
             // Since domain blocks are now globally applied, the blacklist should STILL contain the domain.
             val stateOtherApp = stateWithRule.copy(activeForegroundApp = "com.other.app")
             service.updateBlacklist(stateOtherApp)
-            assertThat(getActiveBlacklist(service)).contains("youtube.com")
-        }
-        runBlocking<Unit> {
-            val service = GatekeeperVpnService()
-
-            // 1. Initial state should have an empty blacklist
-            assertThat(getActiveBlacklist(service)).isEmpty()
-
-            // 2. Manually construct state to isolate unit test from global Database side-effects
-            val group =
-                AppGroup(
-                    id = "group1",
-                    name = "Test",
-                    apps = setOf("com.example.app"),
-                    rules =
-                        listOf(
-                            BlockingRule.DomainBlock(
-                                id = "rule1",
-                                groupId = "group1",
-                                domains = setOf("youtube.com"),
-                            ),
-                        ),
-                )
-            val stateWithRule =
-                GatekeeperState(
-                    appGroups = listOf(group),
-                    activeForegroundApp = "com.example.app",
-                )
-
-            // 4. Update the state in the service manually
-            service.updateBlacklist(stateWithRule)
-
-            // 5. Verify the internal blacklist is updated
-            assertThat(getActiveBlacklist(service)).contains("youtube.com")
-
-            // 6. Change foreground app to one not in the group
-            val stateOtherApp = stateWithRule.copy(activeForegroundApp = "com.other.app")
-            service.updateBlacklist(stateOtherApp)
-            assertThat(getActiveBlacklist(service)).isEmpty()
+                        assertThat(getActiveBlacklist(service)).contains("youtube.com")
         }
 
     @Test

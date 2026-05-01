@@ -79,7 +79,7 @@ fun InterceptionScreen() {
     var selectedTimeMillis by remember { mutableStateOf(15 * 60_000L) }
 
     when (screen) {
-                "CHOICE" -> {
+        "CHOICE" -> {
             val isExpired = state.expiredSessionDurationMillis != null
             val msg = if (isExpired) "Time's up." else (state.activeBlockReason ?: state.customMessages[interceptedPackage])
             InterceptionChoiceUi(
@@ -224,7 +224,7 @@ fun InterceptionChoiceUi(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                                if (step == "PROMPT") {
+                if (step == "PROMPT") {
                     Text(
                         text = customMessage ?: "Take a breath.",
                         color = Color.White,
@@ -236,7 +236,14 @@ fun InterceptionChoiceUi(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    val subText = if (state.expiredSessionDurationMillis != null) "Do you want to continue using $appName?" else "You are about to open $appName."
+                    val subText =
+                        if (state.expiredSessionDurationMillis !=
+                            null
+                        ) {
+                            "Do you want to continue using $appName?"
+                        } else {
+                            "You are about to open $appName."
+                        }
                     Text(
                         text = subText,
                         color = Color.White.copy(alpha = 0.8f),

@@ -75,7 +75,7 @@ class GatekeeperVpnService : VpnService() {
                 blockedDomains.addAll(it.domains)
             }
         }
-        
+
         activeBlacklist = blockedDomains
     }
 
@@ -85,19 +85,24 @@ class GatekeeperVpnService : VpnService() {
         try {
             val builder = Builder()
             builder.addAddress("10.0.0.2", 32)
-            
+
             // Dummy DNS Server to force interception
             builder.addDnsServer("10.0.0.3")
             builder.addRoute("10.0.0.3", 32)
-            
+
             // Sinkhole known DoH (DNS over HTTPS) providers to force fallback to system DNS
-            val dohIps = listOf(
-                "8.8.8.8", "8.8.4.4", // Google
-                "1.1.1.1", "1.0.0.1", // Cloudflare
-                "9.9.9.9", "149.112.112.112", // Quad9
-                "94.140.14.14", "94.140.15.15" // AdGuard
-            )
-                        dohIps.forEach { builder.addRoute(it, 32) }
+            val dohIps =
+                listOf(
+                    "8.8.8.8",
+                    "8.8.4.4", // Google
+                    "1.1.1.1",
+                    "1.0.0.1", // Cloudflare
+                    "9.9.9.9",
+                    "149.112.112.112", // Quad9
+                    "94.140.14.14",
+                    "94.140.15.15", // AdGuard
+                )
+            dohIps.forEach { builder.addRoute(it, 32) }
 
             try {
                 builder.addDisallowedApplication(packageName)
@@ -246,7 +251,7 @@ class GatekeeperVpnService : VpnService() {
                 outputStream.write(outPacket)
             } catch (e: Exception) {
                 Log.e("Gatekeeper", "❌ VPN DNS Forward Error: ${e.message}")
-                        } finally {
+            } finally {
                 socket?.close()
             }
         }

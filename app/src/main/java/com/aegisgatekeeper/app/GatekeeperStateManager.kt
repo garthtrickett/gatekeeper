@@ -379,20 +379,21 @@ object GatekeeperStateManager {
      * Centralized validation logic called by both the Foreground Heartbeat (Alpha)
      * and the Accessibility Event Stream (Omega) for zero-latency blocking.
      */
-        fun performAppValidation(
+    fun performAppValidation(
         context: Context,
         currentApp: String,
     ) {
         // Ignore system UI, keyboards, and other non-app overlays
-        if (currentApp == "com.android.systemui" || 
-            currentApp.contains("inputmethod", ignoreCase = true) || 
-            currentApp.contains("keyboard", ignoreCase = true)) {
+        if (currentApp == "com.android.systemui" ||
+            currentApp.contains("inputmethod", ignoreCase = true) ||
+            currentApp.contains("keyboard", ignoreCase = true)
+        ) {
             return
         }
 
         val state = state.value
 
-        // If our overlay is currently active, we don't want the overlay itself 
+        // If our overlay is currently active, we don't want the overlay itself
         // to be considered a "new app switch" that alters the lastDetectedPackage.
         if (state.isOverlayActive && currentApp == context.packageName) {
             return
@@ -400,10 +401,12 @@ object GatekeeperStateManager {
 
         val isNewApp = currentApp != lastDetectedPackage
 
-                if (isNewApp) {
+        if (isNewApp) {
             if (lastDetectedPackage != null) {
                 val whitelist = state.activeWhitelists[lastDetectedPackage]
-                if (whitelist != null && System.currentTimeMillis() < whitelist.expiresAtTimestamp && whitelist.reason != "GIVE_UP_GRACE_PERIOD") {
+                if (whitelist != null && System.currentTimeMillis() < whitelist.expiresAtTimestamp &&
+                    whitelist.reason != "GIVE_UP_GRACE_PERIOD"
+                ) {
                     dispatch(GatekeeperAction.TriggerExitInterview(lastDetectedPackage!!))
                 }
             }
@@ -519,7 +522,7 @@ object GatekeeperStateManager {
                 }
             }
 
-                        if (isBlocked) {
+            if (isBlocked) {
                 if (isNewApp || !state.isOverlayActive) {
                     dispatch(GatekeeperAction.RuleViolationDetected(currentApp, blockReason, System.currentTimeMillis()))
                 }

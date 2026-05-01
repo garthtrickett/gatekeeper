@@ -124,7 +124,7 @@ class GatekeeperReducerTest {
     @Test
     fun testEmergencyBypassRequested_GrantsWhitelist_DismissesOverlay() {
         // Arrange: The overlay is currently active.
-                val stateWithOverlay =
+        val stateWithOverlay =
             initialState.copy(
                 isOverlayActive = true,
                 currentlyInterceptedApp = blacklistedApp,
@@ -142,7 +142,7 @@ class GatekeeperReducerTest {
         // Act
         val newState = reduce(stateWithOverlay, action)
 
-                // Assert: The overlay is dismissed and a whitelist is created.
+        // Assert: The overlay is dismissed and a whitelist is created.
         assertThat(newState.isOverlayActive).isFalse()
         assertThat(newState.currentlyInterceptedApp).isNull()
         assertThat(newState.expiredSessionDurationMillis).isNull()
