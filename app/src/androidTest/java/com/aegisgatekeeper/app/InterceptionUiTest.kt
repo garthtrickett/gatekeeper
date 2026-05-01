@@ -253,8 +253,34 @@ class InterceptionUiTest {
             }
         }
 
-        // Assert: Initial state
+                // Assert: Initial state
         composeTestRule.onNodeWithText("Why do you need to open Interceptedapp?").assertExists()
         composeTestRule.onNodeWithText("Unlock for 5 minutes").assertExists()
+    }
+
+    @Test
+    fun testInterceptionChoiceUi_ExpiredSessionRendering() {
+        // Arrange: Seed state to simulate an expired session
+        GatekeeperStateManager.dispatch(
+            com.aegisgatekeeper.app.domain.GatekeeperAction.SessionExpired(testPackage, 300_000L)
+        )
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                InterceptionChoiceUi(
+                    interceptedPackage = testPackage,
+                    contentItems = emptyList(),
+                    onBypass = { _ -> },
+                    onFriction = { _ -> },
+                )
+            }
+        }
+
+        // Assert: Verify the modified phrasing for an expired session
+        composeTestRule.onNodeWithText("Time's up.").assertExists()
+        composeTestRule.onNodeWithText("Do you want to continue using Interceptedapp?").assertExists()
+        
+        // Ensure default prompt is gone
+        composeTestRule.onNodeWithText("Take a breath.").assertDoesNotExist()
     }
 }
