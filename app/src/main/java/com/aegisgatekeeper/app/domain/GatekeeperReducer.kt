@@ -93,7 +93,7 @@ private fun reduceRulesAndIntercepts(
         }
 
         // --- Friction & Bypass Logic (The "Uber" Problem) ---
-                is GatekeeperAction.EmergencyBypassRequested -> {
+                        is GatekeeperAction.EmergencyBypassRequested -> {
             val expiresAt = action.currentTimestamp + action.allocatedDurationMillis
             val newWhitelist =
                 TemporaryWhitelist(
@@ -107,13 +107,15 @@ private fun reduceRulesAndIntercepts(
             state.copy(
                 isOverlayActive = false,
                 currentlyInterceptedApp = null,
+                expiredSessionDurationMillis = null,
+                activeBlockReason = null,
                 pendingExitInterview = null,
                 activeWhitelists = state.activeWhitelists + (action.packageName to newWhitelist),
                 analyticsBypasses = state.analyticsBypasses + 1,
             )
         }
 
-                is GatekeeperAction.LogGiveUp -> {
+                        is GatekeeperAction.LogGiveUp -> {
             // CRITICAL FIX: Grant a 2-second grace period to prevent re-interception
             // during the race between the overlay disappearing and the home intent firing.
             val gracePeriodExpires = action.currentTimestamp + 2000L
@@ -129,6 +131,8 @@ private fun reduceRulesAndIntercepts(
             state.copy(
                 analyticsGiveUps = state.analyticsGiveUps + 1,
                 activeWhitelists = state.activeWhitelists + (action.packageName to newWhitelist),
+                expiredSessionDurationMillis = null,
+                activeBlockReason = null,
                 pendingExitInterview = null,
             )
         }
@@ -141,7 +145,7 @@ private fun reduceRulesAndIntercepts(
             state.copy(notificationDigest = emptyList())
         }
 
-                is GatekeeperAction.FrictionCompleted -> {
+                        is GatekeeperAction.FrictionCompleted -> {
             val expiresAt = action.currentTimestamp + action.allocatedDurationMillis
             val newWhitelist =
                 TemporaryWhitelist(
@@ -155,6 +159,8 @@ private fun reduceRulesAndIntercepts(
             state.copy(
                 isOverlayActive = false,
                 currentlyInterceptedApp = null,
+                expiredSessionDurationMillis = null,
+                activeBlockReason = null,
                 pendingExitInterview = null,
                 activeWhitelists = state.activeWhitelists + (action.packageName to newWhitelist),
                 analyticsBypasses = state.analyticsBypasses + 1,
@@ -342,7 +348,7 @@ private fun reduceRulesAndIntercepts(
             )
         }
 
-                is GatekeeperAction.RedeemCheckInToken -> {
+                        is GatekeeperAction.RedeemCheckInToken -> {
             val newLog =
                 ConsumedCheckIn(
                     groupId = action.groupId,
@@ -368,6 +374,8 @@ private fun reduceRulesAndIntercepts(
             state.copy(
                 isOverlayActive = if (dismissed) false else state.isOverlayActive,
                 currentlyInterceptedApp = if (dismissed) null else state.currentlyInterceptedApp,
+                expiredSessionDurationMillis = if (dismissed) null else state.expiredSessionDurationMillis,
+                activeBlockReason = if (dismissed) null else state.activeBlockReason,
                 pendingExitInterview = if (dismissed) null else state.pendingExitInterview,
                 consumedCheckIns = state.consumedCheckIns + newLog,
                 activeWhitelists = state.activeWhitelists + whitelists,
