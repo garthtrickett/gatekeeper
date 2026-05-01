@@ -40,14 +40,9 @@ class InterceptionUiTest {
     @Test
     fun testInterceptionChoiceUiRendering() {
         // Arrange & Act: Render the composable directly.
-        composeTestRule.setContent {
+                composeTestRule.setContent {
             GatekeeperTheme {
-                InterceptionChoiceUi(
-                    interceptedPackage = testPackage,
-                    contentItems = emptyList(),
-                    onBypass = { _ -> },
-                    onFriction = { _ -> },
-                )
+                com.aegisgatekeeper.app.views.interception.InterceptionScreen()
             }
         }
 

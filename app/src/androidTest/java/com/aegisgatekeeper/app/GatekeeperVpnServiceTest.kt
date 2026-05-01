@@ -69,7 +69,7 @@ class GatekeeperVpnServiceTest {
             // Since domain blocks are now globally applied, the blacklist should STILL contain the domain.
             val stateOtherApp = stateWithRule.copy(activeForegroundApp = "com.other.app")
             service.updateBlacklist(stateOtherApp)
-                        assertThat(getActiveBlacklist(service)).contains("youtube.com")
+            assertThat(getActiveBlacklist(service)).contains("youtube.com")
         }
 
     @Test
