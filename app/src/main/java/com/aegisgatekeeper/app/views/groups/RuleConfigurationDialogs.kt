@@ -88,6 +88,53 @@ fun RuleChoiceDialog(
 
 @Suppress("FunctionName")
 @Composable
+fun EditGroupNameDialog(
+    group: AppGroup,
+    onDismiss: () -> Unit,
+) {
+    var name by remember { mutableStateOf(group.name) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text("Edit Group Name", style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                IndustrialTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Group Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    IndustrialButton(onClick = onDismiss, text = "Cancel", isWarning = true)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    IndustrialButton(
+                        onClick = {
+                            val trimmed = name.trim()
+                            if (trimmed.isNotBlank() && trimmed != group.name) {
+                                GatekeeperStateManager.dispatch(GatekeeperAction.UpdateGroupName(group.id, trimmed))
+                            }
+                            onDismiss()
+                        },
+                        text = "Save",
+                        enabled = name.isNotBlank(),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Suppress("FunctionName")
+@Composable
 fun DomainBlockDialog(
     group: AppGroup,
     onDismiss: () -> Unit,

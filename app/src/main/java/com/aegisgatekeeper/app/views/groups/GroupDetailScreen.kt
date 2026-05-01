@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.domain.AppGroup
 import com.aegisgatekeeper.app.domain.BlockingRule
@@ -37,6 +38,7 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 import com.aegisgatekeeper.app.domain.TimeSlot
 import com.aegisgatekeeper.app.views.groups.CheckInDialog
 import com.aegisgatekeeper.app.views.groups.EditAppsDialog
+import com.aegisgatekeeper.app.views.groups.EditGroupNameDialog
 import com.aegisgatekeeper.app.views.groups.RuleChoiceDialog
 import com.aegisgatekeeper.app.views.groups.ScheduledBlockDialog
 import java.util.UUID
@@ -52,13 +54,22 @@ fun GroupDetailScreen(
     var showScheduledBlockDialog by remember { mutableStateOf(false) }
     var showCheckInDialog by remember { mutableStateOf(false) }
     var editingCheckInRule by remember { mutableStateOf<com.aegisgatekeeper.app.domain.BlockingRule.CheckIn?>(null) }
-    var showEditAppsDialog by remember { mutableStateOf(false) }
+        var showEditAppsDialog by remember { mutableStateOf(false) }
     var showDomainBlockDialog by remember { mutableStateOf(false) }
+    var showEditNameDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val pm = context.packageManager
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(group.name, style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onSurface)
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(group.name, style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onSurface)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                "✏️",
+                modifier = Modifier.clickable { showEditNameDialog = true }.padding(4.dp),
+                fontSize = 24.sp,
+            )
+        }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             "Configure rules and assigned apps for this group.",
@@ -358,7 +369,11 @@ fun GroupDetailScreen(
         ScheduledBlockDialog(group = group, onDismiss = { showScheduledBlockDialog = false })
     }
 
-    if (showDomainBlockDialog) {
+        if (showDomainBlockDialog) {
         DomainBlockDialog(group = group, onDismiss = { showDomainBlockDialog = false })
+    }
+
+    if (showEditNameDialog) {
+        EditGroupNameDialog(group = group, onDismiss = { showEditNameDialog = false })
     }
 }

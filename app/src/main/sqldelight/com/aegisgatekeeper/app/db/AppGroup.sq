@@ -28,6 +28,9 @@ INSERT OR REPLACE INTO AppGroup(id, name, ruleCombinator) VALUES (:id, :name, :r
 updateCombinator:
 UPDATE AppGroup SET ruleCombinator = :ruleCombinator WHERE id = :id;
 
+updateName:
+UPDATE AppGroup SET name = :name WHERE id = :id;
+
 deleteGroup:
 DELETE FROM AppGroup WHERE id = :id;
 
