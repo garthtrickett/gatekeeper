@@ -22,15 +22,15 @@ class AndroidBeeperClient(
                 val cursor = context.contentResolver.query(uri, null, null, null, null)
                 val chats = mutableListOf<BeeperChat>()
 
-                cursor?.use {
+                                cursor?.use {
                     val idIndex = it.getColumnIndex("roomId")
-                    val nameIndex = it.getColumnIndex("name")
-                    val networkIndex = it.getColumnIndex("network")
+                    val titleIndex = it.getColumnIndex("title")
+                    val protocolIndex = it.getColumnIndex("protocol")
 
                     while (it.moveToNext()) {
                         val roomId = if (idIndex >= 0) it.getString(idIndex) else null
-                        val name = if (nameIndex >= 0) it.getString(nameIndex) else "Unknown Chat"
-                        val network = if (networkIndex >= 0) it.getString(networkIndex) else null
+                        val name = if (titleIndex >= 0) it.getString(titleIndex) else "Unknown Chat"
+                        val network = if (protocolIndex >= 0) it.getString(protocolIndex) else null
 
                         if (roomId != null) {
                             chats.add(BeeperChat(roomId, name, network))
