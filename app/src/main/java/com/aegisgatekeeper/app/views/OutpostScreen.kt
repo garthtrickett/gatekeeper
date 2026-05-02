@@ -1,5 +1,6 @@
 package com.aegisgatekeeper.app.views
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,15 +9,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.domain.BeeperChat
 import com.aegisgatekeeper.app.domain.GatekeeperAction
@@ -41,6 +43,7 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 import com.aegisgatekeeper.app.domain.IndustrialTextField
 import com.aegisgatekeeper.app.domain.MessageStatus
 import com.aegisgatekeeper.app.domain.ScheduledMessage
+import kotlinx.coroutines.delay
 import java.util.UUID
 
 @Suppress("FunctionName")
@@ -123,73 +126,66 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
     var messageText by remember { mutableStateOf("") }
     var searchQuery by remember { mutableStateOf("") }
 
-    val filteredChats =
-        remember(searchQuery, chats) {
-            if (searchQuery.isBlank()) {
-                chats
-            } else {
-                chats.filter {
-                    it.name.contains(searchQuery, ignoreCase = true) ||
-                        it.network?.contains(searchQuery, ignoreCase = true) == true
-                }
+    val filteredChats = remember(searchQuery, chats) {
+        if (searchQuery.isBlank()) {
+            chats
+        } else {
+            chats.filter {
+                it.name.contains(searchQuery, ignoreCase = true) ||
+                    it.network?.contains(searchQuery, ignoreCase = true) == true
             }
         }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Box(modifier = Modifier.fillMaxWidth()) {
+        Box(modifier = Modifier.fillMaxWidth().zIndex(1f)) {
             IndustrialTextField(
-                value =
-                    if (selectedChat != null &&
-                        !expanded
-                    ) {
-                        "${selectedChat!!.name} (${selectedChat!!.network ?: "Unknown"})"
-                    } else {
-                        searchQuery
-                    },
+                value = if (selectedChat != null && !expanded) "${selectedChat!!.name} (${selectedChat!!.network ?: "Unknown"})" else searchQuery,
                 onValueChange = {
                     searchQuery = it
                     selectedChat = null
                     expanded = true
                 },
                 label = { Text("Select Chat") },
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged { focusState ->
-                            if (focusState.isFocused) expanded = true
-                        },
+                modifier = Modifier.fillMaxWidth()
+                    .onFocusChanged { focusState ->
+                        if (focusState.isFocused) expanded = true
+                    },
                 singleLine = true,
             )
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = {
-                    expanded = false
-                    focusManager.clearFocus()
-                },
-                modifier = Modifier.fillMaxWidth(0.9f),
-                properties =
-                    androidx.compose.ui.window
-                        .PopupProperties(focusable = false),
-            ) {
-                if (filteredChats.isEmpty()) {
-                    DropdownMenuItem(
-                        text = { Text("No chats found") },
-                        onClick = {
-                            expanded = false
-                            focusManager.clearFocus()
-                        },
-                    )
-                } else {
-                    filteredChats.take(20).forEach { chat ->
-                        DropdownMenuItem(
-                            text = { Text("${chat.name} (${chat.network ?: "Unknown"})") },
-                            onClick = {
-                                selectedChat = chat
-                                searchQuery = "${chat.name} (${chat.network ?: "Unknown"})"
-                                expanded = false
-                                focusManager.clearFocus()
-                            },
-                        )
+
+                        if (expanded) {
+                Card(
+                    modifier = Modifier
+                        .padding(top = 64.dp)
+                        .fillMaxWidth()
+                        .heightIn(max = 250.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                ) {
+                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                        if (filteredChats.isEmpty()) {
+                            item {
+                                Text("No chats found", modifier = Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        } else {
+                            items(filteredChats.take(20)) { chat ->
+                                Text(
+                                    text = "${chat.name} (${chat.network ?: "Unknown"})",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            selectedChat = chat
+                                            searchQuery = "${chat.name} (${chat.network ?: "Unknown"})"
+                                            expanded = false
+                                            focusManager.clearFocus()
+                                        }
+                                        .padding(16.dp),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                                HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
+                            }
+                        }
                     }
                 }
             }
@@ -201,7 +197,10 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
             value = messageText,
             onValueChange = { messageText = it },
             label = { Text("Message Body") },
-            modifier = Modifier.fillMaxWidth().height(150.dp),
+            modifier = Modifier.fillMaxWidth().height(150.dp)
+                .onFocusChanged { focusState ->
+                    if (focusState.isFocused) expanded = false
+                },
             singleLine = false,
         )
 
@@ -226,10 +225,7 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
                             GatekeeperStateManager.dispatch(
                                 GatekeeperAction.ScheduleMessage(
                                     ScheduledMessage(
-                                        id =
-                                            java.util.UUID
-                                                .randomUUID()
-                                                .toString(),
+                                        id = UUID.randomUUID().toString(),
                                         beeperRoomId = selectedChat!!.roomId,
                                         chatName = selectedChat!!.name,
                                         messageText = messageText.trim(),
@@ -266,7 +262,7 @@ private fun OutpostQueueView(pendingMessages: List<ScheduledMessage>) {
 
             LaunchedEffect(msg.scheduledTimestamp) {
                 while (timeLeft > 0) {
-                    kotlinx.coroutines.delay(1000)
+                    delay(1000)
                     timeLeft = msg.scheduledTimestamp - System.currentTimeMillis()
                 }
             }
