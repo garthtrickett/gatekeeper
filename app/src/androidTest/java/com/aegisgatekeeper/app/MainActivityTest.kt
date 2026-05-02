@@ -50,9 +50,12 @@ class MainActivityTest {
             putExtra("OPEN_CLEAN_PLAYER_VIDEO_ID", testVideoId)
         }
         
-        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
-                activity.onNewIntent(intent)
+                // onNewIntent is protected, so we invoke it via reflection for testing
+                val method = MainActivity::class.java.getDeclaredMethod("onNewIntent", Intent::class.java)
+                method.isAccessible = true
+                method.invoke(activity, intent)
                 
                 val currentState = GatekeeperStateManager.state.value
                 assertThat(currentState.activeVideoId).isEqualTo(testVideoId)
