@@ -129,6 +129,39 @@ fun SettingsScreen() {
             modifier = Modifier.align(Alignment.End),
         )
 
+                Spacer(modifier = Modifier.height(24.dp))
+
+        Text("Integrations", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+            contract = androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            val granted = permissions.entries.all { it.value }
+            if (granted) {
+                GatekeeperStateManager.dispatch(GatekeeperAction.RequestBeeperSync)
+            }
+        }
+        
+        IndustrialButton(
+            onClick = {
+                permissionLauncher.launch(
+                    arrayOf(
+                        "com.beeper.android.permission.READ_PERMISSION",
+                        "com.beeper.android.permission.SEND_PERMISSION"
+                    )
+                )
+            },
+            text = "Connect Beeper",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Required to send sniper-shot messages via the Outpost.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(
