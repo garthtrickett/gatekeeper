@@ -163,8 +163,30 @@ object GatekeeperStateManager {
                 _state.value = _state.value.copy(activePinnedWebsiteUrl = action.url)
             }
 
-            GatekeeperAction.ClosePinnedWebsite -> {
+                        GatekeeperAction.ClosePinnedWebsite -> {
                 _state.value = _state.value.copy(activePinnedWebsiteUrl = null)
+            }
+
+            GatekeeperAction.RequestBeeperSync -> {
+                _state.value = _state.value.copy(isSyncingBeeper = true)
+            }
+            is GatekeeperAction.BeeperChatsLoaded -> {
+                _state.value = _state.value.copy(isSyncingBeeper = false, beeperChats = action.chats)
+            }
+            is GatekeeperAction.BeeperSyncFailed -> {
+                _state.value = _state.value.copy(isSyncingBeeper = false)
+            }
+            is GatekeeperAction.ScheduleMessage -> {
+                _state.value = _state.value.copy(scheduledMessages = _state.value.scheduledMessages + action.message)
+            }
+            is GatekeeperAction.CancelScheduledMessage -> {
+                _state.value = _state.value.copy(scheduledMessages = _state.value.scheduledMessages.map { if (it.id == action.id) it.copy(status = com.aegisgatekeeper.app.domain.MessageStatus.CANCELLED) else it })
+            }
+            is GatekeeperAction.MessageDelivered -> {
+                _state.value = _state.value.copy(scheduledMessages = _state.value.scheduledMessages.map { if (it.id == action.id) it.copy(status = com.aegisgatekeeper.app.domain.MessageStatus.SENT) else it })
+            }
+            is GatekeeperAction.MessageFailed -> {
+                _state.value = _state.value.copy(scheduledMessages = _state.value.scheduledMessages.map { if (it.id == action.id) it.copy(status = com.aegisgatekeeper.app.domain.MessageStatus.FAILED) else it })
             }
 
             is GatekeeperAction.AddPinnedWebsite -> {

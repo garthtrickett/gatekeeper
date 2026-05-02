@@ -60,6 +60,11 @@ data class GatekeeperState(
     val pendingMetacognition: MetacognitionRequest? = null,
     // --- Clean Room Media Engine State ---
     val activeVideoId: String? = null,
+        // --- Outpost Messaging State ---
+    val beeperChats: List<BeeperChat> = emptyList(),
+    val scheduledMessages: List<ScheduledMessage> = emptyList(),
+    val isSyncingBeeper: Boolean = false,
+    // --- Clean Room Media Engine State ---
     val isPlayerModalVisible: Boolean = false,
     val isAudioPlayerModalVisible: Boolean = false,
     val isNativeAudioPlayerModalVisible: Boolean = false,

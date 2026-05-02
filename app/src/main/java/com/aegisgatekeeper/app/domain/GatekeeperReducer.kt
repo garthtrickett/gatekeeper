@@ -512,6 +512,35 @@ private fun reduceRulesAndIntercepts(
             state.copy(activeWhitelists = emptyMap())
         }
 
+                // --- Beeper Outpost Integrations ---
+        GatekeeperAction.RequestBeeperSync -> {
+            state.copy(isSyncingBeeper = true)
+        }
+        is GatekeeperAction.BeeperChatsLoaded -> {
+            state.copy(isSyncingBeeper = false, beeperChats = action.chats)
+        }
+        is GatekeeperAction.BeeperSyncFailed -> {
+            state.copy(isSyncingBeeper = false)
+        }
+        is GatekeeperAction.ScheduleMessage -> {
+            state.copy(scheduledMessages = state.scheduledMessages + action.message)
+        }
+        is GatekeeperAction.CancelScheduledMessage -> {
+            state.copy(scheduledMessages = state.scheduledMessages.map { 
+                if (it.id == action.id) it.copy(status = MessageStatus.CANCELLED) else it 
+            })
+        }
+        is GatekeeperAction.MessageDelivered -> {
+            state.copy(scheduledMessages = state.scheduledMessages.map { 
+                if (it.id == action.id) it.copy(status = MessageStatus.SENT) else it 
+            })
+        }
+        is GatekeeperAction.MessageFailed -> {
+            state.copy(scheduledMessages = state.scheduledMessages.map { 
+                if (it.id == action.id) it.copy(status = MessageStatus.FAILED) else it 
+            })
+        }
+
         else -> {
             state
         }

@@ -495,9 +495,33 @@ fun handleDatabaseEffects(
             }
         }
 
-        is GatekeeperAction.RemoveAlternativeActivity -> {
+                is GatekeeperAction.RemoveAlternativeActivity -> {
             Log.i("Gatekeeper", "DB: Removing AlternativeActivity: ${action.id}")
             db.alternativeActivityQueries.delete(action.id)
+        }
+
+        is GatekeeperAction.ScheduleMessage -> {
+            Log.i("Gatekeeper", "DB: Inserting ScheduledMessage: ${action.message.id}")
+            db.scheduledMessageQueries.insert(
+                id = action.message.id,
+                beeperRoomId = action.message.beeperRoomId,
+                chatName = action.message.chatName,
+                messageText = action.message.messageText,
+                scheduledTimestamp = action.message.scheduledTimestamp,
+                status = action.message.status
+            )
+        }
+        is GatekeeperAction.CancelScheduledMessage -> {
+            Log.i("Gatekeeper", "DB: Cancelling ScheduledMessage: ${action.id}")
+            db.scheduledMessageQueries.updateStatus(com.aegisgatekeeper.app.domain.MessageStatus.CANCELLED, action.id)
+        }
+        is GatekeeperAction.MessageDelivered -> {
+            Log.i("Gatekeeper", "DB: Marking ScheduledMessage Sent: ${action.id}")
+            db.scheduledMessageQueries.updateStatus(com.aegisgatekeeper.app.domain.MessageStatus.SENT, action.id)
+        }
+        is GatekeeperAction.MessageFailed -> {
+            Log.i("Gatekeeper", "DB: Marking ScheduledMessage Failed: ${action.id}")
+            db.scheduledMessageQueries.updateStatus(com.aegisgatekeeper.app.domain.MessageStatus.FAILED, action.id)
         }
 
         else -> { /* Other actions don't interact directly with DB in this handler */ }

@@ -28,7 +28,10 @@ data class GatekeeperState(
     val activePodcastEpisodes: List<CachedEpisode>? = null,
     val activePodcastId: String? = null,
     val isLoadingEpisodes: Boolean = false,
-    val activeDownloads: Map<String, Float> = emptyMap(),
+        val activeDownloads: Map<String, Float> = emptyMap(),
+    val beeperChats: List<BeeperChat> = emptyList(),
+    val scheduledMessages: List<ScheduledMessage> = emptyList(),
+    val isSyncingBeeper: Boolean = false,
     val latestGlobalEpisodes: List<UnifiedEpisode>? = null,
     val isLoadingGlobalEpisodes: Boolean = false,
 )
@@ -297,9 +300,17 @@ sealed interface GatekeeperAction {
         val id: String,
     ) : GatekeeperAction
 
-    data class DeleteDownloadedMedia(
+        data class DeleteDownloadedMedia(
         val id: String,
     ) : GatekeeperAction
+
+    object RequestBeeperSync : GatekeeperAction
+    data class BeeperChatsLoaded(val chats: List<BeeperChat>) : GatekeeperAction
+    data class BeeperSyncFailed(val error: String) : GatekeeperAction
+    data class ScheduleMessage(val message: ScheduledMessage) : GatekeeperAction
+    data class CancelScheduledMessage(val id: String) : GatekeeperAction
+    data class MessageDelivered(val id: String) : GatekeeperAction
+    data class MessageFailed(val id: String, val error: String) : GatekeeperAction
 }
 
 fun isDeepWorkHours(
