@@ -68,8 +68,12 @@ actual fun CleanPlayerModal(
     onMinimize: () -> Unit,
     onStop: () -> Unit,
 ) {
-    val sessionStartTime by remember { mutableStateOf(System.currentTimeMillis()) }
-    var currentPosition by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
+        val sessionStartTime by remember { mutableStateOf(System.currentTimeMillis()) }
+
+    val context = LocalContext.current
+    val state by GatekeeperStateManager.state.collectAsState()
+    val startSeconds = state.savedMediaPositions[videoId] ?: 0f
+    var currentPosition by remember { androidx.compose.runtime.mutableFloatStateOf(startSeconds) }
 
     // Intercept the native system back button instead of relying on the Dialog's onDismissRequest
     androidx.activity.compose.BackHandler(enabled = isVisible) {
@@ -77,8 +81,6 @@ actual fun CleanPlayerModal(
         onMinimize()
     }
 
-    val context = LocalContext.current
-    val state by GatekeeperStateManager.state.collectAsState()
     val videoTitle =
         remember(videoId) {
             val cleanTitle =
@@ -92,10 +94,8 @@ actual fun CleanPlayerModal(
                 .replace("&gt;", ">")
         }
 
-    var webViewRef by remember { mutableStateOf<WebView?>(null) }
+        var webViewRef by remember { mutableStateOf<WebView?>(null) }
     var playerStateCallback by remember { mutableStateOf<(Int) -> Unit>({}) }
-
-    val startSeconds = state.savedMediaPositions[videoId] ?: 0f
 
     DisposableEffect(videoId) {
         val startIntent =

@@ -325,12 +325,14 @@ fun CleanAudioPlayerModal(
     onMinimize: () -> Unit,
     onStop: () -> Unit,
 ) {
-    val sessionStartTime by remember { mutableStateOf(System.currentTimeMillis()) }
+        val sessionStartTime by remember { mutableStateOf(System.currentTimeMillis()) }
     var resolvedUrl by remember { mutableStateOf<String?>(null) }
-    var currentPosition by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
 
     val context = LocalContext.current
     val state by GatekeeperStateManager.state.collectAsState()
+    val startSeconds = state.savedMediaPositions[url] ?: 0f
+    var currentPosition by remember { androidx.compose.runtime.mutableFloatStateOf(startSeconds) }
+
     val audioTitle =
         remember(url) {
             val cleanTitle = state.contentItems.find { it.videoId == url }?.title ?: "Clean Audio Player"
@@ -342,10 +344,8 @@ fun CleanAudioPlayerModal(
                 .replace("&gt;", ">")
         }
 
-    var webViewRef by remember { mutableStateOf<WebView?>(null) }
+        var webViewRef by remember { mutableStateOf<WebView?>(null) }
     var playerStateCallback by remember { mutableStateOf<(Int) -> Unit>({}) }
-
-    val startSeconds = state.savedMediaPositions[url] ?: 0f
 
     DisposableEffect(url) {
         val startIntent =
