@@ -55,6 +55,59 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntents(intent)
+    }
+
+    private fun handleIntents(intent: Intent) {
+        val videoIdToPlay = intent.getStringExtra("OPEN_CLEAN_PLAYER_VIDEO_ID")
+        val audioUrlToPlay = intent.getStringExtra("OPEN_CLEAN_AUDIO_URL")
+        val nativeAudioIdToPlay = intent.getStringExtra("OPEN_NATIVE_AUDIO_ID")
+        val openActiveNativePlayer = intent.getBooleanExtra("OPEN_ACTIVE_NATIVE_PLAYER", false)
+
+        if (videoIdToPlay != null) {
+            android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Clean Player (Video: $videoIdToPlay)")
+            GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanPlayer(videoIdToPlay))
+        } else if (audioUrlToPlay != null) {
+            android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Clean Audio Player (URL: $audioUrlToPlay)")
+            GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanAudioPlayer(audioUrlToPlay))
+        } else if (nativeAudioIdToPlay != null) {
+            android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Native Audio Player (ID: $nativeAudioIdToPlay)")
+            val item =
+                GatekeeperStateManager.state.value.contentItems
+                    .find { it.id == nativeAudioIdToPlay }
+            if (item != null) {
+                GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
+            }
+        } else if (openActiveNativePlayer) {
+            android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Active Native Audio Player")
+            val item = GatekeeperStateManager.state.value.activeNativeMediaItem
+            if (item != null) {
+                GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
+            }
+        }
+
+        if (videoIdToPlay != null || audioUrlToPlay != null || nativeAudioIdToPlay != null || openActiveNativePlayer) {
+            // Reset unmask state
+            lifecycleScope.launch {
+                try {
+                    GlanceAppWidgetManager(this@MainActivity)
+                        .getGlanceIds(VaultWidget::class.java)
+                        .forEach { glanceId ->
+                            updateAppWidgetState(this@MainActivity, glanceId) { prefs ->
+                                prefs[booleanPreferencesKey("isUnmasked")] = false
+                            }
+                            VaultWidget().update(this@MainActivity, glanceId)
+                        }
+                } catch (e: Exception) {
+                    // Ignore for tests
+                }
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
 
@@ -105,7 +158,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // UI Test Stability: Force the screen on and bypass the keyguard.
@@ -127,10 +180,7 @@ class MainActivity : ComponentActivity() {
             )
         }
 
-        // Handle Deep Link from Widget
-        val videoIdToPlay = intent.getStringExtra("OPEN_CLEAN_PLAYER_VIDEO_ID")
-        val audioUrlToPlay = intent.getStringExtra("OPEN_CLEAN_AUDIO_URL")
-        val nativeAudioIdToPlay = intent.getStringExtra("OPEN_NATIVE_AUDIO_ID")
+        handleIntents(intent)
 
         // E2E Programmatic State Injection (Debug Only)
         if (BuildConfig.DEBUG) {
@@ -197,40 +247,6 @@ class MainActivity : ComponentActivity() {
                 registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
             } else {
                 registerReceiver(receiver, filter)
-            }
-        }
-
-        if (videoIdToPlay != null) {
-            android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Clean Player (Video: $videoIdToPlay)")
-            GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanPlayer(videoIdToPlay))
-        } else if (audioUrlToPlay != null) {
-            android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Clean Audio Player (URL: $audioUrlToPlay)")
-            GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanAudioPlayer(audioUrlToPlay))
-        } else if (nativeAudioIdToPlay != null) {
-            android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Native Audio Player (ID: $nativeAudioIdToPlay)")
-            val item =
-                GatekeeperStateManager.state.value.contentItems
-                    .find { it.id == nativeAudioIdToPlay }
-            if (item != null) {
-                GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
-            }
-        }
-
-        if (videoIdToPlay != null || audioUrlToPlay != null || nativeAudioIdToPlay != null) {
-            // Reset unmask state
-            lifecycleScope.launch {
-                try {
-                    GlanceAppWidgetManager(this@MainActivity)
-                        .getGlanceIds(VaultWidget::class.java)
-                        .forEach { glanceId ->
-                            updateAppWidgetState(this@MainActivity, glanceId) { prefs ->
-                                prefs[booleanPreferencesKey("isUnmasked")] = false
-                            }
-                            VaultWidget().update(this@MainActivity, glanceId)
-                        }
-                } catch (e: Exception) {
-                    // Ignore for tests
-                }
             }
         }
 
@@ -366,7 +382,7 @@ class MainActivity : ComponentActivity() {
                         if (state.activeAudioUrl != null) {
                             com.aegisgatekeeper.app.views.CleanAudioPlayerModal(
                                 url = state.activeAudioUrl!!,
-                                isVisible = state.isPlayerModalVisible,
+                                isVisible = state.isAudioPlayerModalVisible,
                                 onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanAudioPlayer) },
                                 onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
                             )

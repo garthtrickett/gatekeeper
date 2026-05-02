@@ -16,6 +16,8 @@ class WebViewMediaService : Service() {
     private var mediaSession: MediaSession? = null
     private var currentTitle: String = "Gatekeeper Media"
     private var isPlaying: Boolean = false
+    private var openIntentKey: String? = null
+    private var openIntentValue: String? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -52,8 +54,10 @@ class WebViewMediaService : Service() {
         startId: Int,
     ): Int {
         when (intent?.action) {
-            "com.aegisgatekeeper.app.SERVICE_START" -> {
+                        "com.aegisgatekeeper.app.SERVICE_START" -> {
                 currentTitle = intent.getStringExtra("EXTRA_TITLE") ?: "Gatekeeper Media"
+                openIntentKey = intent.getStringExtra("EXTRA_OPEN_INTENT_KEY")
+                openIntentValue = intent.getStringExtra("EXTRA_OPEN_INTENT_VALUE")
                 updateNotification()
             }
 
@@ -116,12 +120,15 @@ class WebViewMediaService : Service() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-        val contentIntent =
+                val contentIntent =
             PendingIntent.getActivity(
                 this,
                 0,
                 Intent(this, com.aegisgatekeeper.app.MainActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    if (openIntentKey != null && openIntentValue != null) {
+                        putExtra(openIntentKey, openIntentValue)
+                    }
                 },
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )

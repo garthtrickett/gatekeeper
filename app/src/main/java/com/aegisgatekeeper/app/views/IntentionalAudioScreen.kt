@@ -348,10 +348,12 @@ fun CleanAudioPlayerModal(
     var playerStateCallback by remember { mutableStateOf<(Int) -> Unit>({}) }
 
     DisposableEffect(url) {
-        val startIntent =
+                val startIntent =
             Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
                 action = "com.aegisgatekeeper.app.SERVICE_START"
                 putExtra("EXTRA_TITLE", audioTitle)
+                putExtra("EXTRA_OPEN_INTENT_KEY", "OPEN_CLEAN_AUDIO_URL")
+                putExtra("EXTRA_OPEN_INTENT_VALUE", url)
             }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(startIntent)
