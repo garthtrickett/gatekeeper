@@ -105,13 +105,12 @@ class GatekeeperForegroundService : Service() {
                         currentMinutes >= state.gatheringStartMinutes || currentMinutes < state.gatheringEndMinutes
                     }
 
-                if (isGathering && currentDay != lastNotifiedDay) {
+                                if (isGathering && currentDay != lastNotifiedDay) {
                     lastNotifiedDay = currentDay
 
                     val unresolvedVaultItems = state.vaultItems.count { !it.isResolved && !it.isDeleted }
-                    val newNotifications = state.notificationDigest.size
 
-                    sendGatheringNotification(unresolvedVaultItems, newNotifications)
+                    sendGatheringNotification(unresolvedVaultItems)
                 }
 
                 val currentDayOfWeek =
@@ -145,8 +144,17 @@ class GatekeeperForegroundService : Service() {
                                             it.groupId == group.id && it.timeMinutes == time &&
                                                 it.timestamp >= startOfDay
                                         }
-                                    if (!isConsumed) {
-                                        sendCheckInNotification(group.name, time)
+                                                                        if (!isConsumed) {
+                                        val groupNotifications = state.notificationDigest.count { log ->
+                                            group.apps.contains(log.packageName) &&
+                                                com.aegisgatekeeper.app.domain.isMailDelivered(
+                                                    log.timestamp,
+                                                    System.currentTimeMillis(),
+                                                    rule,
+                                                    currentDayOfWeek
+                                                )
+                                        }
+                                        sendCheckInNotification(group.name, time, groupNotifications)
                                     }
                                     notifiedCheckIns.add(checkInKey)
                                 }
@@ -191,9 +199,10 @@ class GatekeeperForegroundService : Service() {
         }
     }
 
-    private fun sendCheckInNotification(
+        private fun sendCheckInNotification(
         groupName: String,
         time: Int,
+        deliveredMailCount: Int = 0
     ) {
         val channelId = "gatekeeper_phase_channel"
         val manager = getSystemService(NotificationManager::class.java)
@@ -221,12 +230,18 @@ class GatekeeperForegroundService : Service() {
             )
 
         val timeString = String.format("%02d:%02d", time / 60, time % 60)
+        
+        val text = if (deliveredMailCount > 0) {
+            "A check-in token for $groupName is now available ($timeString). $deliveredMailCount messages delivered to the Digest."
+        } else {
+            "A check-in token for $groupName is now available ($timeString)."
+        }
 
         val notification =
             NotificationCompat
                 .Builder(this, channelId)
                 .setContentTitle("Check-In Available")
-                .setContentText("A check-in token for $groupName is now available ($timeString).")
+                .setContentText(text)
                 .setSmallIcon(android.R.drawable.ic_secure)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
@@ -237,7 +252,6 @@ class GatekeeperForegroundService : Service() {
 
     private fun sendGatheringNotification(
         vaultCount: Int,
-        digestCount: Int,
     ) {
         val channelId = "gatekeeper_phase_channel"
         val manager = getSystemService(NotificationManager::class.java)
@@ -264,10 +278,9 @@ class GatekeeperForegroundService : Service() {
                 android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE,
             )
 
-        val text =
+                val text =
             buildString {
                 if (vaultCount > 0) append("$vaultCount thoughts to process. ")
-                if (digestCount > 0) append("$digestCount notifications intercepted. ")
                 if (isEmpty()) append("Time to review your digital intake.")
             }
 

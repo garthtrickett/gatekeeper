@@ -53,6 +53,43 @@ fun parseIso8601Duration(duration: String): Long {
     return hours * 3600 + minutes * 60 + seconds
 }
 
+fun getNextDeliveryTime(
+    currentMinutes: Int,
+    currentDay: DayOfWeek,
+    rule: BlockingRule.CheckIn
+): Int? {
+    if (!rule.daysOfWeek.contains(currentDay)) return null
+    return rule.checkInTimesMinutes.sorted().firstOrNull { it > currentMinutes }
+}
+
+fun isMailDelivered(
+    notificationTimestamp: Long,
+    currentTimeMillis: Long,
+    rule: BlockingRule.CheckIn,
+    currentDay: DayOfWeek
+): Boolean {
+    val cal = java.util.Calendar.getInstance()
+    cal.timeInMillis = currentTimeMillis
+    val currentDayOfYear = cal.get(java.util.Calendar.DAY_OF_YEAR)
+    val currentYear = cal.get(java.util.Calendar.YEAR)
+    val currentMinutes = cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 + cal.get(java.util.Calendar.MINUTE)
+
+    cal.timeInMillis = notificationTimestamp
+    val notifDayOfYear = cal.get(java.util.Calendar.DAY_OF_YEAR)
+    val notifYear = cal.get(java.util.Calendar.YEAR)
+    val notifMinutes = cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 + cal.get(java.util.Calendar.MINUTE)
+
+    if (currentYear > notifYear || currentDayOfYear > notifDayOfYear) {
+        return true
+    }
+
+    if (!rule.daysOfWeek.contains(currentDay)) return false
+
+    return rule.checkInTimesMinutes.any { checkInTime ->
+        checkInTime >= notifMinutes && checkInTime <= currentMinutes
+    }
+}
+
 fun isVaultUnlocked(
     currentTime: LocalTime,
     startMinutes: Int,

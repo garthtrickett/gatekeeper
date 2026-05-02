@@ -345,6 +345,23 @@ fun isDeepWorkHours(
     }
 }
 
+fun getNextDeliveryTime(
+    currentMinutes: Int,
+    currentDay: DayOfWeek,
+    rule: Any
+): Int? {
+    return null
+}
+
+fun isMailDelivered(
+    notificationTimestamp: Long,
+    currentTimeMillis: Long,
+    rule: Any,
+    currentDay: DayOfWeek
+): Boolean {
+    return true
+}
+
 fun isVaultUnlocked(
     currentTime: LocalTime,
     startMinutes: Int,
