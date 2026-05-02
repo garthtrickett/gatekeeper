@@ -104,6 +104,7 @@ fun OutpostScreen() {
 
 @Suppress("FunctionName")
 @Suppress("FunctionName")
+@Suppress("FunctionName")
 @Composable
 private fun OutpostComposerView(chats: List<BeeperChat>) {
     if (chats.isEmpty()) {
