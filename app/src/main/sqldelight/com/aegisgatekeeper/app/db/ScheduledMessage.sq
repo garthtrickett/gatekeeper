@@ -1,0 +1,26 @@
+import com.aegisgatekeeper.app.domain.MessageStatus;
+
+CREATE TABLE IF NOT EXISTS ScheduledMessage (
+    id TEXT NOT NULL PRIMARY KEY,
+    beeperRoomId TEXT NOT NULL,
+    chatName TEXT NOT NULL,
+    messageText TEXT NOT NULL,
+    scheduledTimestamp INTEGER NOT NULL,
+    status TEXT AS MessageStatus NOT NULL DEFAULT 'PENDING'
+);
+
+selectAllPending:
+SELECT * FROM ScheduledMessage WHERE status = 'PENDING' ORDER BY scheduledTimestamp ASC;
+
+selectAll:
+SELECT * FROM ScheduledMessage ORDER BY scheduledTimestamp DESC;
+
+insert:
+INSERT OR REPLACE INTO ScheduledMessage(id, beeperRoomId, chatName, messageText, scheduledTimestamp, status)
+VALUES (:id, :beeperRoomId, :chatName, :messageText, :scheduledTimestamp, :status);
+
+updateStatus:
+UPDATE ScheduledMessage SET status = :status WHERE id = :id;
+
+delete:
+DELETE FROM ScheduledMessage WHERE id = :id;

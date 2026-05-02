@@ -8,7 +8,10 @@ import me.tatarka.inject.annotations.Scope
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
 annotation class Singleton
 
+import com.aegisgatekeeper.app.integrations.BeeperClient
+
 interface SharedApplicationComponent {
     val tokenProvider: TokenProvider
     val syncClient: SyncClient
+    val beeperClient: BeeperClient
 }

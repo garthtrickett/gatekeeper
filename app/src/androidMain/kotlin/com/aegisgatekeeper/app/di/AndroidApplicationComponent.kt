@@ -43,7 +43,11 @@ abstract class AndroidApplicationComponent(
     @Provides
     fun sqlDriverFactory(factory: AndroidSqlDriverFactory): SqlDriverFactory = factory
 
-    abstract override val tokenProvider: AndroidTokenProvider
+        abstract override val tokenProvider: AndroidTokenProvider
+
+    abstract val androidBeeperClient: com.aegisgatekeeper.app.integrations.AndroidBeeperClient
+    @get:Provides
+    override val beeperClient: com.aegisgatekeeper.app.integrations.BeeperClient get() = androidBeeperClient
 
     @Provides
     @Singleton

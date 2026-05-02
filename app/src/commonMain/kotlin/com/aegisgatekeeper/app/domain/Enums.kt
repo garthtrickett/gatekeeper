@@ -41,6 +41,8 @@ enum class Emotion { HAPPY, ANXIOUS, DRAINED, SKIPPED }
 
 enum class DownloadStatus { NONE, QUEUED, DOWNLOADING, COMPLETED, FAILED }
 
+enum class MessageStatus { PENDING, SENT, FAILED, CANCELLED }
+
 // 1. Color Palette
 private val Charcoal = Color(0xFF121212)
 private val SafetyOrange = Color(0xFFFF9800)

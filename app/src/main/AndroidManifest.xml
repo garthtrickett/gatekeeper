@@ -16,7 +16,16 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     
     <!-- Required for Mission Control to list installed apps -->
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+        <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
+    <!-- Beeper Integration -->
+    <uses-permission android:name="com.beeper.android.permission.READ_PERMISSION" />
+    <uses-permission android:name="com.beeper.android.permission.SEND_PERMISSION" />
+
+    <queries>
+        <package android:name="com.beeper.chat" />
+        <provider android:authorities="com.beeper.api" />
+    </queries>
 
     <!-- THE FIX: Register our custom App class -->
     <application

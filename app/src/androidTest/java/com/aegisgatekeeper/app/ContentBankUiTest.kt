@@ -363,7 +363,7 @@ class ContentBankUiTest {
 
     @Test
     fun testContentBank_PodcastItem_PlaysInNativePlayer() {
-                // Arrange
+        // Arrange
         val podcastUrl = "https://example.com/audio_contentbank_${System.currentTimeMillis()}.mp3"
         GatekeeperStateManager.dispatch(
             GatekeeperAction.SaveToContentBank(

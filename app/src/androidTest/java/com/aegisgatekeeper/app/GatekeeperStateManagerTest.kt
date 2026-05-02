@@ -100,13 +100,21 @@ class GatekeeperStateManagerTest {
                 override fun encode(value: com.aegisgatekeeper.app.domain.FrictionGame): String = value.name
             }
 
-        val ruleCombinatorAdapter =
+                val ruleCombinatorAdapter =
             object : ColumnAdapter<com.aegisgatekeeper.app.domain.RuleCombinator, String> {
                 override fun decode(databaseValue: String): com.aegisgatekeeper.app.domain.RuleCombinator =
                     com.aegisgatekeeper.app.domain.RuleCombinator
                         .valueOf(databaseValue)
 
                 override fun encode(value: com.aegisgatekeeper.app.domain.RuleCombinator): String = value.name
+            }
+
+        val messageStatusAdapter =
+            object : ColumnAdapter<com.aegisgatekeeper.app.domain.MessageStatus, String> {
+                override fun decode(databaseValue: String): com.aegisgatekeeper.app.domain.MessageStatus =
+                    com.aegisgatekeeper.app.domain.MessageStatus.valueOf(databaseValue)
+
+                override fun encode(value: com.aegisgatekeeper.app.domain.MessageStatus): String = value.name
             }
 
         db =
@@ -121,11 +129,15 @@ class GatekeeperStateManagerTest {
                         activeFrictionGameAdapter = frictionGameAdapter,
                     ),
                 SessionLogAdapter = SessionLog.Adapter(emotionAdapter = emotionAdapter),
-                ContentItemAdapter =
+                                ContentItemAdapter =
                     ContentItem.Adapter(
                         sourceAdapter = contentSourceAdapter,
                         typeAdapter = contentTypeAdapter,
                         downloadStatusAdapter = downloadStatusAdapter,
+                    ),
+                ScheduledMessageAdapter =
+                    com.aegisgatekeeper.app.db.ScheduledMessage.Adapter(
+                        statusAdapter = messageStatusAdapter,
                     ),
             )
 

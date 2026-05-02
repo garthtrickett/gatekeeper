@@ -33,27 +33,30 @@ class NativePlayerPersistenceTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-            @Test
+    @Test
     fun testNativePlayer_PreservesPosition_OnErrorState() {
         val podcastUrl = "https://example.com/broken_stream_${System.currentTimeMillis()}.mp3"
-        val item = com.aegisgatekeeper.app.domain.ContentItem(
-            id = "test_ep",
-            videoId = podcastUrl,
-            title = "Network Drop Test",
-            source = ContentSource.GENERIC,
-            type = ContentType.AUDIO,
-            rank = 0,
-            capturedAtTimestamp = System.currentTimeMillis()
-        )
+        val item =
+            com.aegisgatekeeper.app.domain.ContentItem(
+                id = "test_ep",
+                videoId = podcastUrl,
+                title = "Network Drop Test",
+                source = ContentSource.GENERIC,
+                type = ContentType.AUDIO,
+                rank = 0,
+                capturedAtTimestamp = System.currentTimeMillis(),
+            )
 
         // 1. Setup Content Bank
-        GatekeeperStateManager.dispatch(GatekeeperAction.SaveToContentBank(
-            videoId = item.videoId,
-            title = item.title,
-            source = item.source,
-            type = item.type,
-            currentTimestamp = item.capturedAtTimestamp
-        ))
+        GatekeeperStateManager.dispatch(
+            GatekeeperAction.SaveToContentBank(
+                videoId = item.videoId,
+                title = item.title,
+                source = item.source,
+                type = item.type,
+                currentTimestamp = item.capturedAtTimestamp,
+            ),
+        )
 
         // 2. SEED THE POSITION FIRST - This simulates a returning user who already listened to 45 mins
         GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(podcastUrl, 2700f))
@@ -66,7 +69,7 @@ class NativePlayerPersistenceTest {
                         contentItem = state.activeNativeMediaItem!!,
                         isVisible = state.isNativeAudioPlayerModalVisible,
                         onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeNativePlayer) },
-                        onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) }
+                        onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
                     )
                 }
             }
@@ -75,7 +78,7 @@ class NativePlayerPersistenceTest {
         // 3. Open the player initially. ExoPlayer will immediately error out on the dummy URL.
         GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
         composeTestRule.waitForIdle()
-        
+
         // Wait for ExoPlayer to spin up, fail, and set playerError != null in the background.
         Thread.sleep(1500)
 
@@ -85,6 +88,8 @@ class NativePlayerPersistenceTest {
 
         // 5. Assert: Verify the seeded 45-minute mark was NOT wiped out by ExoPlayer's error state (0).
         val finalState = GatekeeperStateManager.state.value
-        com.google.common.truth.Truth.assertThat(finalState.savedMediaPositions[podcastUrl]).isEqualTo(2700f)
+        com.google.common.truth.Truth
+            .assertThat(finalState.savedMediaPositions[podcastUrl])
+            .isEqualTo(2700f)
     }
 }

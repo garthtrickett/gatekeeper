@@ -93,7 +93,7 @@ fun NativeAudioPlayerModal(
             {
                 val mediaController = controllerFuture?.get()
                 controller = mediaController
-                                mediaController?.let { mc ->
+                mediaController?.let { mc ->
                     val isAlreadyPlayingThis = mc.currentMediaItem?.mediaId == contentItem.videoId
 
                     if (!isAlreadyPlayingThis) {
@@ -116,12 +116,18 @@ fun NativeAudioPlayerModal(
                         mc.prepare()
                         mc.seekTo((savedPosition * 1000).toLong())
                         mc.play()
-                                        } else {
-                        android.util.Log.d("Gatekeeper", "🎵 NativePlayer: Re-attaching to existing background session at ${mc.currentPosition}ms")
+                    } else {
+                        android.util.Log.d(
+                            "Gatekeeper",
+                            "🎵 NativePlayer: Re-attaching to existing background session at ${mc.currentPosition}ms",
+                        )
                         // If the service is at 0 but we have a saved position, the service likely reset.
                         // Resync it without a full media item reset to avoid a 'flicker'.
                         if (mc.currentPosition < 1000 && savedPosition > 2f) {
-                            android.util.Log.d("Gatekeeper", "🎵 NativePlayer: Syncing existing session to saved position: ${savedPosition}s")
+                            android.util.Log.d(
+                                "Gatekeeper",
+                                "🎵 NativePlayer: Syncing existing session to saved position: ${savedPosition}s",
+                            )
                             mc.seekTo((savedPosition * 1000).toLong())
                         }
                     }
@@ -142,7 +148,7 @@ fun NativeAudioPlayerModal(
             ContextCompat.getMainExecutor(context),
         )
 
-                onDispose {
+        onDispose {
             controller?.let {
                 if (it.playerError == null) {
                     val posToSave = if (it.playbackState == Player.STATE_ENDED) 0f else it.currentPosition / 1000f
@@ -165,7 +171,7 @@ fun NativeAudioPlayerModal(
         }
     }
 
-        androidx.activity.compose.BackHandler(enabled = isVisible) {
+    androidx.activity.compose.BackHandler(enabled = isVisible) {
         controller?.let {
             if (it.playerError == null) {
                 val posToSave = if (it.playbackState == Player.STATE_ENDED) 0f else currentPosition / 1000f
@@ -254,7 +260,7 @@ fun NativeAudioPlayerModal(
                             modifier = Modifier.fillMaxWidth().background(Color.DarkGray).padding(8.dp),
                             contentAlignment = Alignment.TopEnd,
                         ) {
-                                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 IndustrialButton(onClick = {
                                     controller?.let {
                                         if (it.playerError == null) {
