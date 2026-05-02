@@ -134,6 +134,7 @@ fun SettingsScreen() {
         Text("Integrations", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(12.dp))
 
+                val context = androidx.compose.ui.platform.LocalContext.current
         val permissionLauncher =
             androidx.activity.compose.rememberLauncherForActivityResult(
                 contract =
@@ -143,6 +144,9 @@ fun SettingsScreen() {
                 val granted = permissions.entries.all { it.value }
                 if (granted) {
                     GatekeeperStateManager.dispatch(GatekeeperAction.RequestBeeperSync)
+                    android.widget.Toast.makeText(context, "Beeper connected and synced!", android.widget.Toast.LENGTH_SHORT).show()
+                } else {
+                    android.widget.Toast.makeText(context, "Beeper permission denied.", android.widget.Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -155,7 +159,8 @@ fun SettingsScreen() {
                     ),
                 )
             },
-            text = "Connect Beeper",
+            text = if (state.beeperChats.isNotEmpty()) "Beeper Connected ✓ (Resync)" else "Connect Beeper",
+            isLoading = state.isSyncingBeeper,
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(8.dp))
