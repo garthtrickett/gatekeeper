@@ -55,9 +55,9 @@ fun NotificationDigestScreen() {
         }
     }
 
-    val currentMinutes = currentTime.hour * 60 + currentTime.minute
+        val currentMinutes = currentTime.hour * 60 + currentTime.minute
     val currentDay =
-        when (currentTime.dayOfWeek) {
+        when (java.time.LocalDate.now().dayOfWeek) {
             java.time.DayOfWeek.MONDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY
             java.time.DayOfWeek.TUESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.TUESDAY
             java.time.DayOfWeek.WEDNESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.WEDNESDAY

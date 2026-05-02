@@ -42,7 +42,6 @@ import java.time.LocalTime
 import java.util.UUID
 
 @Suppress("FunctionName")
-@Suppress("FunctionName")
 @Composable
 fun NotificationDigestScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
@@ -57,7 +56,7 @@ fun NotificationDigestScreen() {
 
     val currentMinutes = currentTime.hour * 60 + currentTime.minute
     val currentDay =
-        when (currentTime.dayOfWeek) {
+        when (java.time.LocalDate.now().dayOfWeek) {
             java.time.DayOfWeek.MONDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY
             java.time.DayOfWeek.TUESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.TUESDAY
             java.time.DayOfWeek.WEDNESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.WEDNESDAY
