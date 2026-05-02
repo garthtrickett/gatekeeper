@@ -50,12 +50,16 @@ class NotificationDigestUiTest {
                 timestamp = System.currentTimeMillis() - 3600000, // 1 hour ago
             )
             
-        GatekeeperStateManager.dispatch(GatekeeperAction.CreateAppGroup("group1", "Comms", setOf("com.whatsapp")))
+                GatekeeperStateManager.dispatch(GatekeeperAction.CreateAppGroup("group1", "Comms", setOf("com.whatsapp")))
+        
+        val cal = java.util.Calendar.getInstance()
+        val currentMinutes = cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 + cal.get(java.util.Calendar.MINUTE)
+        
         GatekeeperStateManager.dispatch(
             GatekeeperAction.AddCheckInRule(
                 id = "rule1",
                 groupId = "group1",
-                checkInTimesMinutes = listOf(0), // 00:00, so it's always delivered
+                checkInTimesMinutes = listOf(currentMinutes),
                 durationMinutes = 15,
                 daysOfWeek = com.aegisgatekeeper.app.domain.DayOfWeek.values().toSet()
             )
