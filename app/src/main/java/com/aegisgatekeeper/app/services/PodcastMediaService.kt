@@ -35,15 +35,17 @@ class PodcastMediaService : MediaSessionService() {
                 .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSourceFactory))
                 .setAudioAttributes(audioAttributes, true) // Enable Audio Focus!
                 .build()
-                val intent = Intent(this, com.aegisgatekeeper.app.MainActivity::class.java).apply {
-            putExtra("OPEN_ACTIVE_NATIVE_PLAYER", true)
-        }
-        val pendingIntent = android.app.PendingIntent.getActivity(
-            this,
-            0,
-            intent,
-            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
-        )
+        val intent =
+            Intent(this, com.aegisgatekeeper.app.MainActivity::class.java).apply {
+                putExtra("OPEN_ACTIVE_NATIVE_PLAYER", true)
+            }
+        val pendingIntent =
+            android.app.PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE,
+            )
 
         mediaSession =
             MediaSession

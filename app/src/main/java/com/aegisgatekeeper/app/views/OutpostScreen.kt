@@ -123,49 +123,61 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
     var messageText by remember { mutableStateOf("") }
     var searchQuery by remember { mutableStateOf("") }
 
-    val filteredChats = remember(searchQuery, chats) {
-        if (searchQuery.isBlank()) {
-            chats
-        } else {
-            chats.filter {
-                it.name.contains(searchQuery, ignoreCase = true) ||
-                it.network?.contains(searchQuery, ignoreCase = true) == true
+    val filteredChats =
+        remember(searchQuery, chats) {
+            if (searchQuery.isBlank()) {
+                chats
+            } else {
+                chats.filter {
+                    it.name.contains(searchQuery, ignoreCase = true) ||
+                        it.network?.contains(searchQuery, ignoreCase = true) == true
+                }
             }
         }
-    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxWidth()) {
             IndustrialTextField(
-                value = if (selectedChat != null && !expanded) "${selectedChat!!.name} (${selectedChat!!.network ?: "Unknown"})" else searchQuery,
-                onValueChange = { 
+                value =
+                    if (selectedChat != null &&
+                        !expanded
+                    ) {
+                        "${selectedChat!!.name} (${selectedChat!!.network ?: "Unknown"})"
+                    } else {
+                        searchQuery
+                    },
+                onValueChange = {
                     searchQuery = it
                     selectedChat = null
                     expanded = true
                 },
                 label = { Text("Select Chat") },
-                                modifier = Modifier.fillMaxWidth()
-                    .onFocusChanged { focusState -> 
-                        if (focusState.isFocused) expanded = true 
-                    },
-                singleLine = true
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused) expanded = true
+                        },
+                singleLine = true,
             )
             DropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { 
+                onDismissRequest = {
                     expanded = false
                     focusManager.clearFocus()
                 },
                 modifier = Modifier.fillMaxWidth(0.9f),
-                properties = androidx.compose.ui.window.PopupProperties(focusable = false)
+                properties =
+                    androidx.compose.ui.window
+                        .PopupProperties(focusable = false),
             ) {
                 if (filteredChats.isEmpty()) {
                     DropdownMenuItem(
                         text = { Text("No chats found") },
-                        onClick = { 
+                        onClick = {
                             expanded = false
                             focusManager.clearFocus()
-                        }
+                        },
                     )
                 } else {
                     filteredChats.take(20).forEach { chat ->
@@ -214,7 +226,10 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
                             GatekeeperStateManager.dispatch(
                                 GatekeeperAction.ScheduleMessage(
                                     ScheduledMessage(
-                                        id = java.util.UUID.randomUUID().toString(),
+                                        id =
+                                            java.util.UUID
+                                                .randomUUID()
+                                                .toString(),
                                         beeperRoomId = selectedChat!!.roomId,
                                         chatName = selectedChat!!.name,
                                         messageText = messageText.trim(),

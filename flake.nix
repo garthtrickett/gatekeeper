@@ -207,7 +207,7 @@
                     alias adb="${pkgs.android-tools}/bin/adb"
                     alias desktop='gradle :app:run'
                     alias backend='./gradlew :backend:run -Dio.ktor.development=true'
-                    alias apk='./gradlew :app:assembleDebug'
+                    alias apk='./gradlew :app:assembleDebug && mkdir -p ~/Downloads/apks && cp app/build/outputs/apk/dev/debug/app-dev-debug.apk ~/Downloads/apks/ && cp app/build/outputs/apk/prod/debug/app-prod-debug.apk ~/Downloads/apks/ && echo "✅ APKs copied to ~/Downloads/apks/"'
 
 
                     alias logs='adb logcat | grep -iE "Gatekeeper|AndroidRuntime|WindowManager|FATAL"'

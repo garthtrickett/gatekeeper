@@ -54,7 +54,7 @@ class WebViewMediaService : Service() {
         startId: Int,
     ): Int {
         when (intent?.action) {
-                        "com.aegisgatekeeper.app.SERVICE_START" -> {
+            "com.aegisgatekeeper.app.SERVICE_START" -> {
                 currentTitle = intent.getStringExtra("EXTRA_TITLE") ?: "Gatekeeper Media"
                 openIntentKey = intent.getStringExtra("EXTRA_OPEN_INTENT_KEY")
                 openIntentValue = intent.getStringExtra("EXTRA_OPEN_INTENT_VALUE")
@@ -120,7 +120,7 @@ class WebViewMediaService : Service() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-                val contentIntent =
+        val contentIntent =
             PendingIntent.getActivity(
                 this,
                 0,

@@ -47,7 +47,7 @@ class OutpostUiTest {
         composeTestRule.onNodeWithText("No chats available. Go to Account settings to connect Beeper, then tap Sync.").assertIsDisplayed()
     }
 
-        @Test
+    @Test
     fun testOutpostScreen_Composer_SchedulesMessage() {
         // Arrange: Inject a dummy Beeper chat into state
         val mockChat = BeeperChat("room123", "John Doe", "WhatsApp")
@@ -143,7 +143,6 @@ class OutpostUiTest {
             state.scheduledMessages
                 .first()
                 .status.name,
-                ).isEqualTo("CANCELLED")
+        ).isEqualTo("CANCELLED")
     }
-
-    }
+}

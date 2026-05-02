@@ -98,7 +98,7 @@ actual fun CleanPlayerModal(
     var playerStateCallback by remember { mutableStateOf<(Int) -> Unit>({}) }
 
     DisposableEffect(videoId) {
-                val startIntent =
+        val startIntent =
             Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java).apply {
                 action = "com.aegisgatekeeper.app.SERVICE_START"
                 putExtra("EXTRA_TITLE", videoTitle)
