@@ -6,6 +6,7 @@ data class GatekeeperState(
     val isOverlayActive: Boolean = false,
     val currentlyInterceptedApp: String? = null,
     val notificationDigest: List<NotificationLog> = emptyList(),
+    val appGroups: List<AppGroup> = emptyList(),
     val isWebEngineReady: Boolean = false,
     val isAuthenticated: Boolean = false,
     val jwtToken: String? = null,
@@ -35,6 +36,29 @@ data class GatekeeperState(
     val latestGlobalEpisodes: List<UnifiedEpisode>? = null,
     val isLoadingGlobalEpisodes: Boolean = false,
 )
+
+data class AppGroup(
+    val id: String = java.util.UUID.randomUUID().toString(),
+    val name: String,
+    val apps: Set<String> = emptySet(),
+    val rules: List<BlockingRule> = emptyList(),
+    val combinator: RuleCombinator = RuleCombinator.ANY,
+)
+
+sealed interface BlockingRule {
+    val id: String
+    val groupId: String
+    val isEnabled: Boolean
+
+    data class CheckIn(
+        override val id: String = java.util.UUID.randomUUID().toString(),
+        override val groupId: String,
+        override val isEnabled: Boolean = true,
+        val checkInTimesMinutes: List<Int>,
+        val durationMinutes: Int = 15,
+        val daysOfWeek: Set<DayOfWeek> = DayOfWeek.values().toSet(),
+    ) : BlockingRule
+}
 
 data class MetacognitionRequest(
     val packageName: String,
@@ -348,7 +372,7 @@ fun isDeepWorkHours(
 fun getNextDeliveryTime(
     currentMinutes: Int,
     currentDay: DayOfWeek,
-    rule: Any
+    rule: BlockingRule.CheckIn
 ): Int? {
     return null
 }
@@ -356,7 +380,7 @@ fun getNextDeliveryTime(
 fun isMailDelivered(
     notificationTimestamp: Long,
     currentTimeMillis: Long,
-    rule: Any,
+    rule: BlockingRule.CheckIn,
     currentDay: DayOfWeek
 ): Boolean {
     return true

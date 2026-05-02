@@ -42,7 +42,6 @@ import java.time.LocalTime
 import java.util.UUID
 
 @Suppress("FunctionName")
-@Suppress("FunctionName")
 @Composable
 fun NotificationDigestScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
