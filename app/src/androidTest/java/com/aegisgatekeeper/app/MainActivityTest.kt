@@ -25,7 +25,7 @@ class MainActivityTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-    @Test
+        @Test
     fun testWidgetDeepLink_DispatchesOpenCleanPlayerAction() {
         // Arrange: Simulate the exact intent fired by the Glance Widget's "Watch" button
         val testVideoId = "abc123XYZ"
@@ -40,6 +40,88 @@ class MainActivityTest {
             // dispatching OpenCleanPlayer and setting the activeVideoId in the StateManager.
             val currentState = GatekeeperStateManager.state.value
             assertThat(currentState.activeVideoId).isEqualTo(testVideoId)
+        }
+    }
+
+    @Test
+    fun testDeepLink_onNewIntent_DispatchesOpenCleanPlayerAction() {
+        val testVideoId = "abc123XYZ"
+        val intent = Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java).apply {
+            putExtra("OPEN_CLEAN_PLAYER_VIDEO_ID", testVideoId)
+        }
+        
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                activity.onNewIntent(intent)
+                
+                val currentState = GatekeeperStateManager.state.value
+                assertThat(currentState.activeVideoId).isEqualTo(testVideoId)
+            }
+        }
+    }
+
+    @Test
+    fun testDeepLink_DispatchesOpenCleanAudioPlayerAction() {
+        val testUrl = "https://soundcloud.com/test/track"
+        val intent = Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java).apply {
+            putExtra("OPEN_CLEAN_AUDIO_URL", testUrl)
+        }
+
+        ActivityScenario.launch<MainActivity>(intent).use {
+            val currentState = GatekeeperStateManager.state.value
+            assertThat(currentState.activeAudioUrl).isEqualTo(testUrl)
+        }
+    }
+
+    @Test
+    fun testDeepLink_DispatchesOpenNativePlayerAction() {
+        val videoId = "https://example.com/audio.mp3"
+        GatekeeperStateManager.dispatch(
+            com.aegisgatekeeper.app.domain.GatekeeperAction.SaveToContentBank(
+                videoId = videoId,
+                title = "Test Audio",
+                source = com.aegisgatekeeper.app.domain.ContentSource.GENERIC,
+                type = com.aegisgatekeeper.app.domain.ContentType.AUDIO,
+                currentTimestamp = 0L,
+            )
+        )
+        
+        val savedItem = GatekeeperStateManager.state.value.contentItems.first { it.videoId == videoId }
+        
+        val intent = Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java).apply {
+            putExtra("OPEN_NATIVE_AUDIO_ID", savedItem.id)
+        }
+
+        ActivityScenario.launch<MainActivity>(intent).use {
+            val currentState = GatekeeperStateManager.state.value
+            assertThat(currentState.activeNativeMediaItem?.id).isEqualTo(savedItem.id)
+            assertThat(currentState.isNativeAudioPlayerModalVisible).isTrue()
+        }
+    }
+
+    @Test
+    fun testDeepLink_DispatchesOpenActiveNativePlayerAction() {
+        val item = com.aegisgatekeeper.app.domain.ContentItem(
+            id = "active_item_id",
+            videoId = "https://example.com/audio.mp3",
+            title = "Test Audio",
+            source = com.aegisgatekeeper.app.domain.ContentSource.GENERIC,
+            type = com.aegisgatekeeper.app.domain.ContentType.AUDIO,
+            rank = 0,
+            capturedAtTimestamp = 0L,
+        )
+        
+        GatekeeperStateManager.dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.OpenNativePlayer(item))
+        GatekeeperStateManager.dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.MinimizeNativePlayer)
+        
+        val intent = Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java).apply {
+            putExtra("OPEN_ACTIVE_NATIVE_PLAYER", true)
+        }
+        
+        ActivityScenario.launch<MainActivity>(intent).use {
+            val currentState = GatekeeperStateManager.state.value
+            assertThat(currentState.isNativeAudioPlayerModalVisible).isTrue()
+            assertThat(currentState.activeNativeMediaItem?.id).isEqualTo(item.id)
         }
     }
 }
