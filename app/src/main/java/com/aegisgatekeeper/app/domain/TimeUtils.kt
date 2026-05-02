@@ -56,7 +56,7 @@ fun parseIso8601Duration(duration: String): Long {
 fun getNextDeliveryTime(
     currentMinutes: Int,
     currentDay: DayOfWeek,
-    rule: BlockingRule.CheckIn
+    rule: BlockingRule.CheckIn,
 ): Int? {
     if (!rule.daysOfWeek.contains(currentDay)) return null
     return rule.checkInTimesMinutes.sorted().firstOrNull { it > currentMinutes }
@@ -66,7 +66,7 @@ fun isMailDelivered(
     notificationTimestamp: Long,
     currentTimeMillis: Long,
     rule: BlockingRule.CheckIn,
-    currentDay: DayOfWeek
+    currentDay: DayOfWeek,
 ): Boolean {
     val cal = java.util.Calendar.getInstance()
     cal.timeInMillis = currentTimeMillis

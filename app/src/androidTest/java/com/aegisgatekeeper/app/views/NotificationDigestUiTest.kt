@@ -49,20 +49,23 @@ class NotificationDigestUiTest {
                 content = "Hey, are we still on for tonight?",
                 timestamp = System.currentTimeMillis() - 3600000, // 1 hour ago
             )
-            
-                GatekeeperStateManager.dispatch(GatekeeperAction.CreateAppGroup("group1", "Comms", setOf("com.whatsapp")))
-        
+
+        GatekeeperStateManager.dispatch(GatekeeperAction.CreateAppGroup("group1", "Comms", setOf("com.whatsapp")))
+
         val cal = java.util.Calendar.getInstance()
         val currentMinutes = cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 + cal.get(java.util.Calendar.MINUTE)
-        
+
         GatekeeperStateManager.dispatch(
             GatekeeperAction.AddCheckInRule(
                 id = "rule1",
                 groupId = "group1",
                 checkInTimesMinutes = listOf(currentMinutes),
                 durationMinutes = 15,
-                daysOfWeek = com.aegisgatekeeper.app.domain.DayOfWeek.values().toSet()
-            )
+                daysOfWeek =
+                    com.aegisgatekeeper.app.domain.DayOfWeek
+                        .values()
+                        .toSet(),
+            ),
         )
 
         GatekeeperStateManager.dispatch(GatekeeperAction.LoadNotificationDigest(listOf(mockLog)))

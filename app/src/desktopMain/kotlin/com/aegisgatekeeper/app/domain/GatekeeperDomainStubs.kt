@@ -38,7 +38,10 @@ data class GatekeeperState(
 )
 
 data class AppGroup(
-    val id: String = java.util.UUID.randomUUID().toString(),
+    val id: String =
+        java.util.UUID
+            .randomUUID()
+            .toString(),
     val name: String,
     val apps: Set<String> = emptySet(),
     val rules: List<BlockingRule> = emptyList(),
@@ -51,7 +54,10 @@ sealed interface BlockingRule {
     val isEnabled: Boolean
 
     data class CheckIn(
-        override val id: String = java.util.UUID.randomUUID().toString(),
+        override val id: String =
+            java.util.UUID
+                .randomUUID()
+                .toString(),
         override val groupId: String,
         override val isEnabled: Boolean = true,
         val checkInTimesMinutes: List<Int>,
@@ -372,19 +378,15 @@ fun isDeepWorkHours(
 fun getNextDeliveryTime(
     currentMinutes: Int,
     currentDay: DayOfWeek,
-    rule: BlockingRule.CheckIn
-): Int? {
-    return null
-}
+    rule: BlockingRule.CheckIn,
+): Int? = null
 
 fun isMailDelivered(
     notificationTimestamp: Long,
     currentTimeMillis: Long,
     rule: BlockingRule.CheckIn,
-    currentDay: DayOfWeek
-): Boolean {
-    return true
-}
+    currentDay: DayOfWeek,
+): Boolean = true
 
 fun isVaultUnlocked(
     currentTime: LocalTime,

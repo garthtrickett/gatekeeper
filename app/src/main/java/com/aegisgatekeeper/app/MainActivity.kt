@@ -83,7 +83,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-                // Auto-Advance Onboarding: Check permissions every time the app comes to the foreground
+        // Auto-Advance Onboarding: Check permissions every time the app comes to the foreground
         val status = PermissionChecker.checkAll(this)
         GatekeeperStateManager.dispatch(
             GatekeeperAction.PermissionsUpdated(
@@ -97,7 +97,9 @@ class MainActivity : ComponentActivity() {
 
         // Auto-sync Beeper if permission already granted
         if (checkSelfPermission("com.beeper.android.permission.READ_PERMISSION") == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            if (GatekeeperStateManager.state.value.beeperChats.isEmpty() && !GatekeeperStateManager.state.value.isSyncingBeeper) {
+            if (GatekeeperStateManager.state.value.beeperChats
+                    .isEmpty() && !GatekeeperStateManager.state.value.isSyncingBeeper
+            ) {
                 GatekeeperStateManager.dispatch(GatekeeperAction.RequestBeeperSync)
             }
         }

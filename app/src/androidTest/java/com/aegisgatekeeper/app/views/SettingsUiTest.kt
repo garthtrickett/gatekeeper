@@ -53,7 +53,7 @@ class SettingsUiTest {
         composeTestRule.onNodeWithText("Save Phase Times").performClick()
         composeTestRule.waitForIdle()
 
-                // Verify state is updated
+        // Verify state is updated
         val state = GatekeeperStateManager.state.value
         assertThat(state.deepWorkStartMinutes).isEqualTo(480)
         assertThat(state.gatheringEndMinutes).isEqualTo(1140)
@@ -62,9 +62,12 @@ class SettingsUiTest {
     @Test
     fun testSettingsScreen_BeeperConnectionState() {
         // Arrange: Seed the state with a dummy Beeper chat
-        val mockChat = com.aegisgatekeeper.app.domain.BeeperChat("1", "Test User", "WhatsApp")
+        val mockChat =
+            com.aegisgatekeeper.app.domain
+                .BeeperChat("1", "Test User", "WhatsApp")
         GatekeeperStateManager.dispatch(
-            com.aegisgatekeeper.app.domain.GatekeeperAction.BeeperChatsLoaded(listOf(mockChat))
+            com.aegisgatekeeper.app.domain.GatekeeperAction
+                .BeeperChatsLoaded(listOf(mockChat)),
         )
 
         composeTestRule.setContent {

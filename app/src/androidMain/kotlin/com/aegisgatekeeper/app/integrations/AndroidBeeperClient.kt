@@ -22,7 +22,7 @@ class AndroidBeeperClient(
                 val cursor = context.contentResolver.query(uri, null, null, null, null)
                 val chats = mutableListOf<BeeperChat>()
 
-                                cursor?.use {
+                cursor?.use {
                     val idIndex = it.getColumnIndex("roomId")
                     val titleIndex = it.getColumnIndex("title")
                     val protocolIndex = it.getColumnIndex("protocol")

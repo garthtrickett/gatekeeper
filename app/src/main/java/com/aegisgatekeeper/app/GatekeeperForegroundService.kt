@@ -105,7 +105,7 @@ class GatekeeperForegroundService : Service() {
                         currentMinutes >= state.gatheringStartMinutes || currentMinutes < state.gatheringEndMinutes
                     }
 
-                                if (isGathering && currentDay != lastNotifiedDay) {
+                if (isGathering && currentDay != lastNotifiedDay) {
                     lastNotifiedDay = currentDay
 
                     val unresolvedVaultItems = state.vaultItems.count { !it.isResolved && !it.isDeleted }
@@ -144,16 +144,17 @@ class GatekeeperForegroundService : Service() {
                                             it.groupId == group.id && it.timeMinutes == time &&
                                                 it.timestamp >= startOfDay
                                         }
-                                                                        if (!isConsumed) {
-                                        val groupNotifications = state.notificationDigest.count { log ->
-                                            group.apps.contains(log.packageName) &&
-                                                com.aegisgatekeeper.app.domain.isMailDelivered(
-                                                    log.timestamp,
-                                                    System.currentTimeMillis(),
-                                                    rule,
-                                                    currentDayOfWeek
-                                                )
-                                        }
+                                    if (!isConsumed) {
+                                        val groupNotifications =
+                                            state.notificationDigest.count { log ->
+                                                group.apps.contains(log.packageName) &&
+                                                    com.aegisgatekeeper.app.domain.isMailDelivered(
+                                                        log.timestamp,
+                                                        System.currentTimeMillis(),
+                                                        rule,
+                                                        currentDayOfWeek,
+                                                    )
+                                            }
                                         sendCheckInNotification(group.name, time, groupNotifications)
                                     }
                                     notifiedCheckIns.add(checkInKey)
@@ -199,10 +200,10 @@ class GatekeeperForegroundService : Service() {
         }
     }
 
-        private fun sendCheckInNotification(
+    private fun sendCheckInNotification(
         groupName: String,
         time: Int,
-        deliveredMailCount: Int = 0
+        deliveredMailCount: Int = 0,
     ) {
         val channelId = "gatekeeper_phase_channel"
         val manager = getSystemService(NotificationManager::class.java)
@@ -230,12 +231,13 @@ class GatekeeperForegroundService : Service() {
             )
 
         val timeString = String.format("%02d:%02d", time / 60, time % 60)
-        
-        val text = if (deliveredMailCount > 0) {
-            "A check-in token for $groupName is now available ($timeString). $deliveredMailCount messages delivered to the Digest."
-        } else {
-            "A check-in token for $groupName is now available ($timeString)."
-        }
+
+        val text =
+            if (deliveredMailCount > 0) {
+                "A check-in token for $groupName is now available ($timeString). $deliveredMailCount messages delivered to the Digest."
+            } else {
+                "A check-in token for $groupName is now available ($timeString)."
+            }
 
         val notification =
             NotificationCompat
@@ -250,9 +252,7 @@ class GatekeeperForegroundService : Service() {
         manager.notify(groupName.hashCode(), notification)
     }
 
-    private fun sendGatheringNotification(
-        vaultCount: Int,
-    ) {
+    private fun sendGatheringNotification(vaultCount: Int) {
         val channelId = "gatekeeper_phase_channel"
         val manager = getSystemService(NotificationManager::class.java)
 
@@ -278,7 +278,7 @@ class GatekeeperForegroundService : Service() {
                 android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE,
             )
 
-                val text =
+        val text =
             buildString {
                 if (vaultCount > 0) append("$vaultCount thoughts to process. ")
                 if (isEmpty()) append("Time to review your digital intake.")

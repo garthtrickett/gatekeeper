@@ -29,7 +29,7 @@ class GatekeeperForegroundServiceTest {
         attachBaseContextMethod.isAccessible = true
         attachBaseContextMethod.invoke(service, context)
 
-                val method =
+        val method =
             GatekeeperForegroundService::class.java.getDeclaredMethod(
                 "sendCheckInNotification",
                 String::class.java,

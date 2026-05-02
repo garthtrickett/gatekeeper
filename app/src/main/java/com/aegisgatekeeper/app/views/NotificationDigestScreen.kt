@@ -56,7 +56,11 @@ fun NotificationDigestScreen() {
 
     val currentMinutes = currentTime.hour * 60 + currentTime.minute
     val currentDay =
-        when (java.time.LocalDate.now().dayOfWeek) {
+        when (
+            java.time.LocalDate
+                .now()
+                .dayOfWeek
+        ) {
             java.time.DayOfWeek.MONDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY
             java.time.DayOfWeek.TUESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.TUESDAY
             java.time.DayOfWeek.WEDNESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.WEDNESDAY
@@ -70,47 +74,56 @@ fun NotificationDigestScreen() {
         val title: String,
         val delivered: List<com.aegisgatekeeper.app.domain.NotificationLog>,
         val heldCount: Int,
-        val nextDeliveryTime: Int?
+        val nextDeliveryTime: Int?,
     )
 
-    val sections = remember(state.notificationDigest, state.appGroups, currentMinutes, currentDay) {
-        val groupsWithCheckIn = state.appGroups.filter { group ->
-            group.rules.any { it is com.aegisgatekeeper.app.domain.BlockingRule.CheckIn && it.isEnabled }
-        }
-        
-        val result = mutableListOf<DigestSection>()
-        val processedLogIds = mutableSetOf<String>()
-        
-        for (group in groupsWithCheckIn) {
-            val rule = group.rules.first { it is com.aegisgatekeeper.app.domain.BlockingRule.CheckIn && it.isEnabled } as com.aegisgatekeeper.app.domain.BlockingRule.CheckIn
-            
-            val groupLogs = state.notificationDigest.filter { it.packageName in group.apps }
-            if (groupLogs.isEmpty()) continue
-            
-            val delivered = mutableListOf<com.aegisgatekeeper.app.domain.NotificationLog>()
-            var heldCount = 0
-            
-            for (log in groupLogs) {
-                processedLogIds.add(log.id)
-                if (com.aegisgatekeeper.app.domain.isMailDelivered(log.timestamp, System.currentTimeMillis(), rule, currentDay)) {
-                    delivered.add(log)
-                } else {
-                    heldCount++
+    val sections =
+        remember(state.notificationDigest, state.appGroups, currentMinutes, currentDay) {
+            val groupsWithCheckIn =
+                state.appGroups.filter { group ->
+                    group.rules.any { it is com.aegisgatekeeper.app.domain.BlockingRule.CheckIn && it.isEnabled }
                 }
+
+            val result = mutableListOf<DigestSection>()
+            val processedLogIds = mutableSetOf<String>()
+
+            for (group in groupsWithCheckIn) {
+                val rule =
+                    group.rules.first {
+                        it is com.aegisgatekeeper.app.domain.BlockingRule.CheckIn && it.isEnabled
+                    } as com.aegisgatekeeper.app.domain.BlockingRule.CheckIn
+
+                val groupLogs = state.notificationDigest.filter { it.packageName in group.apps }
+                if (groupLogs.isEmpty()) continue
+
+                val delivered = mutableListOf<com.aegisgatekeeper.app.domain.NotificationLog>()
+                var heldCount = 0
+
+                for (log in groupLogs) {
+                    processedLogIds.add(log.id)
+                    if (com.aegisgatekeeper.app.domain
+                            .isMailDelivered(log.timestamp, System.currentTimeMillis(), rule, currentDay)
+                    ) {
+                        delivered.add(log)
+                    } else {
+                        heldCount++
+                    }
+                }
+
+                val nextTime =
+                    com.aegisgatekeeper.app.domain
+                        .getNextDeliveryTime(currentMinutes, currentDay, rule)
+
+                result.add(DigestSection(group.name, delivered, heldCount, nextTime))
             }
-            
-            val nextTime = com.aegisgatekeeper.app.domain.getNextDeliveryTime(currentMinutes, currentDay, rule)
-            
-            result.add(DigestSection(group.name, delivered, heldCount, nextTime))
+
+            val generalLogs = state.notificationDigest.filter { it.id !in processedLogIds }
+            if (generalLogs.isNotEmpty()) {
+                result.add(DigestSection("General", generalLogs, 0, null))
+            }
+
+            result
         }
-        
-        val generalLogs = state.notificationDigest.filter { it.id !in processedLogIds }
-        if (generalLogs.isNotEmpty()) {
-            result.add(DigestSection("General", generalLogs, 0, null))
-        }
-        
-        result
-    }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -151,12 +164,16 @@ fun NotificationDigestScreen() {
 
                         if (section.heldCount > 0) {
                             item {
-                                val timeStr = section.nextDeliveryTime?.let {
-                                    String.format("%02d:%02d", it / 60, it % 60)
-                                } ?: "Tomorrow"
+                                val timeStr =
+                                    section.nextDeliveryTime?.let {
+                                        String.format("%02d:%02d", it / 60, it % 60)
+                                    } ?: "Tomorrow"
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
-                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                                    colors =
+                                        CardDefaults.cardColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                        ),
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text("🔒", fontSize = 32.sp)

@@ -103,6 +103,7 @@ fun OutpostScreen() {
 }
 
 @Suppress("FunctionName")
+@Suppress("FunctionName")
 @Composable
 private fun OutpostComposerView(chats: List<BeeperChat>) {
     if (chats.isEmpty()) {
@@ -116,30 +117,68 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
         return
     }
 
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
     var expanded by remember { mutableStateOf(false) }
     var selectedChat by remember { mutableStateOf<BeeperChat?>(null) }
     var messageText by remember { mutableStateOf("") }
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredChats = remember(searchQuery, chats) {
+        if (searchQuery.isBlank()) {
+            chats
+        } else {
+            chats.filter {
+                it.name.contains(searchQuery, ignoreCase = true) ||
+                it.network?.contains(searchQuery, ignoreCase = true) == true
+            }
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Box {
-            IndustrialButton(
-                onClick = { expanded = true },
-                text = selectedChat?.let { "${it.name} (${it.network ?: "Unknown"})" } ?: "Select Chat",
-                modifier = Modifier.fillMaxWidth(),
+        Box(modifier = Modifier.fillMaxWidth()) {
+            IndustrialTextField(
+                value = if (selectedChat != null && !expanded) "${selectedChat!!.name} (${selectedChat!!.network ?: "Unknown"})" else searchQuery,
+                onValueChange = { 
+                    searchQuery = it
+                    selectedChat = null
+                    expanded = true
+                },
+                label = { Text("Select Chat") },
+                modifier = Modifier.fillMaxWidth()
+                    .androidx.compose.ui.focus.onFocusChanged { focusState -> 
+                        if (focusState.isFocused) expanded = true 
+                    },
+                singleLine = true
             )
             DropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false },
+                onDismissRequest = { 
+                    expanded = false
+                    focusManager.clearFocus()
+                },
                 modifier = Modifier.fillMaxWidth(0.9f),
+                properties = androidx.compose.ui.window.PopupProperties(focusable = false)
             ) {
-                chats.forEach { chat ->
+                if (filteredChats.isEmpty()) {
                     DropdownMenuItem(
-                        text = { Text("${chat.name} (${chat.network ?: "Unknown"})") },
-                        onClick = {
-                            selectedChat = chat
+                        text = { Text("No chats found") },
+                        onClick = { 
                             expanded = false
-                        },
+                            focusManager.clearFocus()
+                        }
                     )
+                } else {
+                    filteredChats.take(20).forEach { chat ->
+                        DropdownMenuItem(
+                            text = { Text("${chat.name} (${chat.network ?: "Unknown"})") },
+                            onClick = {
+                                selectedChat = chat
+                                searchQuery = "${chat.name} (${chat.network ?: "Unknown"})"
+                                expanded = false
+                                focusManager.clearFocus()
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -175,7 +214,7 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
                             GatekeeperStateManager.dispatch(
                                 GatekeeperAction.ScheduleMessage(
                                     ScheduledMessage(
-                                        id = UUID.randomUUID().toString(),
+                                        id = java.util.UUID.randomUUID().toString(),
                                         beeperRoomId = selectedChat!!.roomId,
                                         chatName = selectedChat!!.name,
                                         messageText = messageText.trim(),
