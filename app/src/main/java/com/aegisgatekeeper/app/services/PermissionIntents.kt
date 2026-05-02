@@ -24,7 +24,7 @@ object PermissionIntents {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
 
-        fun getAccessibilityIntent(): Intent =
+    fun getAccessibilityIntent(): Intent =
         Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }

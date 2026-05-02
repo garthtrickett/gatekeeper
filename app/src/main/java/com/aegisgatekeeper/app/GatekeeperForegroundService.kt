@@ -155,16 +155,34 @@ class GatekeeperForegroundService : Service() {
                     }
                 }
 
-                                notifiedCheckIns.removeAll { !it.endsWith("_$currentDay") }
+                notifiedCheckIns.removeAll { !it.endsWith("_$currentDay") }
 
                 // Android NotificationListener Service Reliability Hack
                 if (!GatekeeperNotificationListenerService.isConnected) {
-                    if (com.aegisgatekeeper.app.services.PermissionChecker.hasNotificationAccessPermission(this@GatekeeperForegroundService)) {
-                        android.util.Log.w("Gatekeeper", "🔧 NotificationListener disconnected despite permission. Toggling component to rebind.")
+                    if (com.aegisgatekeeper.app.services.PermissionChecker.hasNotificationAccessPermission(
+                            this@GatekeeperForegroundService,
+                        )
+                    ) {
+                        android.util.Log.w(
+                            "Gatekeeper",
+                            "🔧 NotificationListener disconnected despite permission. Toggling component to rebind.",
+                        )
                         val pm = packageManager
-                        val component = android.content.ComponentName(this@GatekeeperForegroundService, GatekeeperNotificationListenerService::class.java)
-                        pm.setComponentEnabledSetting(component, android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED, android.content.pm.PackageManager.DONT_KILL_APP)
-                        pm.setComponentEnabledSetting(component, android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED, android.content.pm.PackageManager.DONT_KILL_APP)
+                        val component =
+                            android.content.ComponentName(
+                                this@GatekeeperForegroundService,
+                                GatekeeperNotificationListenerService::class.java,
+                            )
+                        pm.setComponentEnabledSetting(
+                            component,
+                            android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                            android.content.pm.PackageManager.DONT_KILL_APP,
+                        )
+                        pm.setComponentEnabledSetting(
+                            component,
+                            android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                            android.content.pm.PackageManager.DONT_KILL_APP,
+                        )
                     }
                 }
 

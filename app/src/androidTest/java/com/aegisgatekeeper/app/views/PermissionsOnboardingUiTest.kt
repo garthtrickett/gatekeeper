@@ -30,7 +30,7 @@ class PermissionsOnboardingUiTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-        @Test
+    @Test
     fun testOnboarding_StartsAtStep1() {
         composeTestRule.setContent {
             GatekeeperTheme {
@@ -51,7 +51,7 @@ class PermissionsOnboardingUiTest {
             }
         }
 
-                // Act: Dispatch state update showing the first permission is granted
+        // Act: Dispatch state update showing the first permission is granted
         GatekeeperStateManager.dispatch(
             GatekeeperAction.PermissionsUpdated(
                 hasOverlay = true,
@@ -68,7 +68,7 @@ class PermissionsOnboardingUiTest {
         composeTestRule.onNodeWithText("App Tracking").assertIsDisplayed()
     }
 
-        @Test
+    @Test
     fun testOnboarding_AutoAdvancesToFinalBoss_WhenFirstFourGranted() {
         composeTestRule.setContent {
             GatekeeperTheme {

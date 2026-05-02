@@ -49,8 +49,8 @@ class GatekeeperNotificationListenerService : NotificationListenerService() {
                     packageName = packageName,
                     title = title,
                     content = text,
-                    timestamp = System.currentTimeMillis()
-                )
+                    timestamp = System.currentTimeMillis(),
+                ),
             )
         }
     }
@@ -71,15 +71,16 @@ class GatekeeperNotificationListenerService : NotificationListenerService() {
 
         val calendar = java.util.Calendar.getInstance()
         val currentMinutes = calendar.get(java.util.Calendar.HOUR_OF_DAY) * 60 + calendar.get(java.util.Calendar.MINUTE)
-        val currentDay = when (calendar.get(java.util.Calendar.DAY_OF_WEEK)) {
-            java.util.Calendar.MONDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY
-            java.util.Calendar.TUESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.TUESDAY
-            java.util.Calendar.WEDNESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.WEDNESDAY
-            java.util.Calendar.THURSDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.THURSDAY
-            java.util.Calendar.FRIDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.FRIDAY
-            java.util.Calendar.SATURDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.SATURDAY
-            else -> com.aegisgatekeeper.app.domain.DayOfWeek.SUNDAY
-        }
+        val currentDay =
+            when (calendar.get(java.util.Calendar.DAY_OF_WEEK)) {
+                java.util.Calendar.MONDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY
+                java.util.Calendar.TUESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.TUESDAY
+                java.util.Calendar.WEDNESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.WEDNESDAY
+                java.util.Calendar.THURSDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.THURSDAY
+                java.util.Calendar.FRIDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.FRIDAY
+                java.util.Calendar.SATURDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.SATURDAY
+                else -> com.aegisgatekeeper.app.domain.DayOfWeek.SUNDAY
+            }
 
         for (group in activeGroups) {
             val groupViolations = mutableListOf<String>()
@@ -95,22 +96,32 @@ class GatekeeperNotificationListenerService : NotificationListenerService() {
                             if (activeSlots.isNotEmpty()) groupViolations.add("Scheduled Block")
                         }
                     }
+
                     is com.aegisgatekeeper.app.domain.BlockingRule.CheckIn -> {
                         if (rule.daysOfWeek.contains(currentDay)) {
                             groupViolations.add("Check-In Required")
                         }
                     }
+
                     is com.aegisgatekeeper.app.domain.BlockingRule.AlwaysBlock -> {
                         groupViolations.add("Always Block")
                     }
+
                     else -> {}
                 }
             }
 
-            val groupIsBlocked = when (group.combinator) {
-                com.aegisgatekeeper.app.domain.RuleCombinator.ANY -> groupViolations.isNotEmpty()
-                com.aegisgatekeeper.app.domain.RuleCombinator.ALL -> groupViolations.size == enabledRules.size && enabledRules.isNotEmpty()
-            }
+            val groupIsBlocked =
+                when (group.combinator) {
+                    com.aegisgatekeeper.app.domain.RuleCombinator.ANY -> {
+                        groupViolations.isNotEmpty()
+                    }
+
+                    com.aegisgatekeeper.app.domain.RuleCombinator.ALL -> {
+                        groupViolations.size == enabledRules.size &&
+                            enabledRules.isNotEmpty()
+                    }
+                }
 
             if (groupIsBlocked) return true
         }

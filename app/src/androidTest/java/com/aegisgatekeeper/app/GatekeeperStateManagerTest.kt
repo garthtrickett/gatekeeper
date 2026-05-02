@@ -100,7 +100,7 @@ class GatekeeperStateManagerTest {
                 override fun encode(value: com.aegisgatekeeper.app.domain.FrictionGame): String = value.name
             }
 
-                val ruleCombinatorAdapter =
+        val ruleCombinatorAdapter =
             object : ColumnAdapter<com.aegisgatekeeper.app.domain.RuleCombinator, String> {
                 override fun decode(databaseValue: String): com.aegisgatekeeper.app.domain.RuleCombinator =
                     com.aegisgatekeeper.app.domain.RuleCombinator
@@ -112,7 +112,8 @@ class GatekeeperStateManagerTest {
         val messageStatusAdapter =
             object : ColumnAdapter<com.aegisgatekeeper.app.domain.MessageStatus, String> {
                 override fun decode(databaseValue: String): com.aegisgatekeeper.app.domain.MessageStatus =
-                    com.aegisgatekeeper.app.domain.MessageStatus.valueOf(databaseValue)
+                    com.aegisgatekeeper.app.domain.MessageStatus
+                        .valueOf(databaseValue)
 
                 override fun encode(value: com.aegisgatekeeper.app.domain.MessageStatus): String = value.name
             }
@@ -129,7 +130,7 @@ class GatekeeperStateManagerTest {
                         activeFrictionGameAdapter = frictionGameAdapter,
                     ),
                 SessionLogAdapter = SessionLog.Adapter(emotionAdapter = emotionAdapter),
-                                ContentItemAdapter =
+                ContentItemAdapter =
                     ContentItem.Adapter(
                         sourceAdapter = contentSourceAdapter,
                         typeAdapter = contentTypeAdapter,
@@ -589,7 +590,7 @@ class GatekeeperStateManagerTest {
             assertThat(sites).isEmpty()
         }
 
-        @Test
+    @Test
     fun testSaveToVaultLogging() =
         runTest {
             // Arrange
@@ -616,13 +617,14 @@ class GatekeeperStateManagerTest {
     fun testScheduledMessageLogging_Lifecycle() =
         runTest {
             // Arrange
-            val msg = com.aegisgatekeeper.app.domain.ScheduledMessage(
-                id = "msg1", 
-                beeperRoomId = "room1", 
-                chatName = "Test Chat", 
-                messageText = "Hello World", 
-                scheduledTimestamp = 12345L
-            )
+            val msg =
+                com.aegisgatekeeper.app.domain.ScheduledMessage(
+                    id = "msg1",
+                    beeperRoomId = "room1",
+                    chatName = "Test Chat",
+                    messageText = "Hello World",
+                    scheduledTimestamp = 12345L,
+                )
             val action = GatekeeperAction.ScheduleMessage(msg)
 
             // Act 1: Schedule the message

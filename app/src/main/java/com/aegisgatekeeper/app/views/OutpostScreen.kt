@@ -1,10 +1,34 @@
 package com.aegisgatekeeper.app.views
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -18,6 +42,7 @@ import com.aegisgatekeeper.app.domain.MessageStatus
 import com.aegisgatekeeper.app.domain.ScheduledMessage
 import java.util.UUID
 
+@Suppress("FunctionName")
 @Composable
 fun OutpostScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
@@ -38,7 +63,7 @@ fun OutpostScreen() {
                 IndustrialButton(
                     onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.RequestBeeperSync) },
                     text = "Sync",
-                    isLoading = state.isSyncingBeeper
+                    isLoading = state.isSyncingBeeper,
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -48,19 +73,21 @@ fun OutpostScreen() {
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
                     label = { Text("Composer") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primary,
-                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                    )
+                    colors =
+                        FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
                 )
                 FilterChip(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
                     label = { Text("Queue (${state.scheduledMessages.count { it.status == MessageStatus.PENDING }})") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primary,
-                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                    )
+                    colors =
+                        FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
                 )
             }
 
@@ -75,11 +102,16 @@ fun OutpostScreen() {
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun OutpostComposerView(chats: List<BeeperChat>) {
     if (chats.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No chats available. Go to Account settings to connect Beeper, then tap Sync.", color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+            Text(
+                "No chats available. Go to Account settings to connect Beeper, then tap Sync.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
         }
         return
     }
@@ -93,12 +125,12 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
             IndustrialButton(
                 onClick = { expanded = true },
                 text = selectedChat?.let { "${it.name} (${it.network ?: "Unknown"})" } ?: "Select Chat",
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.fillMaxWidth(0.9f)
+                modifier = Modifier.fillMaxWidth(0.9f),
             ) {
                 chats.forEach { chat ->
                     DropdownMenuItem(
@@ -106,7 +138,7 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
                         onClick = {
                             selectedChat = chat
                             expanded = false
-                        }
+                        },
                     )
                 }
             }
@@ -119,7 +151,7 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
             onValueChange = { messageText = it },
             label = { Text("Message Body") },
             modifier = Modifier.fillMaxWidth().height(150.dp),
-            singleLine = false
+            singleLine = false,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -127,12 +159,13 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
         Text("Send Delay", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
 
-        val delays = listOf(
-            "Send Now" to 0L,
-            "+15m" to 15 * 60_000L,
-            "+1h" to 60 * 60_000L,
-            "+Tomorrow" to 24 * 60 * 60_000L
-        )
+        val delays =
+            listOf(
+                "Send Now" to 0L,
+                "+15m" to 15 * 60_000L,
+                "+1h" to 60 * 60_000L,
+                "+Tomorrow" to 24 * 60 * 60_000L,
+            )
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
             delays.forEach { (label, delayMillis) ->
@@ -147,22 +180,23 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
                                         chatName = selectedChat!!.name,
                                         messageText = messageText.trim(),
                                         scheduledTimestamp = System.currentTimeMillis() + delayMillis,
-                                        status = MessageStatus.PENDING
-                                    )
-                                )
+                                        status = MessageStatus.PENDING,
+                                    ),
+                                ),
                             )
                             messageText = ""
                         }
                     },
                     text = label,
                     enabled = selectedChat != null && messageText.isNotBlank(),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun OutpostQueueView(pendingMessages: List<ScheduledMessage>) {
     if (pendingMessages.isEmpty()) {
@@ -185,34 +219,40 @@ private fun OutpostQueueView(pendingMessages: List<ScheduledMessage>) {
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                         Text(msg.chatName, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-                        val timeDisplay = if (timeLeft > 0) {
-                            val hours = timeLeft / 3600_000
-                            val minutes = (timeLeft % 3600_000) / 60_000
-                            val seconds = (timeLeft % 60_000) / 1000
-                            if (hours > 0) {
-                                String.format("in %02d:%02d:%02d", hours, minutes, seconds)
+                        val timeDisplay =
+                            if (timeLeft > 0) {
+                                val hours = timeLeft / 3600_000
+                                val minutes = (timeLeft % 3600_000) / 60_000
+                                val seconds = (timeLeft % 60_000) / 1000
+                                if (hours > 0) {
+                                    String.format("in %02d:%02d:%02d", hours, minutes, seconds)
+                                } else {
+                                    String.format("in %02d:%02d", minutes, seconds)
+                                }
                             } else {
-                                String.format("in %02d:%02d", minutes, seconds)
+                                "Sending..."
                             }
-                        } else {
-                            "Sending..."
-                        }
                         Text(timeDisplay, style = MaterialTheme.typography.labelMedium)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(msg.messageText, style = MaterialTheme.typography.bodyMedium, maxLines = 3, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                    
+                    Text(
+                        msg.messageText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 3,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                    )
+
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         IndustrialButton(
                             onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.CancelScheduledMessage(msg.id)) },
                             text = "Drop",
-                            isWarning = true
+                            isWarning = true,
                         )
                     }
                 }

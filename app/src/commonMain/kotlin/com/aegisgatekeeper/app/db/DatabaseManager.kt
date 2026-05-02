@@ -49,7 +49,7 @@ object DatabaseManager {
             override fun encode(value: com.aegisgatekeeper.app.domain.FrictionGame): String = value.name
         }
 
-        private val ruleCombinatorAdapter =
+    private val ruleCombinatorAdapter =
         object : ColumnAdapter<com.aegisgatekeeper.app.domain.RuleCombinator, String> {
             override fun decode(databaseValue: String): com.aegisgatekeeper.app.domain.RuleCombinator =
                 com.aegisgatekeeper.app.domain.RuleCombinator
@@ -61,7 +61,8 @@ object DatabaseManager {
     private val messageStatusAdapter =
         object : ColumnAdapter<com.aegisgatekeeper.app.domain.MessageStatus, String> {
             override fun decode(databaseValue: String): com.aegisgatekeeper.app.domain.MessageStatus =
-                com.aegisgatekeeper.app.domain.MessageStatus.valueOf(databaseValue)
+                com.aegisgatekeeper.app.domain.MessageStatus
+                    .valueOf(databaseValue)
 
             override fun encode(value: com.aegisgatekeeper.app.domain.MessageStatus): String = value.name
         }
@@ -84,7 +85,7 @@ object DatabaseManager {
                     SessionLog.Adapter(
                         emotionAdapter = emotionAdapter,
                     ),
-                                ContentItemAdapter =
+                ContentItemAdapter =
                     ContentItem.Adapter(
                         sourceAdapter = contentSourceAdapter,
                         typeAdapter = contentTypeAdapter,

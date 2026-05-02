@@ -14,4 +14,3 @@ interface SharedApplicationComponent {
     val syncClient: SyncClient
     val beeperClient: BeeperClient
 }
-

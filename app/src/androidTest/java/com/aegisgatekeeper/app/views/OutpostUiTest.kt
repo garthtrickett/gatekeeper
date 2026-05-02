@@ -84,13 +84,14 @@ class OutpostUiTest {
     @Test
     fun testOutpostScreen_QueueView_CancelsMessage() {
         // Arrange: Inject a scheduled message into state
-        val msg = ScheduledMessage(
-            id = "msg_123",
-            beeperRoomId = "room1",
-            chatName = "Wife",
-            messageText = "Buy milk",
-            scheduledTimestamp = System.currentTimeMillis() + 300_000L // 5 mins
-        )
+        val msg =
+            ScheduledMessage(
+                id = "msg_123",
+                beeperRoomId = "room1",
+                chatName = "Wife",
+                messageText = "Buy milk",
+                scheduledTimestamp = System.currentTimeMillis() + 300_000L, // 5 mins
+            )
         GatekeeperStateManager.dispatch(GatekeeperAction.ScheduleMessage(msg))
 
         composeTestRule.setContent {
@@ -116,6 +117,10 @@ class OutpostUiTest {
 
         // Assert: Underlying state status is updated
         val state = GatekeeperStateManager.state.value
-        assertThat(state.scheduledMessages.first().status.name).isEqualTo("CANCELLED")
+        assertThat(
+            state.scheduledMessages
+                .first()
+                .status.name,
+        ).isEqualTo("CANCELLED")
     }
 }

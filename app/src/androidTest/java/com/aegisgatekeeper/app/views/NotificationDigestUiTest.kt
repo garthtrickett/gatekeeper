@@ -41,13 +41,14 @@ class NotificationDigestUiTest {
         val mockChat = BeeperChat("room123", "John Doe", "WhatsApp")
         GatekeeperStateManager.dispatch(GatekeeperAction.BeeperChatsLoaded(listOf(mockChat)))
 
-        val mockLog = NotificationLog(
-            id = "log1",
-            packageName = "com.whatsapp",
-            title = "WhatsApp: John Doe",
-            content = "Hey, are we still on for tonight?",
-            timestamp = System.currentTimeMillis()
-        )
+        val mockLog =
+            NotificationLog(
+                id = "log1",
+                packageName = "com.whatsapp",
+                title = "WhatsApp: John Doe",
+                content = "Hey, are we still on for tonight?",
+                timestamp = System.currentTimeMillis(),
+            )
         GatekeeperStateManager.dispatch(GatekeeperAction.LoadNotificationDigest(listOf(mockLog)))
 
         // Force the Vault to be unlocked so the Digest is visible (Gathering Phase covers the whole day)
@@ -61,7 +62,7 @@ class NotificationDigestUiTest {
 
         // Assert: Notification is displayed
         composeTestRule.onNodeWithText("WhatsApp: John Doe").assertIsDisplayed()
-        
+
         // Assert & Act: "Outpost Reply" button should be visible because of the fuzzy match
         composeTestRule.onNodeWithText("Outpost Reply").assertIsDisplayed()
         composeTestRule.onNodeWithText("Outpost Reply").performClick()

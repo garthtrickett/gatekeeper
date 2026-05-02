@@ -11,15 +11,19 @@ import com.aegisgatekeeper.app.domain.GatekeeperAction
 
 class MessageDeliveryWorker(
     appContext: Context,
-    workerParams: WorkerParameters
+    workerParams: WorkerParameters,
 ) : CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result {
         val messageId = inputData.getString("messageId") ?: return Result.failure()
         Log.i("Gatekeeper", "⚙️ MessageDeliveryWorker: Attempting to send message $messageId")
 
         val db = DatabaseManager.db
-        val message = db.scheduledMessageQueries.selectAll().executeAsList().find { it.id == messageId }
-        
+        val message =
+            db.scheduledMessageQueries
+                .selectAll()
+                .executeAsList()
+                .find { it.id == messageId }
+
         if (message == null) {
             Log.w("Gatekeeper", "❌ MessageDeliveryWorker: Message $messageId not found in DB")
             return Result.failure()
@@ -43,7 +47,7 @@ class MessageDeliveryWorker(
                 Log.i("Gatekeeper", "✅ MessageDeliveryWorker: Successfully sent message $messageId to Beeper")
                 GatekeeperStateManager.dispatch(GatekeeperAction.MessageDelivered(messageId))
                 Result.success()
-            }
+            },
         )
     }
 }

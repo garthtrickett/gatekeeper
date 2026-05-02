@@ -148,7 +148,7 @@ fun NativeAudioPlayerModal(
             ContextCompat.getMainExecutor(context),
         )
 
-                onDispose {
+        onDispose {
             controller?.let {
                 val isValidState = it.duration > 0L || it.currentPosition > 0L
                 if (it.playerError == null && isValidState) {
@@ -172,7 +172,7 @@ fun NativeAudioPlayerModal(
         }
     }
 
-        androidx.activity.compose.BackHandler(enabled = isVisible) {
+    androidx.activity.compose.BackHandler(enabled = isVisible) {
         controller?.let {
             val isValidState = it.duration > 0L || it.currentPosition > 0L
             if (it.playerError == null && isValidState) {
@@ -263,7 +263,7 @@ fun NativeAudioPlayerModal(
                             contentAlignment = Alignment.TopEnd,
                         ) {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                                IndustrialButton(onClick = {
+                                IndustrialButton(onClick = {
                                     controller?.let {
                                         val isValidState = it.duration > 0L || it.currentPosition > 0L
                                         if (it.playerError == null && isValidState) {

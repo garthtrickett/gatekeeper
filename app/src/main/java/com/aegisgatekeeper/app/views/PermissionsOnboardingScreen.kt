@@ -85,7 +85,7 @@ fun PermissionsOnboardingScreen() {
                     )
                 }
 
-                                2 -> {
+                2 -> {
                     PermissionPage(
                         stepNumber = 3,
                         title = "Layer Omega",
@@ -104,7 +104,7 @@ fun PermissionsOnboardingScreen() {
                         title = "The Notification Moat",
                         description =
                             "To intercept triggers, Gatekeeper needs to access your notifications.\n\n" +
-                            "Notifications from blocked apps will be silenced and stored in the Digest.",
+                                "Notifications from blocked apps will be silenced and stored in the Digest.",
                         buttonText = "Grant Notification Access",
                         onClick = { context.startActivity(PermissionIntents.getNotificationAccessIntent()) },
                     )

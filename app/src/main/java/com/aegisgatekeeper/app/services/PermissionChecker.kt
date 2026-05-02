@@ -58,11 +58,12 @@ object PermissionChecker {
         return enabledServices.split(":").any { it == componentName }
     }
 
-        fun hasNotificationAccessPermission(context: Context): Boolean {
-        val enabledListeners = android.provider.Settings.Secure.getString(
-            context.contentResolver,
-            "enabled_notification_listeners"
-        ) ?: return false
+    fun hasNotificationAccessPermission(context: Context): Boolean {
+        val enabledListeners =
+            android.provider.Settings.Secure.getString(
+                context.contentResolver,
+                "enabled_notification_listeners",
+            ) ?: return false
         return enabledListeners.contains(context.packageName)
     }
 

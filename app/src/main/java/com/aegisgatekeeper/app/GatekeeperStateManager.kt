@@ -7,8 +7,8 @@ import com.aegisgatekeeper.app.db.DatabaseManager
 import com.aegisgatekeeper.app.domain.ContentItem
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.GatekeeperState
-import com.aegisgatekeeper.app.domain.SessionLog
 import com.aegisgatekeeper.app.domain.ScheduledMessage
+import com.aegisgatekeeper.app.domain.SessionLog
 import com.aegisgatekeeper.app.domain.VaultItem
 import com.aegisgatekeeper.app.domain.reduce
 import com.aegisgatekeeper.app.effects.handleDatabaseEffects
@@ -227,12 +227,12 @@ object GatekeeperStateManager {
 
         val appSettings = db.appSettingsQueries.getSettings().executeAsOneOrNull()
 
-                val pinnedWebsitesFromDb =
+        val pinnedWebsitesFromDb =
             db.missionControlWebsiteQueries.selectAll().executeAsList().map {
                 com.aegisgatekeeper.app.domain
                     .PinnedWebsite(it.id, it.label, it.url)
             }
-            
+
         val scheduledMessagesFromDb =
             db.scheduledMessageQueries.selectAll().executeAsList().map {
                 ScheduledMessage(it.id, it.beeperRoomId, it.chatName, it.messageText, it.scheduledTimestamp, it.status)
@@ -313,7 +313,7 @@ object GatekeeperStateManager {
                         it.loggedAtTimestamp,
                     )
                 },
-                        scheduledMessages = scheduledMessagesFromDb,
+            scheduledMessages = scheduledMessagesFromDb,
             intentionalSlots =
                 slotsFromDb.map {
                     com.aegisgatekeeper.app.domain.IntentionalSlotItem(
@@ -372,7 +372,7 @@ object GatekeeperStateManager {
         oldState: GatekeeperState,
         newState: GatekeeperState,
     ) {
-                scope.launch {
+        scope.launch {
             handleDatabaseEffects(action, oldState, newState, db, ::dispatch)
             handleSyncAndAuthEffects(action, newState, db)
             handleMediaAndSystemEffects(action, oldState, newState, ::dispatch)

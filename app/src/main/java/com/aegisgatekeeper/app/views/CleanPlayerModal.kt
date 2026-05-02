@@ -68,7 +68,7 @@ actual fun CleanPlayerModal(
     onMinimize: () -> Unit,
     onStop: () -> Unit,
 ) {
-        val sessionStartTime by remember { mutableStateOf(System.currentTimeMillis()) }
+    val sessionStartTime by remember { mutableStateOf(System.currentTimeMillis()) }
 
     val context = LocalContext.current
     val state by GatekeeperStateManager.state.collectAsState()
@@ -94,7 +94,7 @@ actual fun CleanPlayerModal(
                 .replace("&gt;", ">")
         }
 
-        var webViewRef by remember { mutableStateOf<WebView?>(null) }
+    var webViewRef by remember { mutableStateOf<WebView?>(null) }
     var playerStateCallback by remember { mutableStateOf<(Int) -> Unit>({}) }
 
     DisposableEffect(videoId) {

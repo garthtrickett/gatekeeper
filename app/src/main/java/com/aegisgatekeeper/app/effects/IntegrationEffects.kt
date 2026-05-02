@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 suspend fun handleIntegrationEffects(
     action: GatekeeperAction,
     newState: GatekeeperState,
-    dispatch: (GatekeeperAction) -> Unit
+    dispatch: (GatekeeperAction) -> Unit,
 ) {
     when (action) {
         is GatekeeperAction.RequestBeeperSync -> {
@@ -28,25 +28,30 @@ suspend fun handleIntegrationEffects(
                 ifRight = { chats ->
                     Log.i("Gatekeeper", "✅ Loaded ${chats.size} Beeper chats")
                     dispatch(GatekeeperAction.BeeperChatsLoaded(chats))
-                }
+                },
             )
         }
+
         is GatekeeperAction.ScheduleMessage -> {
             val delayMillis = action.message.scheduledTimestamp - System.currentTimeMillis()
             val actualDelay = maxOf(0L, delayMillis)
             Log.i("Gatekeeper", "⚙️ Scheduling Beeper message in ${actualDelay}ms")
 
-            val data = Data.Builder()
-                .putString("messageId", action.message.id)
-                .build()
+            val data =
+                Data
+                    .Builder()
+                    .putString("messageId", action.message.id)
+                    .build()
 
-            val workRequest = OneTimeWorkRequestBuilder<MessageDeliveryWorker>()
-                .setInitialDelay(actualDelay, TimeUnit.MILLISECONDS)
-                .setInputData(data)
-                .build()
+            val workRequest =
+                OneTimeWorkRequestBuilder<MessageDeliveryWorker>()
+                    .setInitialDelay(actualDelay, TimeUnit.MILLISECONDS)
+                    .setInputData(data)
+                    .build()
 
             WorkManager.getInstance(App.instance).enqueue(workRequest)
         }
+
         else -> {}
     }
 }

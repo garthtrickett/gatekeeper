@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity() {
         }
 
         // Auto-Advance Onboarding: Check permissions every time the app comes to the foreground
-                val status = PermissionChecker.checkAll(this)
+        val status = PermissionChecker.checkAll(this)
         GatekeeperStateManager.dispatch(
             GatekeeperAction.PermissionsUpdated(
                 hasOverlay = status.hasOverlay,
@@ -241,7 +241,7 @@ class MainActivity : ComponentActivity() {
 
                         val navItems =
                             listOf(
-                                                                "Home" to "🏠",
+                                "Home" to "🏠",
                                 "Vault" to "🔍",
                                 "Bank" to (if (state.isProTier) "🎬" else "🔒"),
                                 "Slots" to (if (state.isProTier) "📥" else "🔒"),
@@ -262,7 +262,7 @@ class MainActivity : ComponentActivity() {
                                             .MissionControlScreen()
                                     }
 
-                                                                                                            1 -> {
+                                    1 -> {
                                         VaultReviewScreen(onNavigateToWeb = { selectedTab = 6 })
                                     }
 
@@ -270,17 +270,19 @@ class MainActivity : ComponentActivity() {
                                         ContentBankScreen()
                                     }
 
-                                                                        3 -> {
+                                    3 -> {
                                         com.aegisgatekeeper.app.views
                                             .IntentionalContentScreen()
                                     }
 
-                                                                        4 -> {
-                                        com.aegisgatekeeper.app.views.OutpostScreen()
+                                    4 -> {
+                                        com.aegisgatekeeper.app.views
+                                            .OutpostScreen()
                                     }
 
                                     5 -> {
-                                        com.aegisgatekeeper.app.views.NotificationDigestScreen()
+                                        com.aegisgatekeeper.app.views
+                                            .NotificationDigestScreen()
                                     }
 
                                     6 -> {

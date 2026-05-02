@@ -60,7 +60,7 @@ data class GatekeeperState(
     val pendingMetacognition: MetacognitionRequest? = null,
     // --- Clean Room Media Engine State ---
     val activeVideoId: String? = null,
-        // --- Outpost Messaging State ---
+    // --- Outpost Messaging State ---
     val beeperChats: List<BeeperChat> = emptyList(),
     val scheduledMessages: List<ScheduledMessage> = emptyList(),
     val isSyncingBeeper: Boolean = false,
@@ -77,7 +77,7 @@ data class GatekeeperState(
     val isSurgicalSearchVisible: Boolean = false,
     val initialSurgicalSearchUrl: String? = null,
     val syncServerUrl: String = BuildConfig.SYNC_SERVER_URL,
-        // --- Permissions State (Dual-Moat Onboarding) ---
+    // --- Permissions State (Dual-Moat Onboarding) ---
     val hasOverlayPermission: Boolean = false,
     val hasUsageAccessPermission: Boolean = false,
     val hasAccessibilityPermission: Boolean = false,
@@ -86,5 +86,7 @@ data class GatekeeperState(
     val alternativeActivities: List<AlternativeActivity> = emptyList(),
 ) {
     val isDualMoatEnabled: Boolean
-        get() = hasOverlayPermission && hasUsageAccessPermission && hasAccessibilityPermission && hasNotificationAccessPermission && isBatteryOptimizationDisabled
+        get() =
+            hasOverlayPermission && hasUsageAccessPermission && hasAccessibilityPermission && hasNotificationAccessPermission &&
+                isBatteryOptimizationDisabled
 }

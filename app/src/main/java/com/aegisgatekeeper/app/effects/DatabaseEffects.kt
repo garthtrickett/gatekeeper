@@ -373,7 +373,7 @@ fun handleDatabaseEffects(
             )
         }
 
-                GatekeeperAction.ClearNotificationDigest -> {
+        GatekeeperAction.ClearNotificationDigest -> {
             Log.i("Gatekeeper", "DB: Clearing Notification Digest")
             db.notificationDigestQueries.deleteAll()
         }
@@ -387,7 +387,7 @@ fun handleDatabaseEffects(
                     packageName = it.packageName,
                     title = it.title,
                     content = it.content,
-                    timestamp = it.timestamp
+                    timestamp = it.timestamp,
                 )
             }
         }
@@ -509,7 +509,7 @@ fun handleDatabaseEffects(
             }
         }
 
-                is GatekeeperAction.RemoveAlternativeActivity -> {
+        is GatekeeperAction.RemoveAlternativeActivity -> {
             Log.i("Gatekeeper", "DB: Removing AlternativeActivity: ${action.id}")
             db.alternativeActivityQueries.delete(action.id)
         }
@@ -522,17 +522,20 @@ fun handleDatabaseEffects(
                 chatName = action.message.chatName,
                 messageText = action.message.messageText,
                 scheduledTimestamp = action.message.scheduledTimestamp,
-                status = action.message.status
+                status = action.message.status,
             )
         }
+
         is GatekeeperAction.CancelScheduledMessage -> {
             Log.i("Gatekeeper", "DB: Cancelling ScheduledMessage: ${action.id}")
             db.scheduledMessageQueries.updateStatus(com.aegisgatekeeper.app.domain.MessageStatus.CANCELLED, action.id)
         }
+
         is GatekeeperAction.MessageDelivered -> {
             Log.i("Gatekeeper", "DB: Marking ScheduledMessage Sent: ${action.id}")
             db.scheduledMessageQueries.updateStatus(com.aegisgatekeeper.app.domain.MessageStatus.SENT, action.id)
         }
+
         is GatekeeperAction.MessageFailed -> {
             Log.i("Gatekeeper", "DB: Marking ScheduledMessage Failed: ${action.id}")
             db.scheduledMessageQueries.updateStatus(com.aegisgatekeeper.app.domain.MessageStatus.FAILED, action.id)

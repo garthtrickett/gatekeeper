@@ -325,7 +325,7 @@ fun CleanAudioPlayerModal(
     onMinimize: () -> Unit,
     onStop: () -> Unit,
 ) {
-        val sessionStartTime by remember { mutableStateOf(System.currentTimeMillis()) }
+    val sessionStartTime by remember { mutableStateOf(System.currentTimeMillis()) }
     var resolvedUrl by remember { mutableStateOf<String?>(null) }
 
     val context = LocalContext.current
@@ -344,7 +344,7 @@ fun CleanAudioPlayerModal(
                 .replace("&gt;", ">")
         }
 
-        var webViewRef by remember { mutableStateOf<WebView?>(null) }
+    var webViewRef by remember { mutableStateOf<WebView?>(null) }
     var playerStateCallback by remember { mutableStateOf<(Int) -> Unit>({}) }
 
     DisposableEffect(url) {

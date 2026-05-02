@@ -13,9 +13,10 @@ abstract class DesktopApplicationComponent : SharedApplicationComponent {
     @get:Provides
     override val syncClient: SyncClient = SyncClient
 
-        abstract override val tokenProvider: DesktopTokenProvider
+    abstract override val tokenProvider: DesktopTokenProvider
 
     abstract val desktopBeeperClient: com.aegisgatekeeper.app.integrations.DesktopBeeperClient
+
     @get:Provides
     override val beeperClient: com.aegisgatekeeper.app.integrations.BeeperClient get() = desktopBeeperClient
 

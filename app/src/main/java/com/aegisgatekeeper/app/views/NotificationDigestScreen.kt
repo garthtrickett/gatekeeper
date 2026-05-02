@@ -112,9 +112,10 @@ fun NotificationDigestScreen() {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.weight(1f)) {
                     items(state.notificationDigest) { log ->
                         val baseName = log.title.substringAfter(":").trim()
-                        val matchedChat = state.beeperChats.firstOrNull {
-                            it.name.contains(baseName, ignoreCase = true) || baseName.contains(it.name, ignoreCase = true)
-                        }
+                        val matchedChat =
+                            state.beeperChats.firstOrNull {
+                                it.name.contains(baseName, ignoreCase = true) || baseName.contains(it.name, ignoreCase = true)
+                            }
 
                         var isReplying by remember { mutableStateOf(false) }
                         var replyText by remember { mutableStateOf("") }
@@ -147,7 +148,7 @@ fun NotificationDigestScreen() {
                                             onValueChange = { replyText = it },
                                             label = { Text("Reply to ${matchedChat.name}") },
                                             modifier = Modifier.fillMaxWidth(),
-                                            singleLine = false
+                                            singleLine = false,
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
@@ -164,9 +165,9 @@ fun NotificationDigestScreen() {
                                                                         chatName = matchedChat.name,
                                                                         messageText = replyText.trim(),
                                                                         scheduledTimestamp = System.currentTimeMillis() + delayMillis,
-                                                                        status = MessageStatus.PENDING
-                                                                    )
-                                                                )
+                                                                        status = MessageStatus.PENDING,
+                                                                    ),
+                                                                ),
                                                             )
                                                             replyText = ""
                                                             isReplying = false
@@ -175,7 +176,7 @@ fun NotificationDigestScreen() {
                                                     },
                                                     text = label,
                                                     enabled = replyText.isNotBlank(),
-                                                    modifier = Modifier.weight(1f)
+                                                    modifier = Modifier.weight(1f),
                                                 )
                                             }
                                         }
@@ -184,14 +185,14 @@ fun NotificationDigestScreen() {
                                             onClick = { isReplying = false },
                                             text = "Cancel",
                                             isWarning = true,
-                                            modifier = Modifier.fillMaxWidth()
+                                            modifier = Modifier.fillMaxWidth(),
                                         )
                                     } else {
                                         IndustrialButton(
                                             onClick = { isReplying = true },
                                             text = if (isReplied) "Replied ✓" else "Outpost Reply",
                                             enabled = !isReplied,
-                                            modifier = Modifier.fillMaxWidth()
+                                            modifier = Modifier.fillMaxWidth(),
                                         )
                                     }
                                 }
