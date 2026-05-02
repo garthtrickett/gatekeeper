@@ -21,6 +21,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class NotificationDigestUiTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
@@ -47,12 +48,21 @@ class NotificationDigestUiTest {
                 packageName = "com.whatsapp",
                 title = "WhatsApp: John Doe",
                 content = "Hey, are we still on for tonight?",
-                timestamp = System.currentTimeMillis(),
+                timestamp = System.currentTimeMillis() - 3600000, // 1 hour ago
             )
-        GatekeeperStateManager.dispatch(GatekeeperAction.LoadNotificationDigest(listOf(mockLog)))
+            
+        GatekeeperStateManager.dispatch(GatekeeperAction.CreateAppGroup("group1", "Comms", setOf("com.whatsapp")))
+        GatekeeperStateManager.dispatch(
+            GatekeeperAction.AddCheckInRule(
+                id = "rule1",
+                groupId = "group1",
+                checkInTimesMinutes = listOf(0), // 00:00, so it's always delivered
+                durationMinutes = 15,
+                daysOfWeek = com.aegisgatekeeper.app.domain.DayOfWeek.values().toSet()
+            )
+        )
 
-        // Force the Vault to be unlocked so the Digest is visible (Gathering Phase covers the whole day)
-        GatekeeperStateManager.dispatch(GatekeeperAction.UpdatePhaseWindows(0, 0, 0, 1440))
+        GatekeeperStateManager.dispatch(GatekeeperAction.LoadNotificationDigest(listOf(mockLog)))
 
         composeTestRule.setContent {
             GatekeeperTheme {

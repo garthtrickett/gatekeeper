@@ -42,6 +42,7 @@ import java.time.LocalTime
 import java.util.UUID
 
 @Suppress("FunctionName")
+@Suppress("FunctionName")
 @Composable
 fun NotificationDigestScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
@@ -54,13 +55,63 @@ fun NotificationDigestScreen() {
         }
     }
 
-    // Dynamic check using user-configured phase windows from state
-    val isUnlocked =
-        isVaultUnlocked(
-            currentTime,
-            state.gatheringStartMinutes,
-            state.gatheringEndMinutes,
-        )
+    val currentMinutes = currentTime.hour * 60 + currentTime.minute
+    val currentDay =
+        when (currentTime.dayOfWeek) {
+            java.time.DayOfWeek.MONDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.MONDAY
+            java.time.DayOfWeek.TUESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.TUESDAY
+            java.time.DayOfWeek.WEDNESDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.WEDNESDAY
+            java.time.DayOfWeek.THURSDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.THURSDAY
+            java.time.DayOfWeek.FRIDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.FRIDAY
+            java.time.DayOfWeek.SATURDAY -> com.aegisgatekeeper.app.domain.DayOfWeek.SATURDAY
+            else -> com.aegisgatekeeper.app.domain.DayOfWeek.SUNDAY
+        }
+
+    data class DigestSection(
+        val title: String,
+        val delivered: List<com.aegisgatekeeper.app.domain.NotificationLog>,
+        val heldCount: Int,
+        val nextDeliveryTime: Int?
+    )
+
+    val sections = remember(state.notificationDigest, state.appGroups, currentMinutes, currentDay) {
+        val groupsWithCheckIn = state.appGroups.filter { group ->
+            group.rules.any { it is com.aegisgatekeeper.app.domain.BlockingRule.CheckIn && it.isEnabled }
+        }
+        
+        val result = mutableListOf<DigestSection>()
+        val processedLogIds = mutableSetOf<String>()
+        
+        for (group in groupsWithCheckIn) {
+            val rule = group.rules.first { it is com.aegisgatekeeper.app.domain.BlockingRule.CheckIn && it.isEnabled } as com.aegisgatekeeper.app.domain.BlockingRule.CheckIn
+            
+            val groupLogs = state.notificationDigest.filter { it.packageName in group.apps }
+            if (groupLogs.isEmpty()) continue
+            
+            val delivered = mutableListOf<com.aegisgatekeeper.app.domain.NotificationLog>()
+            var heldCount = 0
+            
+            for (log in groupLogs) {
+                processedLogIds.add(log.id)
+                if (com.aegisgatekeeper.app.domain.isMailDelivered(log.timestamp, System.currentTimeMillis(), rule, currentDay)) {
+                    delivered.add(log)
+                } else {
+                    heldCount++
+                }
+            }
+            
+            val nextTime = com.aegisgatekeeper.app.domain.getNextDeliveryTime(currentMinutes, currentDay, rule)
+            
+            result.add(DigestSection(group.name, delivered, heldCount, nextTime))
+        }
+        
+        val generalLogs = state.notificationDigest.filter { it.id !in processedLogIds }
+        if (generalLogs.isNotEmpty()) {
+            result.add(DigestSection("General", generalLogs, 0, null))
+        }
+        
+        result
+    }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -73,27 +124,7 @@ fun NotificationDigestScreen() {
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            if (!isUnlocked) {
-                Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("\uD83D\uDD14", fontSize = 64.sp)
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            text = "The Moat is Active",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text =
-                                "Your notifications are being intercepted and pooled safely.\n" +
-                                    "You can review them during the Gathering Phase.",
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            } else if (state.notificationDigest.isEmpty()) {
+            if (state.notificationDigest.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text(
                         "No intercepted notifications. Your focus is pristine.",
@@ -109,91 +140,128 @@ fun NotificationDigestScreen() {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.weight(1f)) {
-                    items(state.notificationDigest) { log ->
-                        val baseName = log.title.substringAfter(":").trim()
-                        val matchedChat =
-                            state.beeperChats.firstOrNull {
-                                it.name.contains(baseName, ignoreCase = true) || baseName.contains(it.name, ignoreCase = true)
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.weight(1f)) {
+                    sections.forEach { section ->
+                        item {
+                            Text(
+                                section.title,
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+
+                        if (section.heldCount > 0) {
+                            item {
+                                val timeStr = section.nextDeliveryTime?.let {
+                                    String.format("%02d:%02d", it / 60, it % 60)
+                                } ?: "Tomorrow"
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                                ) {
+                                    Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text("🔒", fontSize = 32.sp)
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            "${section.heldCount} Intercepted Notifications",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                        Text(
+                                            "Next delivery at $timeStr",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                }
                             }
+                        }
 
-                        var isReplying by remember { mutableStateOf(false) }
-                        var replyText by remember { mutableStateOf("") }
-                        var isReplied by remember { mutableStateOf(false) }
+                        items(section.delivered) { log ->
+                            val baseName = log.title.substringAfter(":").trim()
+                            val matchedChat =
+                                state.beeperChats.firstOrNull {
+                                    it.name.contains(baseName, ignoreCase = true) || baseName.contains(it.name, ignoreCase = true)
+                                }
 
-                        Card(
-                            modifier = Modifier.fillMaxWidth().let { if (isReplied) it.alpha(0.5f) else it },
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    log.packageName.uppercase(),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    log.title,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(log.content, style = MaterialTheme.typography.bodyMedium)
+                            var isReplying by remember { mutableStateOf(false) }
+                            var replyText by remember { mutableStateOf("") }
+                            var isReplied by remember { mutableStateOf(false) }
 
-                                if (matchedChat != null) {
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    if (isReplying) {
-                                        IndustrialTextField(
-                                            value = replyText,
-                                            onValueChange = { replyText = it },
-                                            label = { Text("Reply to ${matchedChat.name}") },
-                                            modifier = Modifier.fillMaxWidth(),
-                                            singleLine = false,
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                                            val delays = listOf("Send Now" to 0L, "+15m" to 15 * 60_000L, "+1h" to 60 * 60_000L)
-                                            delays.forEach { (label, delayMillis) ->
-                                                IndustrialButton(
-                                                    onClick = {
-                                                        if (replyText.isNotBlank()) {
-                                                            GatekeeperStateManager.dispatch(
-                                                                GatekeeperAction.ScheduleMessage(
-                                                                    ScheduledMessage(
-                                                                        id = UUID.randomUUID().toString(),
-                                                                        beeperRoomId = matchedChat.roomId,
-                                                                        chatName = matchedChat.name,
-                                                                        messageText = replyText.trim(),
-                                                                        scheduledTimestamp = System.currentTimeMillis() + delayMillis,
-                                                                        status = MessageStatus.PENDING,
+                            Card(
+                                modifier = Modifier.fillMaxWidth().let { if (isReplied) it.alpha(0.5f) else it },
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text(
+                                        log.packageName.uppercase(),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        log.title,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(log.content, style = MaterialTheme.typography.bodyMedium)
+
+                                    if (matchedChat != null) {
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        if (isReplying) {
+                                            IndustrialTextField(
+                                                value = replyText,
+                                                onValueChange = { replyText = it },
+                                                label = { Text("Reply to ${matchedChat.name}") },
+                                                modifier = Modifier.fillMaxWidth(),
+                                                singleLine = false,
+                                            )
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                                                val delays = listOf("Send Now" to 0L, "+15m" to 15 * 60_000L, "+1h" to 60 * 60_000L)
+                                                delays.forEach { (label, delayMillis) ->
+                                                    IndustrialButton(
+                                                        onClick = {
+                                                            if (replyText.isNotBlank()) {
+                                                                GatekeeperStateManager.dispatch(
+                                                                    GatekeeperAction.ScheduleMessage(
+                                                                        ScheduledMessage(
+                                                                            id = UUID.randomUUID().toString(),
+                                                                            beeperRoomId = matchedChat.roomId,
+                                                                            chatName = matchedChat.name,
+                                                                            messageText = replyText.trim(),
+                                                                            scheduledTimestamp = System.currentTimeMillis() + delayMillis,
+                                                                            status = MessageStatus.PENDING,
+                                                                        ),
                                                                     ),
-                                                                ),
-                                                            )
-                                                            replyText = ""
-                                                            isReplying = false
-                                                            isReplied = true
-                                                        }
-                                                    },
-                                                    text = label,
-                                                    enabled = replyText.isNotBlank(),
-                                                    modifier = Modifier.weight(1f),
-                                                )
+                                                                )
+                                                                replyText = ""
+                                                                isReplying = false
+                                                                isReplied = true
+                                                            }
+                                                        },
+                                                        text = label,
+                                                        enabled = replyText.isNotBlank(),
+                                                        modifier = Modifier.weight(1f),
+                                                    )
+                                                }
                                             }
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            IndustrialButton(
+                                                onClick = { isReplying = false },
+                                                text = "Cancel",
+                                                isWarning = true,
+                                                modifier = Modifier.fillMaxWidth(),
+                                            )
+                                        } else {
+                                            IndustrialButton(
+                                                onClick = { isReplying = true },
+                                                text = if (isReplied) "Replied ✓" else "Outpost Reply",
+                                                enabled = !isReplied,
+                                                modifier = Modifier.fillMaxWidth(),
+                                            )
                                         }
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        IndustrialButton(
-                                            onClick = { isReplying = false },
-                                            text = "Cancel",
-                                            isWarning = true,
-                                            modifier = Modifier.fillMaxWidth(),
-                                        )
-                                    } else {
-                                        IndustrialButton(
-                                            onClick = { isReplying = true },
-                                            text = if (isReplied) "Replied ✓" else "Outpost Reply",
-                                            enabled = !isReplied,
-                                            modifier = Modifier.fillMaxWidth(),
-                                        )
                                     }
                                 }
                             }
