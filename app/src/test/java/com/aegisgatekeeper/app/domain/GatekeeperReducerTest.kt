@@ -1269,7 +1269,7 @@ class GatekeeperReducerTest {
         assertThat(newState.podcastSearchResults).isEmpty()
     }
 
-    @Test
+        @Test
     fun testPodcastSearchCompleted_SetsResultsAndClearsLoading() {
         val state = initialState.copy(isSearchingPodcasts = true)
         val mockResults =
@@ -1282,5 +1282,42 @@ class GatekeeperReducerTest {
         assertThat(newState.isSearchingPodcasts).isFalse()
         assertThat(newState.podcastSearchResults).hasSize(1)
         assertThat(newState.podcastSearchResults.first().title).isEqualTo("Huberman Lab")
+    }
+
+    // --- Beeper Integration Reducer Tests ---
+
+    @Test
+    fun testBeeperSyncActions_UpdateState() {
+        val reqState = reduce(initialState, GatekeeperAction.RequestBeeperSync)
+        assertThat(reqState.isSyncingBeeper).isTrue()
+
+        val loadedState = reduce(reqState, GatekeeperAction.BeeperChatsLoaded(listOf(BeeperChat("1", "Test", "WhatsApp"))))
+        assertThat(loadedState.isSyncingBeeper).isFalse()
+        assertThat(loadedState.beeperChats).hasSize(1)
+
+        val failedState = reduce(reqState, GatekeeperAction.BeeperSyncFailed("Error"))
+        assertThat(failedState.isSyncingBeeper).isFalse()
+    }
+
+    @Test
+    fun testScheduleMessage_AppendsToState() {
+        val msg = ScheduledMessage("1", "room1", "Test Chat", "Hello", 1000L)
+        val newState = reduce(initialState, GatekeeperAction.ScheduleMessage(msg))
+        assertThat(newState.scheduledMessages).hasSize(1)
+    }
+
+    @Test
+    fun testMessageStatusUpdates_ModifiesState() {
+        val msg = ScheduledMessage("1", "room1", "Test Chat", "Hello", 1000L)
+        val stateWithMessage = reduce(initialState, GatekeeperAction.ScheduleMessage(msg))
+
+        val cancelledState = reduce(stateWithMessage, GatekeeperAction.CancelScheduledMessage("1"))
+        assertThat(cancelledState.scheduledMessages.first().status).isEqualTo(MessageStatus.CANCELLED)
+
+        val sentState = reduce(stateWithMessage, GatekeeperAction.MessageDelivered("1"))
+        assertThat(sentState.scheduledMessages.first().status).isEqualTo(MessageStatus.SENT)
+
+        val failedState = reduce(stateWithMessage, GatekeeperAction.MessageFailed("1", "Error"))
+        assertThat(failedState.scheduledMessages.first().status).isEqualTo(MessageStatus.FAILED)
     }
 }

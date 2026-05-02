@@ -589,7 +589,7 @@ class GatekeeperStateManagerTest {
             assertThat(sites).isEmpty()
         }
 
-    @Test
+        @Test
     fun testSaveToVaultLogging() =
         runTest {
             // Arrange
@@ -610,5 +610,46 @@ class GatekeeperStateManagerTest {
             assertThat(item.query).isEqualTo("How to test SQLDelight?")
             assertThat(item.capturedAtTimestamp).isEqualTo(5555L)
             assertThat(item.isResolved).isFalse()
+        }
+
+    @Test
+    fun testScheduledMessageLogging_Lifecycle() =
+        runTest {
+            // Arrange
+            val msg = com.aegisgatekeeper.app.domain.ScheduledMessage(
+                id = "msg1", 
+                beeperRoomId = "room1", 
+                chatName = "Test Chat", 
+                messageText = "Hello World", 
+                scheduledTimestamp = 12345L
+            )
+            val action = GatekeeperAction.ScheduleMessage(msg)
+
+            // Act 1: Schedule the message
+            dispatchWithSideEffects(action)
+
+            // Assert 1: Verify Initial Insertion
+            var messages = db.scheduledMessageQueries.selectAll().executeAsList()
+            assertThat(messages).hasSize(1)
+            assertThat(messages.first().messageText).isEqualTo("Hello World")
+            assertThat(messages.first().status.name).isEqualTo("PENDING")
+
+            // Act 2: Simulate delivery success
+            dispatchWithSideEffects(GatekeeperAction.MessageDelivered("msg1"))
+
+            // Assert 2: Verify Status Update
+            messages = db.scheduledMessageQueries.selectAll().executeAsList()
+            assertThat(messages.first().status.name).isEqualTo("SENT")
+
+            // Act 3: Simulate cancellation on a new message
+            val msg2 = msg.copy(id = "msg2")
+            dispatchWithSideEffects(GatekeeperAction.ScheduleMessage(msg2))
+            dispatchWithSideEffects(GatekeeperAction.CancelScheduledMessage("msg2"))
+
+            // Assert 3: Verify cancellation status
+            messages = db.scheduledMessageQueries.selectAll().executeAsList()
+            assertThat(messages).hasSize(2)
+            val cancelledMsg = messages.first { it.id == "msg2" }
+            assertThat(cancelledMsg.status.name).isEqualTo("CANCELLED")
         }
 }
