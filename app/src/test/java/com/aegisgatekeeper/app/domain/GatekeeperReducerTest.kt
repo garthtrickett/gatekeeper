@@ -1151,7 +1151,7 @@ class GatekeeperReducerTest {
 
     // --- Permissions & Onboarding Reducer Tests ---
 
-    @Test
+        @Test
     fun testPermissionsUpdated_setsFlagsAndCalculatesDualMoatStatus() {
         // Arrange
         val action =
@@ -1159,6 +1159,7 @@ class GatekeeperReducerTest {
                 hasOverlay = true,
                 hasUsageAccess = true,
                 hasAccessibility = false,
+                hasNotificationAccess = false,
                 isBatteryDisabled = false,
             )
 
@@ -1169,11 +1170,12 @@ class GatekeeperReducerTest {
         assertThat(partialState.hasOverlayPermission).isTrue()
         assertThat(partialState.hasUsageAccessPermission).isTrue()
         assertThat(partialState.hasAccessibilityPermission).isFalse()
+        assertThat(partialState.hasNotificationAccessPermission).isFalse()
         assertThat(partialState.isBatteryOptimizationDisabled).isFalse()
         assertThat(partialState.isDualMoatEnabled).isFalse() // Must be false until all are granted
 
         // Act 2: All permissions granted
-        val fullAction = action.copy(hasAccessibility = true, isBatteryDisabled = true)
+        val fullAction = action.copy(hasAccessibility = true, hasNotificationAccess = true, isBatteryDisabled = true)
         val finalState = reduce(initialState, fullAction)
 
         // Assert 2
