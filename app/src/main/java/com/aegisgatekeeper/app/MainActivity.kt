@@ -242,9 +242,10 @@ class MainActivity : ComponentActivity() {
                             listOf(
                                 "Home" to "🏠",
                                 "Vault" to "🔍",
-                                "Bank" to (if (state.isProTier) "🎬" else "🔒"),
-                                "Slots" to (if (state.isProTier) "📥" else "🔒"),
-                                "Web" to "🌐",
+                                            "Bank" to (if (state.isProTier) "🎬" else "🔒"),
+            "Slots" to (if (state.isProTier) "📥" else "🔒"),
+            "Outpost" to "🎯",
+            "Web" to "🌐",
                                 "Rules" to "🛡️",
                                 "Habits" to "🏃",
                                 "Insights" to (if (state.isProTier) "📊" else "🔒"),
@@ -259,40 +260,44 @@ class MainActivity : ComponentActivity() {
                                             .MissionControlScreen()
                                     }
 
-                                    1 -> {
-                                        VaultReviewScreen(onNavigateToWeb = { selectedTab = 4 })
+                                                                        1 -> {
+                                        VaultReviewScreen(onNavigateToWeb = { selectedTab = 5 })
                                     }
 
                                     2 -> {
                                         ContentBankScreen()
                                     }
 
-                                    3 -> {
+                                                                        3 -> {
                                         com.aegisgatekeeper.app.views
                                             .IntentionalContentScreen()
                                     }
 
                                     4 -> {
-                                        com.aegisgatekeeper.app.views
-                                            .SurgicalWebScreen()
+                                        com.aegisgatekeeper.app.views.OutpostScreen()
                                     }
 
                                     5 -> {
                                         com.aegisgatekeeper.app.views
-                                            .AppGroupsScreen()
+                                            .SurgicalWebScreen()
                                     }
 
                                     6 -> {
                                         com.aegisgatekeeper.app.views
-                                            .AlternativeActivitiesScreen()
+                                            .AppGroupsScreen()
                                     }
 
                                     7 -> {
                                         com.aegisgatekeeper.app.views
-                                            .AnalyticsScreen()
+                                            .AlternativeActivitiesScreen()
                                     }
 
                                     8 -> {
+                                        com.aegisgatekeeper.app.views
+                                            .AnalyticsScreen()
+                                    }
+
+                                    9 -> {
                                         com.aegisgatekeeper.app.views
                                             .AccountScreen()
                                     }
