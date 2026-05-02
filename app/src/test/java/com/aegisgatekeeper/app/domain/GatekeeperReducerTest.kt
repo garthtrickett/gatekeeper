@@ -1286,6 +1286,23 @@ class GatekeeperReducerTest {
         assertThat(newState.podcastSearchResults.first().title).isEqualTo("Huberman Lab")
     }
 
+        // --- Notification Digest & Interceptor Tests ---
+
+    @Test
+    fun testNotificationIntercepted_AppendsToDigest() {
+        val action = GatekeeperAction.NotificationIntercepted(
+            packageName = "com.whatsapp",
+            title = "WhatsApp: John Doe",
+            content = "Hello there!",
+            timestamp = 1000L
+        )
+        val newState = reduce(initialState, action)
+        
+        com.google.common.truth.Truth.assertThat(newState.notificationDigest).hasSize(1)
+        com.google.common.truth.Truth.assertThat(newState.notificationDigest.first().packageName).isEqualTo("com.whatsapp")
+        com.google.common.truth.Truth.assertThat(newState.notificationDigest.first().title).isEqualTo("WhatsApp: John Doe")
+    }
+
     // --- Beeper Integration Reducer Tests ---
 
     @Test
