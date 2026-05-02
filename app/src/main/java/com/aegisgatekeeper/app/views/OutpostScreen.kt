@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.aegisgatekeeper.app.GatekeeperStateManager
@@ -103,8 +104,6 @@ fun OutpostScreen() {
 }
 
 @Suppress("FunctionName")
-@Suppress("FunctionName")
-@Suppress("FunctionName")
 @Composable
 private fun OutpostComposerView(chats: List<BeeperChat>) {
     if (chats.isEmpty()) {
@@ -145,8 +144,8 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
                     expanded = true
                 },
                 label = { Text("Select Chat") },
-                modifier = Modifier.fillMaxWidth()
-                    .androidx.compose.ui.focus.onFocusChanged { focusState -> 
+                                modifier = Modifier.fillMaxWidth()
+                    .onFocusChanged { focusState -> 
                         if (focusState.isFocused) expanded = true 
                     },
                 singleLine = true
