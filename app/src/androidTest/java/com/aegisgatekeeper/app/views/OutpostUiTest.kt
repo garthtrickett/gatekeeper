@@ -47,7 +47,7 @@ class OutpostUiTest {
         composeTestRule.onNodeWithText("No chats available. Go to Account settings to connect Beeper, then tap Sync.").assertIsDisplayed()
     }
 
-    @Test
+        @Test
     fun testOutpostScreen_Composer_SchedulesMessage() {
         // Arrange: Inject a dummy Beeper chat into state
         val mockChat = BeeperChat("room123", "John Doe", "WhatsApp")
@@ -79,6 +79,28 @@ class OutpostUiTest {
         // Ensure it's scheduled ~1 hour from now (allowing some buffer for execution time)
         val diff = msg.scheduledTimestamp - System.currentTimeMillis()
         assertThat(diff).isGreaterThan(59 * 60_000L)
+    }
+
+    @Test
+    fun testOutpostScreen_Composer_FilterChats() {
+        // Arrange: Inject multiple Beeper chats
+        val mockChat1 = BeeperChat("room1", "Alice", "WhatsApp")
+        val mockChat2 = BeeperChat("room2", "Bob", "iMessage")
+        GatekeeperStateManager.dispatch(GatekeeperAction.BeeperChatsLoaded(listOf(mockChat1, mockChat2)))
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                OutpostScreen()
+            }
+        }
+
+        // Act: Type to filter
+        composeTestRule.onNodeWithText("Select Chat").performTextInput("Bob")
+        composeTestRule.waitForIdle()
+
+        // Assert: Alice should not be visible, Bob should be
+        composeTestRule.onNodeWithText("Bob (iMessage)").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Alice (WhatsApp)").assertDoesNotExist()
     }
 
     @Test
