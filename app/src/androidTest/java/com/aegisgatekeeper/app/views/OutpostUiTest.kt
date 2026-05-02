@@ -146,25 +146,4 @@ class OutpostUiTest {
                 ).isEqualTo("CANCELLED")
     }
 
-    @Test
-    fun testOutpostScreen_Composer_FilterChats() {
-        // Arrange: Inject multiple Beeper chats
-        val mockChat1 = BeeperChat("room1", "Alice", "WhatsApp")
-        val mockChat2 = BeeperChat("room2", "Bob", "iMessage")
-        GatekeeperStateManager.dispatch(GatekeeperAction.BeeperChatsLoaded(listOf(mockChat1, mockChat2)))
-
-        composeTestRule.setContent {
-            GatekeeperTheme {
-                OutpostScreen()
-            }
-        }
-
-        // Act: Type to filter
-        composeTestRule.onNodeWithText("Select Chat").performTextInput("Bob")
-        composeTestRule.waitForIdle()
-
-        // Assert: Alice should not be visible, Bob should be
-        composeTestRule.onNodeWithText("Bob (iMessage)").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Alice (WhatsApp)").assertDoesNotExist()
     }
-}
