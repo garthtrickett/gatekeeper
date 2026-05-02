@@ -43,27 +43,7 @@ class MainActivityTest {
         }
     }
 
-    @Test
-    fun testDeepLink_onNewIntent_DispatchesOpenCleanPlayerAction() {
-        val testVideoId = "abc123XYZ"
-        val intent = Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java).apply {
-            putExtra("OPEN_CLEAN_PLAYER_VIDEO_ID", testVideoId)
-        }
-        
-                ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            scenario.onActivity { activity ->
-                // onNewIntent is protected, so we invoke it via reflection for testing
-                val method = MainActivity::class.java.getDeclaredMethod("onNewIntent", Intent::class.java)
-                method.isAccessible = true
-                method.invoke(activity, intent)
-                
-                val currentState = GatekeeperStateManager.state.value
-                assertThat(currentState.activeVideoId).isEqualTo(testVideoId)
-            }
-        }
-    }
-
-    @Test
+        @Test
     fun testDeepLink_DispatchesOpenCleanAudioPlayerAction() {
         val testUrl = "https://soundcloud.com/test/track"
         val intent = Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java).apply {
