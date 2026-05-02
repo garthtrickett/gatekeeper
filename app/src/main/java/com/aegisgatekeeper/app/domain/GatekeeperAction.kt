@@ -427,15 +427,23 @@ sealed interface GatekeeperAction {
 
     object HideSurgicalSearch : GatekeeperAction
 
-    // --- Permission & Onboarding Flow ---
+        // --- Permission & Onboarding Flow ---
     data class PermissionsUpdated(
         val hasOverlay: Boolean,
         val hasUsageAccess: Boolean,
         val hasAccessibility: Boolean,
+        val hasNotificationAccess: Boolean,
         val isBatteryDisabled: Boolean,
     ) : GatekeeperAction
 
     object ReengageShields : GatekeeperAction
+
+    data class NotificationIntercepted(
+        val packageName: String,
+        val title: String,
+        val content: String,
+        val timestamp: Long,
+    ) : GatekeeperAction
 
     // --- Authentication Flow ---
     data class RequestMagicLink(

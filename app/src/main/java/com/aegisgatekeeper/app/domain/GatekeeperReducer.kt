@@ -163,8 +163,18 @@ private fun reduceRulesAndIntercepts(
             state.copy(notificationDigest = action.logs)
         }
 
-        GatekeeperAction.ClearNotificationDigest -> {
+                GatekeeperAction.ClearNotificationDigest -> {
             state.copy(notificationDigest = emptyList())
+        }
+
+        is GatekeeperAction.NotificationIntercepted -> {
+            val newLog = NotificationLog(
+                packageName = action.packageName,
+                title = action.title,
+                content = action.content,
+                timestamp = action.timestamp
+            )
+            state.copy(notificationDigest = state.notificationDigest + newLog)
         }
 
         is GatekeeperAction.FrictionCompleted -> {
@@ -498,12 +508,13 @@ private fun reduceRulesAndIntercepts(
             state.copy(sessionLogs = state.sessionLogs + newLog)
         }
 
-        // --- Permission Flow ---
+                // --- Permission Flow ---
         is GatekeeperAction.PermissionsUpdated -> {
             state.copy(
                 hasOverlayPermission = action.hasOverlay,
                 hasUsageAccessPermission = action.hasUsageAccess,
                 hasAccessibilityPermission = action.hasAccessibility,
+                hasNotificationAccessPermission = action.hasNotificationAccess,
                 isBatteryOptimizationDisabled = action.isBatteryDisabled,
             )
         }

@@ -30,7 +30,7 @@ class PermissionsOnboardingUiTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-    @Test
+        @Test
     fun testOnboarding_StartsAtStep1() {
         composeTestRule.setContent {
             GatekeeperTheme {
@@ -39,7 +39,7 @@ class PermissionsOnboardingUiTest {
         }
 
         // Assert: Initial state shows Step 1
-        composeTestRule.onNodeWithText("STEP 1 OF 4").assertIsDisplayed()
+        composeTestRule.onNodeWithText("STEP 1 OF 5").assertIsDisplayed()
         composeTestRule.onNodeWithText("The Iron Gate").assertIsDisplayed()
     }
 
@@ -51,43 +51,45 @@ class PermissionsOnboardingUiTest {
             }
         }
 
-        // Act: Dispatch state update showing the first permission is granted
+                // Act: Dispatch state update showing the first permission is granted
         GatekeeperStateManager.dispatch(
             GatekeeperAction.PermissionsUpdated(
                 hasOverlay = true,
                 hasUsageAccess = false,
                 hasAccessibility = false,
+                hasNotificationAccess = false,
                 isBatteryDisabled = false,
             ),
         )
 
         // Assert: Wait for Compose re-render and animation, check Step 2
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("STEP 2 OF 4").assertIsDisplayed()
+        composeTestRule.onNodeWithText("STEP 2 OF 5").assertIsDisplayed()
         composeTestRule.onNodeWithText("App Tracking").assertIsDisplayed()
     }
 
-    @Test
-    fun testOnboarding_AutoAdvancesToFinalBoss_WhenFirstThreeGranted() {
+        @Test
+    fun testOnboarding_AutoAdvancesToFinalBoss_WhenFirstFourGranted() {
         composeTestRule.setContent {
             GatekeeperTheme {
                 PermissionsOnboardingScreen()
             }
         }
 
-        // Act: Dispatch state update showing the first three are granted
+        // Act: Dispatch state update showing the first four are granted
         GatekeeperStateManager.dispatch(
             GatekeeperAction.PermissionsUpdated(
                 hasOverlay = true,
                 hasUsageAccess = true,
                 hasAccessibility = true,
+                hasNotificationAccess = true,
                 isBatteryDisabled = false,
             ),
         )
 
         // Assert: Pager should skip straight to the Battery exclusion page
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("STEP 4 OF 4").assertIsDisplayed()
+        composeTestRule.onNodeWithText("STEP 5 OF 5").assertIsDisplayed()
         composeTestRule.onNodeWithText("The Final Boss").assertIsDisplayed()
     }
 }

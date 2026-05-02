@@ -13,10 +13,11 @@ data class PermissionStatus(
     val hasOverlay: Boolean,
     val hasUsageAccess: Boolean,
     val hasAccessibility: Boolean,
+    val hasNotificationAccess: Boolean,
     val isBatteryDisabled: Boolean,
 ) {
     val isDualMoatEnabled: Boolean
-        get() = hasOverlay && hasUsageAccess && hasAccessibility && isBatteryDisabled
+        get() = hasOverlay && hasUsageAccess && hasAccessibility && hasNotificationAccess && isBatteryDisabled
 }
 
 /**
@@ -57,6 +58,14 @@ object PermissionChecker {
         return enabledServices.split(":").any { it == componentName }
     }
 
+        fun hasNotificationAccessPermission(context: Context): Boolean {
+        val enabledListeners = android.provider.Settings.Secure.getString(
+            context.contentResolver,
+            "enabled_notification_listeners"
+        ) ?: return false
+        return enabledListeners.contains(context.packageName)
+    }
+
     fun isBatteryOptimizationDisabled(context: Context): Boolean {
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as? PowerManager ?: return false
         return powerManager.isIgnoringBatteryOptimizations(context.packageName)
@@ -67,6 +76,7 @@ object PermissionChecker {
             hasOverlay = hasOverlayPermission(context),
             hasUsageAccess = hasUsageAccessPermission(context),
             hasAccessibility = hasAccessibilityPermission(context),
+            hasNotificationAccess = hasNotificationAccessPermission(context),
             isBatteryDisabled = isBatteryOptimizationDisabled(context),
         )
 }

@@ -77,13 +77,14 @@ data class GatekeeperState(
     val isSurgicalSearchVisible: Boolean = false,
     val initialSurgicalSearchUrl: String? = null,
     val syncServerUrl: String = BuildConfig.SYNC_SERVER_URL,
-    // --- Permissions State (Dual-Moat Onboarding) ---
+        // --- Permissions State (Dual-Moat Onboarding) ---
     val hasOverlayPermission: Boolean = false,
     val hasUsageAccessPermission: Boolean = false,
     val hasAccessibilityPermission: Boolean = false,
+    val hasNotificationAccessPermission: Boolean = false,
     val isBatteryOptimizationDisabled: Boolean = false,
     val alternativeActivities: List<AlternativeActivity> = emptyList(),
 ) {
     val isDualMoatEnabled: Boolean
-        get() = hasOverlayPermission && hasUsageAccessPermission && hasAccessibilityPermission && isBatteryOptimizationDisabled
+        get() = hasOverlayPermission && hasUsageAccessPermission && hasAccessibilityPermission && hasNotificationAccessPermission && isBatteryOptimizationDisabled
 }

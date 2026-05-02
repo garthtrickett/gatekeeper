@@ -373,9 +373,23 @@ fun handleDatabaseEffects(
             )
         }
 
-        GatekeeperAction.ClearNotificationDigest -> {
+                GatekeeperAction.ClearNotificationDigest -> {
             Log.i("Gatekeeper", "DB: Clearing Notification Digest")
             db.notificationDigestQueries.deleteAll()
+        }
+
+        is GatekeeperAction.NotificationIntercepted -> {
+            val newLog = (newState.notificationDigest - oldState.notificationDigest.toSet()).firstOrNull()
+            newLog?.let {
+                Log.i("Gatekeeper", "DB: Inserting new NotificationDigest: ${it.id}")
+                db.notificationDigestQueries.insert(
+                    id = it.id,
+                    packageName = it.packageName,
+                    title = it.title,
+                    content = it.content,
+                    timestamp = it.timestamp
+                )
+            }
         }
 
         is GatekeeperAction.UpdateMissionControlApps -> {

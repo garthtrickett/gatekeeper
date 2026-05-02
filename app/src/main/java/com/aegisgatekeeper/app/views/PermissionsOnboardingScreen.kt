@@ -32,13 +32,14 @@ import com.aegisgatekeeper.app.services.PermissionIntents
 fun PermissionsOnboardingScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
     val context = LocalContext.current
-    val pagerState = rememberPagerState { 4 }
+    val pagerState = rememberPagerState { 5 }
 
     // Auto-advance logic driven purely by the SAM loop state
     LaunchedEffect(
         state.hasOverlayPermission,
         state.hasUsageAccessPermission,
         state.hasAccessibilityPermission,
+        state.hasNotificationAccessPermission,
         state.isBatteryOptimizationDisabled,
     ) {
         if (!state.hasOverlayPermission) {
@@ -47,8 +48,10 @@ fun PermissionsOnboardingScreen() {
             pagerState.animateScrollToPage(1)
         } else if (!state.hasAccessibilityPermission) {
             pagerState.animateScrollToPage(2)
-        } else if (!state.isBatteryOptimizationDisabled) {
+        } else if (!state.hasNotificationAccessPermission) {
             pagerState.animateScrollToPage(3)
+        } else if (!state.isBatteryOptimizationDisabled) {
+            pagerState.animateScrollToPage(4)
         }
     }
 
@@ -82,7 +85,7 @@ fun PermissionsOnboardingScreen() {
                     )
                 }
 
-                2 -> {
+                                2 -> {
                     PermissionPage(
                         stepNumber = 3,
                         title = "Layer Omega",
@@ -96,6 +99,18 @@ fun PermissionsOnboardingScreen() {
                 }
 
                 3 -> {
+                    PermissionPage(
+                        stepNumber = 4,
+                        title = "The Notification Moat",
+                        description =
+                            "To intercept triggers, Gatekeeper needs to access your notifications.\n\n" +
+                            "Notifications from blocked apps will be silenced and stored in the Digest.",
+                        buttonText = "Grant Notification Access",
+                        onClick = { context.startActivity(PermissionIntents.getNotificationAccessIntent()) },
+                    )
+                }
+
+                4 -> {
                     BatteryOptimizationPage(
                         onClick = { context.startActivity(PermissionIntents.getBatteryOptimizationIntent(context)) },
                     )
@@ -117,7 +132,7 @@ private fun BatteryOptimizationPage(onClick: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "STEP 4 OF 4",
+            text = "STEP 5 OF 5",
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
             letterSpacing = 2.sp,
@@ -201,7 +216,7 @@ private fun PermissionPage(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "STEP $stepNumber OF 4",
+            text = "STEP $stepNumber OF 5",
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
             letterSpacing = 2.sp,

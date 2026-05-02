@@ -84,12 +84,13 @@ class MainActivity : ComponentActivity() {
         }
 
         // Auto-Advance Onboarding: Check permissions every time the app comes to the foreground
-        val status = PermissionChecker.checkAll(this)
+                val status = PermissionChecker.checkAll(this)
         GatekeeperStateManager.dispatch(
             GatekeeperAction.PermissionsUpdated(
                 hasOverlay = status.hasOverlay,
                 hasUsageAccess = status.hasUsageAccess,
                 hasAccessibility = status.hasAccessibility,
+                hasNotificationAccess = status.hasNotificationAccess,
                 isBatteryDisabled = status.isBatteryDisabled,
             ),
         )
