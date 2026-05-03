@@ -213,11 +213,60 @@ class GatekeeperReducerTest {
         assertThat(newState.data.customMessages).isEmpty()
     }
 
+        @Test
+    fun testProcessSharedLink_SetsIsProcessingLinkToTrue_AndEmitsCorrectEffect() {
+        // Test YouTube Link (Should not flag SoundCloud or Generic)
+        val ytAction = GatekeeperAction.ProcessSharedLink(url = "https://youtu.be/dQw4w9WgXcQ", currentTimestamp = 1000L)
+        val ytUpdate = reduce(initialState, ytAction)
+        assertThat(ytUpdate.state.media.isProcessingLink).isTrue()
+        val ytEffect = ytUpdate.effects.filterIsInstance<GatekeeperEffect.FetchUrlMetadata>().first()
+        assertThat(ytEffect.url).isEqualTo("https://youtu.be/dQw4w9WgXcQ")
+        assertThat(ytEffect.isSoundCloud).isFalse()
+        assertThat(ytEffect.isGeneric).isFalse()
+
+        // Test SoundCloud Link
+        val scAction = GatekeeperAction.ProcessSharedLink(url = "https://soundcloud.com/test", currentTimestamp = 1000L)
+        val scUpdate = reduce(initialState, scAction)
+        val scEffect = scUpdate.effects.filterIsInstance<GatekeeperEffect.FetchUrlMetadata>().first()
+        assertThat(scEffect.isSoundCloud).isTrue()
+        assertThat(scEffect.isGeneric).isFalse()
+
+        // Test Generic Link
+        val genericAction = GatekeeperAction.ProcessSharedLink(url = "https://example.com/article", currentTimestamp = 1000L)
+        val genericUpdate = reduce(initialState, genericAction)
+        val genericEffect = genericUpdate.effects.filterIsInstance<GatekeeperEffect.FetchUrlMetadata>().first()
+        assertThat(genericEffect.isSoundCloud).isFalse()
+        assertThat(genericEffect.isGeneric).isTrue()
+    }
+
     @Test
-    fun testProcessSharedLink_SetsIsProcessingLinkToTrue() {
-        val action = GatekeeperAction.ProcessSharedLink(url = "https://youtu.be/dQw4w9WgXcQ", currentTimestamp = 1000L)
-        val newState = reduce(initialState, action).state
-        assertThat(newState.media.isProcessingLink).isTrue()
+    fun testAddEpisodeToBank_EmitsActionChainingEffect() {
+        val episode = CachedEpisode("1", "pod1", "Test Ep", "https://audio.mp3", 3600L, "Jan 1")
+        val action = GatekeeperAction.AddEpisodeToBank(episode, "pod1", "My Podcast")
+        
+        val update = reduce(initialState, action)
+        
+        // Verify it emits a follow-up action to save the content
+        val emitEffect = update.effects.filterIsInstance<GatekeeperEffect.EmitAction>().first()
+        val chainedAction = emitEffect.action as GatekeeperAction.SaveToContentBank
+        
+        assertThat(chainedAction.title).isEqualTo("Test Ep")
+        assertThat(chainedAction.videoId).isEqualTo("https://audio.mp3")
+        assertThat(chainedAction.channelName).isEqualTo("My Podcast")
+        assertThat(chainedAction.source).isEqualTo(ContentSource.GENERIC)
+        assertThat(chainedAction.type).isEqualTo(ContentType.AUDIO)
+    }
+
+    @Test
+    fun testRefreshAllFeedsRequested_EmitsSyncAndRefreshEffects() {
+        val action = GatekeeperAction.RefreshAllFeedsRequested
+        val update = reduce(initialState, action)
+        
+        // Verify it emits the loading state action AND the command to actually refresh
+        assertThat(update.effects.any { 
+            it is GatekeeperEffect.EmitAction && it.action is GatekeeperAction.PodcastSyncStarted 
+        }).isTrue()
+        assertThat(update.effects.any { it is GatekeeperEffect.SchedulePodcastRefresh }).isTrue()
     }
 
     @Test
