@@ -6,9 +6,7 @@ import com.aegisgatekeeper.app.domain.GatekeeperEffect
 import com.aegisgatekeeper.app.domain.GatekeeperState
 import com.aegisgatekeeper.app.domain.platformLog
 
-fun executeSyncAndAuthEffect(
-    effect: GatekeeperEffect,
-) {
+fun executeSyncAndAuthEffect(effect: GatekeeperEffect) {
     when (effect) {
         is GatekeeperEffect.SaveToken -> {
             platformLog("Gatekeeper", "✅ LoginSuccess: Token received")
@@ -22,11 +20,11 @@ fun executeSyncAndAuthEffect(
             platformLog("Gatekeeper", "🌐 API: Requesting magic link for ${effect.email}")
         }
 
-                                else -> {}
+        else -> {}
     }
 }
 
-fun deletedHandleSyncAndAuthEffects_common(
+
     action: GatekeeperAction,
     newState: GatekeeperState,
     db: GatekeeperDatabase,

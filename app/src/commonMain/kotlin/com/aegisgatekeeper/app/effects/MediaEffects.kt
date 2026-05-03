@@ -149,11 +149,11 @@ suspend fun executeMediaAndSystemEffect(
             effectHandler.triggerWidgetUpdate()
         }
 
-                                else -> {}
+        else -> {}
     }
 }
 
-suspend fun deletedHandleMediaAndSystemEffects_common(
+
     action: GatekeeperAction,
     oldState: GatekeeperState,
     newState: GatekeeperState,

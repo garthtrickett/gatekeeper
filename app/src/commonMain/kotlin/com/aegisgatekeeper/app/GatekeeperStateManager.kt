@@ -3,10 +3,10 @@ package com.aegisgatekeeper.app
 import com.aegisgatekeeper.app.db.DatabaseManager
 import com.aegisgatekeeper.app.di.GlobalDI
 import com.aegisgatekeeper.app.domain.GatekeeperAction
+import com.aegisgatekeeper.app.domain.GatekeeperEffect
 import com.aegisgatekeeper.app.domain.GatekeeperState
 import com.aegisgatekeeper.app.domain.platformLog
 import com.aegisgatekeeper.app.domain.reduce
-import com.aegisgatekeeper.app.domain.GatekeeperEffect
 import com.aegisgatekeeper.app.effects.executeDatabaseEffect
 import com.aegisgatekeeper.app.effects.executeIntegrationEffect
 import com.aegisgatekeeper.app.effects.executeMediaAndSystemEffect
@@ -29,7 +29,7 @@ object GatekeeperStateManager {
     private val _state = MutableStateFlow(GatekeeperState())
     val state = _state.asStateFlow()
 
-        fun dispatch(action: GatekeeperAction) {
+    fun dispatch(action: GatekeeperAction) {
         val actionName = action::class.simpleName ?: "UnknownAction"
 
         if (action !is GatekeeperAction.AppBroughtToForeground) {
@@ -53,7 +53,7 @@ object GatekeeperStateManager {
         handleSideEffects(update.effects)
     }
 
-        private fun handleSideEffects(effects: Set<GatekeeperEffect>) {
+    private fun handleSideEffects(effects: Set<GatekeeperEffect>) {
         scope.launch {
             val effectHandler = GlobalDI.component.effectHandler
             effects.forEach { effect ->
@@ -61,12 +61,12 @@ object GatekeeperStateManager {
                 executeSyncAndAuthEffect(effect)
                 executeMediaAndSystemEffect(effect, ::dispatch, effectHandler)
                 executeIntegrationEffect(effect, ::dispatch, effectHandler)
-                                                if (effect is GatekeeperEffect.EmitAction) {
+                if (effect is GatekeeperEffect.EmitAction) {
                     dispatch(effect.action)
                 }
             }
         }
     }
-    
-                fun deletedHandleEffects2() {}
+
+    fun deletedHandleEffects2() {}
 }

@@ -4,8 +4,8 @@ import com.aegisgatekeeper.app.db.GatekeeperDatabase
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.GatekeeperEffect
 import com.aegisgatekeeper.app.domain.GatekeeperState
-import com.aegisgatekeeper.app.domain.parseRssPubDate
 import com.aegisgatekeeper.app.domain.currentTimeMillis
+import com.aegisgatekeeper.app.domain.parseRssPubDate
 import com.aegisgatekeeper.app.domain.platformLog
 import com.aegisgatekeeper.app.domain.randomUUIDString
 
@@ -387,7 +387,11 @@ fun executeDatabaseEffect(
             platformLog("Gatekeeper", "🗄️ DB: Deleting PodcastSubscription: ${effect.id}")
             db.transaction {
                 db.podcastSubscriptionQueries.delete(effect.id)
-                val itemsToDelete = db.contentItemQueries.selectAllByRank().executeAsList().filter { it.podcastId == effect.id }
+                val itemsToDelete =
+                    db.contentItemQueries
+                        .selectAllByRank()
+                        .executeAsList()
+                        .filter { it.podcastId == effect.id }
                 val slots = db.intentionalSlotQueries.selectAll().executeAsList()
                 itemsToDelete.forEach { item ->
                     db.contentItemQueries.delete(lastModified = effect.lastModified, id = item.id)
@@ -462,7 +466,10 @@ fun executeDatabaseEffect(
                 }
             if (cached.isNotEmpty()) {
                 platformLog("Gatekeeper", "🗄️ DB: Loaded ${cached.size} cached episodes for podcast ${effect.podcastId}")
-                dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.PodcastEpisodesLoaded(cached, effect.podcastId))
+                dispatch(
+                    com.aegisgatekeeper.app.domain.GatekeeperAction
+                        .PodcastEpisodesLoaded(cached, effect.podcastId),
+                )
             }
         }
 
@@ -470,7 +477,9 @@ fun executeDatabaseEffect(
             platformLog("Gatekeeper", "🗄️ DB: Caching ${effect.episodes.size} episodes for podcast ${effect.podcastId}")
             db.transaction {
                 effect.episodes.forEachIndexed { index, ep ->
-                    val id = com.aegisgatekeeper.app.domain.randomUUIDString()
+                    val id =
+                        com.aegisgatekeeper.app.domain
+                            .randomUUIDString()
                     db.podcastEpisodeQueries.insertOrReplace(
                         id = id,
                         podcastId = effect.podcastId,
@@ -497,7 +506,10 @@ fun executeDatabaseEffect(
                         lastModified = it.lastModified,
                     )
                 }
-            dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.PodcastEpisodesLoaded(cached, effect.podcastId))
+            dispatch(
+                com.aegisgatekeeper.app.domain.GatekeeperAction
+                    .PodcastEpisodesLoaded(cached, effect.podcastId),
+            )
         }
 
         is GatekeeperEffect.DbLoadLatestGlobalEpisodes -> {
@@ -516,7 +528,10 @@ fun executeDatabaseEffect(
                     )
                 }
             platformLog("Gatekeeper", "🗄️ DB: Loaded ${episodes.size} latest global episodes")
-            dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.LatestGlobalEpisodesLoaded(episodes))
+            dispatch(
+                com.aegisgatekeeper.app.domain.GatekeeperAction
+                    .LatestGlobalEpisodesLoaded(episodes),
+            )
         }
 
         is GatekeeperEffect.DbInsertIntentionalSlot -> {
@@ -623,11 +638,18 @@ fun executeDatabaseEffect(
 
         is GatekeeperEffect.DbRedeemCheckInToken -> {
             if (effect.log != null) {
-                db.blockingRuleQueries.insertConsumedCheckIn(effect.log.id, effect.log.groupId, effect.log.timeMinutes.toLong(), effect.log.timestamp)
+                db.blockingRuleQueries.insertConsumedCheckIn(
+                    effect.log.id,
+                    effect.log.groupId,
+                    effect.log.timeMinutes.toLong(),
+                    effect.log.timestamp,
+                )
             }
             if (effect.reason != null) {
                 db.emergencyBypassLogQueries.insert(
-                    id = com.aegisgatekeeper.app.domain.randomUUIDString(),
+                    id =
+                        com.aegisgatekeeper.app.domain
+                            .randomUUIDString(),
                     packageName = "Group: ${effect.groupId}",
                     reason = effect.reason,
                     timestamp = effect.timestamp,
@@ -697,7 +719,9 @@ fun executeDatabaseEffect(
         is GatekeeperEffect.DbLogGiveUp -> {
             platformLog("Gatekeeper", "🗄️ DB: Logging Give Up for ${effect.packageName}")
             db.giveUpLogQueries.insert(
-                id = com.aegisgatekeeper.app.domain.randomUUIDString(),
+                id =
+                    com.aegisgatekeeper.app.domain
+                        .randomUUIDString(),
                 packageName = effect.packageName,
                 timestamp = effect.timestamp,
             )
@@ -730,7 +754,10 @@ fun executeDatabaseEffect(
                     bypassCount = bypasses.size,
                     giveUpCount = giveUps.size,
                 )
-            dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.ExportDataGenerated(markdown))
+            dispatch(
+                com.aegisgatekeeper.app.domain.GatekeeperAction
+                    .ExportDataGenerated(markdown),
+            )
         }
 
         is GatekeeperEffect.DbInsertSessionLog -> {
@@ -760,7 +787,9 @@ fun executeDatabaseEffect(
         is GatekeeperEffect.DbLogEmergencyBypass -> {
             platformLog("Gatekeeper", "🗄️ DbLogEmergencyBypass: Logging bypass for ${effect.packageName}")
             db.emergencyBypassLogQueries.insert(
-                id = com.aegisgatekeeper.app.domain.randomUUIDString(),
+                id =
+                    com.aegisgatekeeper.app.domain
+                        .randomUUIDString(),
                 packageName = effect.packageName,
                 reason = effect.reason,
                 timestamp = effect.timestamp,
@@ -852,11 +881,12 @@ fun executeDatabaseEffect(
                 }
             }
         }
-                                else -> {}
+
+        else -> {}
     }
 }
 
-fun deletedHandleDatabaseEffects_common(
+
     action: GatekeeperAction,
     oldState: GatekeeperState,
     newState: GatekeeperState,

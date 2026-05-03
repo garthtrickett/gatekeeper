@@ -31,11 +31,11 @@ suspend fun executeIntegrationEffect(
             effectHandler.scheduleBeeperMessage(effect.message, effect.delayMillis)
         }
 
-                                else -> {}
+        else -> {}
     }
 }
 
-suspend fun deletedHandleIntegrationEffects_common(
+
     action: GatekeeperAction,
     newState: GatekeeperState,
     dispatch: (GatekeeperAction) -> Unit,

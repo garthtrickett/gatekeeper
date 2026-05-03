@@ -213,7 +213,7 @@ class GatekeeperReducerTest {
         assertThat(newState.data.customMessages).isEmpty()
     }
 
-        @Test
+    @Test
     fun testProcessSharedLink_SetsIsProcessingLinkToTrue_AndEmitsCorrectEffect() {
         // Test YouTube Link (Should not flag SoundCloud or Generic)
         val ytAction = GatekeeperAction.ProcessSharedLink(url = "https://youtu.be/dQw4w9WgXcQ", currentTimestamp = 1000L)
@@ -243,13 +243,13 @@ class GatekeeperReducerTest {
     fun testAddEpisodeToBank_EmitsActionChainingEffect() {
         val episode = CachedEpisode("1", "pod1", "Test Ep", "https://audio.mp3", 3600L, "Jan 1")
         val action = GatekeeperAction.AddEpisodeToBank(episode, "pod1", "My Podcast")
-        
+
         val update = reduce(initialState, action)
-        
+
         // Verify it emits a follow-up action to save the content
         val emitEffect = update.effects.filterIsInstance<GatekeeperEffect.EmitAction>().first()
         val chainedAction = emitEffect.action as GatekeeperAction.SaveToContentBank
-        
+
         assertThat(chainedAction.title).isEqualTo("Test Ep")
         assertThat(chainedAction.videoId).isEqualTo("https://audio.mp3")
         assertThat(chainedAction.channelName).isEqualTo("My Podcast")
@@ -261,11 +261,13 @@ class GatekeeperReducerTest {
     fun testRefreshAllFeedsRequested_EmitsSyncAndRefreshEffects() {
         val action = GatekeeperAction.RefreshAllFeedsRequested
         val update = reduce(initialState, action)
-        
+
         // Verify it emits the loading state action AND the command to actually refresh
-        assertThat(update.effects.any { 
-            it is GatekeeperEffect.EmitAction && it.action is GatekeeperAction.PodcastSyncStarted 
-        }).isTrue()
+        assertThat(
+            update.effects.any {
+                it is GatekeeperEffect.EmitAction && it.action is GatekeeperAction.PodcastSyncStarted
+            },
+        ).isTrue()
         assertThat(update.effects.any { it is GatekeeperEffect.SchedulePodcastRefresh }).isTrue()
     }
 
@@ -295,7 +297,7 @@ class GatekeeperReducerTest {
                 .channelName,
         ).isEqualTo("Test Channel")
         assertThat(newState.media.isProcessingLink).isFalse()
-        
+
         assertThat(update.effects.any { it is GatekeeperEffect.DbUpsertContentItem }).isTrue()
 
         val action2 = GatekeeperAction.SaveToContentBank("vid2", "Test 2", ContentSource.YOUTUBE, ContentType.VIDEO, 2000L)
@@ -826,7 +828,7 @@ class GatekeeperReducerTest {
                 .contentItem.id,
         ).isEqualTo("c1")
         assertThat(update1.effects.any { it is GatekeeperEffect.DbInsertIntentionalSlot }).isTrue()
-        
+
         val action2 = GatekeeperAction.SaveIntentionalSlot(slotIndex = 0, contentItem = mockContent2)
         val state2 = reduce(state1, action2).state
         assertThat(state2.data.intentionalSlots).hasSize(1)
@@ -1343,11 +1345,11 @@ class GatekeeperReducerTest {
         val reqState = reqStateUpdate.state
         assertThat(reqState.sync.isSyncingBeeper).isTrue()
         assertThat(reqStateUpdate.effects.any { it is GatekeeperEffect.SyncBeeperChats }).isTrue()
-        
+
         val loadedState = reduce(reqState, GatekeeperAction.BeeperChatsLoaded(listOf(BeeperChat("1", "Test", "WhatsApp")))).state
         assertThat(loadedState.sync.isSyncingBeeper).isFalse()
         assertThat(loadedState.sync.beeperChats).hasSize(1)
-        
+
         val failedState = reduce(reqState, GatekeeperAction.BeeperSyncFailed("Error")).state
         assertThat(failedState.sync.isSyncingBeeper).isFalse()
     }
@@ -1365,7 +1367,7 @@ class GatekeeperReducerTest {
     fun testMessageStatusUpdates_ModifiesState() {
         val msg = ScheduledMessage("1", "room1", "Test Chat", "Hello", 1000L)
         val stateWithMessage = reduce(initialState, GatekeeperAction.ScheduleMessage(msg)).state
-        
+
         val cancelledStateUpdate = reduce(stateWithMessage, GatekeeperAction.CancelScheduledMessage("1"))
         val cancelledState = cancelledStateUpdate.state
         assertThat(
@@ -1374,14 +1376,14 @@ class GatekeeperReducerTest {
                 .status,
         ).isEqualTo(MessageStatus.CANCELLED)
         assertThat(cancelledStateUpdate.effects.any { it is GatekeeperEffect.DbUpdateScheduledMessageStatus }).isTrue()
-        
+
         val sentState = reduce(stateWithMessage, GatekeeperAction.MessageDelivered("1")).state
         assertThat(
             sentState.sync.scheduledMessages
                 .first()
                 .status,
         ).isEqualTo(MessageStatus.SENT)
-        
+
         val failedState = reduce(stateWithMessage, GatekeeperAction.MessageFailed("1", "Error")).state
         assertThat(
             failedState.sync.scheduledMessages

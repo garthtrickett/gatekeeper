@@ -1,3 +1,0 @@
-CREATE TABLE IF NOT EXISTS DeprecatedPinnedAudio (
-    id TEXT NOT NULL PRIMARY KEY
-);
