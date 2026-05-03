@@ -312,7 +312,7 @@ class ContentBankUiTest {
         Thread.sleep(1000)
 
                 val state = GatekeeperStateManager.state.value
-        val item = state.data.contentItems.find { it.videoId == testUrl }
+        val item = state.data.contentItems.find { it.videoId == "dQw4w9WgXcQ" }
         com.google.common.truth.Truth
             .assertThat(item)
             .isNotNull()
