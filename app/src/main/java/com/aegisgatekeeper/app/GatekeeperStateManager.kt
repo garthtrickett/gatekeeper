@@ -11,10 +11,7 @@ import com.aegisgatekeeper.app.domain.ScheduledMessage
 import com.aegisgatekeeper.app.domain.SessionLog
 import com.aegisgatekeeper.app.domain.VaultItem
 import com.aegisgatekeeper.app.domain.reduce
-import com.aegisgatekeeper.app.effects.handleDatabaseEffects
-import com.aegisgatekeeper.app.effects.handleIntegrationEffects
-import com.aegisgatekeeper.app.effects.handleMediaAndSystemEffects
-import com.aegisgatekeeper.app.effects.handleSyncAndAuthEffects
+// removed effects imports
 import com.aegisgatekeeper.app.widget.VaultWidget
 import com.aegisgatekeeper.app.widget.updateAll
 import kotlinx.coroutines.CoroutineScope

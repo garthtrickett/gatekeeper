@@ -13,7 +13,7 @@ import com.aegisgatekeeper.app.domain.GatekeeperState
 import com.aegisgatekeeper.app.integrations.MessageDeliveryWorker
 import java.util.concurrent.TimeUnit
 
-suspend fun deletedHandleIntegrationEffects(
+fun deletedHandleIntegrationEffects_java() {}
     action: GatekeeperAction,
     newState: GatekeeperState,
     dispatch: (GatekeeperAction) -> Unit,

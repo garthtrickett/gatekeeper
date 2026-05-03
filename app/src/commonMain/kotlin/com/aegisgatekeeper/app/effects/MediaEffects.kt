@@ -153,7 +153,7 @@ suspend fun executeMediaAndSystemEffect(
     }
 }
 
-fun deletedHandleMediaAndSystemEffects(
+fun deletedHandleMediaAndSystemEffects_common() {}
     action: GatekeeperAction,
     oldState: GatekeeperState,
     newState: GatekeeperState,

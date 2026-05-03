@@ -8,7 +8,7 @@ import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.GatekeeperState
 import java.util.UUID
 
-fun deletedHandleDatabaseEffects(
+fun deletedHandleDatabaseEffects_java() {}
     action: GatekeeperAction,
     oldState: GatekeeperState,
     newState: GatekeeperState,

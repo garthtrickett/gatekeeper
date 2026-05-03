@@ -19,7 +19,7 @@ import com.aegisgatekeeper.app.widget.VaultWidget
 import com.aegisgatekeeper.app.widget.updateAll
 import kotlinx.coroutines.delay
 
-suspend fun deletedHandleMediaAndSystemEffects(
+fun deletedHandleMediaAndSystemEffects_java() {}
     action: GatekeeperAction,
     oldState: GatekeeperState,
     newState: GatekeeperState,

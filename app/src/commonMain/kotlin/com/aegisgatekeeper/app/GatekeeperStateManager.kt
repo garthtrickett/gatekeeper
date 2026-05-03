@@ -68,7 +68,7 @@ object GatekeeperStateManager {
         }
     }
     
-    fun deletedHandleEffects2(
+    fun deletedHandleEffects2() {}
         action: GatekeeperAction,
         oldState: GatekeeperState,
         newState: GatekeeperState,
