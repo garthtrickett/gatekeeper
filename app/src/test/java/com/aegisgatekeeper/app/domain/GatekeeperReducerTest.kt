@@ -1343,7 +1343,28 @@ class GatekeeperReducerTest {
         val sentState = reduce(stateWithMessage, GatekeeperAction.MessageDelivered("1"))
         assertThat(sentState.scheduledMessages.first().status).isEqualTo(MessageStatus.SENT)
 
-        val failedState = reduce(stateWithMessage, GatekeeperAction.MessageFailed("1", "Error"))
+                val failedState = reduce(stateWithMessage, GatekeeperAction.MessageFailed("1", "Error"))
         assertThat(failedState.scheduledMessages.first().status).isEqualTo(MessageStatus.FAILED)
+    }
+
+    @Test
+    fun testInitialStateLoaded_ReplacesState() {
+        // Arrange: A mock hydrated state loaded from the DB
+        val loadedState = GatekeeperState(
+            isProTier = true, 
+            jwtToken = "mock_token",
+            missionControlApps = listOf("com.test.app")
+        )
+        
+        val action = GatekeeperAction.InitialStateLoaded(loadedState)
+        
+        // Act
+        val newState = reduce(initialState, action)
+        
+        // Assert: The reducer should completely overwrite the initial state
+        assertThat(newState).isEqualTo(loadedState)
+        assertThat(newState.isProTier).isTrue()
+        assertThat(newState.jwtToken).isEqualTo("mock_token")
+        assertThat(newState.missionControlApps).containsExactly("com.test.app")
     }
 }

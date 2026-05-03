@@ -108,7 +108,7 @@ class DualMoatIntegrationTest {
             (stateFlowField.get(stateManager) as MutableStateFlow<GatekeeperState>).value = stateWithLockdown
 
             // Act: Force the Foreground Service to evaluate the current app.
-            GatekeeperStateManager.performAppValidation(
+            com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(
                 InstrumentationRegistry.getInstrumentation().targetContext,
                 testAppPackage,
             )
@@ -176,7 +176,7 @@ class DualMoatIntegrationTest {
         lastPackageField.set(evaluatorInstance, testAppPackage)
 
             // Act: Simulate Layer Alpha detecting a switch to the Launcher (or any other safe app)
-            GatekeeperStateManager.performAppValidation(
+            com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(
                 androidx.test.platform.app.InstrumentationRegistry
                     .getInstrumentation()
                     .targetContext,
@@ -208,7 +208,7 @@ class DualMoatIntegrationTest {
             (stateFlowField.get(stateManager) as MutableStateFlow<GatekeeperState>).value = stateWithEmptyGroup
 
             // Act: Simulate a Layer Alpha tick for an arbitrary app
-            GatekeeperStateManager.performAppValidation(
+            com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(
                 InstrumentationRegistry.getInstrumentation().targetContext,
                 "com.any.random.app",
             )
@@ -269,7 +269,7 @@ class DualMoatIntegrationTest {
             @Suppress("UNCHECKED_CAST")
             (stateFlowField.get(stateManager) as MutableStateFlow<GatekeeperState>).value = stateWithRule
 
-            GatekeeperStateManager.performAppValidation(
+            com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(
                 androidx.test.platform.app.InstrumentationRegistry
                     .getInstrumentation()
                     .targetContext,
