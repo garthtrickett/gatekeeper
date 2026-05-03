@@ -31,7 +31,7 @@ import org.cef.network.CefRequest
 @Composable
 fun SurgicalWebScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
-    var urlInput by remember { mutableStateOf(state.currentSurgicalUrl ?: "https://google.com") }
+    var urlInput by remember(state.media.currentSurgicalUrl) { mutableStateOf(state.media.currentSurgicalUrl ?: "https://google.com") }
 
     var client by remember { mutableStateOf<dev.datlag.kcef.KCEFClient?>(null) }
     LaunchedEffect(Unit) {
@@ -41,8 +41,8 @@ fun SurgicalWebScreen() {
     }
 
     // Sync the local input field if state changes externally
-    LaunchedEffect(state.currentSurgicalUrl) {
-        state.currentSurgicalUrl?.let { urlInput = it }
+    LaunchedEffect(state.media.currentSurgicalUrl) {
+        state.media.currentSurgicalUrl?.let { urlInput = it }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -74,7 +74,7 @@ fun SurgicalWebScreen() {
                 remember(kcefClient) {
                     val b =
                         kcefClient.createBrowser(
-                            state.currentSurgicalUrl ?: "https://google.com",
+                            state.media.currentSurgicalUrl ?: "https://google.com",
                             org.cef.browser.CefRendering.OFFSCREEN,
                             false,
                         )
@@ -83,8 +83,8 @@ fun SurgicalWebScreen() {
                     b
                 }
 
-            LaunchedEffect(state.currentSurgicalUrl) {
-                state.currentSurgicalUrl?.let { url ->
+            LaunchedEffect(state.media.currentSurgicalUrl) {
+                state.media.currentSurgicalUrl?.let { url ->
                     browser.loadURL(url)
                 }
             }

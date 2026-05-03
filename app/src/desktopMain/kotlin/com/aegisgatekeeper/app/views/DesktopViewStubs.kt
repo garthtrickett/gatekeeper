@@ -72,7 +72,7 @@ fun ContentBankScreen() {
     var showYouTubeSearch by remember { mutableStateOf(false) }
 
     val items =
-        state.contentItems
+        state.data.contentItems
             .filter { !it.isDeleted }
             .filter {
                 it.title.contains(searchQuery, ignoreCase = true) ||
@@ -106,7 +106,7 @@ fun ContentBankScreen() {
         if (items.isEmpty()) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
-                    if (state.contentItems.isEmpty()) "Bank is empty." else "No content matches your search.",
+                    if (state.data.contentItems.isEmpty()) "Bank is empty." else "No content matches your search.",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -134,7 +134,7 @@ fun VaultReviewScreen() {
         Text("Lookup Vault (Desktop MVP)", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(state.contentItems) { item ->
+            items(state.data.contentItems) { item ->
                 val durationText = item.durationSeconds?.let { " (${it / 60}m)" } ?: ""
                 Text("- ${item.title} [${item.type.name}]$durationText", color = MaterialTheme.colorScheme.onSurface)
             }
