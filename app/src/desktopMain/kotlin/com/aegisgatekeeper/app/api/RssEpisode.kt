@@ -1,4 +1,4 @@
 package com.aegisgatekeeper.app.api
 
-class RssEpisode_Deleted {}
-
+class DeletedRssEpisode
+class DeletedRssEpisode2

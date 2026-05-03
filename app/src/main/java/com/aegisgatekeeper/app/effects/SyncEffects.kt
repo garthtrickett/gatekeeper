@@ -1,4 +1,5 @@
-@file:JvmName("SyncEffects_Deleted")
+@file:JvmName("DeletedSyncEffects")
+
 package com.aegisgatekeeper.app.effects
 
 import android.util.Log
@@ -7,7 +8,7 @@ import com.aegisgatekeeper.app.db.GatekeeperDatabase
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.GatekeeperState
 
-fun handleSyncAndAuthEffects_Deleted(
+fun deletedHandleSyncAndAuthEffects(
     action: GatekeeperAction,
     newState: GatekeeperState,
     db: GatekeeperDatabase,

@@ -311,8 +311,11 @@ class GatekeeperForegroundService : Service() {
                             state.activeForegroundApp
                         }
 
-                                        if (currentApp != null) {
-                        com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(this@GatekeeperForegroundService, currentApp)
+                    if (currentApp != null) {
+                        com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(
+                            this@GatekeeperForegroundService,
+                            currentApp,
+                        )
                     }
                 }
 

@@ -1,4 +1,5 @@
-@file:JvmName("MediaEffects_Deleted")
+@file:JvmName("DeletedMediaEffects")
+
 package com.aegisgatekeeper.app.effects
 
 import android.content.Intent
@@ -18,7 +19,7 @@ import com.aegisgatekeeper.app.widget.VaultWidget
 import com.aegisgatekeeper.app.widget.updateAll
 import kotlinx.coroutines.delay
 
-suspend fun handleMediaAndSystemEffects_Deleted(
+suspend fun deletedHandleMediaAndSystemEffects(
     action: GatekeeperAction,
     oldState: GatekeeperState,
     newState: GatekeeperState,

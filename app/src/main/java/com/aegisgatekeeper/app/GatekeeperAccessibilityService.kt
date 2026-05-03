@@ -62,8 +62,9 @@ class GatekeeperAccessibilityService : AccessibilityService() {
         val packageName = event.packageName?.toString() ?: return
 
         // Instead of just reporting the app is open, we force an immediate rule check
-                // to prevent the "flash" of the distracted app.
-        com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(this, packageName)
+        // to prevent the "flash" of the distracted app.
+        com.aegisgatekeeper.app.services.AndroidRuleEvaluator
+            .performAppValidation(this, packageName)
     }
 
     override fun onInterrupt() {

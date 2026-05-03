@@ -1,4 +1,5 @@
-@file:JvmName("DatabaseEffects_Deleted")
+@file:JvmName("DeletedDatabaseEffects")
+
 package com.aegisgatekeeper.app.effects
 
 import android.util.Log
@@ -7,7 +8,7 @@ import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.GatekeeperState
 import java.util.UUID
 
-fun handleDatabaseEffects_Deleted(
+fun deletedHandleDatabaseEffects(
     action: GatekeeperAction,
     oldState: GatekeeperState,
     newState: GatekeeperState,

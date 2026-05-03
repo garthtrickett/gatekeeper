@@ -5,5 +5,5 @@ import com.aegisgatekeeper.app.domain.GatekeeperState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-object GatekeeperStateManager_Deleted {}
-
+object DeletedGatekeeperStateManager
+object DeletedGatekeeperStateManager2

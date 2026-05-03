@@ -15,7 +15,8 @@ import me.tatarka.inject.annotations.Inject
 import java.net.HttpURLConnection
 import java.net.URL
 
-class RssFeedData_Deleted {}
+class DeletedRssFeedData
+class DeletedRssFeedData2
 
 @Inject
 @Singleton

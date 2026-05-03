@@ -157,7 +157,9 @@ object AndroidRuleEvaluator {
 
             if (isBlocked) {
                 if (isNewApp || !state.isOverlayActive) {
-                    GatekeeperStateManager.dispatch(GatekeeperAction.RuleViolationDetected(currentApp, blockReason, System.currentTimeMillis()))
+                    GatekeeperStateManager.dispatch(
+                        GatekeeperAction.RuleViolationDetected(currentApp, blockReason, System.currentTimeMillis()),
+                    )
                 }
             } else if (isNewApp) {
                 GatekeeperStateManager.dispatch(GatekeeperAction.AppBroughtToForeground(currentApp, System.currentTimeMillis()))

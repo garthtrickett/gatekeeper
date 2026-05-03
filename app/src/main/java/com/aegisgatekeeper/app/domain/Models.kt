@@ -2,7 +2,7 @@ package com.aegisgatekeeper.app.domain
 
 import java.util.UUID
 
-data class AppGroup_Deleted(
+data class DeletedAppGroup(
     val id: String = UUID.randomUUID().toString(),
     val name: String,
     val apps: Set<String> = emptySet(),
@@ -10,16 +10,16 @@ data class AppGroup_Deleted(
     val combinator: RuleCombinator = RuleCombinator.ANY,
 )
 
-interface BlockingRule_Deleted {}
+interface DeletedBlockingRule
 
-data class ConsumedCheckIn_Deleted(
+data class DeletedConsumedCheckIn(
     val id: String = UUID.randomUUID().toString(),
     val groupId: String,
     val timeMinutes: Int,
     val timestamp: Long,
 )
 
-data class TimeSlot_Deleted(
+data class DeletedTimeSlot(
     val startTimeMinutes: Int,
     val endTimeMinutes: Int,
 )
@@ -27,7 +27,7 @@ data class TimeSlot_Deleted(
 /**
  * Represents a single query saved to the Vault instead of being searched immediately.
  */
-data class VaultItem_Deleted(
+data class DeletedVaultItem(
     val id: String = UUID.randomUUID().toString(),
     val query: String,
     val capturedAtTimestamp: Long,
@@ -40,7 +40,7 @@ data class VaultItem_Deleted(
 /**
  * Represents a piece of curated media saved to the Content Bank.
  */
-data class PodcastSubscription_Deleted(
+data class DeletedPodcastSubscription(
     val id: String = UUID.randomUUID().toString(),
     val feedUrl: String,
     val showTitle: String,
@@ -50,7 +50,7 @@ data class PodcastSubscription_Deleted(
     val isDeleted: Boolean = false,
 )
 
-data class CachedEpisode_Deleted(
+data class DeletedCachedEpisode(
     val id: String = UUID.randomUUID().toString(),
     val podcastId: String,
     val title: String,
@@ -60,7 +60,7 @@ data class CachedEpisode_Deleted(
     val lastModified: Long = System.currentTimeMillis(),
 )
 
-data class UnifiedEpisode_Deleted(
+data class DeletedUnifiedEpisode(
     val id: String,
     val podcastId: String,
     val title: String,
@@ -75,7 +75,7 @@ data class UnifiedEpisode_Deleted(
 /**
  * Represents a piece of curated media saved to the Content Bank.
  */
-data class ContentItem_Deleted(
+data class DeletedContentItem(
     val id: String = UUID.randomUUID().toString(),
     val podcastId: String? = null,
     val videoId: String,
@@ -93,7 +93,7 @@ data class ContentItem_Deleted(
     val downloadStatus: DownloadStatus = DownloadStatus.NONE,
 )
 
-data class NotificationLog_Deleted(
+data class DeletedNotificationLog(
     val id: String =
         java.util.UUID
             .randomUUID()
@@ -107,12 +107,12 @@ data class NotificationLog_Deleted(
 /**
  * An immutable log of a completed session in a blacklisted app.
  */
-data class MetacognitionRequest_Deleted(
+data class DeletedMetacognitionRequest(
     val packageName: String,
     val durationMillis: Long,
 )
 
-data class SessionLog_Deleted(
+data class DeletedSessionLog(
     val id: String = UUID.randomUUID().toString(),
     val packageName: String,
     val durationMillis: Long,
@@ -123,18 +123,18 @@ data class SessionLog_Deleted(
 /**
  * Represents an active slot in the Intentional Dashboard.
  */
-data class PinnedWebsite_Deleted(
+data class DeletedPinnedWebsite(
     val id: String,
     val label: String,
     val url: String,
 )
 
-data class IntentionalSlotItem_Deleted(
+data class DeletedIntentionalSlotItem(
     val slotIndex: Int,
     val contentItem: ContentItem,
 )
 
-data class AlternativeActivity_Deleted(
+data class DeletedAlternativeActivity(
     val id: String = UUID.randomUUID().toString(),
     val description: String,
     val createdAtTimestamp: Long = System.currentTimeMillis(),
@@ -143,7 +143,7 @@ data class AlternativeActivity_Deleted(
 /**
  * Represents an active "Emergency Bypass" or completed Friction task.
  */
-data class TemporaryWhitelist_Deleted(
+data class DeletedTemporaryWhitelist(
     val packageName: String,
     val reason: String?, // Null if granted via Friction task, String if Emergency Bypass
     val grantedAtTimestamp: Long,

@@ -1,6 +1,13 @@
 package com.aegisgatekeeper.app.effects
 
-import com.aegisgatekeeper.app.domain.*
+import com.aegisgatekeeper.app.domain.ContentSource
+import com.aegisgatekeeper.app.domain.ContentType
+import com.aegisgatekeeper.app.domain.GatekeeperAction
+import com.aegisgatekeeper.app.domain.GatekeeperState
+import com.aegisgatekeeper.app.domain.PodcastSubscription
+import com.aegisgatekeeper.app.domain.currentTimeMillis
+import com.aegisgatekeeper.app.domain.platformLog
+import com.aegisgatekeeper.app.domain.randomUUIDString
 import com.aegisgatekeeper.app.media.MediaDownloader
 import kotlinx.coroutines.delay
 
@@ -9,7 +16,7 @@ suspend fun handleMediaAndSystemEffects(
     oldState: GatekeeperState,
     newState: GatekeeperState,
     dispatch: (GatekeeperAction) -> Unit,
-    effectHandler: PlatformEffectHandler
+    effectHandler: PlatformEffectHandler,
 ) {
     when (action) {
         is GatekeeperAction.SearchPodcastsRequested -> {
@@ -21,9 +28,10 @@ suspend fun handleMediaAndSystemEffects(
                 },
                 ifRight = { results ->
                     dispatch(GatekeeperAction.PodcastSearchCompleted(results))
-                }
+                },
             )
         }
+
         is GatekeeperAction.DownloadMediaRequested -> {
             val item = newState.contentItems.find { it.id == action.id }
             if (item != null) {
@@ -31,10 +39,12 @@ suspend fun handleMediaAndSystemEffects(
                 MediaDownloader.enqueueDownload(item.id, item.videoId)
             }
         }
+
         is GatekeeperAction.DeleteDownloadedMedia -> {
             platformLog("Gatekeeper", "🗑️ Deleting offline media for ${action.id}")
             MediaDownloader.removeDownload(action.id)
         }
+
         is GatekeeperAction.ProcessPodcastUrl -> {
             platformLog("Gatekeeper", "📡 Fetching Podcast RSS: ${action.url}")
             effectHandler.fetchPodcastFeed(action.url).fold(
@@ -44,17 +54,19 @@ suspend fun handleMediaAndSystemEffects(
                 },
                 ifRight = { data ->
                     val podcastId = randomUUIDString()
-                    val sub = PodcastSubscription(
-                        id = podcastId,
-                        feedUrl = action.url,
-                        showTitle = data.title,
-                        artworkUrl = data.artworkUrl,
-                        lastModified = currentTimeMillis()
-                    )
+                    val sub =
+                        PodcastSubscription(
+                            id = podcastId,
+                            feedUrl = action.url,
+                            showTitle = data.title,
+                            artworkUrl = data.artworkUrl,
+                            lastModified = currentTimeMillis(),
+                        )
                     dispatch(GatekeeperAction.SavePodcastSubscription(sub))
-                }
+                },
             )
         }
+
         is GatekeeperAction.LoadPodcastEpisodes -> {
             platformLog("Gatekeeper", "📡 Loading Podcast Episodes from RSS: ${action.feedUrl}")
             effectHandler.fetchPodcastFeed(action.feedUrl).fold(
@@ -68,9 +80,10 @@ suspend fun handleMediaAndSystemEffects(
                 },
                 ifRight = { data ->
                     dispatch(GatekeeperAction.CacheParsedEpisodes(data.episodes, action.podcastId))
-                }
+                },
             )
         }
+
         is GatekeeperAction.AddEpisodeToBank -> {
             platformLog("Gatekeeper", "🎬 Adding episode to bank: ${action.episode.title}")
             dispatch(
@@ -82,10 +95,11 @@ suspend fun handleMediaAndSystemEffects(
                     currentTimestamp = currentTimeMillis(),
                     durationSeconds = action.episode.durationSeconds,
                     channelName = action.podcastTitle,
-                    podcastId = action.podcastId
-                )
+                    podcastId = action.podcastId,
+                ),
             )
         }
+
         is GatekeeperAction.SavePodcastSubscription -> {
             platformLog("Gatekeeper", "📡 Fetching episodes for new subscription: ${action.subscription.showTitle}")
             effectHandler.fetchPodcastFeed(action.subscription.feedUrl).fold(
@@ -94,13 +108,15 @@ suspend fun handleMediaAndSystemEffects(
                 },
                 ifRight = { data ->
                     dispatch(GatekeeperAction.CacheParsedEpisodes(data.episodes, action.subscription.id))
-                }
+                },
             )
         }
+
         GatekeeperAction.RefreshAllFeedsRequested -> {
             dispatch(GatekeeperAction.PodcastSyncStarted)
             effectHandler.schedulePodcastRefresh()
         }
+
         is GatekeeperAction.ProcessSharedLink -> {
             platformLog("Gatekeeper", "Processing shared link: ${action.url}")
             val pattern = """(?<=youtu\.be/|watch\?v=|/shorts/)([a-zA-Z0-9_-]{11})""".toRegex()
@@ -125,8 +141,8 @@ suspend fun handleMediaAndSystemEffects(
                         source = ContentSource.SOUNDCLOUD,
                         type = ContentType.AUDIO,
                         currentTimestamp = action.currentTimestamp,
-                        durationSeconds = durationSeconds
-                    )
+                        durationSeconds = durationSeconds,
+                    ),
                 )
             } else {
                 val metadataResult = effectHandler.fetchUrlMetadata(action.url, isSoundCloud = false, isGeneric = true)
@@ -141,14 +157,16 @@ suspend fun handleMediaAndSystemEffects(
                         source = ContentSource.GENERIC,
                         type = ContentType.READING,
                         currentTimestamp = action.currentTimestamp,
-                        durationSeconds = durationSeconds
-                    )
+                        durationSeconds = durationSeconds,
+                    ),
                 )
             }
         }
+
         is GatekeeperAction.LogGiveUp -> {
             effectHandler.goHome()
         }
+
         is GatekeeperAction.FrictionCompleted -> {
             platformLog("Gatekeeper", "⚙️ FrictionCompleted: Relaunching app to ensure it wasn't killed")
             effectHandler.launchApp(action.packageName)
@@ -156,6 +174,7 @@ suspend fun handleMediaAndSystemEffects(
             delay(action.allocatedDurationMillis)
             dispatch(GatekeeperAction.SessionExpired(action.packageName, action.allocatedDurationMillis))
         }
+
         is GatekeeperAction.EmergencyBypassRequested -> {
             platformLog("Gatekeeper", "⚙️ EmergencyBypassRequested: Relaunching app to ensure it wasn't killed")
             effectHandler.launchApp(action.packageName)
@@ -163,6 +182,7 @@ suspend fun handleMediaAndSystemEffects(
             delay(action.allocatedDurationMillis)
             dispatch(GatekeeperAction.SessionExpired(action.packageName, action.allocatedDurationMillis))
         }
+
         is GatekeeperAction.RedeemCheckInToken -> {
             val group = newState.appGroups.find { it.id == action.groupId }
             val apps = group?.apps ?: emptySet()
@@ -176,13 +196,16 @@ suspend fun handleMediaAndSystemEffects(
                 dispatch(GatekeeperAction.SessionExpired(packageName, durationMillis))
             }
         }
+
         is GatekeeperAction.SaveToContentBank,
         is GatekeeperAction.ReorderContentBank,
         is GatekeeperAction.RemoveFromContentBank,
         is GatekeeperAction.SaveIntentionalSlot,
-        is GatekeeperAction.ClearIntentionalSlot -> {
+        is GatekeeperAction.ClearIntentionalSlot,
+        -> {
             effectHandler.triggerWidgetUpdate()
         }
+
         else -> {}
     }
 }

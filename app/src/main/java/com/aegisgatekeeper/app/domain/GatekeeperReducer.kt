@@ -1,4 +1,5 @@
-@file:JvmName("GatekeeperReducer_Deleted")
+@file:JvmName("DeletedGatekeeperReducer")
+
 package com.aegisgatekeeper.app.domain
 
 import android.util.Log
@@ -7,17 +8,17 @@ import android.util.Log
  * Pure top-level function. Evaluates actions and returns a new state.
  * No side effects allowed here (no DB calls, no clock reads, no API calls).
  */
-fun reduce_Deleted(
+fun deletedReduce(
     state: GatekeeperState,
     action: GatekeeperAction,
 ): GatekeeperState {
-    var newState = reduceRulesAndIntercepts_Deleted(state, action)
-    newState = reduceContentAndVault_Deleted(newState, action)
-    newState = reduceSyncAndAuth_Deleted(newState, action)
+        var newState = deletedReduceRulesAndIntercepts(state, action)
+    newState = deletedReduceContentAndVault(newState, action)
+    newState = deletedReduceSyncAndAuth(newState, action)
     return newState
 }
 
-private fun reduceRulesAndIntercepts_Deleted(
+private fun deletedReduceRulesAndIntercepts(
     state: GatekeeperState,
     action: GatekeeperAction,
 ): GatekeeperState =
@@ -574,7 +575,7 @@ private fun reduceRulesAndIntercepts_Deleted(
         }
     }
 
-private fun reduceContentAndVault_Deleted(
+private fun deletedReduceContentAndVault(
     state: GatekeeperState,
     action: GatekeeperAction,
 ): GatekeeperState =
@@ -934,7 +935,7 @@ private fun reduceContentAndVault_Deleted(
         }
     }
 
-private fun reduceSyncAndAuth_Deleted(
+private fun deletedReduceSyncAndAuth(
     state: GatekeeperState,
     action: GatekeeperAction,
 ): GatekeeperState =
@@ -1036,8 +1037,7 @@ private fun reduceSyncAndAuth_Deleted(
             )
         }
 
-                else -> {
+        else -> {
             state
         }
     }
-

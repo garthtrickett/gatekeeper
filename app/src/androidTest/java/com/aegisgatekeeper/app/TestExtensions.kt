@@ -32,7 +32,8 @@ fun GatekeeperStateManager.resetStateForTest() {
             val lastPackageField = evaluatorClass.getDeclaredField("lastDetectedPackage")
             lastPackageField.isAccessible = true
             lastPackageField.set(evaluatorInstance, null)
-        } catch (e: Exception) {}
+        } catch (e: Exception) {
+        }
     } catch (e: Exception) {
         throw IllegalStateException("Failed to reset GatekeeperStateManager via reflection", e)
     }

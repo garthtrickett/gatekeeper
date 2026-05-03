@@ -9,7 +9,7 @@ suspend fun handleIntegrationEffects(
     action: GatekeeperAction,
     newState: GatekeeperState,
     dispatch: (GatekeeperAction) -> Unit,
-    effectHandler: PlatformEffectHandler
+    effectHandler: PlatformEffectHandler,
 ) {
     when (action) {
         is GatekeeperAction.RequestBeeperSync -> {
@@ -22,15 +22,17 @@ suspend fun handleIntegrationEffects(
                 ifRight = { chats ->
                     platformLog("Gatekeeper", "✅ Loaded ${chats.size} Beeper chats")
                     dispatch(GatekeeperAction.BeeperChatsLoaded(chats))
-                }
+                },
             )
         }
+
         is GatekeeperAction.ScheduleMessage -> {
             val delayMillis = action.message.scheduledTimestamp - currentTimeMillis()
             val actualDelay = maxOf(0L, delayMillis)
             platformLog("Gatekeeper", "⚙️ Scheduling Beeper message in ${actualDelay}ms")
             effectHandler.scheduleBeeperMessage(action.message, actualDelay)
         }
+
         else -> {}
     }
 }

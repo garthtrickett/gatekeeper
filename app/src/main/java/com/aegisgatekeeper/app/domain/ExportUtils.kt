@@ -1,11 +1,12 @@
-@file:JvmName("ExportUtils_Deleted")
+@file:JvmName("DeletedExportUtils")
+
 package com.aegisgatekeeper.app.domain
 
 /**
  * Pure function to generate the Markdown export of the user's digital footprint.
  * Extracted from the StateManager to ensure it can be strictly unit tested.
  */
-fun generateMarkdownReport_Deleted(
+fun deletedGenerateMarkdownReport(
     vaultItems: List<VaultItem>,
     sessionLogs: List<SessionLog>,
     bypassCount: Int,

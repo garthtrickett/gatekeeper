@@ -1,4 +1,5 @@
-@file:JvmName("IntegrationEffects_Deleted")
+@file:JvmName("DeletedIntegrationEffects")
+
 package com.aegisgatekeeper.app.effects
 
 import android.util.Log
@@ -12,7 +13,7 @@ import com.aegisgatekeeper.app.domain.GatekeeperState
 import com.aegisgatekeeper.app.integrations.MessageDeliveryWorker
 import java.util.concurrent.TimeUnit
 
-suspend fun handleIntegrationEffects_Deleted(
+suspend fun deletedHandleIntegrationEffects(
     action: GatekeeperAction,
     newState: GatekeeperState,
     dispatch: (GatekeeperAction) -> Unit,

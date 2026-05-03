@@ -21,6 +21,7 @@ abstract class DesktopApplicationComponent : SharedApplicationComponent {
     override val beeperClient: com.aegisgatekeeper.app.integrations.BeeperClient get() = desktopBeeperClient
 
     abstract val desktopEffectHandler: com.aegisgatekeeper.app.effects.DesktopEffectHandler
+
     @get:Provides override val effectHandler: com.aegisgatekeeper.app.effects.PlatformEffectHandler get() = desktopEffectHandler
 
     @Provides

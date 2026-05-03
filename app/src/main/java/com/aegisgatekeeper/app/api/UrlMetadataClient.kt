@@ -16,14 +16,15 @@ import me.tatarka.inject.annotations.Inject
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-class ContentMetadata_Deleted {}
+class DeletedContentMetadata
+class DeletedContentMetadata2
 
 @Inject
 @Singleton
 class UrlMetadataClient(
     private val client: HttpClient,
 ) {
-        suspend fun fetchMetadata(
+    suspend fun fetchMetadata(
         url: String,
         isSoundCloud: Boolean = false,
         isGeneric: Boolean = false,
@@ -80,7 +81,9 @@ class UrlMetadataClient(
                     title = title.replace(" - YouTube", "").trim()
                 }
 
-                                com.aegisgatekeeper.app.api.ContentMetadata(title, durationSeconds, resolvedUrl).right()
+                com.aegisgatekeeper.app.api
+                    .ContentMetadata(title, durationSeconds, resolvedUrl)
+                    .right()
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
                 (e.message ?: "Failed to fetch metadata").left()

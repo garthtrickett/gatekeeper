@@ -2,7 +2,7 @@ package com.aegisgatekeeper.app.domain
 
 import java.time.LocalTime
 
-data class GatekeeperState_Deleted(
+data class DeletedGatekeeperState(
     val isOverlayActive: Boolean = false,
     val currentlyInterceptedApp: String? = null,
     val notificationDigest: List<NotificationLog> = emptyList(),
@@ -37,7 +37,7 @@ data class GatekeeperState_Deleted(
     val isLoadingGlobalEpisodes: Boolean = false,
 )
 
-data class AppGroup_Deleted(
+data class DeletedAppGroup(
     val id: String =
         java.util.UUID
             .randomUUID()
@@ -48,14 +48,14 @@ data class AppGroup_Deleted(
     val combinator: RuleCombinator = RuleCombinator.ANY,
 )
 
-interface BlockingRule_Deleted {}
+interface DeletedBlockingRule
 
-data class MetacognitionRequest_Deleted(
+data class DeletedMetacognitionRequest(
     val packageName: String,
     val durationMillis: Long,
 )
 
-data class PodcastSubscription_Deleted(
+data class DeletedPodcastSubscription(
     val id: String =
         java.util.UUID
             .randomUUID()
@@ -68,7 +68,7 @@ data class PodcastSubscription_Deleted(
     val isDeleted: Boolean = false,
 )
 
-data class CachedEpisode_Deleted(
+data class DeletedCachedEpisode(
     val id: String =
         java.util.UUID
             .randomUUID()
@@ -81,7 +81,7 @@ data class CachedEpisode_Deleted(
     val lastModified: Long = System.currentTimeMillis(),
 )
 
-data class UnifiedEpisode_Deleted(
+data class DeletedUnifiedEpisode(
     val id: String,
     val podcastId: String,
     val title: String,
@@ -93,13 +93,13 @@ data class UnifiedEpisode_Deleted(
     val artworkUrl: String?,
 )
 
-data class PinnedWebsite_Deleted(
+data class DeletedPinnedWebsite(
     val id: String,
     val label: String,
     val url: String,
 )
 
-data class AlternativeActivity_Deleted(
+data class DeletedAlternativeActivity(
     val id: String =
         java.util.UUID
             .randomUUID()
@@ -108,7 +108,7 @@ data class AlternativeActivity_Deleted(
     val createdAtTimestamp: Long = System.currentTimeMillis(),
 )
 
-data class VaultItem_Deleted(
+data class DeletedVaultItem(
     val id: String =
         java.util.UUID
             .randomUUID()
@@ -121,7 +121,7 @@ data class VaultItem_Deleted(
     val isDeleted: Boolean = false,
 )
 
-data class ContentItem_Deleted(
+data class DeletedContentItem(
     val id: String =
         java.util.UUID
             .randomUUID()
@@ -142,7 +142,7 @@ data class ContentItem_Deleted(
     val downloadStatus: DownloadStatus = DownloadStatus.NONE,
 )
 
-data class NotificationLog_Deleted(
+data class DeletedNotificationLog(
     val id: String,
     val packageName: String,
     val title: String,
@@ -150,7 +150,7 @@ data class NotificationLog_Deleted(
     val timestamp: Long,
 )
 
-interface GatekeeperAction_Deleted {}
+interface DeletedGatekeeperAction
 
 fun isDeepWorkHours(
     currentTime: LocalTime,

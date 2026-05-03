@@ -134,7 +134,7 @@ class DualMoatIntegrationTest {
             @Suppress("UNCHECKED_CAST")
             (stateFlowField.get(stateManager) as MutableStateFlow<GatekeeperState>).value = stateWithRule
 
-                        // Act: Simulate a Layer Alpha tick which calls performAppValidation
+            // Act: Simulate a Layer Alpha tick which calls performAppValidation
             com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(
                 InstrumentationRegistry.getInstrumentation().targetContext,
                 testAppPackage,
@@ -170,10 +170,10 @@ class DualMoatIntegrationTest {
 
             // Initialize lastDetectedPackage to simulate we were already inside the app
             val evaluatorClass = Class.forName("com.aegisgatekeeper.app.services.AndroidRuleEvaluator")
-        val evaluatorInstance = evaluatorClass.getField("INSTANCE").get(null)
-        val lastPackageField = evaluatorClass.getDeclaredField("lastDetectedPackage")
-        lastPackageField.isAccessible = true
-        lastPackageField.set(evaluatorInstance, testAppPackage)
+            val evaluatorInstance = evaluatorClass.getField("INSTANCE").get(null)
+            val lastPackageField = evaluatorClass.getDeclaredField("lastDetectedPackage")
+            lastPackageField.isAccessible = true
+            lastPackageField.set(evaluatorInstance, testAppPackage)
 
             // Act: Simulate Layer Alpha detecting a switch to the Launcher (or any other safe app)
             com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(

@@ -19,7 +19,7 @@ fun generateMarkdownReport(
     sb.append("- Sessions Logged: ${sessionLogs.size}\n\n")
 
     sb.append("## Lookup Vault\n")
-        vaultItems.forEach {
+    vaultItems.forEach {
         sb.append("-[${if (it.isResolved) "x" else " "}] ${it.query} (Captured: ${it.capturedAtTimestamp})\n")
     }
 

@@ -51,6 +51,7 @@ abstract class AndroidApplicationComponent(
     override val beeperClient: com.aegisgatekeeper.app.integrations.BeeperClient get() = androidBeeperClient
 
     abstract val androidEffectHandler: com.aegisgatekeeper.app.effects.AndroidEffectHandler
+
     @get:Provides override val effectHandler: com.aegisgatekeeper.app.effects.PlatformEffectHandler get() = androidEffectHandler
 
     @Provides

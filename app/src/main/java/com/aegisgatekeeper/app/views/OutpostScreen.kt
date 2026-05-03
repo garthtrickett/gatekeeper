@@ -126,61 +126,76 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
     var messageText by remember { mutableStateOf("") }
     var searchQuery by remember { mutableStateOf("") }
 
-    val filteredChats = remember(searchQuery, chats) {
-        if (searchQuery.isBlank()) {
-            chats
-        } else {
-            chats.filter {
-                it.name.contains(searchQuery, ignoreCase = true) ||
-                    it.network?.contains(searchQuery, ignoreCase = true) == true
+    val filteredChats =
+        remember(searchQuery, chats) {
+            if (searchQuery.isBlank()) {
+                chats
+            } else {
+                chats.filter {
+                    it.name.contains(searchQuery, ignoreCase = true) ||
+                        it.network?.contains(searchQuery, ignoreCase = true) == true
+                }
             }
         }
-    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxWidth().zIndex(1f)) {
             IndustrialTextField(
-                value = if (selectedChat != null && !expanded) "${selectedChat!!.name} (${selectedChat!!.network ?: "Unknown"})" else searchQuery,
+                value =
+                    if (selectedChat != null &&
+                        !expanded
+                    ) {
+                        "${selectedChat!!.name} (${selectedChat!!.network ?: "Unknown"})"
+                    } else {
+                        searchQuery
+                    },
                 onValueChange = {
                     searchQuery = it
                     selectedChat = null
                     expanded = true
                 },
                 label = { Text("Select Chat") },
-                modifier = Modifier.fillMaxWidth()
-                    .onFocusChanged { focusState ->
-                        if (focusState.isFocused) expanded = true
-                    },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused) expanded = true
+                        },
                 singleLine = true,
             )
 
-                        if (expanded) {
+            if (expanded) {
                 Card(
-                    modifier = Modifier
-                        .padding(top = 64.dp)
-                        .fillMaxWidth()
-                        .heightIn(max = 250.dp),
+                    modifier =
+                        Modifier
+                            .padding(top = 64.dp)
+                            .fillMaxWidth()
+                            .heightIn(max = 250.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                     elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                 ) {
                     LazyColumn(modifier = Modifier.fillMaxWidth()) {
                         if (filteredChats.isEmpty()) {
                             item {
-                                Text("No chats found", modifier = Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(
+                                    "No chats found",
+                                    modifier = Modifier.padding(16.dp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
                             }
                         } else {
                             items(filteredChats.take(20)) { chat ->
                                 Text(
                                     text = "${chat.name} (${chat.network ?: "Unknown"})",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            selectedChat = chat
-                                            searchQuery = "${chat.name} (${chat.network ?: "Unknown"})"
-                                            expanded = false
-                                            focusManager.clearFocus()
-                                        }
-                                        .padding(16.dp),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                selectedChat = chat
+                                                searchQuery = "${chat.name} (${chat.network ?: "Unknown"})"
+                                                expanded = false
+                                                focusManager.clearFocus()
+                                            }.padding(16.dp),
                                     color = MaterialTheme.colorScheme.onSurface,
                                 )
                                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
@@ -197,10 +212,13 @@ private fun OutpostComposerView(chats: List<BeeperChat>) {
             value = messageText,
             onValueChange = { messageText = it },
             label = { Text("Message Body") },
-            modifier = Modifier.fillMaxWidth().height(150.dp)
-                .onFocusChanged { focusState ->
-                    if (focusState.isFocused) expanded = false
-                },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .onFocusChanged { focusState ->
+                        if (focusState.isFocused) expanded = false
+                    },
             singleLine = false,
         )
 
