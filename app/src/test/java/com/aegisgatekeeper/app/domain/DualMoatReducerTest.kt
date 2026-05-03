@@ -15,18 +15,18 @@ class DualMoatReducerTest {
         val newState = reduce(initialState, GatekeeperAction.LayerOmegaConnected)
 
         // Assert
-        assertThat(newState.isLayerOmegaActive).isTrue()
+        assertThat(newState.interception.isLayerOmegaActive).isTrue()
     }
 
     @Test
     fun `reduce LayerOmegaDisconnected sets state to false`() {
         // Arrange
-        val connectedState = initialState.copy(isLayerOmegaActive = true)
+        val connectedState = initialState.copy(interception = initialState.interception.copy(isLayerOmegaActive = true))
 
         // Act
         val newState = reduce(connectedState, GatekeeperAction.LayerOmegaDisconnected)
 
         // Assert
-        assertThat(newState.isLayerOmegaActive).isFalse()
+        assertThat(newState.interception.isLayerOmegaActive).isFalse()
     }
 }
