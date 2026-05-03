@@ -1,3 +1,4 @@
+@file:JvmName("SyncEffects_Deleted")
 package com.aegisgatekeeper.app.effects
 
 import android.util.Log

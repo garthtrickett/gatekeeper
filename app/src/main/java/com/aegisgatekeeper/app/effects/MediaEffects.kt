@@ -1,3 +1,4 @@
+@file:JvmName("MediaEffects_Deleted")
 package com.aegisgatekeeper.app.effects
 
 import android.content.Intent

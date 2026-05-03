@@ -1,3 +1,4 @@
+@file:JvmName("DatabaseEffects_Deleted")
 package com.aegisgatekeeper.app.effects
 
 import android.util.Log
