@@ -22,10 +22,11 @@ fun executeSyncAndAuthEffect(
             platformLog("Gatekeeper", "🌐 API: Requesting magic link for ${effect.email}")
         }
 
-                else -> {}
+                                else -> {}
     }
 }
 
+fun deletedHandleSyncAndAuthEffects(
     action: GatekeeperAction,
     newState: GatekeeperState,
     db: GatekeeperDatabase,

@@ -28,18 +28,7 @@ fun reduce(
     )
 }
 
-    state: GatekeeperState,
-    action: GatekeeperAction,
-): GatekeeperState {
-    if (action is GatekeeperAction.InitialStateLoaded) return action.state
-
-    return state.copy(
-        interception = reduceInterception(state.interception, action, state),
-        data = reduceData(state.data, action, state),
-        media = reduceMedia(state.media, action, state),
-        sync = reduceSyncAndIntegration(state.sync, action, state),
-    )
-}
+    
 
 private fun reduceInterception(
     slice: InterceptionState,
@@ -456,9 +445,10 @@ private fun reduceInterception(
             slice
         }
     }
-        return Update(newState, effects)
+                return Update(newState, effects)
 }
 
+fun deletedReduce2(
     slice: InterceptionState,
     action: GatekeeperAction,
     fullState: GatekeeperState,
@@ -1246,9 +1236,10 @@ private fun reduceData(
             slice
         }
     }
-        return Update(newState, effects)
+                return Update(newState, effects)
 }
 
+fun deletedReduce3(
     slice: DataState,
     action: GatekeeperAction,
     fullState: GatekeeperState,
@@ -1765,9 +1756,10 @@ private fun reduceMedia(
             slice
         }
     }
-        return Update(newState, effects)
+                return Update(newState, effects)
 }
 
+fun deletedReduce4(
     slice: MediaState,
     action: GatekeeperAction,
     fullState: GatekeeperState,
@@ -2053,9 +2045,10 @@ private fun reduceSyncAndIntegration(
             slice
         }
     }
-        return Update(newState, effects)
+                return Update(newState, effects)
 }
 
+fun deletedReduce5(
     slice: SyncAndIntegrationState,
     action: GatekeeperAction,
     fullState: GatekeeperState,

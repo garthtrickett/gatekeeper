@@ -27,9 +27,5 @@ import kotlinx.coroutines.launch
 
 object DeletedGatekeeperStateManager
 
-object DeletedGatekeeperStateManager2
-package com.aegisgatekeeper.app
 
-object DeletedGatekeeperStateManager
-object DeletedGatekeeperStateManager2
 

@@ -852,10 +852,11 @@ fun executeDatabaseEffect(
                 }
             }
         }
-                else -> {}
+                                else -> {}
     }
 }
 
+fun deletedHandleDatabaseEffects(
     action: GatekeeperAction,
     oldState: GatekeeperState,
     newState: GatekeeperState,
