@@ -25,7 +25,7 @@ fun executeSyncAndAuthEffect(
                 else -> {}
     }
 }
-private fun old_handleSyncAndAuthEffects(
+
     action: GatekeeperAction,
     newState: GatekeeperState,
     db: GatekeeperDatabase,

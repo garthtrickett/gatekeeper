@@ -152,7 +152,7 @@ suspend fun executeMediaAndSystemEffect(
                 else -> {}
     }
 }
-private fun old_handleMediaAndSystemEffects(
+
     action: GatekeeperAction,
     oldState: GatekeeperState,
     newState: GatekeeperState,

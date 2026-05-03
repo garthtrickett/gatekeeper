@@ -8,3 +8,8 @@ import kotlinx.coroutines.flow.asStateFlow
 object DeletedGatekeeperStateManager
 
 object DeletedGatekeeperStateManager2
+package com.aegisgatekeeper.app
+
+object DeletedGatekeeperStateManager
+object DeletedGatekeeperStateManager2
+

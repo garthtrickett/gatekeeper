@@ -34,7 +34,7 @@ suspend fun executeIntegrationEffect(
                 else -> {}
     }
 }
-private fun old_handleIntegrationEffects(
+
     action: GatekeeperAction,
     newState: GatekeeperState,
     dispatch: (GatekeeperAction) -> Unit,

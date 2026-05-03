@@ -67,7 +67,7 @@ object GatekeeperStateManager {
             }
         }
     }
-    private fun old_handleSideEffects(
+    
         action: GatekeeperAction,
         oldState: GatekeeperState,
         newState: GatekeeperState,
