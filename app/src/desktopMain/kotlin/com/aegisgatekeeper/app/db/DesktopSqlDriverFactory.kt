@@ -31,47 +31,25 @@ class DesktopSqlDriverFactory : SqlDriverFactory {
         val dataDir = File(dataDirPath).apply { mkdirs() }
         val dbFile = File(dataDir, "gatekeeper.db")
 
-                // Setup SQLite driver for the desktop JVM target
+        // Setup SQLite driver for the desktop JVM target
         var driver = JdbcSqliteDriver("jdbc:sqlite:${dbFile.absolutePath}")
-        try {
-            val currentVersion = GatekeeperDatabase.Schema.version
-            val userVersion = driver.executeQuery(null, "PRAGMA user_version;", mapper = { cursor ->
-                app.cash.sqldelight.db.QueryResult.Value(
-                    if (cursor.next().value) {
-                        cursor.getLong(0) ?: 0L
-                    } else {
-                        0L
-                    }
-                )
-            }, 0).value
 
-            if (userVersion == 0L) {
-                try {
-                    GatekeeperDatabase.Schema.create(driver)
-                    driver.execute(null, "PRAGMA user_version = $currentVersion;", 0)
-                } catch (e: Exception) {
-                    println("Gatekeeper: Error creating schema. Likely old DB. Wiping... ${e.message}")
-                    driver.close()
-                    dbFile.delete()
-                    driver = JdbcSqliteDriver("jdbc:sqlite:${dbFile.absolutePath}")
-                    GatekeeperDatabase.Schema.create(driver)
-                    driver.execute(null, "PRAGMA user_version = $currentVersion;", 0)
-                }
-            } else if (userVersion < currentVersion) {
-                try {
-                    GatekeeperDatabase.Schema.migrate(driver, userVersion, currentVersion)
-                    driver.execute(null, "PRAGMA user_version = $currentVersion;", 0)
-                } catch (e: Exception) {
-                    println("Gatekeeper: Migration failed. Wiping... ${e.message}")
-                    driver.close()
-                    dbFile.delete()
-                    driver = JdbcSqliteDriver("jdbc:sqlite:${dbFile.absolutePath}")
-                    GatekeeperDatabase.Schema.create(driver)
-                    driver.execute(null, "PRAGMA user_version = $currentVersion;", 0)
-                }
-            }
+        var isSchemaValid = false
+        try {
+            // Test if the schema is fully up-to-date
+            driver.executeQuery(null, "SELECT deepWorkStartMinutes FROM AppSettings LIMIT 1;", mapper = { cursor ->
+                app.cash.sqldelight.db.QueryResult.Value(Unit)
+            }, 0)
+            isSchemaValid = true
         } catch (e: Exception) {
-            println("Gatekeeper: DB Setup Error - ${e.message}")
+            println("Gatekeeper: Stale or missing schema detected (${e.message}). Recreating database...")
+        }
+
+        if (!isSchemaValid) {
+            driver.close()
+            dbFile.delete()
+            driver = JdbcSqliteDriver("jdbc:sqlite:${dbFile.absolutePath}")
+            GatekeeperDatabase.Schema.create(driver)
         }
 
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0)
