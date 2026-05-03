@@ -308,9 +308,9 @@ fun InterceptionChoiceUi(
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                     )
-                    Spacer(modifier = Modifier.height(32.dp))
+                                        Spacer(modifier = Modifier.height(32.dp))
 
-                    val activeGroups = state.appGroups.filter { it.apps.contains(interceptedPackage) }
+                    val activeGroups = state.interception.appGroups.filter { it.apps.contains(interceptedPackage) }
                     val checkInGroupRules =
                         activeGroups.mapNotNull { group ->
                             val rule =

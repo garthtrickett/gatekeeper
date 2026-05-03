@@ -16,8 +16,8 @@ fun deletedHandleDatabaseEffects(
     dispatch: (GatekeeperAction) -> Unit,
 ) {
     when (action) {
-        is GatekeeperAction.SaveToVault -> {
-            val newItem = (newState.vaultItems - oldState.vaultItems.toSet()).firstOrNull()
+                is GatekeeperAction.SaveToVault -> {
+            val newItem = (newState.data.vaultItems - oldState.data.vaultItems.toSet()).firstOrNull()
             newItem?.let {
                 Log.i("Gatekeeper", "DB: Inserting new VaultItem: ${it.id}")
                 db.vaultItemQueries.insert(
@@ -53,8 +53,8 @@ fun deletedHandleDatabaseEffects(
         is GatekeeperAction.RemovePodcastSubscription -> {
             Log.i("Gatekeeper", "DB: Deleting PodcastSubscription: ${action.id}")
             db.transaction {
-                db.podcastSubscriptionQueries.delete(action.id)
-                val itemsToDelete = oldState.contentItems.filter { it.podcastId == action.id }
+                                db.podcastSubscriptionQueries.delete(action.id)
+                val itemsToDelete = oldState.data.contentItems.filter { it.podcastId == action.id }
                 val slots = db.intentionalSlotQueries.selectAll().executeAsList()
                 itemsToDelete.forEach { item ->
                     db.contentItemQueries.delete(lastModified = action.currentTimestamp, id = item.id)
@@ -71,8 +71,8 @@ fun deletedHandleDatabaseEffects(
             Log.i("Gatekeeper", "DB: Podcast sync completed")
         }
 
-        is GatekeeperAction.SaveToContentBank -> {
-            val updatedOrNewItem = newState.contentItems.find { it.videoId == action.videoId && it.source == action.source }
+                is GatekeeperAction.SaveToContentBank -> {
+            val updatedOrNewItem = newState.data.contentItems.find { it.videoId == action.videoId && it.source == action.source }
             updatedOrNewItem?.let {
                 Log.i("Gatekeeper", "DB: Upserting ContentItem: ${it.title}")
                 db.contentItemQueries.insert(
@@ -109,7 +109,7 @@ fun deletedHandleDatabaseEffects(
                     is GatekeeperAction.DeleteDownloadedMedia -> action.id
                     else -> null
                 }
-            val item = newState.contentItems.find { it.id == actionId }
+                        val item = newState.data.contentItems.find { it.id == actionId }
             if (item != null) {
                 db.contentItemQueries.updateDownloadStatus(
                     downloadStatus = item.downloadStatus,
@@ -120,10 +120,10 @@ fun deletedHandleDatabaseEffects(
             }
         }
 
-        is GatekeeperAction.ReorderContentBank -> {
+                is GatekeeperAction.ReorderContentBank -> {
             Log.i("Gatekeeper", "DB: Reordering Content Bank")
             db.transaction {
-                newState.contentItems.forEach { item ->
+                newState.data.contentItems.forEach { item ->
                     db.contentItemQueries.updateRank(rank = item.rank, lastModified = action.currentTimestamp, id = item.id)
                 }
             }
@@ -185,7 +185,7 @@ fun deletedHandleDatabaseEffects(
                 db.podcastEpisodeQueries.deleteOldEpisodes(action.podcastId, 200)
             }
 
-            if (newState.activePodcastId == action.podcastId) {
+                        if (newState.media.activePodcastId == action.podcastId) {
                 val cached =
                     db.podcastEpisodeQueries.selectAllForPodcast(action.podcastId).executeAsList().map {
                         com.aegisgatekeeper.app.domain.CachedEpisode(
@@ -201,7 +201,7 @@ fun deletedHandleDatabaseEffects(
                 dispatch(GatekeeperAction.PodcastEpisodesLoaded(cached, action.podcastId))
             }
 
-            if (newState.latestGlobalEpisodes != null || newState.activePodcastId == null) {
+                        if (newState.media.latestGlobalEpisodes != null || newState.media.activePodcastId == null) {
                 dispatch(GatekeeperAction.LoadLatestGlobalEpisodes)
             }
         }
@@ -327,8 +327,8 @@ fun deletedHandleDatabaseEffects(
             db.blockingRuleQueries.deleteConsumedCheckInsForGroup(action.groupId)
         }
 
-        is GatekeeperAction.RedeemCheckInToken -> {
-            val log = (newState.consumedCheckIns - oldState.consumedCheckIns.toSet()).firstOrNull()
+                is GatekeeperAction.RedeemCheckInToken -> {
+            val log = (newState.data.consumedCheckIns - oldState.data.consumedCheckIns.toSet()).firstOrNull()
             if (log != null) {
                 db.blockingRuleQueries.insertConsumedCheckIn(log.id, log.groupId, log.timeMinutes.toLong(), log.timestamp)
             }
@@ -380,8 +380,8 @@ fun deletedHandleDatabaseEffects(
             db.notificationDigestQueries.deleteAll()
         }
 
-        is GatekeeperAction.NotificationIntercepted -> {
-            val newLog = (newState.notificationDigest - oldState.notificationDigest.toSet()).firstOrNull()
+                is GatekeeperAction.NotificationIntercepted -> {
+            val newLog = (newState.sync.notificationDigest - oldState.sync.notificationDigest.toSet()).firstOrNull()
             newLog?.let {
                 Log.i("Gatekeeper", "DB: Inserting new NotificationDigest: ${it.id}")
                 db.notificationDigestQueries.insert(
@@ -443,8 +443,8 @@ fun deletedHandleDatabaseEffects(
             dispatch(GatekeeperAction.ExportDataGenerated(markdown))
         }
 
-        is GatekeeperAction.LogSessionMetacognition -> {
-            val newLog = (newState.sessionLogs - oldState.sessionLogs.toSet()).firstOrNull()
+                is GatekeeperAction.LogSessionMetacognition -> {
+            val newLog = (newState.data.sessionLogs - oldState.data.sessionLogs.toSet()).firstOrNull()
             newLog?.let {
                 Log.i("Gatekeeper", "DB: Inserting new SessionLog: ${it.id}")
                 db.sessionLogQueries.insert(
@@ -484,13 +484,13 @@ fun deletedHandleDatabaseEffects(
             db.mediaPositionQueries.insert(action.mediaId, action.positionSeconds.toDouble())
         }
 
-        is GatekeeperAction.AddPinnedWebsite -> {
+                is GatekeeperAction.AddPinnedWebsite -> {
             Log.i("Gatekeeper", "DB: Adding pinned website ${action.label}")
             db.missionControlWebsiteQueries.insert(
                 id = action.id,
                 label = action.label,
                 url = action.url,
-                rank = newState.missionControlWebsites.size.toLong(),
+                rank = newState.data.missionControlWebsites.size.toLong(),
             )
         }
 
@@ -499,8 +499,8 @@ fun deletedHandleDatabaseEffects(
             db.missionControlWebsiteQueries.delete(id = action.id)
         }
 
-        is GatekeeperAction.AddAlternativeActivity -> {
-            val newActivity = (newState.alternativeActivities - oldState.alternativeActivities.toSet()).firstOrNull()
+                is GatekeeperAction.AddAlternativeActivity -> {
+            val newActivity = (newState.data.alternativeActivities - oldState.data.alternativeActivities.toSet()).firstOrNull()
             newActivity?.let {
                 Log.i("Gatekeeper", "DB: Inserting new AlternativeActivity: ${it.description}")
                 db.alternativeActivityQueries.insert(

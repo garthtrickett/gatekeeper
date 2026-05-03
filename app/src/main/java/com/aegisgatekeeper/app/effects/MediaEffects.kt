@@ -43,8 +43,8 @@ suspend fun deletedHandleMediaAndSystemEffects(
                 )
         }
 
-        is GatekeeperAction.DownloadMediaRequested -> {
-            val item = newState.contentItems.find { it.id == action.id }
+                is GatekeeperAction.DownloadMediaRequested -> {
+            val item = newState.data.contentItems.find { it.id == action.id }
             if (item != null) {
                 Log.d("Gatekeeper", "⬇️ Starting download for ${item.title}")
                 com.aegisgatekeeper.app.media.MediaDownloader
@@ -100,10 +100,10 @@ suspend fun deletedHandleMediaAndSystemEffects(
             result.fold(
                 ifLeft = { error ->
                     Log.e("Gatekeeper", "❌ Failed to load podcast episodes: $error")
-                    if (newState.activePodcastEpisodes == null) {
+                                        if (newState.media.activePodcastEpisodes == null) {
                         dispatch(GatekeeperAction.ClearPodcastEpisodes)
                     } else {
-                        dispatch(GatekeeperAction.PodcastEpisodesLoaded(newState.activePodcastEpisodes, action.podcastId))
+                        dispatch(GatekeeperAction.PodcastEpisodesLoaded(newState.media.activePodcastEpisodes!!, action.podcastId))
                     }
                 },
                 ifRight = { data ->
@@ -245,9 +245,9 @@ suspend fun deletedHandleMediaAndSystemEffects(
                 }
             }
 
-            Log.d("Gatekeeper", "⚙️ FrictionCompleted: Scheduling SessionExpired in ${action.allocatedDurationMillis}ms")
+                        Log.d("Gatekeeper", "⚙️ FrictionCompleted: Scheduling SessionExpired in ${action.allocatedDurationMillis}ms")
             delay(action.allocatedDurationMillis)
-            if (GatekeeperStateManager.state.value.activeForegroundApp == action.packageName) {
+            if (GatekeeperStateManager.state.value.interception.activeForegroundApp == action.packageName) {
                 dispatch(GatekeeperAction.SessionExpired(action.packageName, action.allocatedDurationMillis))
             }
         }
@@ -262,18 +262,18 @@ suspend fun deletedHandleMediaAndSystemEffects(
                 }
             }
 
-            Log.d("Gatekeeper", "⚙️ EmergencyBypassRequested: Scheduling SessionExpired in ${action.allocatedDurationMillis}ms")
+                        Log.d("Gatekeeper", "⚙️ EmergencyBypassRequested: Scheduling SessionExpired in ${action.allocatedDurationMillis}ms")
             delay(action.allocatedDurationMillis)
-            if (GatekeeperStateManager.state.value.activeForegroundApp == action.packageName) {
+            if (GatekeeperStateManager.state.value.interception.activeForegroundApp == action.packageName) {
                 dispatch(GatekeeperAction.SessionExpired(action.packageName, action.allocatedDurationMillis))
             }
         }
 
-        is GatekeeperAction.RedeemCheckInToken -> {
-            val group = newState.appGroups.find { it.id == action.groupId }
+                is GatekeeperAction.RedeemCheckInToken -> {
+            val group = newState.interception.appGroups.find { it.id == action.groupId }
             val apps = group?.apps ?: emptySet()
-            if (oldState.currentlyInterceptedApp in apps) {
-                val packageName = oldState.currentlyInterceptedApp!!
+            if (oldState.interception.currentlyInterceptedApp in apps) {
+                val packageName = oldState.interception.currentlyInterceptedApp!!
                 Log.d("Gatekeeper", "⚙️ RedeemCheckInToken: Relaunching app to ensure it wasn't killed")
                 if (!com.aegisgatekeeper.app.App.isRunningTest) {
                     val launchIntent = App.instance.packageManager.getLaunchIntentForPackage(packageName)
@@ -284,9 +284,9 @@ suspend fun deletedHandleMediaAndSystemEffects(
                 }
 
                 val durationMillis = action.durationMinutes * 60_000L
-                Log.d("Gatekeeper", "⚙️ RedeemCheckInToken: Scheduling SessionExpired in ${durationMillis}ms")
+                                Log.d("Gatekeeper", "⚙️ RedeemCheckInToken: Scheduling SessionExpired in ${durationMillis}ms")
                 delay(durationMillis)
-                if (GatekeeperStateManager.state.value.activeForegroundApp == packageName) {
+                if (GatekeeperStateManager.state.value.interception.activeForegroundApp == packageName) {
                     dispatch(GatekeeperAction.SessionExpired(packageName, durationMillis))
                 }
             }
