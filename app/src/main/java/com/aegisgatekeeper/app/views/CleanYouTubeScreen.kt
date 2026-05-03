@@ -69,10 +69,10 @@ class YouTubeSurgicalBridge {
 
 @Suppress("FunctionName")
 @Composable
-fun CleanYouTubeDialog(onDismiss: () -> Unit) {
+fun CleanYouTubeDialog(initialUrl: String = "", onDismiss: () -> Unit) {
     val state by GatekeeperStateManager.state.collectAsState()
     var query by remember { mutableStateOf("") }
-    var currentUrl by remember { mutableStateOf(state.initialSurgicalSearchUrl ?: "") }
+    var currentUrl by remember { mutableStateOf(initialUrl) }
 
     androidx.compose.ui.window.Dialog(
         onDismissRequest = onDismiss,

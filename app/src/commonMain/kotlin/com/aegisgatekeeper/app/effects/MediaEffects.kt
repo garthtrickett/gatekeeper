@@ -120,10 +120,18 @@ suspend fun handleMediaAndSystemEffects(
         is GatekeeperAction.ProcessSharedLink -> {
             platformLog("Gatekeeper", "Processing shared link: ${action.url}")
             val pattern = """(?<=youtu\.be/|watch\?v=|/shorts/)([a-zA-Z0-9_-]{11})""".toRegex()
-            val videoId = pattern.find(action.url)?.value
+                        val videoId = pattern.find(action.url)?.value
 
             if (videoId != null) {
-                dispatch(GatekeeperAction.ShowSurgicalSearch(action.url))
+                dispatch(
+                    GatekeeperAction.SaveToContentBank(
+                        videoId = videoId,
+                        title = action.providedTitle ?: "YouTube Video",
+                        source = com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE,
+                        type = com.aegisgatekeeper.app.domain.ContentType.VIDEO,
+                        currentTimestamp = action.currentTimestamp,
+                    ),
+                )
             } else if (action.url.contains("soundcloud.com", ignoreCase = true)) {
                 val metadataResult = effectHandler.fetchUrlMetadata(action.url, isSoundCloud = true, isGeneric = false)
                 val title = metadataResult.fold({ action.providedTitle ?: "SoundCloud Audio" }, { it.title })

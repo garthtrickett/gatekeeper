@@ -195,7 +195,7 @@ fun main() =
                                                 capturedAtTimestamp = it.capturedAtTimestamp,
                                                 durationSeconds = it.durationSeconds,
                                                 lastModified = it.lastModified,
-                                                                                                isSynced = true,
+                                                isSynced = true,
                                                 isDeleted = it.isDeleted,
                                             )
                                         }

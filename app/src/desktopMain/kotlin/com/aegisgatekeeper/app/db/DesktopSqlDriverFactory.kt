@@ -38,7 +38,8 @@ class DesktopSqlDriverFactory : SqlDriverFactory {
         try {
             // Test if the schema is fully up-to-date
             driver.executeQuery(null, "SELECT deepWorkStartMinutes FROM AppSettings LIMIT 1;", mapper = { cursor ->
-                app.cash.sqldelight.db.QueryResult.Value(Unit)
+                app.cash.sqldelight.db.QueryResult
+                    .Value(Unit)
             }, 0)
             isSchemaValid = true
         } catch (e: Exception) {

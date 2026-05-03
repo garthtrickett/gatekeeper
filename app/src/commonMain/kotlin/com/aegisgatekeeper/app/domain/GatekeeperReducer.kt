@@ -658,11 +658,7 @@ private fun reduceContentAndVault(
             )
         }
 
-        is GatekeeperAction.UpdateContentFilter -> {
-            state.copy(activeContentFilter = action.filter)
-        }
-
-        is GatekeeperAction.DownloadMediaRequested -> {
+                is GatekeeperAction.DownloadMediaRequested -> {
             state.copy(
                 contentItems =
                     state.contentItems.map {
@@ -729,16 +725,12 @@ private fun reduceContentAndVault(
             state.copy(savedMediaPositions = state.savedMediaPositions + (action.mediaId to action.positionSeconds))
         }
 
-        is GatekeeperAction.OpenCleanPlayer -> {
-            state.copy(activeVideoId = action.videoId, isPlayerModalVisible = true)
-        }
-
-        GatekeeperAction.MinimizeCleanPlayer -> {
-            state.copy(isPlayerModalVisible = false)
+                is GatekeeperAction.OpenCleanPlayer -> {
+            state.copy(activeVideoId = action.videoId)
         }
 
         GatekeeperAction.StopCleanPlayer -> {
-            state.copy(activeVideoId = null, isPlayerModalVisible = false)
+            state.copy(activeVideoId = null)
         }
 
         is GatekeeperAction.SaveIntentionalSlot -> {
@@ -751,28 +743,20 @@ private fun reduceContentAndVault(
             state.copy(intentionalSlots = state.intentionalSlots.filter { it.slotIndex != action.slotIndex })
         }
 
-        is GatekeeperAction.OpenCleanAudioPlayer -> {
-            state.copy(activeAudioUrl = action.url, isAudioPlayerModalVisible = true)
-        }
-
-        GatekeeperAction.MinimizeCleanAudioPlayer -> {
-            state.copy(isAudioPlayerModalVisible = false)
+                is GatekeeperAction.OpenCleanAudioPlayer -> {
+            state.copy(activeAudioUrl = action.url)
         }
 
         GatekeeperAction.StopCleanAudioPlayer -> {
-            state.copy(activeAudioUrl = null, isAudioPlayerModalVisible = false)
+            state.copy(activeAudioUrl = null)
         }
 
         is GatekeeperAction.OpenNativePlayer -> {
-            state.copy(activeNativeMediaItem = action.contentItem, isNativeAudioPlayerModalVisible = true)
-        }
-
-        GatekeeperAction.MinimizeNativePlayer -> {
-            state.copy(isNativeAudioPlayerModalVisible = false)
+            state.copy(activeNativeMediaItem = action.contentItem)
         }
 
         GatekeeperAction.CloseNativePlayer -> {
-            state.copy(activeNativeMediaItem = null, isNativeAudioPlayerModalVisible = false)
+            state.copy(activeNativeMediaItem = null)
         }
 
         is GatekeeperAction.SearchPodcastsRequested -> {
@@ -863,16 +847,8 @@ private fun reduceContentAndVault(
             )
         }
 
-        is GatekeeperAction.PodcastSyncFailed -> {
+                is GatekeeperAction.PodcastSyncFailed -> {
             state.copy(isSyncingPodcasts = false, podcastSyncError = action.error)
-        }
-
-        is GatekeeperAction.ShowSurgicalSearch -> {
-            state.copy(isSurgicalSearchVisible = true, initialSurgicalSearchUrl = action.url)
-        }
-
-        GatekeeperAction.HideSurgicalSearch -> {
-            state.copy(isSurgicalSearchVisible = false, initialSurgicalSearchUrl = null)
         }
 
         is GatekeeperAction.OpenSurgicalFacebook -> {

@@ -158,11 +158,7 @@ sealed interface GatekeeperAction {
         val currentTimestamp: Long,
     ) : GatekeeperAction
 
-    data class UpdateContentFilter(
-        val filter: ContentType?,
-    ) : GatekeeperAction
-
-    data class DownloadMediaRequested(
+        data class DownloadMediaRequested(
         val id: String,
     ) : GatekeeperAction
 
@@ -189,11 +185,9 @@ sealed interface GatekeeperAction {
         val positionSeconds: Float,
     ) : GatekeeperAction
 
-    data class OpenCleanPlayer(
+        data class OpenCleanPlayer(
         val videoId: String,
     ) : GatekeeperAction
-
-    object MinimizeCleanPlayer : GatekeeperAction
 
     object StopCleanPlayer : GatekeeperAction
 
@@ -206,19 +200,15 @@ sealed interface GatekeeperAction {
         val slotIndex: Int,
     ) : GatekeeperAction
 
-    data class OpenCleanAudioPlayer(
+        data class OpenCleanAudioPlayer(
         val url: String,
     ) : GatekeeperAction
-
-    object MinimizeCleanAudioPlayer : GatekeeperAction
 
     object StopCleanAudioPlayer : GatekeeperAction
 
     data class OpenNativePlayer(
         val contentItem: ContentItem,
     ) : GatekeeperAction
-
-    object MinimizeNativePlayer : GatekeeperAction
 
     object CloseNativePlayer : GatekeeperAction
 
@@ -416,13 +406,7 @@ sealed interface GatekeeperAction {
 
     object ClosePinnedWebsite : GatekeeperAction
 
-    data class ShowSurgicalSearch(
-        val url: String = "",
-    ) : GatekeeperAction
-
-    object HideSurgicalSearch : GatekeeperAction
-
-    data class PermissionsUpdated(
+        data class PermissionsUpdated(
         val hasOverlay: Boolean,
         val hasUsageAccess: Boolean,
         val hasAccessibility: Boolean,

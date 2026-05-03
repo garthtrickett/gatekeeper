@@ -64,11 +64,11 @@ class NativePlayerPersistenceTest {
         composeTestRule.setContent {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
-                if (state.activeNativeMediaItem != null) {
+                                if (state.activeNativeMediaItem != null) {
                     NativeAudioPlayerModal(
                         contentItem = state.activeNativeMediaItem!!,
-                        isVisible = state.isNativeAudioPlayerModalVisible,
-                        onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeNativePlayer) },
+                        isVisible = true,
+                        onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
                         onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
                     )
                 }

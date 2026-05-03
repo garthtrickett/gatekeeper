@@ -324,12 +324,7 @@ class GatekeeperReducerTest {
         assertThat(newState.contentItems.first().isDeleted).isTrue()
     }
 
-    @Test
-    fun testUpdateContentFilter_UpdatesState() {
-        val action = GatekeeperAction.UpdateContentFilter(ContentType.AUDIO)
-        val newState = reduce(initialState, action)
-        assertThat(newState.activeContentFilter).isEqualTo(ContentType.AUDIO)
-    }
+        // Test removed because UpdateContentFilter is now local UI state
 
     // --- Sync & Conflict Resolution Tests ---
 
@@ -542,7 +537,7 @@ class GatekeeperReducerTest {
         assertThat(newState.activeFacebookUrl).isNull()
     }
 
-    @Test
+        @Test
     fun testOpenCleanPlayer_setsActiveVideoId() {
         // Arrange
         val action = GatekeeperAction.OpenCleanPlayer("testVideoId")
@@ -738,7 +733,7 @@ class GatekeeperReducerTest {
         assertThat(newState).isEqualTo(initialState)
     }
 
-    @Test
+        @Test
     fun testOpenNativePlayer_SetsActiveNativeMediaItem() {
         val ep =
             ContentItem(
@@ -754,7 +749,6 @@ class GatekeeperReducerTest {
         val newState = reduce(initialState, action)
 
         assertThat(newState.activeNativeMediaItem).isEqualTo(ep)
-        assertThat(newState.isNativeAudioPlayerModalVisible).isTrue()
     }
 
     @Test
@@ -769,33 +763,14 @@ class GatekeeperReducerTest {
                 rank = 0,
                 capturedAtTimestamp = 0,
             )
-        val activeState = initialState.copy(activeNativeMediaItem = ep, isNativeAudioPlayerModalVisible = true)
+        val activeState = initialState.copy(activeNativeMediaItem = ep)
         val action = GatekeeperAction.CloseNativePlayer
         val newState = reduce(activeState, action)
 
         assertThat(newState.activeNativeMediaItem).isNull()
-        assertThat(newState.isNativeAudioPlayerModalVisible).isFalse()
     }
 
-    @Test
-    fun testMinimizeNativePlayer_HidesModalButKeepsItem() {
-        val ep =
-            ContentItem(
-                id = "ep1",
-                videoId = "v1",
-                title = "T1",
-                source = ContentSource.GENERIC,
-                type = ContentType.AUDIO,
-                rank = 0,
-                capturedAtTimestamp = 0,
-            )
-        val activeState = initialState.copy(activeNativeMediaItem = ep, isNativeAudioPlayerModalVisible = true)
-        val action = GatekeeperAction.MinimizeNativePlayer
-        val newState = reduce(activeState, action)
-
-        assertThat(newState.activeNativeMediaItem).isEqualTo(ep)
-        assertThat(newState.isNativeAudioPlayerModalVisible).isFalse()
-    }
+        // Minimize actions removed (now local UI state)
 
     // --- Intentional Content Reducer Tests ---
 
@@ -861,27 +836,17 @@ class GatekeeperReducerTest {
         assertThat(state2.intentionalSlots).isEmpty()
     }
 
-    @Test
+        @Test
     fun testOpenCleanAudioPlayer_SetsActiveAudioUrl() {
         val newState = reduce(initialState, GatekeeperAction.OpenCleanAudioPlayer("https://soundcloud.com/test"))
         assertThat(newState.activeAudioUrl).isEqualTo("https://soundcloud.com/test")
-        assertThat(newState.isAudioPlayerModalVisible).isTrue()
-    }
-
-    @Test
-    fun testMinimizeCleanAudioPlayer_HidesModalButKeepsUrl() {
-        val activeState = initialState.copy(activeAudioUrl = "https://soundcloud.com/test", isAudioPlayerModalVisible = true)
-        val newState = reduce(activeState, GatekeeperAction.MinimizeCleanAudioPlayer)
-        assertThat(newState.activeAudioUrl).isEqualTo("https://soundcloud.com/test")
-        assertThat(newState.isAudioPlayerModalVisible).isFalse()
     }
 
     @Test
     fun testStopCleanAudioPlayer_ClearsActiveAudioUrl() {
-        val activeState = initialState.copy(activeAudioUrl = "https://soundcloud.com/test", isAudioPlayerModalVisible = true)
+        val activeState = initialState.copy(activeAudioUrl = "https://soundcloud.com/test")
         val newState = reduce(activeState, GatekeeperAction.StopCleanAudioPlayer)
         assertThat(newState.activeAudioUrl).isNull()
-        assertThat(newState.isAudioPlayerModalVisible).isFalse()
     }
 
     // --- Unified Policy & Check-In Reducer Tests ---

@@ -136,11 +136,11 @@ class VaultReviewUiTest {
         composeTestRule.onAllNodesWithText("🎬 YouTube")[0].performClick()
         composeTestRule.waitForIdle()
 
-        // Assert: Verify state triggered the Surgical Search
+                // Assert: Verify state triggered the Web navigation
         val state = GatekeeperStateManager.state.value
         com.google.common.truth.Truth
-            .assertThat(state.isSurgicalSearchVisible)
-            .isTrue()
+            .assertThat(state.currentSurgicalUrl)
+            .contains("m.youtube.com")
 
         // Assert: Item should be resolved
         val item = state.vaultItems.find { it.query == query }

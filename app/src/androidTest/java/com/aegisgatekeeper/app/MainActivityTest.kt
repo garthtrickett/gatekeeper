@@ -79,10 +79,9 @@ class MainActivityTest {
                 putExtra("OPEN_NATIVE_AUDIO_ID", savedItem.id)
             }
 
-        ActivityScenario.launch<MainActivity>(intent).use {
+                ActivityScenario.launch<MainActivity>(intent).use {
             val currentState = GatekeeperStateManager.state.value
             assertThat(currentState.activeNativeMediaItem?.id).isEqualTo(savedItem.id)
-            assertThat(currentState.isNativeAudioPlayerModalVisible).isTrue()
         }
     }
 
@@ -99,11 +98,10 @@ class MainActivityTest {
                 capturedAtTimestamp = 0L,
             )
 
-        GatekeeperStateManager.dispatch(
+                GatekeeperStateManager.dispatch(
             com.aegisgatekeeper.app.domain.GatekeeperAction
                 .OpenNativePlayer(item),
         )
-        GatekeeperStateManager.dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.MinimizeNativePlayer)
 
         val intent =
             Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java).apply {
@@ -112,7 +110,6 @@ class MainActivityTest {
 
         ActivityScenario.launch<MainActivity>(intent).use {
             val currentState = GatekeeperStateManager.state.value
-            assertThat(currentState.isNativeAudioPlayerModalVisible).isTrue()
             assertThat(currentState.activeNativeMediaItem?.id).isEqualTo(item.id)
         }
     }

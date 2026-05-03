@@ -45,9 +45,8 @@ data class DeletedGatekeeperState(
     val activePodcastEpisodes: List<CachedEpisode>? = null,
     val activePodcastId: String? = null,
     val isLoadingEpisodes: Boolean = false,
-    val latestGlobalEpisodes: List<UnifiedEpisode>? = null,
+        val latestGlobalEpisodes: List<UnifiedEpisode>? = null,
     val isLoadingGlobalEpisodes: Boolean = false,
-    val activeContentFilter: ContentType? = null,
     val activeDownloads: Map<String, Float> = emptyMap(),
     val sessionLogs: List<SessionLog> = emptyList(),
     val intentionalSlots: List<IntentionalSlotItem> = emptyList(),
@@ -63,19 +62,14 @@ data class DeletedGatekeeperState(
     // --- Outpost Messaging State ---
     val beeperChats: List<BeeperChat> = emptyList(),
     val scheduledMessages: List<ScheduledMessage> = emptyList(),
-    val isSyncingBeeper: Boolean = false,
+        val isSyncingBeeper: Boolean = false,
     // --- Clean Room Media Engine State ---
-    val isPlayerModalVisible: Boolean = false,
-    val isAudioPlayerModalVisible: Boolean = false,
-    val isNativeAudioPlayerModalVisible: Boolean = false,
     val activeNativeMediaItem: ContentItem? = null,
     // --- Surgical Web Engine State ---
     val isWebEngineReady: Boolean = false,
     val currentSurgicalUrl: String? = null,
     val activeFacebookUrl: String? = null,
     val activePinnedWebsiteUrl: String? = null,
-    val isSurgicalSearchVisible: Boolean = false,
-    val initialSurgicalSearchUrl: String? = null,
     val syncServerUrl: String = BuildConfig.SYNC_SERVER_URL,
     // --- Permissions State (Dual-Moat Onboarding) ---
     val hasOverlayPermission: Boolean = false,

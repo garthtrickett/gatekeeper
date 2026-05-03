@@ -370,29 +370,35 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        if (state.activeVideoId != null) {
+                                                val activeVideoId = state.activeVideoId
+                        if (activeVideoId != null) {
+                            var isPlayerModalVisible by remember(activeVideoId) { mutableStateOf(true) }
                             com.aegisgatekeeper.app.views.CleanPlayerModal(
-                                videoId = state.activeVideoId!!,
-                                isVisible = state.isPlayerModalVisible,
-                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },
+                                videoId = activeVideoId,
+                                isVisible = isPlayerModalVisible,
+                                onMinimize = { isPlayerModalVisible = false },
                                 onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) },
                             )
                         }
 
-                        if (state.activeAudioUrl != null) {
+                        val activeAudioUrl = state.activeAudioUrl
+                        if (activeAudioUrl != null) {
+                            var isAudioPlayerModalVisible by remember(activeAudioUrl) { mutableStateOf(true) }
                             com.aegisgatekeeper.app.views.CleanAudioPlayerModal(
-                                url = state.activeAudioUrl!!,
-                                isVisible = state.isAudioPlayerModalVisible,
-                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanAudioPlayer) },
+                                url = activeAudioUrl,
+                                isVisible = isAudioPlayerModalVisible,
+                                onMinimize = { isAudioPlayerModalVisible = false },
                                 onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
                             )
                         }
 
-                        if (state.activeNativeMediaItem != null) {
+                        val activeNativeMediaItem = state.activeNativeMediaItem
+                        if (activeNativeMediaItem != null) {
+                            var isNativeAudioPlayerModalVisible by remember(activeNativeMediaItem) { mutableStateOf(true) }
                             com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
-                                contentItem = state.activeNativeMediaItem!!,
-                                isVisible = state.isNativeAudioPlayerModalVisible,
-                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeNativePlayer) },
+                                contentItem = activeNativeMediaItem,
+                                isVisible = isNativeAudioPlayerModalVisible,
+                                onMinimize = { isNativeAudioPlayerModalVisible = false },
                                 onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
                             )
                         }
@@ -411,16 +417,10 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        if (state.pendingMetacognition != null) {
+                                                if (state.pendingMetacognition != null) {
                             com.aegisgatekeeper.app.views.MetacognitionDialog(
                                 request = state.pendingMetacognition!!,
                                 onDismiss = { GatekeeperStateManager.dispatch(GatekeeperAction.ClearMetacognition) },
-                            )
-                        }
-
-                        if (state.isSurgicalSearchVisible) {
-                            com.aegisgatekeeper.app.views.CleanYouTubeDialog(
-                                onDismiss = { GatekeeperStateManager.dispatch(GatekeeperAction.HideSurgicalSearch) },
                             )
                         }
                     }

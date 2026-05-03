@@ -304,17 +304,18 @@ class ContentBankUiTest {
         // 4. Click Add
         composeTestRule.onNodeWithText("Add Intent").performClick()
 
-        // 5. Verify dialog is dismissed and surgical search is triggered
+                // 5. Verify dialog is dismissed and content item is queued via ProcessSharedLink
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Add to Bank").assertDoesNotExist()
 
+        // Wait for coroutine to process metadata
+        Thread.sleep(1000)
+
         val state = GatekeeperStateManager.state.value
+        val item = state.contentItems.find { it.videoId == testUrl }
         com.google.common.truth.Truth
-            .assertThat(state.isSurgicalSearchVisible)
-            .isTrue()
-        com.google.common.truth.Truth
-            .assertThat(state.initialSurgicalSearchUrl)
-            .isEqualTo(testUrl)
+            .assertThat(item)
+            .isNotNull()
     }
 
     @Test
@@ -335,11 +336,11 @@ class ContentBankUiTest {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
                 ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
-                if (state.activeAudioUrl != null) {
+                                if (state.activeAudioUrl != null) {
                     com.aegisgatekeeper.app.views.CleanAudioPlayerModal(
                         url = state.activeAudioUrl!!,
-                        isVisible = state.isAudioPlayerModalVisible,
-                        onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanAudioPlayer) },
+                        isVisible = true,
+                        onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
                         onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
                     )
                 }
@@ -379,11 +380,11 @@ class ContentBankUiTest {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
                 ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
-                if (state.activeNativeMediaItem != null) {
+                                if (state.activeNativeMediaItem != null) {
                     com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
                         contentItem = state.activeNativeMediaItem!!,
-                        isVisible = state.isNativeAudioPlayerModalVisible,
-                        onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeNativePlayer) },
+                        isVisible = true,
+                        onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
                         onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
                     )
                 }

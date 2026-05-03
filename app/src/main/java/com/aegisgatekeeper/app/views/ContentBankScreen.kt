@@ -69,11 +69,12 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
         return
     }
 
+        var activeContentFilter by remember { mutableStateOf<ContentType?>(null) }
     var searchQuery by remember { mutableStateOf("") }
 
     val items =
         state.contentItems
-            .filter { (state.activeContentFilter == null || it.type == state.activeContentFilter) && !it.isDeleted }
+            .filter { (activeContentFilter == null || it.type == activeContentFilter) && !it.isDeleted }
             .filter {
                 it.title.contains(searchQuery, ignoreCase = true) ||
                     (it.channelName?.contains(searchQuery, ignoreCase = true) == true)
@@ -93,8 +94,9 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
     var isEditingUnlocked by remember { mutableStateOf(false) }
     var showFriction by remember { mutableStateOf(false) }
     var pendingFilterAction by remember { mutableStateOf<(() -> Unit)?>(null) }
-    var showAddDialog by remember { mutableStateOf(false) }
+        var showAddDialog by remember { mutableStateOf(false) }
     var showFeedManagement by remember { mutableStateOf(false) }
+    var showYouTubeSearch by remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -124,13 +126,13 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     if (searchQuery.isNotEmpty()) {
                         IndustrialButton(onClick = { searchQuery = "" }, text = "Clear")
                     }
-                    IndustrialButton(onClick = { showFeedManagement = true }, text = "Podcasts")
-                    IndustrialButton(onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.ShowSurgicalSearch()) }, text = "YouTube")
+                                        IndustrialButton(onClick = { showFeedManagement = true }, text = "Podcasts")
+                    IndustrialButton(onClick = { showYouTubeSearch = true }, text = "YouTube")
                 }
 
-                // Filtering Chips
+                                // Filtering Chips
                 Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    val activeFilter = state.activeContentFilter
+                    val activeFilter = activeContentFilter
                     val filters =
                         listOf(
                             null,
@@ -141,10 +143,10 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     val labels = listOf("All", "Video", "Audio", "Read")
 
                     filters.forEachIndexed { index, type ->
-                        FilterChip(
+                                                FilterChip(
                             selected = activeFilter == type,
                             onClick = {
-                                val action = { GatekeeperStateManager.dispatch(GatekeeperAction.UpdateContentFilter(type)) }
+                                val action = { activeContentFilter = type }
                                 if (isDeepWork && !isEditingUnlocked && activeFilter != type) {
                                     pendingFilterAction = action
                                     showFriction = true
@@ -336,8 +338,12 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
             )
         }
 
-        if (showFeedManagement) {
+                if (showFeedManagement) {
             FeedManagementDialog(onDismiss = { showFeedManagement = false })
+        }
+
+        if (showYouTubeSearch) {
+            CleanYouTubeDialog(onDismiss = { showYouTubeSearch = false })
         }
     }
 }

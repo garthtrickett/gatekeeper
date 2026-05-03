@@ -186,13 +186,14 @@ private fun VaultItemCard(
                     },
                     text = "🌐 Web",
                 )
-                IndustrialButton(
+                                IndustrialButton(
                     onClick = {
                         GatekeeperStateManager.dispatch(GatekeeperAction.MarkVaultItemResolved(item.id, System.currentTimeMillis()))
                         val encoded = java.net.URLEncoder.encode(item.query, "UTF-8")
                         GatekeeperStateManager.dispatch(
-                            GatekeeperAction.ShowSurgicalSearch("https://m.youtube.com/results?search_query=$encoded"),
+                            GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/results?search_query=$encoded"),
                         )
+                        onNavigateToWeb()
                     },
                     text = "🎬 YouTube",
                 )
