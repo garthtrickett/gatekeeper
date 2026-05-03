@@ -852,9 +852,10 @@ fun executeDatabaseEffect(
                 }
             }
         }
-        else -> {}
+                else -> {}
     }
 }
+private fun old_handleDatabaseEffects(
     action: GatekeeperAction,
     oldState: GatekeeperState,
     newState: GatekeeperState,

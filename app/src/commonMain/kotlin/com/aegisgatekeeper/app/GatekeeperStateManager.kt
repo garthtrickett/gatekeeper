@@ -61,12 +61,13 @@ object GatekeeperStateManager {
                 executeSyncAndAuthEffect(effect)
                 executeMediaAndSystemEffect(effect, ::dispatch, effectHandler)
                 executeIntegrationEffect(effect, ::dispatch, effectHandler)
-                if (effect is GatekeeperEffect.EmitAction) {
+                                if (effect is GatekeeperEffect.EmitAction) {
                     dispatch(effect.action)
                 }
             }
         }
     }
+    private fun old_handleSideEffects(
         action: GatekeeperAction,
         oldState: GatekeeperState,
         newState: GatekeeperState,

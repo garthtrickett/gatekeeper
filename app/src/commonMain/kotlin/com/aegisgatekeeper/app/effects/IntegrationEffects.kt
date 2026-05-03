@@ -31,9 +31,10 @@ suspend fun executeIntegrationEffect(
             effectHandler.scheduleBeeperMessage(effect.message, effect.delayMillis)
         }
 
-        else -> {}
+                else -> {}
     }
 }
+private fun old_handleIntegrationEffects(
     action: GatekeeperAction,
     newState: GatekeeperState,
     dispatch: (GatekeeperAction) -> Unit,

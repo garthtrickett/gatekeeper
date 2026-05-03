@@ -24,9 +24,10 @@ fun reduce(
             media = media,
             sync = sync,
         ),
-        effects = effects
+                effects = effects
     )
 }
+private fun old_reduce(
     state: GatekeeperState,
     action: GatekeeperAction,
 ): GatekeeperState {
@@ -455,8 +456,9 @@ private fun reduceInterception(
             slice
         }
     }
-    return Update(newState, effects)
+        return Update(newState, effects)
 }
+private fun old_reduceInterception(
     slice: InterceptionState,
     action: GatekeeperAction,
     fullState: GatekeeperState,
@@ -1244,8 +1246,9 @@ private fun reduceData(
             slice
         }
     }
-    return Update(newState, effects)
+        return Update(newState, effects)
 }
+private fun old_reduceData(
     slice: DataState,
     action: GatekeeperAction,
     fullState: GatekeeperState,
@@ -1762,8 +1765,9 @@ private fun reduceMedia(
             slice
         }
     }
-    return Update(newState, effects)
+        return Update(newState, effects)
 }
+private fun old_reduceMedia(
     slice: MediaState,
     action: GatekeeperAction,
     fullState: GatekeeperState,
@@ -2049,8 +2053,9 @@ private fun reduceSyncAndIntegration(
             slice
         }
     }
-    return Update(newState, effects)
+        return Update(newState, effects)
 }
+private fun old_reduceSync(
     slice: SyncAndIntegrationState,
     action: GatekeeperAction,
     fullState: GatekeeperState,
