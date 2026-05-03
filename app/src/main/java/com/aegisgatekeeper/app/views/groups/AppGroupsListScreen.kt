@@ -84,7 +84,7 @@ fun AppGroupsListScreen(
                                     Color(
                                         0xFF93000A,
                                     )
-                                                                } else {
+                                } else {
                                     MaterialTheme.colorScheme.surfaceVariant
                                 },
                             contentColor =
