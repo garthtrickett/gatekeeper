@@ -195,10 +195,21 @@ fun main() =
                                                 capturedAtTimestamp = it.capturedAtTimestamp,
                                                 durationSeconds = it.durationSeconds,
                                                 lastModified = it.lastModified,
-                                                isSynced = true,
+                                                                                                isSynced = true,
                                                 isDeleted = it.isDeleted,
                                             )
                                         }
+
+                                    if (newVaults.isNotEmpty()) {
+                                        println("Desktop received synced Vault Item!")
+                                        if (newVaults.any { it.isResolved }) {
+                                            println("Desktop received RESOLVED Vault Item!")
+                                        }
+                                    }
+                                    if (newContents.isNotEmpty()) {
+                                        println("Desktop received synced Content Item!")
+                                    }
+
                                     GatekeeperStateManager.dispatch(
                                         com.aegisgatekeeper.app.domain.GatekeeperAction
                                             .RemoteSyncCompleted(newVaults, newContents),
