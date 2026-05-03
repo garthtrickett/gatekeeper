@@ -34,6 +34,23 @@ Before generating an edit, ask yourself these questions in order:
     }
    6. If repairing a file that contains malformed syntax (e.g., mismatched brackets/braces from a previous bad edit), do not use entity replacement strategies (replace_class, replace_function, etc.). Always fall back to smart_replace to fix syntax errors."
    7. Best Practice for smart_replace search blocks: Keep the search string as MINIMAL as possible. Use just 1 or 2 lines that uniquely identify the location. Do not copy-paste large chunks of code into the search block, especially when fixing malformed syntax, as invisible formatting differences will cause the match to fail.
+8. Ban Multi-Step File Commenting
+
+        🚨 NEVER attempt to comment out an entire file by using two separate smart_replace blocks to insert /* at the top and */ at the bottom. The bottom match is highly likely to fail due to unpredictable end-of-file whitespace.
+
+        Instead: If you need to neutralize a file (like a _Deleted file), use replace_class, replace_object, or replace_function to individually replace the entities with empty bodies {}. Or just tell me which files to delete in a seperate code block not the json output with rm commands
+
+9. Strict Limits on Search Blocks
+
+        Keep search blocks hyper-focused (1 to 3 lines). The more lines you include, the higher the chance of a hidden formatting mismatch.
+
+        Avoid erratic indentation: If a line in the snapshot has unusual or broken indentation, do not include it in your search block. Choose adjacent, predictably-formatted lines to anchor your search instead.
+
+        Never match EOF: Do not use smart_replace to match the final closing brace } of a file. Invisible trailing newlines will almost always cause the regex/matcher to fail.
+
+9. Handling Top-Level Functions
+
+        If a legacy file contains multiple top-level functions alongside classes/objects, you must target them individually with replace_function (e.g., fun reduce_Deleted(...) { return state }) rather than trying to perform a massive smart_replace deletion.
 
     ```
 

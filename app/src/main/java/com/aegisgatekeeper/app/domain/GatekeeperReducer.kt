@@ -10,14 +10,9 @@ fun reduce_Deleted(
     state: GatekeeperState,
     action: GatekeeperAction,
 ): GatekeeperState {
-    return state
-}
-    state: GatekeeperState,
-    action: GatekeeperAction,
-): GatekeeperState {
-    var newState = reduceRulesAndIntercepts(state, action)
-    newState = reduceContentAndVault(newState, action)
-    newState = reduceSyncAndAuth(newState, action)
+    var newState = reduceRulesAndIntercepts_Deleted(state, action)
+    newState = reduceContentAndVault_Deleted(newState, action)
+    newState = reduceSyncAndAuth_Deleted(newState, action)
     return newState
 }
 

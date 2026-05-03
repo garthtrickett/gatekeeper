@@ -12,12 +12,6 @@ fun handleDatabaseEffects_Deleted(
     newState: GatekeeperState,
     db: GatekeeperDatabase,
     dispatch: (GatekeeperAction) -> Unit,
-) {}
-    action: GatekeeperAction,
-    oldState: GatekeeperState,
-    newState: GatekeeperState,
-    db: GatekeeperDatabase,
-    dispatch: (GatekeeperAction) -> Unit,
 ) {
     when (action) {
         is GatekeeperAction.SaveToVault -> {

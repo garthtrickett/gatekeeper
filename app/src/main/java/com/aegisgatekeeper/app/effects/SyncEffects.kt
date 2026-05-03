@@ -10,10 +10,6 @@ fun handleSyncAndAuthEffects_Deleted(
     action: GatekeeperAction,
     newState: GatekeeperState,
     db: GatekeeperDatabase,
-) {}
-    action: GatekeeperAction,
-    newState: GatekeeperState,
-    db: GatekeeperDatabase,
 ) {
     when (action) {
         is GatekeeperAction.LoginSuccess -> {
