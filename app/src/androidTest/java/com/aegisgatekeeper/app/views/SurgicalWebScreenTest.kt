@@ -83,10 +83,10 @@ class SurgicalWebScreenTest {
         composeTestRule.onNodeWithText("Go").performClick()
         composeTestRule.waitForIdle()
 
-        // Assert: The StateManager should leave the http:// scheme intact
+                // Assert: The StateManager should leave the http:// scheme intact
         val currentState = GatekeeperStateManager.state.value
         com.google.common.truth.Truth
-            .assertThat(currentState.currentSurgicalUrl)
+            .assertThat(currentState.media.currentSurgicalUrl)
             .isEqualTo("http://insecure-site.com")
     }
 }

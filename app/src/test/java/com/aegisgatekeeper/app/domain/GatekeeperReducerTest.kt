@@ -14,122 +14,105 @@ class GatekeeperReducerTest {
 
     private val initialState =
         GatekeeperState(
-            appGroups = listOf(AppGroup(id = "group1", name = "Test", apps = setOf(blacklistedApp), combinator = RuleCombinator.ANY)),
+            interception = InterceptionState(
+                appGroups = listOf(AppGroup(id = "group1", name = "Test", apps = setOf(blacklistedApp), combinator = RuleCombinator.ANY))
+            )
         )
 
     @Test
     fun testRuleViolationDetected_NoWhitelist_TriggersOverlay() {
-        // Arrange: The app is blacklisted and has no active whitelist.
         val action = GatekeeperAction.RuleViolationDetected(blacklistedApp, "Limit Reached", 1000L)
-
-        // Act: We run the reducer.
         val newState = reduce(initialState, action)
-
-        // Assert: The overlay should now be active for the intercepted app.
-        assertThat(newState.isOverlayActive).isTrue()
-        assertThat(newState.currentlyInterceptedApp).isEqualTo(blacklistedApp)
-        assertThat(newState.activeBlockReason).isEqualTo("Limit Reached")
+        assertThat(newState.interception.isOverlayActive).isTrue()
+        assertThat(newState.interception.currentlyInterceptedApp).isEqualTo(blacklistedApp)
+        assertThat(newState.interception.activeBlockReason).isEqualTo("Limit Reached")
     }
 
     @Test
     fun testAppBroughtToForeground_NotBlacklisted_DoesNothing() {
-        // Arrange: The app is not on our blacklist.
         val action = GatekeeperAction.AppBroughtToForeground(whitelistedApp, 1000L)
-
-        // Act
         val newState = reduce(initialState, action)
-
-        // Assert: The state should be completely unchanged, except for tracking the active app.
-        assertThat(newState).isEqualTo(initialState.copy(activeForegroundApp = whitelistedApp))
+        assertThat(newState).isEqualTo(initialState.copy(interception = initialState.interception.copy(activeForegroundApp = whitelistedApp)))
     }
 
     @Test
     fun testRuleViolationDetected_Whitelisted_DoesNothing() {
-        // Arrange: The app is blacklisted, but has a valid whitelist.
         val stateWithWhitelist =
             initialState.copy(
-                activeWhitelists =
-                    mapOf(
-                        blacklistedApp to
-                            TemporaryWhitelist(
-                                packageName = blacklistedApp,
-                                reason = "Test",
-                                grantedAtTimestamp = 500L,
-                                expiresAtTimestamp = 1500L, // Expires in the future
-                                allocatedDurationMillis = 300_000L,
-                            ),
-                    ),
+                interception = initialState.interception.copy(
+                    activeWhitelists =
+                        mapOf(
+                            blacklistedApp to
+                                TemporaryWhitelist(
+                                    packageName = blacklistedApp,
+                                    reason = "Test",
+                                    grantedAtTimestamp = 500L,
+                                    expiresAtTimestamp = 1500L,
+                                    allocatedDurationMillis = 300_000L,
+                                ),
+                        )
+                )
             )
         val action = GatekeeperAction.RuleViolationDetected(blacklistedApp, "Limit Reached", 1000L)
-
-        // Act
         val newState = reduce(stateWithWhitelist, action)
-
-        // Assert: The state is unchanged; the user is allowed through.
-        assertThat(newState).isEqualTo(stateWithWhitelist.copy(activeForegroundApp = blacklistedApp))
+        assertThat(newState).isEqualTo(stateWithWhitelist.copy(interception = stateWithWhitelist.interception.copy(activeForegroundApp = blacklistedApp)))
     }
 
     @Test
     fun testRuleViolationDetected_ExpiredWhitelist_TriggersOverlay() {
-        // Arrange: The whitelist's expiry timestamp is in the past.
         val stateWithExpiredWhitelist =
             initialState.copy(
-                activeWhitelists =
-                    mapOf(
-                        blacklistedApp to
-                            TemporaryWhitelist(
-                                packageName = blacklistedApp,
-                                reason = "Test",
-                                grantedAtTimestamp = 100L,
-                                expiresAtTimestamp = 500L, // Expired
-                                allocatedDurationMillis = 300_000L,
-                            ),
-                    ),
+                interception = initialState.interception.copy(
+                    activeWhitelists =
+                        mapOf(
+                            blacklistedApp to
+                                TemporaryWhitelist(
+                                    packageName = blacklistedApp,
+                                    reason = "Test",
+                                    grantedAtTimestamp = 100L,
+                                    expiresAtTimestamp = 500L,
+                                    allocatedDurationMillis = 300_000L,
+                                ),
+                        )
+                )
             )
         val action = GatekeeperAction.RuleViolationDetected(blacklistedApp, "Limit Reached", 1000L)
-
-        // Act
         val newState = reduce(stateWithExpiredWhitelist, action)
-
-        // Assert: The overlay is triggered because the whitelist is no longer valid.
-        assertThat(newState.isOverlayActive).isTrue()
-        assertThat(newState.currentlyInterceptedApp).isEqualTo(blacklistedApp)
-        // Must capture the duration to show the Swap UI
-        assertThat(newState.expiredSessionDurationMillis).isEqualTo(300_000L)
-        assertThat(newState.activeBlockReason).isEqualTo("Limit Reached")
+        assertThat(newState.interception.isOverlayActive).isTrue()
+        assertThat(newState.interception.currentlyInterceptedApp).isEqualTo(blacklistedApp)
+        assertThat(newState.interception.expiredSessionDurationMillis).isEqualTo(300_000L)
+        assertThat(newState.interception.activeBlockReason).isEqualTo("Limit Reached")
     }
 
     @Test
     fun testSessionExpired_TriggersOverlayAndSetsExpiredDuration() {
-        // Arrange: A session is currently active.
         val activeState =
             initialState.copy(
-                activeWhitelists =
-                    mapOf(
-                        blacklistedApp to TemporaryWhitelist(blacklistedApp, null, 0L, 1000L, 600_000L),
-                    ),
+                interception = initialState.interception.copy(
+                    activeWhitelists =
+                        mapOf(
+                            blacklistedApp to TemporaryWhitelist(blacklistedApp, null, 0L, 1000L, 600_000L),
+                        )
+                )
             )
-
-        // Act: The foreground service triggers an expiration
         val action = GatekeeperAction.SessionExpired(blacklistedApp, 600_000L)
         val newState = reduce(activeState, action)
-
-        // Assert
-        assertThat(newState.isOverlayActive).isTrue()
-        assertThat(newState.currentlyInterceptedApp).isEqualTo(blacklistedApp)
-        assertThat(newState.expiredSessionDurationMillis).isEqualTo(600_000L)
-        assertThat(newState.activeWhitelists).isEmpty() // Whitelist is stripped
+        assertThat(newState.interception.isOverlayActive).isTrue()
+        assertThat(newState.interception.currentlyInterceptedApp).isEqualTo(blacklistedApp)
+        assertThat(newState.interception.expiredSessionDurationMillis).isEqualTo(600_000L)
+        assertThat(newState.interception.activeWhitelists).isEmpty()
     }
 
     @Test
     fun testEmergencyBypassRequested_GrantsWhitelist_DismissesOverlay() {
-        // Arrange: The overlay is currently active.
         val stateWithOverlay =
             initialState.copy(
-                isOverlayActive = true,
-                currentlyInterceptedApp = blacklistedApp,
-                expiredSessionDurationMillis = 600_000L,
-                activeBlockReason = "Time Limit Reached",
+                interception = initialState.interception.copy(
+                    isOverlayActive = true,
+                    currentlyInterceptedApp = blacklistedApp,
+                    expiredSessionDurationMillis = 600_000L,
+                    activeBlockReason = "Time Limit Reached",
+                )
             )
         val action =
             GatekeeperAction.EmergencyBypassRequested(
@@ -138,72 +121,48 @@ class GatekeeperReducerTest {
                 allocatedDurationMillis = 300_000L,
                 currentTimestamp = 1000L,
             )
-
-        // Act
         val newState = reduce(stateWithOverlay, action)
-
-        // Assert: The overlay is dismissed and a whitelist is created.
-        assertThat(newState.isOverlayActive).isFalse()
-        assertThat(newState.currentlyInterceptedApp).isNull()
-        assertThat(newState.expiredSessionDurationMillis).isNull()
-        assertThat(newState.activeBlockReason).isNull()
-        assertThat(newState.activeWhitelists).containsKey(blacklistedApp)
-        val whitelist = newState.activeWhitelists[blacklistedApp]!!
+        assertThat(newState.interception.isOverlayActive).isFalse()
+        assertThat(newState.interception.currentlyInterceptedApp).isNull()
+        assertThat(newState.interception.expiredSessionDurationMillis).isNull()
+        assertThat(newState.interception.activeBlockReason).isNull()
+        assertThat(newState.interception.activeWhitelists).containsKey(blacklistedApp)
+        val whitelist = newState.interception.activeWhitelists[blacklistedApp]!!
         assertThat(whitelist.reason).isEqualTo("I need to call an Uber")
-        // 5-minute (300,000 ms) grant
         assertThat(whitelist.expiresAtTimestamp).isEqualTo(1000L + 300_000L)
-        // Verify analytics tracking
-        assertThat(newState.analyticsBypasses).isEqualTo(1)
+        assertThat(newState.data.analyticsBypasses).isEqualTo(1)
     }
 
     @Test
     fun testDismissOverlay_ClearsState() {
-        // Arrange
         val stateWithOverlay =
             initialState.copy(
-                isOverlayActive = true,
-                currentlyInterceptedApp = blacklistedApp,
+                interception = initialState.interception.copy(
+                    isOverlayActive = true,
+                    currentlyInterceptedApp = blacklistedApp,
+                )
             )
-
-        // Act
         val newState = reduce(stateWithOverlay, GatekeeperAction.DismissOverlay)
-
-        // Assert
-        assertThat(newState.isOverlayActive).isFalse()
-        assertThat(newState.currentlyInterceptedApp).isNull()
+        assertThat(newState.interception.isOverlayActive).isFalse()
+        assertThat(newState.interception.currentlyInterceptedApp).isNull()
     }
 
     @Test
     fun testMarkVaultItemResolved_UpdatesItemStatus() {
-        // Arrange
         val item = VaultItem(id = "123", query = "Test Query", capturedAtTimestamp = 1000L)
-        val stateWithItem = initialState.copy(vaultItems = listOf(item))
+        val stateWithItem = initialState.copy(data = initialState.data.copy(vaultItems = listOf(item)))
         val action = GatekeeperAction.MarkVaultItemResolved("123", 1000L)
-
-        // Act
         val newState = reduce(stateWithItem, action)
-
-        // Assert
-        assertThat(newState.vaultItems).hasSize(1)
-        assertThat(newState.vaultItems.first().isResolved).isTrue()
+        assertThat(newState.data.vaultItems).hasSize(1)
+        assertThat(newState.data.vaultItems.first().isResolved).isTrue()
     }
 
     @Test
     fun testSaveToVault_AppendsToVaultItems() {
-        // Arrange
-        val action =
-            GatekeeperAction.SaveToVault(
-                query = "best standing desks",
-                currentTimestamp = 2000L,
-            )
-
-        // Act
+        val action = GatekeeperAction.SaveToVault("best standing desks", 2000L)
         val newState = reduce(initialState, action)
-
-        // Assert
-        assertThat(newState.vaultItems).hasSize(1)
-
-        val savedItem = newState.vaultItems.first()
+        assertThat(newState.data.vaultItems).hasSize(1)
+        val savedItem = newState.data.vaultItems.first()
         assertThat(savedItem.query).isEqualTo("best standing desks")
         assertThat(savedItem.capturedAtTimestamp).isEqualTo(2000L)
         assertThat(savedItem.isResolved).isFalse()
@@ -213,215 +172,87 @@ class GatekeeperReducerTest {
     fun testSetCustomInterceptionMessage_UpdatesMap() {
         val action = GatekeeperAction.SetCustomInterceptionMessage("com.reddit.frontpage", "Read a book instead.")
         val newState = reduce(initialState, action)
-        assertThat(newState.customMessages["com.reddit.frontpage"]).isEqualTo("Read a book instead.")
+        assertThat(newState.data.customMessages["com.reddit.frontpage"]).isEqualTo("Read a book instead.")
     }
 
     @Test
     fun testRemoveCustomInterceptionMessage_RemovesFromMap() {
-        val stateWithMsg = initialState.copy(customMessages = mapOf("com.reddit.frontpage" to "Read a book instead."))
+        val stateWithMsg = initialState.copy(data = initialState.data.copy(customMessages = mapOf("com.reddit.frontpage" to "Read a book instead.")))
         val action = GatekeeperAction.RemoveCustomInterceptionMessage("com.reddit.frontpage")
         val newState = reduce(stateWithMsg, action)
-        assertThat(newState.customMessages).isEmpty()
+        assertThat(newState.data.customMessages).isEmpty()
     }
-
-    // --- Content Bank Reducer Tests ---
 
     @Test
     fun testProcessSharedLink_SetsIsProcessingLinkToTrue() {
         val action = GatekeeperAction.ProcessSharedLink(url = "https://youtu.be/dQw4w9WgXcQ", currentTimestamp = 1000L)
         val newState = reduce(initialState, action)
-        assertThat(newState.isProcessingLink).isTrue()
+        assertThat(newState.media.isProcessingLink).isTrue()
     }
 
     @Test
     fun testSaveToContentBank_AppendsItemWithCorrectRankAndClearsLoading() {
-        val stateWithLoading = initialState.copy(isProcessingLink = true)
-        val action =
-            GatekeeperAction.SaveToContentBank(
-                "vid1",
-                "Test Title",
-                ContentSource.YOUTUBE,
-                ContentType.VIDEO,
-                1000L,
-                channelName = "Test Channel",
-            )
+        val stateWithLoading = initialState.copy(media = initialState.media.copy(isProcessingLink = true))
+        val action = GatekeeperAction.SaveToContentBank("vid1", "Test Title", ContentSource.YOUTUBE, ContentType.VIDEO, 1000L, channelName = "Test Channel")
         val newState = reduce(stateWithLoading, action)
-        assertThat(newState.contentItems).hasSize(1)
-        assertThat(newState.contentItems.first().rank).isEqualTo(0L)
-        assertThat(newState.contentItems.first().channelName).isEqualTo("Test Channel")
-        assertThat(newState.isProcessingLink).isFalse()
-
+        assertThat(newState.data.contentItems).hasSize(1)
+        assertThat(newState.data.contentItems.first().rank).isEqualTo(0L)
+        assertThat(newState.data.contentItems.first().channelName).isEqualTo("Test Channel")
+        assertThat(newState.media.isProcessingLink).isFalse()
         val action2 = GatekeeperAction.SaveToContentBank("vid2", "Test 2", ContentSource.YOUTUBE, ContentType.VIDEO, 2000L)
         val finalState = reduce(newState, action2)
-        assertThat(finalState.contentItems).hasSize(2)
-        assertThat(finalState.contentItems[1].rank).isEqualTo(1L)
+        assertThat(finalState.data.contentItems).hasSize(2)
+        assertThat(finalState.data.contentItems[1].rank).isEqualTo(1L)
     }
 
     @Test
     fun testReorderContentBank_UpdatesRanks() {
-        val item1 =
-            ContentItem(
-                id = "1",
-                videoId = "v1",
-                title = "T1",
-                source = ContentSource.YOUTUBE,
-                type = ContentType.VIDEO,
-                rank = 0L,
-                capturedAtTimestamp = 1L,
-            )
-        val item2 =
-            ContentItem(
-                id = "2",
-                videoId = "v2",
-                title = "T2",
-                source = ContentSource.YOUTUBE,
-                type = ContentType.VIDEO,
-                rank = 1L,
-                capturedAtTimestamp = 2L,
-            )
-        val item3 =
-            ContentItem(
-                id = "3",
-                videoId = "v3",
-                title = "T3",
-                source = ContentSource.YOUTUBE,
-                type = ContentType.VIDEO,
-                rank = 2L,
-                capturedAtTimestamp = 3L,
-            )
-
-        val state = initialState.copy(contentItems = listOf(item1, item2, item3))
-
-        // Move item at index 0 to index 2 (Bottom of the list)
+        val item1 = ContentItem(id = "1", videoId = "v1", title = "T1", source = ContentSource.YOUTUBE, type = ContentType.VIDEO, rank = 0L, capturedAtTimestamp = 1L)
+        val item2 = ContentItem(id = "2", videoId = "v2", title = "T2", source = ContentSource.YOUTUBE, type = ContentType.VIDEO, rank = 1L, capturedAtTimestamp = 2L)
+        val item3 = ContentItem(id = "3", videoId = "v3", title = "T3", source = ContentSource.YOUTUBE, type = ContentType.VIDEO, rank = 2L, capturedAtTimestamp = 3L)
+        val state = initialState.copy(data = initialState.data.copy(contentItems = listOf(item1, item2, item3)))
         val action = GatekeeperAction.ReorderContentBank(fromIndex = 0, toIndex = 2, currentTimestamp = 1000L)
         val newState = reduce(state, action)
-
-        assertThat(newState.contentItems[0].id).isEqualTo("2")
-        assertThat(newState.contentItems[0].rank).isEqualTo(0L)
-
-        assertThat(newState.contentItems[1].id).isEqualTo("3")
-        assertThat(newState.contentItems[1].rank).isEqualTo(1L)
-
-        assertThat(newState.contentItems[2].id).isEqualTo("1")
-        assertThat(newState.contentItems[2].rank).isEqualTo(2L)
+        assertThat(newState.data.contentItems[0].id).isEqualTo("2")
+        assertThat(newState.data.contentItems[0].rank).isEqualTo(0L)
+        assertThat(newState.data.contentItems[1].id).isEqualTo("3")
+        assertThat(newState.data.contentItems[1].rank).isEqualTo(1L)
+        assertThat(newState.data.contentItems[2].id).isEqualTo("1")
+        assertThat(newState.data.contentItems[2].rank).isEqualTo(2L)
     }
 
     @Test
     fun testRemoveFromContentBank_RemovesItem() {
-        val item1 =
-            ContentItem(
-                id = "1",
-                videoId = "v1",
-                title = "T1",
-                source = ContentSource.YOUTUBE,
-                type = ContentType.VIDEO,
-                rank = 0L,
-                capturedAtTimestamp = 1L,
-            )
-        val state = initialState.copy(contentItems = listOf(item1))
-
+        val item1 = ContentItem(id = "1", videoId = "v1", title = "T1", source = ContentSource.YOUTUBE, type = ContentType.VIDEO, rank = 0L, capturedAtTimestamp = 1L)
+        val state = initialState.copy(data = initialState.data.copy(contentItems = listOf(item1)))
         val newState = reduce(state, GatekeeperAction.RemoveFromContentBank("1", 1000L))
-        assertThat(newState.contentItems.first().isDeleted).isTrue()
+        assertThat(newState.data.contentItems.first().isDeleted).isTrue()
     }
-
-        // Test removed because UpdateContentFilter is now local UI state
-
-    // --- Sync & Conflict Resolution Tests ---
 
     @Test
     fun testRemoteSyncCompleted_LastWriteWins_ResolvesConflicts() {
-        // Arrange: Local state has an older VaultItem and a NEWER ContentItem
         val localVaultItem = VaultItem(id = "v1", query = "Local Query", capturedAtTimestamp = 1000L, lastModified = 1000L)
-        val localContentItem =
-            ContentItem(
-                id = "c1",
-                videoId = "vid1",
-                title = "Local Title",
-                source = ContentSource.YOUTUBE,
-                type = ContentType.VIDEO,
-                rank = 0,
-                capturedAtTimestamp = 1000L,
-                lastModified = 3000L,
-            )
-        val stateWithLocal =
-            initialState.copy(
-                vaultItems = listOf(localVaultItem),
-                contentItems = listOf(localContentItem),
-            )
-
-        // Arrange: Incoming Remote state has a NEWER VaultItem but an OLDER ContentItem
+        val localContentItem = ContentItem(id = "c1", videoId = "vid1", title = "Local Title", source = ContentSource.YOUTUBE, type = ContentType.VIDEO, rank = 0, capturedAtTimestamp = 1000L, lastModified = 3000L)
+        val stateWithLocal = initialState.copy(data = initialState.data.copy(vaultItems = listOf(localVaultItem), contentItems = listOf(localContentItem)))
         val remoteVaultItem = VaultItem(id = "v1", query = "Remote Query", capturedAtTimestamp = 1000L, lastModified = 2000L)
-        val remoteContentItem =
-            ContentItem(
-                id = "c1",
-                videoId = "vid1",
-                title = "Remote Title",
-                source = ContentSource.YOUTUBE,
-                type = ContentType.VIDEO,
-                rank = 0,
-                capturedAtTimestamp = 1000L,
-                lastModified = 1500L,
-            )
-
-        val action =
-            GatekeeperAction.RemoteSyncCompleted(
-                newVaultItems = listOf(remoteVaultItem),
-                newContentItems = listOf(remoteContentItem),
-            )
-
-        // Act
+        val remoteContentItem = ContentItem(id = "c1", videoId = "vid1", title = "Remote Title", source = ContentSource.YOUTUBE, type = ContentType.VIDEO, rank = 0, capturedAtTimestamp = 1000L, lastModified = 1500L)
+        val action = GatekeeperAction.RemoteSyncCompleted(newVaultItems = listOf(remoteVaultItem), newContentItems = listOf(remoteContentItem))
         val newState = reduce(stateWithLocal, action)
-
-        // Assert: VaultItem - Remote won because its lastModified (2000) > Local (1000)
-        assertThat(newState.vaultItems).hasSize(1)
-        assertThat(newState.vaultItems.first().query).isEqualTo("Remote Query")
-
-        // Assert: ContentItem - Local won because its lastModified (3000) > Remote (1500)
-        assertThat(newState.contentItems).hasSize(1)
-        assertThat(newState.contentItems.first().title).isEqualTo("Local Title")
+        assertThat(newState.data.vaultItems).hasSize(1)
+        assertThat(newState.data.vaultItems.first().query).isEqualTo("Remote Query")
+        assertThat(newState.data.contentItems).hasSize(1)
+        assertThat(newState.data.contentItems.first().title).isEqualTo("Local Title")
     }
 
     @Test
     fun testRemoteSyncCompleted_PreservesLocalDownloadStatus() {
-        // Arrange: Local has download status
-        val localContentItem =
-            ContentItem(
-                id = "c1",
-                videoId = "vid1",
-                title = "Local Title",
-                source = ContentSource.YOUTUBE,
-                type = ContentType.VIDEO,
-                rank = 0,
-                capturedAtTimestamp = 1000L,
-                lastModified = 1000L, // Older
-                localFilePath = "/path/to/file",
-                downloadStatus = DownloadStatus.COMPLETED,
-            )
-        val stateWithLocal = initialState.copy(contentItems = listOf(localContentItem))
-
-        // Arrange: Remote is newer but lacks download status (as it's not synced)
-        val remoteContentItem =
-            ContentItem(
-                id = "c1",
-                videoId = "vid1",
-                title = "Remote Title",
-                source = ContentSource.YOUTUBE,
-                type = ContentType.VIDEO,
-                rank = 0,
-                capturedAtTimestamp = 1000L,
-                lastModified = 2000L, // Newer
-                localFilePath = null,
-                downloadStatus = DownloadStatus.NONE,
-            )
-
+        val localContentItem = ContentItem(id = "c1", videoId = "vid1", title = "Local Title", source = ContentSource.YOUTUBE, type = ContentType.VIDEO, rank = 0, capturedAtTimestamp = 1000L, lastModified = 1000L, localFilePath = "/path/to/file", downloadStatus = DownloadStatus.COMPLETED)
+        val stateWithLocal = initialState.copy(data = initialState.data.copy(contentItems = listOf(localContentItem)))
+        val remoteContentItem = ContentItem(id = "c1", videoId = "vid1", title = "Remote Title", source = ContentSource.YOUTUBE, type = ContentType.VIDEO, rank = 0, capturedAtTimestamp = 1000L, lastModified = 2000L, localFilePath = null, downloadStatus = DownloadStatus.NONE)
         val action = GatekeeperAction.RemoteSyncCompleted(emptyList(), listOf(remoteContentItem))
-
-        // Act
         val newState = reduce(stateWithLocal, action)
-
-        // Assert: Remote won (Title updated), but local download status is preserved
-        assertThat(newState.contentItems).hasSize(1)
-        val item = newState.contentItems.first()
+        assertThat(newState.data.contentItems).hasSize(1)
+        val item = newState.data.contentItems.first()
         assertThat(item.title).isEqualTo("Remote Title")
         assertThat(item.localFilePath).isEqualTo("/path/to/file")
         assertThat(item.downloadStatus).isEqualTo(DownloadStatus.COMPLETED)
@@ -431,66 +262,62 @@ class GatekeeperReducerTest {
     fun testUpdateSyncUrl_UpdatesState() {
         val action = GatekeeperAction.UpdateSyncUrl("http://127.0.0.1:8081")
         val newState = reduce(initialState, action)
-        assertThat(newState.syncServerUrl).isEqualTo("http://127.0.0.1:8081")
+        assertThat(newState.sync.syncServerUrl).isEqualTo("http://127.0.0.1:8081")
     }
 
     @Test
     fun testLoginSuccess_SetsAuthState() {
         val action = GatekeeperAction.LoginSuccess("eyJ_MOCK_TOKEN")
         val newState = reduce(initialState, action)
-        assertThat(newState.isAuthenticated).isTrue()
-        assertThat(newState.jwtToken).isEqualTo("eyJ_MOCK_TOKEN")
+        assertThat(newState.sync.isAuthenticated).isTrue()
+        assertThat(newState.sync.jwtToken).isEqualTo("eyJ_MOCK_TOKEN")
     }
 
     @Test
     fun testLogout_ClearsAuthState() {
-        val authState = initialState.copy(isAuthenticated = true, jwtToken = "eyJ_MOCK_TOKEN")
+        val authState = initialState.copy(sync = initialState.sync.copy(isAuthenticated = true, jwtToken = "eyJ_MOCK_TOKEN"))
         val newState = reduce(authState, GatekeeperAction.Logout)
-        assertThat(newState.isAuthenticated).isFalse()
-        assertThat(newState.jwtToken).isNull()
+        assertThat(newState.sync.isAuthenticated).isFalse()
+        assertThat(newState.sync.jwtToken).isNull()
     }
-
-    // --- Surgical Web Engine Reducer Tests ---
 
     @Test
     fun testWebEngineInitialized_setsReadyState() {
         val action = GatekeeperAction.WebEngineInitialized
         val newState = reduce(initialState, action)
-        assertThat(newState.isWebEngineReady).isTrue()
+        assertThat(newState.media.isWebEngineReady).isTrue()
     }
 
     @Test
     fun testAddPinnedWebsite_AppendsToState() {
         val action = GatekeeperAction.AddPinnedWebsite("1", "My Site", "https://example.com")
         val newState = reduce(initialState, action)
-        assertThat(newState.missionControlWebsites).hasSize(1)
-        assertThat(newState.missionControlWebsites.first().label).isEqualTo("My Site")
+        assertThat(newState.data.missionControlWebsites).hasSize(1)
+        assertThat(newState.data.missionControlWebsites.first().label).isEqualTo("My Site")
     }
 
     @Test
     fun testRemovePinnedWebsite_RemovesFromState() {
-        val site =
-            com.aegisgatekeeper.app.domain
-                .PinnedWebsite("1", "My Site", "https://example.com")
-        val state = initialState.copy(missionControlWebsites = listOf(site))
+        val site = PinnedWebsite("1", "My Site", "https://example.com")
+        val state = initialState.copy(data = initialState.data.copy(missionControlWebsites = listOf(site)))
         val action = GatekeeperAction.RemovePinnedWebsite("1")
         val newState = reduce(state, action)
-        assertThat(newState.missionControlWebsites).isEmpty()
+        assertThat(newState.data.missionControlWebsites).isEmpty()
     }
 
     @Test
     fun testOpenPinnedWebsite_SetsUrl() {
         val action = GatekeeperAction.OpenPinnedWebsite("https://example.com")
         val newState = reduce(initialState, action)
-        assertThat(newState.activePinnedWebsiteUrl).isEqualTo("https://example.com")
+        assertThat(newState.media.activePinnedWebsiteUrl).isEqualTo("https://example.com")
     }
 
     @Test
     fun testClosePinnedWebsite_ClearsUrl() {
-        val state = initialState.copy(activePinnedWebsiteUrl = "https://example.com")
+        val state = initialState.copy(media = initialState.media.copy(activePinnedWebsiteUrl = "https://example.com"))
         val action = GatekeeperAction.ClosePinnedWebsite
         val newState = reduce(state, action)
-        assertThat(newState.activePinnedWebsiteUrl).isNull()
+        assertThat(newState.media.activePinnedWebsiteUrl).isNull()
     }
 
     @Test
@@ -498,404 +325,257 @@ class GatekeeperReducerTest {
         val url = "https://google.com"
         val action = GatekeeperAction.SurgicalNavigationRequested(url)
         val newState = reduce(initialState, action)
-        assertThat(newState.currentSurgicalUrl).isEqualTo(url)
+        assertThat(newState.media.currentSurgicalUrl).isEqualTo(url)
     }
-
-    // --- Alternative Activities Reducer Tests ---
 
     @Test
     fun testAddAlternativeActivity_AppendsToState() {
         val action = GatekeeperAction.AddAlternativeActivity("Go for a walk", 1000L)
         val newState = reduce(initialState, action)
-        assertThat(newState.alternativeActivities).hasSize(1)
-        assertThat(newState.alternativeActivities.first().description).isEqualTo("Go for a walk")
+        assertThat(newState.data.alternativeActivities).hasSize(1)
+        assertThat(newState.data.alternativeActivities.first().description).isEqualTo("Go for a walk")
     }
 
     @Test
     fun testRemoveAlternativeActivity_RemovesFromState() {
         val activity = AlternativeActivity("1", "Go for a walk", 1000L)
-        val state = initialState.copy(alternativeActivities = listOf(activity))
+        val state = initialState.copy(data = initialState.data.copy(alternativeActivities = listOf(activity)))
         val action = GatekeeperAction.RemoveAlternativeActivity("1")
         val newState = reduce(state, action)
-        assertThat(newState.alternativeActivities).isEmpty()
+        assertThat(newState.data.alternativeActivities).isEmpty()
     }
-
-    // --- YouTube Reducer Tests ---
 
     @Test
     fun testOpenSurgicalFacebook_updatesUrl() {
         val url = "https://m.facebook.com/groups/123"
         val action = GatekeeperAction.OpenSurgicalFacebook(url)
         val newState = reduce(initialState, action)
-        assertThat(newState.activeFacebookUrl).isEqualTo(url)
+        assertThat(newState.media.activeFacebookUrl).isEqualTo(url)
     }
 
     @Test
     fun testCloseSurgicalFacebook_clearsUrl() {
-        val activeState = initialState.copy(activeFacebookUrl = "https://m.facebook.com/groups/")
+        val activeState = initialState.copy(media = initialState.media.copy(activeFacebookUrl = "https://m.facebook.com/groups/"))
         val newState = reduce(activeState, GatekeeperAction.CloseSurgicalFacebook)
-        assertThat(newState.activeFacebookUrl).isNull()
+        assertThat(newState.media.activeFacebookUrl).isNull()
     }
 
-        @Test
+    @Test
     fun testOpenCleanPlayer_setsActiveVideoId() {
-        // Arrange
         val action = GatekeeperAction.OpenCleanPlayer("testVideoId")
-
-        // Act
         val newState = reduce(initialState, action)
-
-        // Assert
-        assertThat(newState.activeVideoId).isEqualTo("testVideoId")
+        assertThat(newState.media.activeVideoId).isEqualTo("testVideoId")
     }
 
     @Test
     fun testCloseCleanPlayer_clearsActiveVideoId() {
-        // Arrange
-        val stateBefore = initialState.copy(activeVideoId = "testVideoId")
-
-        // Act
+        val stateBefore = initialState.copy(media = initialState.media.copy(activeVideoId = "testVideoId"))
         val newState = reduce(stateBefore, GatekeeperAction.StopCleanPlayer)
-
-        // Assert
-        assertThat(newState.activeVideoId).isNull()
+        assertThat(newState.media.activeVideoId).isNull()
     }
 
     @Test
     fun testSaveMediaPosition_UpdatesSavedPositions() {
         val action = GatekeeperAction.SaveMediaPosition("testVideoId", 120.5f)
         val newState = reduce(initialState, action)
-
-        assertThat(newState.savedMediaPositions["testVideoId"]).isEqualTo(120.5f)
+        assertThat(newState.media.savedMediaPositions["testVideoId"]).isEqualTo(120.5f)
     }
 
     @Test
     fun testSaveMediaPosition_ResetsPositionToZero() {
-        val stateWithPosition = initialState.copy(savedMediaPositions = mapOf("testVideoId" to 120.5f))
+        val stateWithPosition = initialState.copy(media = initialState.media.copy(savedMediaPositions = mapOf("testVideoId" to 120.5f)))
         val action = GatekeeperAction.SaveMediaPosition("testVideoId", 0f)
         val newState = reduce(stateWithPosition, action)
-
-        assertThat(newState.savedMediaPositions["testVideoId"]).isEqualTo(0f)
+        assertThat(newState.media.savedMediaPositions["testVideoId"]).isEqualTo(0f)
     }
-
-    // --- Podcast Reducer Tests ---
 
     @Test
     fun testProcessPodcastUrl_SetsSyncingState() {
         val action = GatekeeperAction.ProcessPodcastUrl("https://example.com/feed.xml")
         val newState = reduce(initialState, action)
-        assertThat(newState.isSyncingPodcasts).isTrue()
-        assertThat(newState.podcastSyncError).isNull()
+        assertThat(newState.sync.isSyncingPodcasts).isTrue()
+        assertThat(newState.sync.podcastSyncError).isNull()
     }
 
     @Test
     fun testPodcastSyncFailed_SetsErrorState() {
-        val stateBefore = initialState.copy(isSyncingPodcasts = true)
+        val stateBefore = initialState.copy(sync = initialState.sync.copy(isSyncingPodcasts = true))
         val action = GatekeeperAction.PodcastSyncFailed("Network Error")
         val newState = reduce(stateBefore, action)
-        assertThat(newState.isSyncingPodcasts).isFalse()
-        assertThat(newState.podcastSyncError).isEqualTo("Network Error")
+        assertThat(newState.sync.isSyncingPodcasts).isFalse()
+        assertThat(newState.sync.podcastSyncError).isEqualTo("Network Error")
     }
 
     @Test
     fun testPodcastSyncCompleted_ClearsSyncingState() {
-        val stateBefore = initialState.copy(isSyncingPodcasts = true, podcastSyncError = "Old Error")
+        val stateBefore = initialState.copy(sync = initialState.sync.copy(isSyncingPodcasts = true, podcastSyncError = "Old Error"))
         val action = GatekeeperAction.PodcastSyncCompleted
         val newState = reduce(stateBefore, action)
-        assertThat(newState.isSyncingPodcasts).isFalse()
-        assertThat(newState.podcastSyncError).isNull()
+        assertThat(newState.sync.isSyncingPodcasts).isFalse()
+        assertThat(newState.sync.podcastSyncError).isNull()
     }
 
     @Test
     fun testRemovePodcastSubscription_RemovesSubscriptionAndMarksContentAsDeleted() {
         val sub = PodcastSubscription(id = "sub1", feedUrl = "url", showTitle = "Title", artworkUrl = null)
-        val content =
-            ContentItem(
-                id = "c1",
-                podcastId = "sub1",
-                videoId = "v1",
-                title = "T1",
-                source = ContentSource.GENERIC,
-                type = ContentType.AUDIO,
-                rank = 0,
-                capturedAtTimestamp = 0,
-            )
+        val content = ContentItem(id = "c1", podcastId = "sub1", videoId = "v1", title = "T1", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
         val slot = IntentionalSlotItem(slotIndex = 0, contentItem = content)
-        val stateBefore =
-            initialState.copy(
-                podcastSubscriptions = listOf(sub),
-                contentItems = listOf(content),
-                intentionalSlots = listOf(slot),
-            )
-
+        val stateBefore = initialState.copy(sync = initialState.sync.copy(podcastSubscriptions = listOf(sub)), data = initialState.data.copy(contentItems = listOf(content), intentionalSlots = listOf(slot)))
         val action = GatekeeperAction.RemovePodcastSubscription("sub1", 1000L)
         val newState = reduce(stateBefore, action)
-
-        assertThat(newState.podcastSubscriptions).isEmpty()
-        assertThat(newState.contentItems.first().isDeleted).isTrue()
-        assertThat(newState.contentItems.first().lastModified).isEqualTo(1000L)
-        assertThat(newState.intentionalSlots).isEmpty() // Because the associated content was deleted
+        assertThat(newState.sync.podcastSubscriptions).isEmpty()
+        assertThat(newState.data.contentItems.first().isDeleted).isTrue()
+        assertThat(newState.data.contentItems.first().lastModified).isEqualTo(1000L)
+        assertThat(newState.data.intentionalSlots).isEmpty()
     }
 
     @Test
     fun testSavePodcastSubscription_AddsSubscription() {
         val sub = PodcastSubscription(id = "sub1", feedUrl = "url", showTitle = "Title", artworkUrl = null)
-
         val action = GatekeeperAction.SavePodcastSubscription(sub)
         val newState = reduce(initialState, action)
-
-        assertThat(newState.podcastSubscriptions).hasSize(1)
-        assertThat(newState.podcastSubscriptions.first().id).isEqualTo("sub1")
+        assertThat(newState.sync.podcastSubscriptions).hasSize(1)
+        assertThat(newState.sync.podcastSubscriptions.first().id).isEqualTo("sub1")
     }
 
     @Test
     fun testLoadPodcastEpisodes_setsLoading() {
         val action = GatekeeperAction.LoadPodcastEpisodes("url", "podcast1")
         val newState = reduce(initialState, action)
-
-        assertThat(newState.isLoadingEpisodes).isTrue()
-        assertThat(newState.activePodcastId).isEqualTo("podcast1")
+        assertThat(newState.media.isLoadingEpisodes).isTrue()
+        assertThat(newState.media.activePodcastId).isEqualTo("podcast1")
     }
 
     @Test
     fun testPodcastEpisodesLoaded_setsActiveEpisodes() {
-        val stateWithLoading = initialState.copy(isLoadingEpisodes = true)
-        val mockEpisodes =
-            listOf(
-                CachedEpisode(
-                    title = "Ep 1",
-                    audioUrl = "audio_url",
-                    durationSeconds = 1000L,
-                    pubDate = "2023-01-01",
-                    podcastId = "podcast1",
-                ),
-            )
+        val stateWithLoading = initialState.copy(media = initialState.media.copy(isLoadingEpisodes = true))
+        val mockEpisodes = listOf(CachedEpisode(title = "Ep 1", audioUrl = "audio_url", durationSeconds = 1000L, pubDate = "2023-01-01", podcastId = "podcast1"))
         val action = GatekeeperAction.PodcastEpisodesLoaded(mockEpisodes, "podcast1")
         val newState = reduce(stateWithLoading, action)
-
-        assertThat(newState.isLoadingEpisodes).isFalse()
-        assertThat(newState.activePodcastEpisodes).isEqualTo(mockEpisodes)
-        assertThat(newState.activePodcastId).isEqualTo("podcast1")
+        assertThat(newState.media.isLoadingEpisodes).isFalse()
+        assertThat(newState.media.activePodcastEpisodes).isEqualTo(mockEpisodes)
+        assertThat(newState.media.activePodcastId).isEqualTo("podcast1")
     }
 
     @Test
     fun testClearPodcastEpisodes_clearsActive() {
-        val stateWithActive =
-            initialState.copy(
-                isLoadingEpisodes = true,
-                activePodcastEpisodes = listOf(),
-                activePodcastId = "podcast1",
-            )
+        val stateWithActive = initialState.copy(media = initialState.media.copy(isLoadingEpisodes = true, activePodcastEpisodes = listOf(), activePodcastId = "podcast1"))
         val newState = reduce(stateWithActive, GatekeeperAction.ClearPodcastEpisodes)
-
-        assertThat(newState.isLoadingEpisodes).isFalse()
-        assertThat(newState.activePodcastEpisodes).isNull()
-        assertThat(newState.activePodcastId).isNull()
+        assertThat(newState.media.isLoadingEpisodes).isFalse()
+        assertThat(newState.media.activePodcastEpisodes).isNull()
+        assertThat(newState.media.activePodcastId).isNull()
     }
 
     @Test
     fun testLoadLatestGlobalEpisodes_setsLoading() {
         val action = GatekeeperAction.LoadLatestGlobalEpisodes
         val newState = reduce(initialState, action)
-
-        assertThat(newState.isLoadingGlobalEpisodes).isTrue()
+        assertThat(newState.media.isLoadingGlobalEpisodes).isTrue()
     }
 
     @Test
     fun testLatestGlobalEpisodesLoaded_setsActiveEpisodes() {
-        val stateWithLoading = initialState.copy(isLoadingGlobalEpisodes = true)
-        val mockUnified =
-            listOf(
-                UnifiedEpisode(
-                    id = "ep_1",
-                    podcastId = "podcast1",
-                    title = "Global Episode 1",
-                    audioUrl = "https://example.com/global1.mp3",
-                    durationSeconds = 1800L,
-                    pubDate = "Feb 01",
-                    lastModified = 0L,
-                    showTitle = "The Sovereign Podcast",
-                    artworkUrl = null,
-                ),
-            )
+        val stateWithLoading = initialState.copy(media = initialState.media.copy(isLoadingGlobalEpisodes = true))
+        val mockUnified = listOf(UnifiedEpisode(id = "ep_1", podcastId = "podcast1", title = "Global Episode 1", audioUrl = "https://example.com/global1.mp3", durationSeconds = 1800L, pubDate = "Feb 01", lastModified = 0L, showTitle = "The Sovereign Podcast", artworkUrl = null))
         val action = GatekeeperAction.LatestGlobalEpisodesLoaded(mockUnified)
         val newState = reduce(stateWithLoading, action)
-
-        assertThat(newState.isLoadingGlobalEpisodes).isFalse()
-        assertThat(newState.latestGlobalEpisodes).isEqualTo(mockUnified)
+        assertThat(newState.media.isLoadingGlobalEpisodes).isFalse()
+        assertThat(newState.media.latestGlobalEpisodes).isEqualTo(mockUnified)
     }
 
     @Test
     fun testCacheParsedEpisodes_leavesStateUnchanged() {
-        // CacheParsedEpisodes is a pure side-effect trigger; it should not modify state directly.
         val action = GatekeeperAction.CacheParsedEpisodes(emptyList(), "podcast1")
         val newState = reduce(initialState, action)
         assertThat(newState).isEqualTo(initialState)
     }
 
-        @Test
+    @Test
     fun testOpenNativePlayer_SetsActiveNativeMediaItem() {
-        val ep =
-            ContentItem(
-                id = "ep1",
-                videoId = "v1",
-                title = "T1",
-                source = ContentSource.GENERIC,
-                type = ContentType.AUDIO,
-                rank = 0,
-                capturedAtTimestamp = 0,
-            )
+        val ep = ContentItem(id = "ep1", videoId = "v1", title = "T1", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
         val action = GatekeeperAction.OpenNativePlayer(ep)
         val newState = reduce(initialState, action)
-
-        assertThat(newState.activeNativeMediaItem).isEqualTo(ep)
+        assertThat(newState.media.activeNativeMediaItem).isEqualTo(ep)
     }
 
     @Test
     fun testCloseNativePlayer_ClearsActiveNativeMediaItem() {
-        val ep =
-            ContentItem(
-                id = "ep1",
-                videoId = "v1",
-                title = "T1",
-                source = ContentSource.GENERIC,
-                type = ContentType.AUDIO,
-                rank = 0,
-                capturedAtTimestamp = 0,
-            )
-        val activeState = initialState.copy(activeNativeMediaItem = ep)
+        val ep = ContentItem(id = "ep1", videoId = "v1", title = "T1", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val activeState = initialState.copy(media = initialState.media.copy(activeNativeMediaItem = ep))
         val action = GatekeeperAction.CloseNativePlayer
         val newState = reduce(activeState, action)
-
-        assertThat(newState.activeNativeMediaItem).isNull()
+        assertThat(newState.media.activeNativeMediaItem).isNull()
     }
-
-        // Minimize actions removed (now local UI state)
-
-    // --- Intentional Content Reducer Tests ---
 
     @Test
     fun testSaveIntentionalSlot_AppendsAndReplacesSlot() {
-        val mockContent1 =
-            ContentItem(
-                id = "c1",
-                videoId = "v1",
-                title = "T1",
-                source = ContentSource.YOUTUBE,
-                type = ContentType.VIDEO,
-                rank = 0,
-                capturedAtTimestamp = 0,
-            )
-        val mockContent2 =
-            ContentItem(
-                id = "c2",
-                videoId = "v2",
-                title = "T2",
-                source = ContentSource.YOUTUBE,
-                type = ContentType.VIDEO,
-                rank = 1,
-                capturedAtTimestamp = 0,
-            )
-
-        // Save to Slot 0
+        val mockContent1 = ContentItem(id = "c1", videoId = "v1", title = "T1", source = ContentSource.YOUTUBE, type = ContentType.VIDEO, rank = 0, capturedAtTimestamp = 0)
+        val mockContent2 = ContentItem(id = "c2", videoId = "v2", title = "T2", source = ContentSource.YOUTUBE, type = ContentType.VIDEO, rank = 1, capturedAtTimestamp = 0)
         val action1 = GatekeeperAction.SaveIntentionalSlot(slotIndex = 0, contentItem = mockContent1)
         val state1 = reduce(initialState, action1)
-        assertThat(state1.intentionalSlots).hasSize(1)
-        assertThat(
-            state1.intentionalSlots
-                .first()
-                .contentItem.id,
-        ).isEqualTo("c1")
-
-        // Overwrite Slot 0
+        assertThat(state1.data.intentionalSlots).hasSize(1)
+        assertThat(state1.data.intentionalSlots.first().contentItem.id).isEqualTo("c1")
         val action2 = GatekeeperAction.SaveIntentionalSlot(slotIndex = 0, contentItem = mockContent2)
         val state2 = reduce(state1, action2)
-        assertThat(state2.intentionalSlots).hasSize(1)
-        assertThat(
-            state2.intentionalSlots
-                .first()
-                .contentItem.id,
-        ).isEqualTo("c2")
+        assertThat(state2.data.intentionalSlots).hasSize(1)
+        assertThat(state2.data.intentionalSlots.first().contentItem.id).isEqualTo("c2")
     }
 
     @Test
     fun testClearIntentionalSlot_RemovesItem() {
-        val mockContent =
-            ContentItem(
-                id = "c1",
-                videoId = "v1",
-                title = "T1",
-                source = ContentSource.YOUTUBE,
-                type = ContentType.VIDEO,
-                rank = 0,
-                capturedAtTimestamp = 0,
-            )
+        val mockContent = ContentItem(id = "c1", videoId = "v1", title = "T1", source = ContentSource.YOUTUBE, type = ContentType.VIDEO, rank = 0, capturedAtTimestamp = 0)
         val state1 = reduce(initialState, GatekeeperAction.SaveIntentionalSlot(slotIndex = 2, contentItem = mockContent))
-
         val state2 = reduce(state1, GatekeeperAction.ClearIntentionalSlot(slotIndex = 2))
-        assertThat(state2.intentionalSlots).isEmpty()
+        assertThat(state2.data.intentionalSlots).isEmpty()
     }
 
-        @Test
+    @Test
     fun testOpenCleanAudioPlayer_SetsActiveAudioUrl() {
         val newState = reduce(initialState, GatekeeperAction.OpenCleanAudioPlayer("https://soundcloud.com/test"))
-        assertThat(newState.activeAudioUrl).isEqualTo("https://soundcloud.com/test")
+        assertThat(newState.media.activeAudioUrl).isEqualTo("https://soundcloud.com/test")
     }
 
     @Test
     fun testStopCleanAudioPlayer_ClearsActiveAudioUrl() {
-        val activeState = initialState.copy(activeAudioUrl = "https://soundcloud.com/test")
+        val activeState = initialState.copy(media = initialState.media.copy(activeAudioUrl = "https://soundcloud.com/test"))
         val newState = reduce(activeState, GatekeeperAction.StopCleanAudioPlayer)
-        assertThat(newState.activeAudioUrl).isNull()
+        assertThat(newState.media.activeAudioUrl).isNull()
     }
-
-    // --- Unified Policy & Check-In Reducer Tests ---
 
     @Test
     fun testSetManualLockdown_UpdatesState() {
         val action = GatekeeperAction.SetManualLockdown(true)
         val newState = reduce(initialState, action)
-        assertThat(newState.isManualLockdownActive).isTrue()
+        assertThat(newState.interception.isManualLockdownActive).isTrue()
     }
 
     @Test
     fun testUpdateGroupCombinator_UpdatesState() {
         val action = GatekeeperAction.UpdateGroupCombinator("group1", RuleCombinator.ALL)
         val newState = reduce(initialState, action)
-        assertThat(newState.appGroups.first().combinator).isEqualTo(RuleCombinator.ALL)
+        assertThat(newState.interception.appGroups.first().combinator).isEqualTo(RuleCombinator.ALL)
     }
 
     @Test
     fun testUpdateGroupApps_UpdatesState() {
         val action = GatekeeperAction.UpdateGroupApps("group1", setOf("com.new.app1", "com.new.app2"))
         val newState = reduce(initialState, action)
-        assertThat(newState.appGroups.first().apps).containsExactly("com.new.app1", "com.new.app2")
+        assertThat(newState.interception.appGroups.first().apps).containsExactly("com.new.app1", "com.new.app2")
     }
 
     @Test
     fun testUpdateGroupApps_ToEmpty_UpdatesState() {
-        // Verifies we can successfully strip all apps from a group (e.g. for a global domain block)
         val action = GatekeeperAction.UpdateGroupApps("group1", emptySet())
         val newState = reduce(initialState, action)
-        assertThat(newState.appGroups.first().apps).isEmpty()
+        assertThat(newState.interception.appGroups.first().apps).isEmpty()
     }
 
     @Test
     fun testAddDomainBlockRule_AppendsRule() {
-        val action =
-            GatekeeperAction.AddDomainBlockRule(
-                id = "domainRule1",
-                groupId = "group1",
-                domains = setOf("reddit.com", "youtube.com"),
-            )
+        val action = GatekeeperAction.AddDomainBlockRule(id = "domainRule1", groupId = "group1", domains = setOf("reddit.com", "youtube.com"))
         val newState = reduce(initialState, action)
-        assertThat(newState.appGroups.first().rules).hasSize(1)
-
-        val rule =
-            newState.appGroups
-                .first()
-                .rules
-                .first()
+        assertThat(newState.interception.appGroups.first().rules).hasSize(1)
+        val rule = newState.interception.appGroups.first().rules.first()
         assertThat(rule).isInstanceOf(BlockingRule.DomainBlock::class.java)
         assertThat((rule as BlockingRule.DomainBlock).domains).containsExactly("reddit.com", "youtube.com")
     }
@@ -904,15 +584,9 @@ class GatekeeperReducerTest {
     fun testUpdateDomainBlockRule_UpdatesDomains() {
         val initialAction = GatekeeperAction.AddDomainBlockRule("domainRule1", "group1", setOf("reddit.com"))
         val stateWithRule = reduce(initialState, initialAction)
-
         val updateAction = GatekeeperAction.UpdateDomainBlockRule("domainRule1", "group1", setOf("reddit.com", "news.ycombinator.com"))
         val newState = reduce(stateWithRule, updateAction)
-
-        val rule =
-            newState.appGroups
-                .first()
-                .rules
-                .first() as BlockingRule.DomainBlock
+        val rule = newState.interception.appGroups.first().rules.first() as BlockingRule.DomainBlock
         assertThat(rule.domains).containsExactly("reddit.com", "news.ycombinator.com")
     }
 
@@ -920,58 +594,26 @@ class GatekeeperReducerTest {
     fun testAddAlwaysBlockRule_appendsRuleToGroup() {
         val action = GatekeeperAction.AddAlwaysBlockRule("alwaysBlock1", "group1")
         val newState = reduce(initialState, action)
-        val group = newState.appGroups.find { it.id == "group1" }
+        val group = newState.interception.appGroups.find { it.id == "group1" }
         assertThat(group?.rules).hasSize(1)
         assertThat(group?.rules?.first()).isInstanceOf(BlockingRule.AlwaysBlock::class.java)
     }
 
     @Test
     fun testAddCheckInRule_AppendsRule() {
-        val action =
-            GatekeeperAction.AddCheckInRule(
-                id = "rule1",
-                groupId = "group1",
-                checkInTimesMinutes = listOf(600),
-                durationMinutes = 15,
-                daysOfWeek = DayOfWeek.values().toSet(),
-            )
+        val action = GatekeeperAction.AddCheckInRule(id = "rule1", groupId = "group1", checkInTimesMinutes = listOf(600), durationMinutes = 15, daysOfWeek = DayOfWeek.values().toSet())
         val newState = reduce(initialState, action)
-        assertThat(newState.appGroups.first().rules).hasSize(1)
-        assertThat(
-            newState.appGroups
-                .first()
-                .rules
-                .first(),
-        ).isInstanceOf(BlockingRule.CheckIn::class.java)
+        assertThat(newState.interception.appGroups.first().rules).hasSize(1)
+        assertThat(newState.interception.appGroups.first().rules.first()).isInstanceOf(BlockingRule.CheckIn::class.java)
     }
 
     @Test
     fun testUpdateCheckInRule_UpdatesRule() {
-        val addAction =
-            GatekeeperAction.AddCheckInRule(
-                id = "rule1",
-                groupId = "group1",
-                checkInTimesMinutes = listOf(600),
-                durationMinutes = 15,
-                daysOfWeek = setOf(DayOfWeek.MONDAY),
-            )
+        val addAction = GatekeeperAction.AddCheckInRule(id = "rule1", groupId = "group1", checkInTimesMinutes = listOf(600), durationMinutes = 15, daysOfWeek = setOf(DayOfWeek.MONDAY))
         val stateWithRule = reduce(initialState, addAction)
-
-        val updateAction =
-            GatekeeperAction.UpdateCheckInRule(
-                id = "rule1",
-                groupId = "group1",
-                checkInTimesMinutes = listOf(600, 720),
-                durationMinutes = 30,
-                daysOfWeek = setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
-            )
+        val updateAction = GatekeeperAction.UpdateCheckInRule(id = "rule1", groupId = "group1", checkInTimesMinutes = listOf(600, 720), durationMinutes = 30, daysOfWeek = setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY))
         val newState = reduce(stateWithRule, updateAction)
-
-        val rule =
-            newState.appGroups
-                .first()
-                .rules
-                .first() as BlockingRule.CheckIn
+        val rule = newState.interception.appGroups.first().rules.first() as BlockingRule.CheckIn
         assertThat(rule.checkInTimesMinutes).containsExactly(600, 720)
         assertThat(rule.durationMinutes).isEqualTo(30)
         assertThat(rule.daysOfWeek).containsExactly(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)
@@ -979,100 +621,75 @@ class GatekeeperReducerTest {
 
     @Test
     fun testRedeemCheckInToken_AddsWhitelistAndConsumedLog() {
-        val action =
-            GatekeeperAction.RedeemCheckInToken(
-                groupId = "group1",
-                checkInTimeMinutes = 600,
-                durationMinutes = 15,
-                reason = "Needed an unblock",
-                currentTimestamp = 1000L,
-            )
+        val action = GatekeeperAction.RedeemCheckInToken(groupId = "group1", checkInTimeMinutes = 600, durationMinutes = 15, reason = "Needed an unblock", currentTimestamp = 1000L)
         val newState = reduce(initialState, action)
-        assertThat(newState.consumedCheckIns).hasSize(1)
-        assertThat(newState.consumedCheckIns.first().timeMinutes).isEqualTo(600)
-        assertThat(newState.activeWhitelists).containsKey(blacklistedApp)
-        assertThat(newState.activeWhitelists[blacklistedApp]!!.reason).isEqualTo("Needed an unblock")
-        // The session duration was 15 mins (900,000 ms)
-        assertThat(newState.activeWhitelists[blacklistedApp]!!.allocatedDurationMillis).isEqualTo(900_000L)
+        assertThat(newState.data.consumedCheckIns).hasSize(1)
+        assertThat(newState.data.consumedCheckIns.first().timeMinutes).isEqualTo(600)
+        assertThat(newState.interception.activeWhitelists).containsKey(blacklistedApp)
+        assertThat(newState.interception.activeWhitelists[blacklistedApp]!!.reason).isEqualTo("Needed an unblock")
+        assertThat(newState.interception.activeWhitelists[blacklistedApp]!!.allocatedDurationMillis).isEqualTo(900_000L)
     }
 
     @Test
     fun testEndGroupSession_RemovesWhitelist() {
-        val stateWithWhitelist =
-            initialState.copy(
-                activeWhitelists = mapOf(blacklistedApp to TemporaryWhitelist(blacklistedApp, "Test", 0L, 1000L, 1000L)),
-            )
+        val stateWithWhitelist = initialState.copy(interception = initialState.interception.copy(activeWhitelists = mapOf(blacklistedApp to TemporaryWhitelist(blacklistedApp, "Test", 0L, 1000L, 1000L))))
         val action = GatekeeperAction.EndGroupSession("group1")
         val newState = reduce(stateWithWhitelist, action)
-        assertThat(newState.activeWhitelists).isEmpty()
+        assertThat(newState.interception.activeWhitelists).isEmpty()
     }
 
     @Test
     fun testEndAppSession_RemovesWhitelistAndClearsExitInterview() {
-        val stateWithWhitelistAndOverlay =
-            initialState.copy(
-                activeWhitelists = mapOf(blacklistedApp to TemporaryWhitelist(blacklistedApp, "Test", 0L, 1000L, 1000L)),
-                isOverlayActive = true,
-                pendingExitInterview = blacklistedApp,
-            )
+        val stateWithWhitelistAndOverlay = initialState.copy(interception = initialState.interception.copy(activeWhitelists = mapOf(blacklistedApp to TemporaryWhitelist(blacklistedApp, "Test", 0L, 1000L, 1000L)), isOverlayActive = true, pendingExitInterview = blacklistedApp))
         val action = GatekeeperAction.EndAppSession(blacklistedApp)
         val newState = reduce(stateWithWhitelistAndOverlay, action)
-
-        assertThat(newState.activeWhitelists).isEmpty()
-        assertThat(newState.isOverlayActive).isFalse()
-        assertThat(newState.pendingExitInterview).isNull()
+        assertThat(newState.interception.activeWhitelists).isEmpty()
+        assertThat(newState.interception.isOverlayActive).isFalse()
+        assertThat(newState.interception.pendingExitInterview).isNull()
     }
 
     @Test
     fun testTriggerExitInterview_SetsOverlayAndPendingApp() {
         val action = GatekeeperAction.TriggerExitInterview(blacklistedApp)
         val newState = reduce(initialState, action)
-
-        assertThat(newState.isOverlayActive).isTrue()
-        assertThat(newState.pendingExitInterview).isEqualTo(blacklistedApp)
+        assertThat(newState.interception.isOverlayActive).isTrue()
+        assertThat(newState.interception.pendingExitInterview).isEqualTo(blacklistedApp)
     }
 
     @Test
     fun testCancelExitInterview_ClearsOverlayAndPendingApp() {
-        val stateWithInterview =
-            initialState.copy(
-                isOverlayActive = true,
-                pendingExitInterview = blacklistedApp,
-            )
+        val stateWithInterview = initialState.copy(interception = initialState.interception.copy(isOverlayActive = true, pendingExitInterview = blacklistedApp))
         val action = GatekeeperAction.CancelExitInterview
         val newState = reduce(stateWithInterview, action)
-
-        assertThat(newState.isOverlayActive).isFalse()
-        assertThat(newState.pendingExitInterview).isNull()
+        assertThat(newState.interception.isOverlayActive).isFalse()
+        assertThat(newState.interception.pendingExitInterview).isNull()
     }
-
-    // --- Subscription Reducer Tests ---
 
     @Test
     fun testClearExportData_ClearsState() {
-        val stateWithData = initialState.copy(exportData = "Some data")
+        val stateWithData = initialState.copy(data = initialState.data.copy(exportData = "Some data"))
         val newState = reduce(stateWithData, GatekeeperAction.ClearExportData)
-        assertThat(newState.exportData).isNull()
+        assertThat(newState.data.exportData).isNull()
     }
 
     @Test
     fun testFrictionCompleted_IncrementsBypassCounter() {
         val action = GatekeeperAction.FrictionCompleted("com.test", 900_000L, 1000L)
         val newState = reduce(initialState, action)
-        assertThat(newState.analyticsBypasses).isEqualTo(1)
+        assertThat(newState.data.analyticsBypasses).isEqualTo(1)
     }
 
     @Test
     fun testGenerateExportData_UpdatesState() {
         val newState = reduce(initialState, GatekeeperAction.UpgradeToProTier)
-        assertThat(newState.isProTier).isTrue()
+        assertThat(newState.sync.isProTier).isTrue()
     }
 
     @Test
     fun testSetFrictionGame_UpdatesState() {
-        val action = GatekeeperAction.SetFrictionGame(com.aegisgatekeeper.app.domain.FrictionGame.HOLD_STEADY)
+        val action = GatekeeperAction.SetFrictionGame(FrictionGame.HOLD_STEADY)
         val newState = reduce(initialState, action)
-        assertThat(newState.activeFrictionGame).isEqualTo(com.aegisgatekeeper.app.domain.FrictionGame.HOLD_STEADY)
+        assertThat(newState.interception.activeFrictionGame).isEqualTo(FrictionGame.HOLD_STEADY)
     }
 
     @Test
@@ -1080,257 +697,145 @@ class GatekeeperReducerTest {
         val apps = listOf("com.example.app1", "com.example.app2")
         val action = GatekeeperAction.UpdateMissionControlApps(apps)
         val newState = reduce(initialState, action)
-        assertThat(newState.missionControlApps).isEqualTo(apps)
+        assertThat(newState.data.missionControlApps).isEqualTo(apps)
     }
 
     @Test
     fun testUpdatePhaseWindows_UpdatesState() {
         val action = GatekeeperAction.UpdatePhaseWindows(100, 200, 300, 400)
         val newState = reduce(initialState, action)
-        assertThat(newState.deepWorkStartMinutes).isEqualTo(100)
-        assertThat(newState.deepWorkEndMinutes).isEqualTo(200)
-        assertThat(newState.gatheringStartMinutes).isEqualTo(300)
-        assertThat(newState.gatheringEndMinutes).isEqualTo(400)
+        assertThat(newState.data.deepWorkStartMinutes).isEqualTo(100)
+        assertThat(newState.data.deepWorkEndMinutes).isEqualTo(200)
+        assertThat(newState.data.gatheringStartMinutes).isEqualTo(300)
+        assertThat(newState.data.gatheringEndMinutes).isEqualTo(400)
     }
-
-    // --- Metacognition Reducer Tests ---
 
     @Test
     fun testLogSessionMetacognition_AppendsToSessionLogs() {
-        val action =
-            GatekeeperAction.LogSessionMetacognition(
-                packageName = "CleanPlayer: YouTube",
-                durationMillis = 120000L,
-                emotion = com.aegisgatekeeper.app.domain.Emotion.HAPPY,
-                currentTimestamp = 12345L,
-            )
-
+        val action = GatekeeperAction.LogSessionMetacognition(packageName = "CleanPlayer: YouTube", durationMillis = 120000L, emotion = Emotion.HAPPY, currentTimestamp = 12345L)
         val newState = reduce(initialState, action)
-
-        assertThat(newState.sessionLogs).hasSize(1)
-        val log = newState.sessionLogs.first()
+        assertThat(newState.data.sessionLogs).hasSize(1)
+        val log = newState.data.sessionLogs.first()
         assertThat(log.packageName).isEqualTo("CleanPlayer: YouTube")
         assertThat(log.durationMillis).isEqualTo(120000L)
-        assertThat(log.emotion).isEqualTo(com.aegisgatekeeper.app.domain.Emotion.HAPPY)
+        assertThat(log.emotion).isEqualTo(Emotion.HAPPY)
     }
-
-    // --- Permissions & Onboarding Reducer Tests ---
 
     @Test
     fun testPermissionsUpdated_setsFlagsAndCalculatesDualMoatStatus() {
-        // Arrange
-        val action =
-            GatekeeperAction.PermissionsUpdated(
-                hasOverlay = true,
-                hasUsageAccess = true,
-                hasAccessibility = false,
-                hasNotificationAccess = false,
-                isBatteryDisabled = false,
-            )
-
-        // Act 1: Partial permissions
+        val action = GatekeeperAction.PermissionsUpdated(hasOverlay = true, hasUsageAccess = true, hasAccessibility = false, hasNotificationAccess = false, isBatteryDisabled = false)
         val partialState = reduce(initialState, action)
-
-        // Assert 1
-        assertThat(partialState.hasOverlayPermission).isTrue()
-        assertThat(partialState.hasUsageAccessPermission).isTrue()
-        assertThat(partialState.hasAccessibilityPermission).isFalse()
-        assertThat(partialState.hasNotificationAccessPermission).isFalse()
-        assertThat(partialState.isBatteryOptimizationDisabled).isFalse()
-        assertThat(partialState.isDualMoatEnabled).isFalse() // Must be false until all are granted
-
-        // Act 2: All permissions granted
+        assertThat(partialState.interception.hasOverlayPermission).isTrue()
+        assertThat(partialState.interception.hasUsageAccessPermission).isTrue()
+        assertThat(partialState.interception.hasAccessibilityPermission).isFalse()
+        assertThat(partialState.interception.hasNotificationAccessPermission).isFalse()
+        assertThat(partialState.interception.isBatteryOptimizationDisabled).isFalse()
+        assertThat(partialState.isDualMoatEnabled).isFalse()
         val fullAction = action.copy(hasAccessibility = true, hasNotificationAccess = true, isBatteryDisabled = true)
         val finalState = reduce(initialState, fullAction)
-
-        // Assert 2
         assertThat(finalState.isDualMoatEnabled).isTrue()
     }
 
-    // --- Download Manager Reducer Tests ---
-
     @Test
     fun testDownloadMediaRequested_SetsStatusToQueued() {
-        val item =
-            ContentItem(
-                id = "1",
-                videoId = "url",
-                title = "T",
-                source = ContentSource.GENERIC,
-                type = ContentType.AUDIO,
-                rank = 0,
-                capturedAtTimestamp = 0,
-            )
-        val state = initialState.copy(contentItems = listOf(item))
+        val item = ContentItem(id = "1", videoId = "url", title = "T", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val state = initialState.copy(data = initialState.data.copy(contentItems = listOf(item)))
         val newState = reduce(state, GatekeeperAction.DownloadMediaRequested("1"))
-
-        assertThat(newState.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.QUEUED)
+        assertThat(newState.data.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.QUEUED)
     }
 
     @Test
     fun testDownloadProgressUpdated_SetsStatusToDownloadingAndUpdatesProgress() {
-        val item =
-            ContentItem(
-                id = "1",
-                videoId = "url",
-                title = "T",
-                source = ContentSource.GENERIC,
-                type = ContentType.AUDIO,
-                rank = 0,
-                capturedAtTimestamp = 0,
-            )
-        val state = initialState.copy(contentItems = listOf(item))
+        val item = ContentItem(id = "1", videoId = "url", title = "T", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val state = initialState.copy(data = initialState.data.copy(contentItems = listOf(item)))
         val newState = reduce(state, GatekeeperAction.DownloadProgressUpdated("1", 45.5f))
-
-        assertThat(newState.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.DOWNLOADING)
-        assertThat(newState.activeDownloads["1"]).isEqualTo(45.5f)
+        assertThat(newState.data.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.DOWNLOADING)
+        assertThat(newState.media.activeDownloads["1"]).isEqualTo(45.5f)
     }
 
     @Test
     fun testDownloadCompleted_SetsStatusToCompletedAndPath() {
-        val item =
-            ContentItem(
-                id = "1",
-                videoId = "url",
-                title = "T",
-                source = ContentSource.GENERIC,
-                type = ContentType.AUDIO,
-                rank = 0,
-                capturedAtTimestamp = 0,
-            )
-        val state = initialState.copy(contentItems = listOf(item), activeDownloads = mapOf("1" to 100f))
+        val item = ContentItem(id = "1", videoId = "url", title = "T", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0)
+        val state = initialState.copy(data = initialState.data.copy(contentItems = listOf(item)), media = initialState.media.copy(activeDownloads = mapOf("1" to 100f)))
         val newState = reduce(state, GatekeeperAction.DownloadCompleted("1", "/path/to/file.mp3"))
-
-        assertThat(newState.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.COMPLETED)
-        assertThat(newState.contentItems.first().localFilePath).isEqualTo("/path/to/file.mp3")
-        assertThat(newState.activeDownloads).isEmpty()
+        assertThat(newState.data.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.COMPLETED)
+        assertThat(newState.data.contentItems.first().localFilePath).isEqualTo("/path/to/file.mp3")
+        assertThat(newState.media.activeDownloads).isEmpty()
     }
 
     @Test
     fun testDeleteDownloadedMedia_ResetsStatusAndPath() {
-        val item =
-            ContentItem(
-                id = "1",
-                videoId = "url",
-                title = "T",
-                source = ContentSource.GENERIC,
-                type = ContentType.AUDIO,
-                rank = 0,
-                capturedAtTimestamp = 0,
-                downloadStatus = DownloadStatus.COMPLETED,
-                localFilePath = "/path/to/file.mp3",
-            )
-        val state = initialState.copy(contentItems = listOf(item))
+        val item = ContentItem(id = "1", videoId = "url", title = "T", source = ContentSource.GENERIC, type = ContentType.AUDIO, rank = 0, capturedAtTimestamp = 0, downloadStatus = DownloadStatus.COMPLETED, localFilePath = "/path/to/file.mp3")
+        val state = initialState.copy(data = initialState.data.copy(contentItems = listOf(item)))
         val newState = reduce(state, GatekeeperAction.DeleteDownloadedMedia("1"))
-
-        assertThat(newState.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.NONE)
-        assertThat(newState.contentItems.first().localFilePath).isNull()
+        assertThat(newState.data.contentItems.first().downloadStatus).isEqualTo(DownloadStatus.NONE)
+        assertThat(newState.data.contentItems.first().localFilePath).isNull()
     }
-
-    // --- Podcast Search Reducer Tests ---
 
     @Test
     fun testSearchPodcastsRequested_SetsLoadingState() {
         val newState = reduce(initialState, GatekeeperAction.SearchPodcastsRequested("huberman"))
-        assertThat(newState.isSearchingPodcasts).isTrue()
-        assertThat(newState.podcastSearchResults).isEmpty()
+        assertThat(newState.media.isSearchingPodcasts).isTrue()
+        assertThat(newState.media.podcastSearchResults).isEmpty()
     }
 
     @Test
     fun testPodcastSearchCompleted_SetsResultsAndClearsLoading() {
-        val state = initialState.copy(isSearchingPodcasts = true)
-        val mockResults =
-            listOf(
-                com.aegisgatekeeper.app.api
-                    .PodcastFeedDto(id = 1L, title = "Huberman Lab", url = "https://feed.xml"),
-            )
+        val state = initialState.copy(media = initialState.media.copy(isSearchingPodcasts = true))
+        val mockResults = listOf(com.aegisgatekeeper.app.api.PodcastFeedDto(id = 1L, title = "Huberman Lab", url = "https://feed.xml"))
         val newState = reduce(state, GatekeeperAction.PodcastSearchCompleted(mockResults))
-
-        assertThat(newState.isSearchingPodcasts).isFalse()
-        assertThat(newState.podcastSearchResults).hasSize(1)
-        assertThat(newState.podcastSearchResults.first().title).isEqualTo("Huberman Lab")
+        assertThat(newState.media.isSearchingPodcasts).isFalse()
+        assertThat(newState.media.podcastSearchResults).hasSize(1)
+        assertThat(newState.media.podcastSearchResults.first().title).isEqualTo("Huberman Lab")
     }
-
-    // --- Notification Digest & Interceptor Tests ---
 
     @Test
     fun testNotificationIntercepted_AppendsToDigest() {
-        val action =
-            GatekeeperAction.NotificationIntercepted(
-                packageName = "com.whatsapp",
-                title = "WhatsApp: John Doe",
-                content = "Hello there!",
-                timestamp = 1000L,
-            )
+        val action = GatekeeperAction.NotificationIntercepted(packageName = "com.whatsapp", title = "WhatsApp: John Doe", content = "Hello there!", timestamp = 1000L)
         val newState = reduce(initialState, action)
-
-        com.google.common.truth.Truth
-            .assertThat(newState.notificationDigest)
-            .hasSize(1)
-        com.google.common.truth.Truth
-            .assertThat(newState.notificationDigest.first().packageName)
-            .isEqualTo("com.whatsapp")
-        com.google.common.truth.Truth
-            .assertThat(newState.notificationDigest.first().title)
-            .isEqualTo("WhatsApp: John Doe")
+        assertThat(newState.sync.notificationDigest).hasSize(1)
+        assertThat(newState.sync.notificationDigest.first().packageName).isEqualTo("com.whatsapp")
+        assertThat(newState.sync.notificationDigest.first().title).isEqualTo("WhatsApp: John Doe")
     }
-
-    // --- Beeper Integration Reducer Tests ---
 
     @Test
     fun testBeeperSyncActions_UpdateState() {
         val reqState = reduce(initialState, GatekeeperAction.RequestBeeperSync)
-        assertThat(reqState.isSyncingBeeper).isTrue()
-
+        assertThat(reqState.sync.isSyncingBeeper).isTrue()
         val loadedState = reduce(reqState, GatekeeperAction.BeeperChatsLoaded(listOf(BeeperChat("1", "Test", "WhatsApp"))))
-        assertThat(loadedState.isSyncingBeeper).isFalse()
-        assertThat(loadedState.beeperChats).hasSize(1)
-
+        assertThat(loadedState.sync.isSyncingBeeper).isFalse()
+        assertThat(loadedState.sync.beeperChats).hasSize(1)
         val failedState = reduce(reqState, GatekeeperAction.BeeperSyncFailed("Error"))
-        assertThat(failedState.isSyncingBeeper).isFalse()
+        assertThat(failedState.sync.isSyncingBeeper).isFalse()
     }
 
     @Test
     fun testScheduleMessage_AppendsToState() {
         val msg = ScheduledMessage("1", "room1", "Test Chat", "Hello", 1000L)
         val newState = reduce(initialState, GatekeeperAction.ScheduleMessage(msg))
-        assertThat(newState.scheduledMessages).hasSize(1)
+        assertThat(newState.sync.scheduledMessages).hasSize(1)
     }
 
     @Test
     fun testMessageStatusUpdates_ModifiesState() {
         val msg = ScheduledMessage("1", "room1", "Test Chat", "Hello", 1000L)
         val stateWithMessage = reduce(initialState, GatekeeperAction.ScheduleMessage(msg))
-
         val cancelledState = reduce(stateWithMessage, GatekeeperAction.CancelScheduledMessage("1"))
-        assertThat(cancelledState.scheduledMessages.first().status).isEqualTo(MessageStatus.CANCELLED)
-
+        assertThat(cancelledState.sync.scheduledMessages.first().status).isEqualTo(MessageStatus.CANCELLED)
         val sentState = reduce(stateWithMessage, GatekeeperAction.MessageDelivered("1"))
-        assertThat(sentState.scheduledMessages.first().status).isEqualTo(MessageStatus.SENT)
-
+        assertThat(sentState.sync.scheduledMessages.first().status).isEqualTo(MessageStatus.SENT)
         val failedState = reduce(stateWithMessage, GatekeeperAction.MessageFailed("1", "Error"))
-        assertThat(failedState.scheduledMessages.first().status).isEqualTo(MessageStatus.FAILED)
+        assertThat(failedState.sync.scheduledMessages.first().status).isEqualTo(MessageStatus.FAILED)
     }
 
     @Test
     fun testInitialStateLoaded_ReplacesState() {
-        // Arrange: A mock hydrated state loaded from the DB
-        val loadedState =
-            GatekeeperState(
-                isProTier = true,
-                jwtToken = "mock_token",
-                missionControlApps = listOf("com.test.app"),
-            )
-
+        val loadedState = GatekeeperState(sync = SyncAndIntegrationState(isProTier = true, jwtToken = "mock_token"), data = DataState(missionControlApps = listOf("com.test.app")))
         val action = GatekeeperAction.InitialStateLoaded(loadedState)
-
-        // Act
         val newState = reduce(initialState, action)
-
-        // Assert: The reducer should completely overwrite the initial state
         assertThat(newState).isEqualTo(loadedState)
-        assertThat(newState.isProTier).isTrue()
-        assertThat(newState.jwtToken).isEqualTo("mock_token")
-        assertThat(newState.missionControlApps).containsExactly("com.test.app")
+        assertThat(newState.sync.isProTier).isTrue()
+        assertThat(newState.sync.jwtToken).isEqualTo("mock_token")
+        assertThat(newState.data.missionControlApps).containsExactly("com.test.app")
     }
 }

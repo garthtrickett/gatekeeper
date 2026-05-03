@@ -311,8 +311,8 @@ class ContentBankUiTest {
         // Wait for coroutine to process metadata
         Thread.sleep(1000)
 
-        val state = GatekeeperStateManager.state.value
-        val item = state.contentItems.find { it.videoId == testUrl }
+                val state = GatekeeperStateManager.state.value
+        val item = state.data.contentItems.find { it.videoId == testUrl }
         com.google.common.truth.Truth
             .assertThat(item)
             .isNotNull()

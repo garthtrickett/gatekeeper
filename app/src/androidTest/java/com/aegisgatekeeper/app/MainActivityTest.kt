@@ -70,8 +70,8 @@ class MainActivityTest {
             ),
         )
 
-        val savedItem =
-            GatekeeperStateManager.state.value.contentItems
+                val savedItem =
+            GatekeeperStateManager.state.value.data.contentItems
                 .first { it.videoId == videoId }
 
         val intent =

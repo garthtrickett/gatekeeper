@@ -258,8 +258,8 @@ class DualMoatIntegrationTest {
                             .toSet(),
                 )
 
-            val group =
-                stateManager.state.value.appGroups
+                        val group =
+                stateManager.state.value.interception.appGroups
                     .first()
                         val updatedGroup =
                 group.copy(
@@ -287,8 +287,43 @@ class DualMoatIntegrationTest {
             assertThat(reason).contains("Check-In Required (10:00, 12:00)")
         }
 
-    @Test
+        @Test
     fun whenRuleIsBroken_layerAlphaDispatchesViolation() =
+        runTest {
+            // Arrange: Add a time limit rule to the test group
+            val rule =
+                com.aegisgatekeeper.app.domain.BlockingRule.TimeLimit(
+                    id = "test-rule",
+                    groupId = "test-group-id",
+                    timeLimitMinutes = 0,
+                ) // 0 minute limit
+            val group =
+                stateManager.state.value.interception.appGroups
+                    .first()
+            val updatedGroup = group.copy(rules = listOf(rule))
+            val stateWithRule = GatekeeperState(interception = com.aegisgatekeeper.app.domain.InterceptionState(appGroups = listOf(updatedGroup)))
+
+            val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
+            stateFlowField.isAccessible = true
+            @Suppress("UNCHECKED_CAST")
+            (stateFlowField.get(stateManager) as MutableStateFlow<GatekeeperState>).value = stateWithRule
+
+            // Act: Simulate a Layer Alpha tick. The logic inside the service would evaluate the rule.
+            // We are directly dispatching the result of that evaluation for this test.
+            stateManager.dispatch(
+                GatekeeperAction.RuleViolationDetected(
+                    packageName = testAppPackage,
+                    reason = "Policy Violation: Time Limit Reached (0m left, used 0/0m) for 'Test Group'",
+                    currentTimestamp = System.currentTimeMillis(),
+                ),
+            )
+
+            // Assert: The overlay should be active with the correct reason.
+            assertThat(stateManager.state.value.interception.isOverlayActive).isTrue()
+            assertThat(
+                stateManager.state.value.interception.activeBlockReason,
+            ).isEqualTo("Policy Violation: Time Limit Reached (0m left, used 0/0m) for 'Test Group'")
+        }
         runTest {
             // Arrange: Add a time limit rule to the test group
             val rule =

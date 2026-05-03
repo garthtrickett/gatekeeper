@@ -94,9 +94,9 @@ class CleanYouTubeScreenTest {
         // Act
         composeTestRule.onNodeWithText("Auth").performClick()
 
-        // Assert: Verify state manager triggered the Pinned Website modal
+                // Assert: Verify state manager triggered the Pinned Website modal
         val state = GatekeeperStateManager.state.value
-        assertThat(state.activePinnedWebsiteUrl).contains("accounts.google.com")
+        assertThat(state.media.activePinnedWebsiteUrl).contains("accounts.google.com")
 
         showDialog.value = false
         composeTestRule.waitForIdle()

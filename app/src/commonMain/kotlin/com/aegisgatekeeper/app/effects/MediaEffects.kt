@@ -32,8 +32,8 @@ suspend fun handleMediaAndSystemEffects(
             )
         }
 
-        is GatekeeperAction.DownloadMediaRequested -> {
-            val item = newState.contentItems.find { it.id == action.id }
+                is GatekeeperAction.DownloadMediaRequested -> {
+            val item = newState.data.contentItems.find { it.id == action.id }
             if (item != null) {
                 platformLog("Gatekeeper", "⬇️ Starting download for ${item.title}")
                 MediaDownloader.enqueueDownload(item.id, item.videoId)
@@ -70,12 +70,12 @@ suspend fun handleMediaAndSystemEffects(
         is GatekeeperAction.LoadPodcastEpisodes -> {
             platformLog("Gatekeeper", "📡 Loading Podcast Episodes from RSS: ${action.feedUrl}")
             effectHandler.fetchPodcastFeed(action.feedUrl).fold(
-                ifLeft = { error ->
+                                ifLeft = { error ->
                     platformLog("Gatekeeper", "❌ Failed to load podcast episodes: $error")
-                    if (newState.activePodcastEpisodes == null) {
+                    if (newState.media.activePodcastEpisodes == null) {
                         dispatch(GatekeeperAction.ClearPodcastEpisodes)
                     } else {
-                        dispatch(GatekeeperAction.PodcastEpisodesLoaded(newState.activePodcastEpisodes, action.podcastId))
+                        dispatch(GatekeeperAction.PodcastEpisodesLoaded(newState.media.activePodcastEpisodes!!, action.podcastId))
                     }
                 },
                 ifRight = { data ->
@@ -191,11 +191,11 @@ suspend fun handleMediaAndSystemEffects(
             dispatch(GatekeeperAction.SessionExpired(action.packageName, action.allocatedDurationMillis))
         }
 
-        is GatekeeperAction.RedeemCheckInToken -> {
-            val group = newState.appGroups.find { it.id == action.groupId }
+                is GatekeeperAction.RedeemCheckInToken -> {
+            val group = newState.interception.appGroups.find { it.id == action.groupId }
             val apps = group?.apps ?: emptySet()
-            if (oldState.currentlyInterceptedApp in apps) {
-                val packageName = oldState.currentlyInterceptedApp!!
+            if (oldState.interception.currentlyInterceptedApp in apps) {
+                val packageName = oldState.interception.currentlyInterceptedApp!!
                 platformLog("Gatekeeper", "⚙️ RedeemCheckInToken: Relaunching app to ensure it wasn't killed")
                 effectHandler.launchApp(packageName)
                 val durationMillis = action.durationMinutes * 60_000L

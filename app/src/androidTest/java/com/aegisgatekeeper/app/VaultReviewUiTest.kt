@@ -74,8 +74,8 @@ class VaultReviewUiTest {
         composeTestRule.waitForIdle()
 
         // Assert: Verify action reached the StateManager
-        val state = GatekeeperStateManager.state.value
-        val item = state.vaultItems.find { it.query == testQuery }
+                val state = GatekeeperStateManager.state.value
+        val item = state.data.vaultItems.find { it.query == testQuery }
         com.google.common.truth.Truth
             .assertThat(item)
             .isNotNull()
@@ -137,13 +137,13 @@ class VaultReviewUiTest {
         composeTestRule.waitForIdle()
 
                 // Assert: Verify state triggered the Web navigation
-        val state = GatekeeperStateManager.state.value
+                val state = GatekeeperStateManager.state.value
         com.google.common.truth.Truth
-            .assertThat(state.currentSurgicalUrl)
+            .assertThat(state.media.currentSurgicalUrl)
             .contains("m.youtube.com")
 
         // Assert: Item should be resolved
-        val item = state.vaultItems.find { it.query == query }
+        val item = state.data.vaultItems.find { it.query == query }
         com.google.common.truth.Truth
             .assertThat(item?.isResolved)
             .isTrue()
