@@ -25,6 +25,7 @@ fun executeSyncAndAuthEffect(effect: GatekeeperEffect) {
 }
 
 
+    fun unusedSyncEffects(
     action: GatekeeperAction,
     newState: GatekeeperState,
     db: GatekeeperDatabase,

@@ -68,5 +68,4 @@ object GatekeeperStateManager {
         }
     }
 
-    fun deletedHandleEffects2() {}
 }

@@ -36,6 +36,7 @@ suspend fun executeIntegrationEffect(
 }
 
 
+    fun unusedIntegrationEffects(
     action: GatekeeperAction,
     newState: GatekeeperState,
     dispatch: (GatekeeperAction) -> Unit,
