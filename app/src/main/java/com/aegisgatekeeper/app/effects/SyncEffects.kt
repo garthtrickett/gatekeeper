@@ -8,7 +8,7 @@ import com.aegisgatekeeper.app.db.GatekeeperDatabase
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.GatekeeperState
 
-fun deletedHandleSyncAndAuthEffects_java() {}
+fun deletedHandleSyncAndAuthEffects_java(
     action: GatekeeperAction,
     newState: GatekeeperState,
     db: GatekeeperDatabase,

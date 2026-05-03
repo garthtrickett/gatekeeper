@@ -856,7 +856,7 @@ fun executeDatabaseEffect(
     }
 }
 
-fun deletedHandleDatabaseEffects_common() {}
+fun deletedHandleDatabaseEffects_common(
     action: GatekeeperAction,
     oldState: GatekeeperState,
     newState: GatekeeperState,

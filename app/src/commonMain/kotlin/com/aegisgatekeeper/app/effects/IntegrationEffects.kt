@@ -35,7 +35,7 @@ suspend fun executeIntegrationEffect(
     }
 }
 
-fun deletedHandleIntegrationEffects_common() {}
+suspend fun deletedHandleIntegrationEffects_common(
     action: GatekeeperAction,
     newState: GatekeeperState,
     dispatch: (GatekeeperAction) -> Unit,

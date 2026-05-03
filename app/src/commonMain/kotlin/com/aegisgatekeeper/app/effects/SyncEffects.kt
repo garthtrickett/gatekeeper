@@ -26,7 +26,7 @@ fun executeSyncAndAuthEffect(
     }
 }
 
-fun deletedHandleSyncAndAuthEffects_common() {}
+fun deletedHandleSyncAndAuthEffects_common(
     action: GatekeeperAction,
     newState: GatekeeperState,
     db: GatekeeperDatabase,
