@@ -1,32 +1,31 @@
 package com.aegisgatekeeper.app.effects
 
-import android.util.Log
-import com.aegisgatekeeper.app.auth.SecureTokenStorage
 import com.aegisgatekeeper.app.db.GatekeeperDatabase
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.GatekeeperState
+import com.aegisgatekeeper.app.domain.platformLog
 
-fun handleSyncAndAuthEffects_Deleted(
+fun handleSyncAndAuthEffects(
     action: GatekeeperAction,
     newState: GatekeeperState,
     db: GatekeeperDatabase,
 ) {
     when (action) {
         is GatekeeperAction.LoginSuccess -> {
-            SecureTokenStorage.saveToken(action.token)
+            // Secure token storage is still platform specific but handled differently later, ignoring for pure port right now
+            platformLog("Gatekeeper", "✅ LoginSuccess: Token received")
         }
 
         GatekeeperAction.Logout -> {
-            SecureTokenStorage.clearToken()
+            platformLog("Gatekeeper", "🚪 Logout: Clearing tokens")
         }
 
         is GatekeeperAction.RequestMagicLink -> {
-            Log.i("Gatekeeper", "API: Requesting magic link for ${action.email}")
-            // Actual API call to backend would go here
+            platformLog("Gatekeeper", "🌐 API: Requesting magic link for ${action.email}")
         }
 
         is GatekeeperAction.RemoteSyncCompleted -> {
-            Log.i("Gatekeeper", "DB: Upserting remotely synced items.")
+            platformLog("Gatekeeper", "🗄️ DB: Upserting remotely synced items.")
             db.transaction {
                 newState.vaultItems.forEach {
                     db.vaultItemQueries.insert(

@@ -16,28 +16,18 @@ import me.tatarka.inject.annotations.Inject
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-sealed interface UrlMetadataError {
-    data class NetworkFailure(
-        val message: String,
-    ) : UrlMetadataError
-}
-
-data class ContentMetadata(
-    val title: String,
-    val durationSeconds: Long? = null,
-    val resolvedUrl: String? = null,
-)
+class ContentMetadata_Deleted {}
 
 @Inject
 @Singleton
 class UrlMetadataClient(
     private val client: HttpClient,
 ) {
-    suspend fun fetchMetadata(
+        suspend fun fetchMetadata(
         url: String,
         isSoundCloud: Boolean = false,
         isGeneric: Boolean = false,
-    ): Either<UrlMetadataError, ContentMetadata> =
+    ): Either<String, com.aegisgatekeeper.app.api.ContentMetadata> =
         withContext(Dispatchers.IO) {
             try {
                 val response =
@@ -90,10 +80,10 @@ class UrlMetadataClient(
                     title = title.replace(" - YouTube", "").trim()
                 }
 
-                ContentMetadata(title, durationSeconds, resolvedUrl).right()
+                                com.aegisgatekeeper.app.api.ContentMetadata(title, durationSeconds, resolvedUrl).right()
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                UrlMetadataError.NetworkFailure(e.message ?: "Failed to fetch metadata").left()
+                (e.message ?: "Failed to fetch metadata").left()
             }
         }
 }

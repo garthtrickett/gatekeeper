@@ -11,3 +11,7 @@ actual fun isDevEnvironment(): Boolean =
 
 actual fun randomUUIDString(): String = java.util.UUID.randomUUID().toString()
 actual fun currentTimeMillis(): Long = System.currentTimeMillis()
+
+actual fun platformLog(tag: String, message: String) {
+    android.util.Log.d(tag, message)
+}

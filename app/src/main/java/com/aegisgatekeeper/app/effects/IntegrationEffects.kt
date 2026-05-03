@@ -11,7 +11,7 @@ import com.aegisgatekeeper.app.domain.GatekeeperState
 import com.aegisgatekeeper.app.integrations.MessageDeliveryWorker
 import java.util.concurrent.TimeUnit
 
-suspend fun handleIntegrationEffects(
+suspend fun handleIntegrationEffects_Deleted(
     action: GatekeeperAction,
     newState: GatekeeperState,
     dispatch: (GatekeeperAction) -> Unit,

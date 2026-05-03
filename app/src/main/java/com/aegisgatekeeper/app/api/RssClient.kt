@@ -15,18 +15,7 @@ import me.tatarka.inject.annotations.Inject
 import java.net.HttpURLConnection
 import java.net.URL
 
-data class RssEpisode(
-    val title: String,
-    val audioUrl: String,
-    val durationSeconds: Long?,
-    val pubDate: String?,
-)
-
-data class RssFeedData(
-    val title: String,
-    val artworkUrl: String?,
-    val episodes: List<RssEpisode>,
-)
+class RssFeedData_Deleted {}
 
 @Inject
 @Singleton

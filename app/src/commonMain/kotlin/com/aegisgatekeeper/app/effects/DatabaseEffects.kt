@@ -1,12 +1,13 @@
 package com.aegisgatekeeper.app.effects
 
-import android.util.Log
 import com.aegisgatekeeper.app.db.GatekeeperDatabase
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.GatekeeperState
-import java.util.UUID
+import com.aegisgatekeeper.app.domain.platformLog
+import com.aegisgatekeeper.app.domain.randomUUIDString
+import com.aegisgatekeeper.app.domain.currentTimeMillis
 
-fun handleDatabaseEffects_Deleted(
+fun handleDatabaseEffects(
     action: GatekeeperAction,
     oldState: GatekeeperState,
     newState: GatekeeperState,
@@ -17,7 +18,7 @@ fun handleDatabaseEffects_Deleted(
         is GatekeeperAction.SaveToVault -> {
             val newItem = (newState.vaultItems - oldState.vaultItems.toSet()).firstOrNull()
             newItem?.let {
-                Log.i("Gatekeeper", "DB: Inserting new VaultItem: ${it.id}")
+                platformLog("Gatekeeper", "🗄️ DB: Inserting new VaultItem: ${it.id}")
                 db.vaultItemQueries.insert(
                     id = it.id,
                     query = it.query,
@@ -31,7 +32,7 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.MarkVaultItemResolved -> {
-            Log.i("Gatekeeper", "DB: Marking VaultItem as resolved: ${action.id}")
+            platformLog("Gatekeeper", "🗄️ DB: Marking VaultItem as resolved: ${action.id}")
             db.vaultItemQueries.markAsResolved(
                 lastModified = action.currentTimestamp,
                 id = action.id,
@@ -39,7 +40,7 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.SavePodcastSubscription -> {
-            Log.i("Gatekeeper", "DB: Inserting PodcastSubscription: ${action.subscription.showTitle}")
+            platformLog("Gatekeeper", "🗄️ DB: Inserting PodcastSubscription: ${action.subscription.showTitle}")
             db.podcastSubscriptionQueries.insert(
                 id = action.subscription.id,
                 feedUrl = action.subscription.feedUrl,
@@ -49,7 +50,7 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.RemovePodcastSubscription -> {
-            Log.i("Gatekeeper", "DB: Deleting PodcastSubscription: ${action.id}")
+            platformLog("Gatekeeper", "🗄️ DB: Deleting PodcastSubscription: ${action.id}")
             db.transaction {
                 db.podcastSubscriptionQueries.delete(action.id)
                 val itemsToDelete = oldState.contentItems.filter { it.podcastId == action.id }
@@ -66,13 +67,13 @@ fun handleDatabaseEffects_Deleted(
         }
 
         GatekeeperAction.PodcastSyncCompleted -> {
-            Log.i("Gatekeeper", "DB: Podcast sync completed")
+            platformLog("Gatekeeper", "🗄️ DB: Podcast sync completed")
         }
 
         is GatekeeperAction.SaveToContentBank -> {
             val updatedOrNewItem = newState.contentItems.find { it.videoId == action.videoId && it.source == action.source }
             updatedOrNewItem?.let {
-                Log.i("Gatekeeper", "DB: Upserting ContentItem: ${it.title}")
+                platformLog("Gatekeeper", "🗄️ DB: Upserting ContentItem: ${it.title}")
                 db.contentItemQueries.insert(
                     id = it.id,
                     podcastId = it.podcastId,
@@ -98,7 +99,6 @@ fun handleDatabaseEffects_Deleted(
         is GatekeeperAction.DownloadFailed,
         is GatekeeperAction.DeleteDownloadedMedia,
         -> {
-            // Update the download status in the DB
             val actionId =
                 when (action) {
                     is GatekeeperAction.DownloadMediaRequested -> action.id
@@ -112,14 +112,14 @@ fun handleDatabaseEffects_Deleted(
                 db.contentItemQueries.updateDownloadStatus(
                     downloadStatus = item.downloadStatus,
                     localFilePath = item.localFilePath,
-                    lastModified = System.currentTimeMillis(),
+                    lastModified = currentTimeMillis(),
                     id = item.id,
                 )
             }
         }
 
         is GatekeeperAction.ReorderContentBank -> {
-            Log.i("Gatekeeper", "DB: Reordering Content Bank")
+            platformLog("Gatekeeper", "🗄️ DB: Reordering Content Bank")
             db.transaction {
                 newState.contentItems.forEach { item ->
                     db.contentItemQueries.updateRank(rank = item.rank, lastModified = action.currentTimestamp, id = item.id)
@@ -128,7 +128,7 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.RemoveFromContentBank -> {
-            Log.i("Gatekeeper", "DB: Removing ContentItem: ${action.id}")
+            platformLog("Gatekeeper", "🗄️ DB: Removing ContentItem: ${action.id}")
             db.transaction {
                 db.contentItemQueries.delete(lastModified = action.currentTimestamp, id = action.id)
                 val slots = db.intentionalSlotQueries.selectAll().executeAsList()
@@ -154,20 +154,16 @@ fun handleDatabaseEffects_Deleted(
                     )
                 }
             if (cached.isNotEmpty()) {
-                Log.i("Gatekeeper", "DB: Loaded ${cached.size} cached episodes for podcast ${action.podcastId}")
+                platformLog("Gatekeeper", "🗄️ DB: Loaded ${cached.size} cached episodes for podcast ${action.podcastId}")
                 dispatch(GatekeeperAction.PodcastEpisodesLoaded(cached, action.podcastId))
             }
         }
 
         is GatekeeperAction.CacheParsedEpisodes -> {
-            Log.i("Gatekeeper", "DB: Caching ${action.episodes.size} episodes for podcast ${action.podcastId}")
+            platformLog("Gatekeeper", "🗄️ DB: Caching ${action.episodes.size} episodes for podcast ${action.podcastId}")
             db.transaction {
-                val baseTime = System.currentTimeMillis()
                 action.episodes.forEachIndexed { index, ep ->
-                    val id =
-                        java.util.UUID
-                            .nameUUIDFromBytes(ep.audioUrl.toByteArray())
-                            .toString()
+                    val id = randomUUIDString() // Simplified from nameUUIDFromBytes for pure Kotlin
                     db.podcastEpisodeQueries.insertOrReplace(
                         id = id,
                         podcastId = action.podcastId,
@@ -219,12 +215,12 @@ fun handleDatabaseEffects_Deleted(
                         artworkUrl = row.artworkUrl,
                     )
                 }
-            Log.i("Gatekeeper", "DB: Loaded ${episodes.size} latest global episodes")
+            platformLog("Gatekeeper", "🗄️ DB: Loaded ${episodes.size} latest global episodes")
             dispatch(GatekeeperAction.LatestGlobalEpisodesLoaded(episodes))
         }
 
         is GatekeeperAction.SaveIntentionalSlot -> {
-            Log.i("Gatekeeper", "DB: Inserting IntentionalSlotItem at slot ${action.slotIndex}")
+            platformLog("Gatekeeper", "🗄️ DB: Inserting IntentionalSlotItem at slot ${action.slotIndex}")
             db.intentionalSlotQueries.insert(
                 slotIndex = action.slotIndex.toLong(),
                 contentItemId = action.contentItem.id,
@@ -232,7 +228,7 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.ClearIntentionalSlot -> {
-            Log.i("Gatekeeper", "DB: Removing IntentionalSlotItem at slot ${action.slotIndex}")
+            platformLog("Gatekeeper", "🗄️ DB: Removing IntentionalSlotItem at slot ${action.slotIndex}")
             db.intentionalSlotQueries.delete(slotIndex = action.slotIndex.toLong())
         }
 
@@ -321,7 +317,7 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.ResetCheckIns -> {
-            Log.i("Gatekeeper", "DB: Resetting check-ins for group ${action.groupId}")
+            platformLog("Gatekeeper", "🗄️ DB: Resetting check-ins for group ${action.groupId}")
             db.blockingRuleQueries.deleteConsumedCheckInsForGroup(action.groupId)
         }
 
@@ -332,7 +328,7 @@ fun handleDatabaseEffects_Deleted(
             }
             if (action.reason != null) {
                 db.emergencyBypassLogQueries.insert(
-                    id = UUID.randomUUID().toString(),
+                    id = randomUUIDString(),
                     packageName = "Group: ${action.groupId}",
                     reason = action.reason,
                     timestamp = action.currentTimestamp,
@@ -349,22 +345,22 @@ fun handleDatabaseEffects_Deleted(
         }
 
         GatekeeperAction.UpgradeToProTier -> {
-            Log.i("Gatekeeper", "DB: User Upgraded to Pro Tier")
+            platformLog("Gatekeeper", "🗄️ DB: User Upgraded to Pro Tier")
             db.appSettingsQueries.updateProStatus(true)
         }
 
         is GatekeeperAction.SetFrictionGame -> {
-            Log.i("Gatekeeper", "DB: User Changed Friction Game to ${action.game.name}")
+            platformLog("Gatekeeper", "🗄️ DB: User Changed Friction Game to ${action.game.name}")
             db.appSettingsQueries.updateFrictionGame(action.game)
         }
 
         is GatekeeperAction.SetManualLockdown -> {
-            Log.i("Gatekeeper", "DB: User toggled Manual Lockdown to ${action.isActive}")
+            platformLog("Gatekeeper", "🗄️ DB: User toggled Manual Lockdown to ${action.isActive}")
             db.appSettingsQueries.updateManualLockdown(action.isActive)
         }
 
         is GatekeeperAction.UpdatePhaseWindows -> {
-            Log.i("Gatekeeper", "DB: Updating Phase Windows")
+            platformLog("Gatekeeper", "🗄️ DB: Updating Phase Windows")
             db.appSettingsQueries.updatePhaseWindows(
                 deepWorkStart = action.deepWorkStartMinutes.toLong(),
                 deepWorkEnd = action.deepWorkEndMinutes.toLong(),
@@ -374,14 +370,14 @@ fun handleDatabaseEffects_Deleted(
         }
 
         GatekeeperAction.ClearNotificationDigest -> {
-            Log.i("Gatekeeper", "DB: Clearing Notification Digest")
+            platformLog("Gatekeeper", "🗄️ DB: Clearing Notification Digest")
             db.notificationDigestQueries.deleteAll()
         }
 
         is GatekeeperAction.NotificationIntercepted -> {
             val newLog = (newState.notificationDigest - oldState.notificationDigest.toSet()).firstOrNull()
             newLog?.let {
-                Log.i("Gatekeeper", "DB: Inserting new NotificationDigest: ${it.id}")
+                platformLog("Gatekeeper", "🗄️ DB: Inserting new NotificationDigest: ${it.id}")
                 db.notificationDigestQueries.insert(
                     id = it.id,
                     packageName = it.packageName,
@@ -393,7 +389,7 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.UpdateMissionControlApps -> {
-            Log.i("Gatekeeper", "DB: Updating Mission Control Apps")
+            platformLog("Gatekeeper", "🗄️ DB: Updating Mission Control Apps")
             db.transaction {
                 db.missionControlAppQueries.deleteAll()
                 action.packageNames.forEachIndexed { index, packageName ->
@@ -403,16 +399,16 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.LogGiveUp -> {
-            Log.i("Gatekeeper", "DB: Logging Give Up for ${action.packageName}")
+            platformLog("Gatekeeper", "🗄️ DB: Logging Give Up for ${action.packageName}")
             db.giveUpLogQueries.insert(
-                id = UUID.randomUUID().toString(),
+                id = randomUUIDString(),
                 packageName = action.packageName,
                 timestamp = action.currentTimestamp,
             )
         }
 
         GatekeeperAction.GenerateExportData -> {
-            Log.i("Gatekeeper", "Generating Export Data")
+            platformLog("Gatekeeper", "Generating Export Data")
             val vaultItems =
                 db.vaultItemQueries.selectAll().executeAsList().map {
                     com.aegisgatekeeper.app.domain
@@ -444,7 +440,7 @@ fun handleDatabaseEffects_Deleted(
         is GatekeeperAction.LogSessionMetacognition -> {
             val newLog = (newState.sessionLogs - oldState.sessionLogs.toSet()).firstOrNull()
             newLog?.let {
-                Log.i("Gatekeeper", "DB: Inserting new SessionLog: ${it.id}")
+                platformLog("Gatekeeper", "🗄️ DB: Inserting new SessionLog: ${it.id}")
                 db.sessionLogQueries.insert(
                     id = it.id,
                     packageName = it.packageName,
@@ -456,7 +452,7 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.SetCustomInterceptionMessage -> {
-            Log.d("Gatekeeper", "🗄️ SetCustomInterceptionMessage: Setting message for ${action.packageName}")
+            platformLog("Gatekeeper", "🗄️ SetCustomInterceptionMessage: Setting message for ${action.packageName}")
             db.customInterceptionMessageQueries.insert(
                 packageName = action.packageName,
                 message = action.message,
@@ -464,14 +460,14 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.RemoveCustomInterceptionMessage -> {
-            Log.d("Gatekeeper", "🗄️ RemoveCustomInterceptionMessage: Removing message for ${action.packageName}")
+            platformLog("Gatekeeper", "🗄️ RemoveCustomInterceptionMessage: Removing message for ${action.packageName}")
             db.customInterceptionMessageQueries.delete(action.packageName)
         }
 
         is GatekeeperAction.EmergencyBypassRequested -> {
-            Log.d("Gatekeeper", "🗄️ EmergencyBypassRequested: Logging bypass for ${action.packageName}")
+            platformLog("Gatekeeper", "🗄️ EmergencyBypassRequested: Logging bypass for ${action.packageName}")
             db.emergencyBypassLogQueries.insert(
-                id = UUID.randomUUID().toString(),
+                id = randomUUIDString(),
                 packageName = action.packageName,
                 reason = action.reason,
                 timestamp = action.currentTimestamp,
@@ -483,7 +479,7 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.AddPinnedWebsite -> {
-            Log.i("Gatekeeper", "DB: Adding pinned website ${action.label}")
+            platformLog("Gatekeeper", "🗄️ DB: Adding pinned website ${action.label}")
             db.missionControlWebsiteQueries.insert(
                 id = action.id,
                 label = action.label,
@@ -493,14 +489,14 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.RemovePinnedWebsite -> {
-            Log.i("Gatekeeper", "DB: Removing pinned website ${action.id}")
+            platformLog("Gatekeeper", "🗄️ DB: Removing pinned website ${action.id}")
             db.missionControlWebsiteQueries.delete(id = action.id)
         }
 
         is GatekeeperAction.AddAlternativeActivity -> {
             val newActivity = (newState.alternativeActivities - oldState.alternativeActivities.toSet()).firstOrNull()
             newActivity?.let {
-                Log.i("Gatekeeper", "DB: Inserting new AlternativeActivity: ${it.description}")
+                platformLog("Gatekeeper", "🗄️ DB: Inserting new AlternativeActivity: ${it.description}")
                 db.alternativeActivityQueries.insert(
                     id = it.id,
                     description = it.description,
@@ -510,12 +506,12 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.RemoveAlternativeActivity -> {
-            Log.i("Gatekeeper", "DB: Removing AlternativeActivity: ${action.id}")
+            platformLog("Gatekeeper", "🗄️ DB: Removing AlternativeActivity: ${action.id}")
             db.alternativeActivityQueries.delete(action.id)
         }
 
         is GatekeeperAction.ScheduleMessage -> {
-            Log.i("Gatekeeper", "DB: Inserting ScheduledMessage: ${action.message.id}")
+            platformLog("Gatekeeper", "🗄️ DB: Inserting ScheduledMessage: ${action.message.id}")
             db.scheduledMessageQueries.insert(
                 id = action.message.id,
                 beeperRoomId = action.message.beeperRoomId,
@@ -527,17 +523,17 @@ fun handleDatabaseEffects_Deleted(
         }
 
         is GatekeeperAction.CancelScheduledMessage -> {
-            Log.i("Gatekeeper", "DB: Cancelling ScheduledMessage: ${action.id}")
+            platformLog("Gatekeeper", "🗄️ DB: Cancelling ScheduledMessage: ${action.id}")
             db.scheduledMessageQueries.updateStatus(com.aegisgatekeeper.app.domain.MessageStatus.CANCELLED, action.id)
         }
 
         is GatekeeperAction.MessageDelivered -> {
-            Log.i("Gatekeeper", "DB: Marking ScheduledMessage Sent: ${action.id}")
+            platformLog("Gatekeeper", "🗄️ DB: Marking ScheduledMessage Sent: ${action.id}")
             db.scheduledMessageQueries.updateStatus(com.aegisgatekeeper.app.domain.MessageStatus.SENT, action.id)
         }
 
         is GatekeeperAction.MessageFailed -> {
-            Log.i("Gatekeeper", "DB: Marking ScheduledMessage Failed: ${action.id}")
+            platformLog("Gatekeeper", "🗄️ DB: Marking ScheduledMessage Failed: ${action.id}")
             db.scheduledMessageQueries.updateStatus(com.aegisgatekeeper.app.domain.MessageStatus.FAILED, action.id)
         }
 

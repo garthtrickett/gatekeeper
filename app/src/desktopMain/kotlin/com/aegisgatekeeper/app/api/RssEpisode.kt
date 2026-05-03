@@ -1,6 +1,6 @@
 package com.aegisgatekeeper.app.api
 
-data class RssEpisode(
+class RssEpisode_Deleted {
     val title: String,
     val audioUrl: String,
     val durationSeconds: Long?,

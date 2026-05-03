@@ -4,3 +4,7 @@ actual fun isDevEnvironment(): Boolean = System.getenv("DEV_MODE") == "true" || 
 
 actual fun randomUUIDString(): String = java.util.UUID.randomUUID().toString()
 actual fun currentTimeMillis(): Long = System.currentTimeMillis()
+
+actual fun platformLog(tag: String, message: String) {
+    println("[$tag] $message")
+}

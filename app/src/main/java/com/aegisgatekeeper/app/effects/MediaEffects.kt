@@ -17,7 +17,7 @@ import com.aegisgatekeeper.app.widget.VaultWidget
 import com.aegisgatekeeper.app.widget.updateAll
 import kotlinx.coroutines.delay
 
-suspend fun handleMediaAndSystemEffects(
+suspend fun handleMediaAndSystemEffects_Deleted(
     action: GatekeeperAction,
     oldState: GatekeeperState,
     newState: GatekeeperState,
