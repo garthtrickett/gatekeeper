@@ -12,7 +12,7 @@ fun deletedReduce(
     state: GatekeeperState,
     action: GatekeeperAction,
 ): GatekeeperState {
-        var newState = deletedReduceRulesAndIntercepts(state, action)
+    var newState = deletedReduceRulesAndIntercepts(state, action)
     newState = deletedReduceContentAndVault(newState, action)
     newState = deletedReduceSyncAndAuth(newState, action)
     return newState

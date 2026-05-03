@@ -16,6 +16,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 class DeletedRssFeedData
+
 class DeletedRssFeedData2
 
 @Inject

@@ -26,4 +26,5 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 object DeletedGatekeeperStateManager
+
 object DeletedGatekeeperStateManager2

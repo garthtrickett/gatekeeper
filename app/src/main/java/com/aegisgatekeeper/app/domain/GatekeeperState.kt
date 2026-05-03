@@ -86,7 +86,7 @@ data class DeletedGatekeeperState(
     val alternativeActivities: List<AlternativeActivity> = emptyList(),
 ) {
     val isDualMoatEnabled: Boolean
-                get() =
+        get() =
             hasOverlayPermission && hasUsageAccessPermission && hasAccessibilityPermission && hasNotificationAccessPermission &&
                 isBatteryOptimizationDisabled
 }

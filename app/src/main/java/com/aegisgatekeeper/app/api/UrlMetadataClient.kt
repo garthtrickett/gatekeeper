@@ -17,6 +17,7 @@ import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
 class DeletedContentMetadata
+
 class DeletedContentMetadata2
 
 @Inject
