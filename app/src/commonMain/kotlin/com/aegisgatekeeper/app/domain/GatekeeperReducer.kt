@@ -1,12 +1,6 @@
 package com.aegisgatekeeper.app.domain
 
-import android.util.Log
-
-/**
- * Pure top-level function. Evaluates actions and returns a new state.
- * No side effects allowed here (no DB calls, no clock reads, no API calls).
- */
-fun reduce_Deleted(
+fun reduce(
     state: GatekeeperState,
     action: GatekeeperAction,
 ): GatekeeperState {
@@ -16,7 +10,7 @@ fun reduce_Deleted(
     return newState
 }
 
-private fun reduceRulesAndIntercepts_Deleted(
+private fun reduceRulesAndIntercepts(
     state: GatekeeperState,
     action: GatekeeperAction,
 ): GatekeeperState =
@@ -114,7 +108,6 @@ private fun reduceRulesAndIntercepts_Deleted(
             state.copy(isLayerOmegaActive = false)
         }
 
-        // --- Friction & Bypass Logic (The "Uber" Problem) ---
         is GatekeeperAction.EmergencyBypassRequested -> {
             val expiresAt = action.currentTimestamp + action.allocatedDurationMillis
             val newWhitelist =
@@ -138,8 +131,6 @@ private fun reduceRulesAndIntercepts_Deleted(
         }
 
         is GatekeeperAction.LogGiveUp -> {
-            // CRITICAL FIX: Grant a 2-second grace period to prevent re-interception
-            // during the race between the overlay disappearing and the home intent firing.
             val gracePeriodExpires = action.currentTimestamp + 2000L
             val newWhitelist =
                 TemporaryWhitelist(
@@ -201,7 +192,6 @@ private fun reduceRulesAndIntercepts_Deleted(
         }
 
         is GatekeeperAction.WhitelistExpired -> {
-            // Clean up the map
             state.copy(
                 activeWhitelists = state.activeWhitelists - action.packageName,
             )
@@ -489,7 +479,6 @@ private fun reduceRulesAndIntercepts_Deleted(
             state.copy(alternativeActivities = state.alternativeActivities.filter { it.id != action.id })
         }
 
-        // --- Metacognition Logic ---
         is GatekeeperAction.TriggerMetacognition -> {
             state.copy(pendingMetacognition = MetacognitionRequest(action.packageName, action.durationMillis))
         }
@@ -509,7 +498,6 @@ private fun reduceRulesAndIntercepts_Deleted(
             state.copy(sessionLogs = state.sessionLogs + newLog)
         }
 
-        // --- Permission Flow ---
         is GatekeeperAction.PermissionsUpdated -> {
             state.copy(
                 hasOverlayPermission = action.hasOverlay,
@@ -524,7 +512,6 @@ private fun reduceRulesAndIntercepts_Deleted(
             state.copy(activeWhitelists = emptyMap())
         }
 
-        // --- Beeper Outpost Integrations ---
         GatekeeperAction.RequestBeeperSync -> {
             state.copy(isSyncingBeeper = true)
         }
@@ -573,12 +560,11 @@ private fun reduceRulesAndIntercepts_Deleted(
         }
     }
 
-private fun reduceContentAndVault_Deleted(
+private fun reduceContentAndVault(
     state: GatekeeperState,
     action: GatekeeperAction,
 ): GatekeeperState =
     when (action) {
-        // --- Vault Logic ---
         is GatekeeperAction.SaveToVault -> {
             val newItem =
                 VaultItem(
@@ -598,7 +584,6 @@ private fun reduceContentAndVault_Deleted(
             )
         }
 
-        // --- Content Bank Logic ---
         is GatekeeperAction.ProcessSharedLink -> {
             state.copy(isProcessingLink = true)
         }
@@ -653,7 +638,6 @@ private fun reduceContentAndVault_Deleted(
                 val itemToMove = mutableList.removeAt(action.fromIndex)
                 mutableList.add(action.toIndex, itemToMove)
 
-                // Reassign ranks based on new array indices
                 val updatedList =
                     mutableList.mapIndexed { index, item ->
                         item.copy(rank = index.toLong(), lastModified = action.currentTimestamp)
@@ -739,7 +723,6 @@ private fun reduceContentAndVault_Deleted(
             )
         }
 
-        // --- YouTube Clean Room Logic ---
         is GatekeeperAction.SaveMediaPosition -> {
             state.copy(savedMediaPositions = state.savedMediaPositions + (action.mediaId to action.positionSeconds))
         }
@@ -756,7 +739,6 @@ private fun reduceContentAndVault_Deleted(
             state.copy(activeVideoId = null, isPlayerModalVisible = false)
         }
 
-        // --- Intentional Content Slots ---
         is GatekeeperAction.SaveIntentionalSlot -> {
             val newItem = IntentionalSlotItem(slotIndex = action.slotIndex, contentItem = action.contentItem)
             val newList = state.intentionalSlots.filter { it.slotIndex != action.slotIndex } + newItem
@@ -933,7 +915,7 @@ private fun reduceContentAndVault_Deleted(
         }
     }
 
-private fun reduceSyncAndAuth_Deleted(
+private fun reduceSyncAndAuth(
     state: GatekeeperState,
     action: GatekeeperAction,
 ): GatekeeperState =
@@ -955,7 +937,6 @@ private fun reduceSyncAndAuth_Deleted(
         }
 
         is GatekeeperAction.RequestMagicLink -> {
-            // No state change, this is a pure side-effect
             state
         }
 
@@ -975,7 +956,6 @@ private fun reduceSyncAndAuth_Deleted(
         }
 
         is GatekeeperAction.RemoteSyncCompleted -> {
-            // Implement Last-Write-Wins (LWW) conflict resolution
             val localVaultMap = state.vaultItems.associateBy { it.id }
             val remoteVaultMap = action.newVaultItems.associateBy { it.id }
             val allVaultIds = localVaultMap.keys + remoteVaultMap.keys

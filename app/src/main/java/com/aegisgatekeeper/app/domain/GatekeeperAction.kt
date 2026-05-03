@@ -3,7 +3,7 @@ package com.aegisgatekeeper.app.domain
 /**
  * A closed set of all possible intents or events in the system.
  */
-sealed interface GatekeeperAction {
+sealed interface GatekeeperAction_Deleted {
     // --- System Level OS Events ---
     data class AppBroughtToForeground(
         val packageName: String,

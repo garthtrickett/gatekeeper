@@ -380,15 +380,16 @@ object GatekeeperStateManager {
         }
     }
 
-    private var lastDetectedPackage: String? = null
-    private var ticksSinceLastUsageCheck = 0
-    private val cachedUsageMinutes = mutableMapOf<String, Int>()
-
-    /**
+        /**
      * Centralized validation logic called by both the Foreground Heartbeat (Alpha)
      * and the Accessibility Event Stream (Omega) for zero-latency blocking.
      */
-    fun performAppValidation(
+        fun performAppValidation(
+        context: Context,
+        currentApp: String,
+    ) {
+        com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(context, currentApp)
+    }
         context: Context,
         currentApp: String,
     ) {
@@ -547,24 +548,5 @@ object GatekeeperStateManager {
         lastDetectedPackage = currentApp
     }
 
-    private fun getDailyUsageMinutes(
-        context: Context,
-        packages: Set<String>,
-    ): Int {
-        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as android.app.usage.UsageStatsManager
-        val calendar = java.util.Calendar.getInstance()
-        calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
-        calendar.set(java.util.Calendar.MINUTE, 0)
-        calendar.set(java.util.Calendar.SECOND, 0)
-        calendar.set(java.util.Calendar.MILLISECOND, 0)
-        val startTime = calendar.timeInMillis
-        val endTime = System.currentTimeMillis()
-
-        val stats = usageStatsManager.queryAndAggregateUsageStats(startTime, endTime)
-        var totalTime = 0L
-        for (pkg in packages) {
-            stats[pkg]?.let { totalTime += it.totalTimeInForeground }
-        }
-        return (totalTime / 60000).toInt()
-    }
+    
 }

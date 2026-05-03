@@ -4,13 +4,13 @@ package com.aegisgatekeeper.app.domain
  * Pure function to generate the Markdown export of the user's digital footprint.
  * Extracted from the StateManager to ensure it can be strictly unit tested.
  */
-fun generateMarkdownReport_Deleted(
+fun generateMarkdownReport(
     vaultItems: List<VaultItem>,
     sessionLogs: List<SessionLog>,
     bypassCount: Int,
     giveUpCount: Int,
 ): String {
-    val sb = java.lang.StringBuilder()
+    val sb = kotlin.text.StringBuilder()
     sb.append("# Gatekeeper Digital Sovereignty Report\n\n")
 
     sb.append("## Metrics\n")
@@ -20,7 +20,7 @@ fun generateMarkdownReport_Deleted(
 
     sb.append("## Lookup Vault\n")
     vaultItems.forEach {
-        sb.append("- [${if (it.isResolved) "x" else " "}] ${it.query} (Captured: ${it.capturedAtTimestamp})\n")
+        sb.append("-[${if (it.isResolved) "x" else " "}] ${it.query} (Captured: ${it.capturedAtTimestamp})\n")
     }
 
     sb.append("\n## Session Logs\n")

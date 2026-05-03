@@ -1,28 +1,21 @@
 package com.aegisgatekeeper.app.domain
 
-import com.aegisgatekeeper.app.BuildConfig
-
 /**
  * The strict, immutable representation of the app's current state.
  * Always use .copy() to update values. Never use var.
  */
-data class GatekeeperState_Deleted(
+data class GatekeeperState(
     val appGroups: List<AppGroup> = emptyList(),
-    // --- Active UI State ---
     val isOverlayActive: Boolean = false,
     val currentlyInterceptedApp: String? = null,
     val activeForegroundApp: String? = null,
     val expiredSessionDurationMillis: Long? = null,
     val activeBlockReason: String? = null,
     val pendingExitInterview: String? = null,
-    // --- Dual-Moat Handoff State ---
     val isLayerOmegaActive: Boolean = false,
-    // --- Subscription State ---
     val isProTier: Boolean = false,
-    // --- Sync & Auth State ---
     val isAuthenticated: Boolean = false,
     val jwtToken: String? = null,
-    // --- Business Logic State ---
     val isManualLockdownActive: Boolean = false,
     val deepWorkStartMinutes: Int = 540,
     val deepWorkEndMinutes: Int = 1020,
@@ -58,26 +51,21 @@ data class GatekeeperState_Deleted(
     val notificationDigest: List<NotificationLog> = emptyList(),
     val savedMediaPositions: Map<String, Float> = emptyMap(),
     val pendingMetacognition: MetacognitionRequest? = null,
-    // --- Clean Room Media Engine State ---
     val activeVideoId: String? = null,
-    // --- Outpost Messaging State ---
     val beeperChats: List<BeeperChat> = emptyList(),
     val scheduledMessages: List<ScheduledMessage> = emptyList(),
     val isSyncingBeeper: Boolean = false,
-    // --- Clean Room Media Engine State ---
     val isPlayerModalVisible: Boolean = false,
     val isAudioPlayerModalVisible: Boolean = false,
     val isNativeAudioPlayerModalVisible: Boolean = false,
     val activeNativeMediaItem: ContentItem? = null,
-    // --- Surgical Web Engine State ---
     val isWebEngineReady: Boolean = false,
     val currentSurgicalUrl: String? = null,
     val activeFacebookUrl: String? = null,
     val activePinnedWebsiteUrl: String? = null,
     val isSurgicalSearchVisible: Boolean = false,
     val initialSurgicalSearchUrl: String? = null,
-    val syncServerUrl: String = BuildConfig.SYNC_SERVER_URL,
-    // --- Permissions State (Dual-Moat Onboarding) ---
+    val syncServerUrl: String = "http://localhost:8081",
     val hasOverlayPermission: Boolean = false,
     val hasUsageAccessPermission: Boolean = false,
     val hasAccessibilityPermission: Boolean = false,
