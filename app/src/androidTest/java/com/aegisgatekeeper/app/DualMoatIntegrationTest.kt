@@ -134,8 +134,8 @@ class DualMoatIntegrationTest {
             @Suppress("UNCHECKED_CAST")
             (stateFlowField.get(stateManager) as MutableStateFlow<GatekeeperState>).value = stateWithRule
 
-            // Act: Simulate a Layer Alpha tick which calls performAppValidation
-            GatekeeperStateManager.performAppValidation(
+                        // Act: Simulate a Layer Alpha tick which calls performAppValidation
+            com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(
                 InstrumentationRegistry.getInstrumentation().targetContext,
                 testAppPackage,
             )

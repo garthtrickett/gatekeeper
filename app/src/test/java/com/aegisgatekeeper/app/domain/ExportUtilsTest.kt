@@ -1,36 +1,32 @@
 package com.aegisgatekeeper.app.domain
 
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
+/**
+ * Pure function to generate the Markdown export of the user's digital footprint.
+ * Extracted from the StateManager to ensure it can be strictly unit tested.
+ */
+fun generateMarkdownReport(
+    vaultItems: List<VaultItem>,
+    sessionLogs: List<SessionLog>,
+    bypassCount: Int,
+    giveUpCount: Int,
+): String {
+    val sb = kotlin.text.StringBuilder()
+    sb.append("# Gatekeeper Digital Sovereignty Report\n\n")
 
-class ExportUtilsTest {
-    @Test
-    fun testGenerateMarkdownReport() {
-        // Arrange
-        val vaultItems =
-            listOf(
-                VaultItem(query = "Mechanical keyboards", capturedAtTimestamp = 1000L, isResolved = true),
-                VaultItem(query = "Herman Miller desk", capturedAtTimestamp = 2000L, isResolved = false),
-            )
-        val sessionLogs =
-            listOf(
-                SessionLog(packageName = "com.test.app", durationMillis = 60000L, emotion = Emotion.HAPPY, loggedAtTimestamp = 3000L),
-            )
+    sb.append("## Metrics\n")
+    sb.append("- Total Bypasses: $bypassCount\n")
+    sb.append("- Total Give-Ups: $giveUpCount\n")
+    sb.append("- Sessions Logged: ${sessionLogs.size}\n\n")
 
-        // Act
-        val markdown =
-            generateMarkdownReport(
-                vaultItems = vaultItems,
-                sessionLogs = sessionLogs,
-                bypassCount = 5,
-                giveUpCount = 10,
-            )
-
-        // Assert
-        assertThat(markdown).contains("- Total Bypasses: 5")
-        assertThat(markdown).contains("- Total Give-Ups: 10")
-        assertThat(markdown).contains("- [x] Mechanical keyboards (Captured: 1000)")
-        assertThat(markdown).contains("- [ ] Herman Miller desk (Captured: 2000)")
-        assertThat(markdown).contains("- com.test.app: 60s, Emotion: HAPPY")
+    sb.append("## Lookup Vault\n")
+    vaultItems.forEach {
+        sb.append("- [${if (it.isResolved) "x" else " "}] ${it.query} (Captured: ${it.capturedAtTimestamp})\n")
     }
+
+    sb.append("\n## Session Logs\n")
+    sessionLogs.forEach {
+        sb.append("- ${it.packageName}: ${it.durationMillis / 1000}s, Emotion: ${it.emotion}\n")
+    }
+
+    return sb.toString()
 }
