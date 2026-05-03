@@ -49,14 +49,14 @@ class AnalyticsUiTest {
         // We use reflection to set the state directly to avoid side-effects (like DB writes
         // from UpgradeToProTier or navigating to the home screen via LogGiveUp) that can
         // interfere with the test host Activity.
-        val stateFlowField = GatekeeperStateManager.javaClass.getDeclaredField("_state")
+                val stateFlowField = GatekeeperStateManager.javaClass.getDeclaredField("_state")
         stateFlowField.isAccessible = true
         @Suppress("UNCHECKED_CAST")
         val stateFlow =
             stateFlowField.get(
                 GatekeeperStateManager,
             ) as kotlinx.coroutines.flow.MutableStateFlow<com.aegisgatekeeper.app.domain.GatekeeperState>
-        stateFlow.value = stateFlow.value.copy(isProTier = true, analyticsGiveUps = 1)
+        stateFlow.value = stateFlow.value.copy(sync = stateFlow.value.sync.copy(isProTier = true), data = stateFlow.value.data.copy(analyticsGiveUps = 1))
 
         composeTestRule.setContent {
             GatekeeperTheme {
