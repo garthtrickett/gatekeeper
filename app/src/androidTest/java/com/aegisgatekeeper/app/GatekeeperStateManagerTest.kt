@@ -152,14 +152,15 @@ class GatekeeperStateManagerTest {
         driver.close()
     }
 
-    private fun dispatchWithSideEffects(action: GatekeeperAction) {
+        private fun dispatchWithSideEffects(action: GatekeeperAction) {
         val oldState = mutableState.value
-        val newState =
-            com.aegisgatekeeper.app.domain
-                .reduce(oldState, action)
+        val update = com.aegisgatekeeper.app.domain.reduce(oldState, action)
+        val newState = update.state
         mutableState.value = newState
-        com.aegisgatekeeper.app.effects.handleDatabaseEffects(action, oldState, newState, db) {
-            dispatchWithSideEffects(it)
+        update.effects.forEach { effect ->
+            com.aegisgatekeeper.app.effects.executeDatabaseEffect(effect, db) {
+                dispatchWithSideEffects(it)
+            }
         }
     }
 
