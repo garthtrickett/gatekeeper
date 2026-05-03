@@ -33,6 +33,7 @@ Before generating an edit, ask yourself these questions in order:
       "replace": "data class GatekeeperState_Deleted("
     }
    6. If repairing a file that contains malformed syntax (e.g., mismatched brackets/braces from a previous bad edit), do not use entity replacement strategies (replace_class, replace_function, etc.). Always fall back to smart_replace to fix syntax errors."
+   7. Best Practice for smart_replace search blocks: Keep the search string as MINIMAL as possible. Use just 1 or 2 lines that uniquely identify the location. Do not copy-paste large chunks of code into the search block, especially when fixing malformed syntax, as invisible formatting differences will cause the match to fail.
 
     ```
 

@@ -127,7 +127,7 @@ fun parseHumanReadableDuration(duration: String): Long {
     }
 }
 
-fun parseRssPubDate(
+actual fun parseRssPubDate(
     dateStr: String?,
     fallback: Long,
 ): Long {

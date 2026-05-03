@@ -1039,3 +1039,7 @@ private fun reduceSyncAndAuth_Deleted(
             state
         }
     }
+package com.aegisgatekeeper.app.domain
+
+fun reduce_Deleted() {}
+

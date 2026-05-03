@@ -10,48 +10,7 @@ data class AppGroup_Deleted(
     val combinator: RuleCombinator = RuleCombinator.ANY,
 )
 
-sealed interface BlockingRule_Deleted {
-    val id: String
-    val groupId: String
-    val isEnabled: Boolean
-
-    data class TimeLimit(
-        override val id: String = UUID.randomUUID().toString(),
-        override val groupId: String,
-        override val isEnabled: Boolean = true,
-        val timeLimitMinutes: Int,
-    ) : BlockingRule
-
-    data class ScheduledBlock(
-        override val id: String = UUID.randomUUID().toString(),
-        override val groupId: String,
-        override val isEnabled: Boolean = true,
-        val timeSlots: List<TimeSlot>,
-        val daysOfWeek: Set<DayOfWeek>,
-    ) : BlockingRule
-
-    data class CheckIn(
-        override val id: String = UUID.randomUUID().toString(),
-        override val groupId: String,
-        override val isEnabled: Boolean = true,
-        val checkInTimesMinutes: List<Int>,
-        val durationMinutes: Int = 15,
-        val daysOfWeek: Set<DayOfWeek> = DayOfWeek.values().toSet(),
-    ) : BlockingRule
-
-    data class DomainBlock(
-        override val id: String = UUID.randomUUID().toString(),
-        override val groupId: String,
-        override val isEnabled: Boolean = true,
-        val domains: Set<String>,
-    ) : BlockingRule
-
-    data class AlwaysBlock(
-        override val id: String = UUID.randomUUID().toString(),
-        override val groupId: String,
-        override val isEnabled: Boolean = true,
-    ) : BlockingRule
-}
+interface BlockingRule_Deleted {}
 
 data class ConsumedCheckIn_Deleted(
     val id: String = UUID.randomUUID().toString(),

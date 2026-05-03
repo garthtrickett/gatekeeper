@@ -48,23 +48,7 @@ data class AppGroup_Deleted(
     val combinator: RuleCombinator = RuleCombinator.ANY,
 )
 
-sealed interface BlockingRule_Deleted {
-    val id: String
-    val groupId: String
-    val isEnabled: Boolean
-
-    data class CheckIn(
-        override val id: String =
-            java.util.UUID
-                .randomUUID()
-                .toString(),
-        override val groupId: String,
-        override val isEnabled: Boolean = true,
-        val checkInTimesMinutes: List<Int>,
-        val durationMinutes: Int = 15,
-        val daysOfWeek: Set<DayOfWeek> = DayOfWeek.values().toSet(),
-    ) : BlockingRule
-}
+interface BlockingRule_Deleted {}
 
 data class MetacognitionRequest_Deleted(
     val packageName: String,
@@ -166,201 +150,7 @@ data class NotificationLog_Deleted(
     val timestamp: Long,
 )
 
-sealed interface GatekeeperAction_Deleted {
-    object DismissOverlay : GatekeeperAction
-
-    object ClearNotificationDigest : GatekeeperAction
-
-    object WebEngineInitialized : GatekeeperAction
-
-    data class SurgicalNavigationRequested(
-        val url: String,
-    ) : GatekeeperAction
-
-    data class SurgicalNavigationCompleted(
-        val url: String,
-    ) : GatekeeperAction
-
-    data class SetManualLockdown(
-        val isActive: Boolean,
-    ) : GatekeeperAction
-
-    data class UpdatePhaseWindows(
-        val deepWorkStartMinutes: Int,
-        val deepWorkEndMinutes: Int,
-        val gatheringStartMinutes: Int,
-        val gatheringEndMinutes: Int,
-    ) : GatekeeperAction
-
-    data class UpdateMissionControlApps(
-        val token: String,
-    ) : GatekeeperAction
-
-    data class RequestMagicLink(
-        val email: String,
-    ) : GatekeeperAction
-
-    data class LoginSuccess(
-        val token: String,
-    ) : GatekeeperAction
-
-    object Logout : GatekeeperAction
-
-    data class UpdateSyncUrl(
-        val url: String,
-    ) : GatekeeperAction
-
-    data class RemoteSyncCompleted(
-        val newVaultItems: List<VaultItem>,
-        val newContentItems: List<ContentItem>,
-    ) : GatekeeperAction
-
-    data class ProcessPodcastUrl(
-        val url: String,
-    ) : GatekeeperAction
-
-    data class SavePodcastSubscription(
-        val subscription: PodcastSubscription,
-    ) : GatekeeperAction
-
-    data class RemovePodcastSubscription(
-        val id: String,
-        val currentTimestamp: Long,
-    ) : GatekeeperAction
-
-    object RefreshAllFeedsRequested : GatekeeperAction
-
-    object PodcastSyncStarted : GatekeeperAction
-
-    object PodcastSyncCompleted : GatekeeperAction
-
-    data class PodcastSyncFailed(
-        val error: String,
-    ) : GatekeeperAction
-
-    object ClearPodcastSyncError : GatekeeperAction
-
-    data class LoadPodcastEpisodes(
-        val feedUrl: String,
-        val podcastId: String,
-    ) : GatekeeperAction
-
-    data class CacheParsedEpisodes(
-        val episodes: List<com.aegisgatekeeper.app.api.RssEpisode>,
-        val podcastId: String,
-    ) : GatekeeperAction
-
-    data class PodcastEpisodesLoaded(
-        val episodes: List<CachedEpisode>,
-        val podcastId: String,
-    ) : GatekeeperAction
-
-    object ClearPodcastEpisodes : GatekeeperAction
-
-    object LoadLatestGlobalEpisodes : GatekeeperAction
-
-    data class LatestGlobalEpisodesLoaded(
-        val episodes: List<UnifiedEpisode>,
-    ) : GatekeeperAction
-
-    data class AddEpisodeToBank(
-        val episode: CachedEpisode,
-        val podcastId: String,
-        val podcastTitle: String,
-    ) : GatekeeperAction
-
-    data class OpenNativePlayer(
-        val contentItem: ContentItem,
-    ) : GatekeeperAction
-
-    object CloseNativePlayer : GatekeeperAction
-
-    data class SaveMediaPosition(
-        val mediaId: String,
-        val positionSeconds: Float,
-    ) : GatekeeperAction
-
-    data class AddPinnedWebsite(
-        val id: String,
-        val label: String,
-        val url: String,
-    ) : GatekeeperAction
-
-    data class RemovePinnedWebsite(
-        val id: String,
-    ) : GatekeeperAction
-
-    data class AddAlternativeActivity(
-        val description: String,
-        val currentTimestamp: Long,
-    ) : GatekeeperAction
-
-    data class RemoveAlternativeActivity(
-        val id: String,
-    ) : GatekeeperAction
-
-    data class TriggerMetacognition(
-        val packageName: String,
-        val durationMillis: Long,
-    ) : GatekeeperAction
-
-    object ClearMetacognition : GatekeeperAction
-
-    data class OpenPinnedWebsite(
-        val url: String,
-    ) : GatekeeperAction
-
-    object ClosePinnedWebsite : GatekeeperAction
-
-    data class DownloadMediaRequested(
-        val id: String,
-    ) : GatekeeperAction
-
-    data class DownloadProgressUpdated(
-        val id: String,
-        val progress: Float,
-    ) : GatekeeperAction
-
-    data class DownloadCompleted(
-        val id: String,
-        val localFilePath: String,
-    ) : GatekeeperAction
-
-    data class DownloadFailed(
-        val id: String,
-    ) : GatekeeperAction
-
-    data class DeleteDownloadedMedia(
-        val id: String,
-    ) : GatekeeperAction
-
-    object RequestBeeperSync : GatekeeperAction
-
-    data class BeeperChatsLoaded(
-        val chats: List<BeeperChat>,
-    ) : GatekeeperAction
-
-    data class BeeperSyncFailed(
-        val error: String,
-    ) : GatekeeperAction
-
-    data class ScheduleMessage(
-        val message: ScheduledMessage,
-    ) : GatekeeperAction
-
-    data class CancelScheduledMessage(
-        val id: String,
-    ) : GatekeeperAction
-
-    data class MessageDelivered(
-        val id: String,
-    ) : GatekeeperAction
-
-    data class MessageFailed(
-        val id: String,
-        val error: String,
-    ) : GatekeeperAction
-}
+interface GatekeeperAction_Deleted {}
 
 fun isDeepWorkHours(
     currentTime: LocalTime,
@@ -410,7 +200,7 @@ fun formatMinutesToAmPm(minutes: Int): String {
     return String.format("%d:%02d %s", h, m, ampm)
 }
 
-fun parseRssPubDate(
+actual fun parseRssPubDate(
     dateStr: String?,
     fallback: Long,
 ): Long {

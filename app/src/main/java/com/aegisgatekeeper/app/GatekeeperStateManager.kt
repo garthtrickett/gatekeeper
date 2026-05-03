@@ -552,3 +552,7 @@ object GatekeeperStateManager_Deleted {
 
     
 }
+package com.aegisgatekeeper.app
+
+object GatekeeperStateManager_Deleted {}
+
