@@ -68,17 +68,5 @@ object GatekeeperStateManager {
         }
     }
     
-        fun deletedHandleEffects2(
-        action: GatekeeperAction,
-        oldState: GatekeeperState,
-        newState: GatekeeperState,
-    ) {
-        scope.launch {
-            val effectHandler = GlobalDI.component.effectHandler
-            handleDatabaseEffects(action, oldState, newState, db, ::dispatch)
-            handleSyncAndAuthEffects(action, newState, db)
-            handleMediaAndSystemEffects(action, oldState, newState, ::dispatch, effectHandler)
-            handleIntegrationEffects(action, newState, ::dispatch, effectHandler)
-        }
-    }
+                fun deletedHandleEffects2() {}
 }
