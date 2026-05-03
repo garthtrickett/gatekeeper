@@ -149,7 +149,7 @@ def main():
 
     file_updates = {}
 
-        try:
+    try:
         errors =[]
         # Phase 1: Calculate all changes in-memory (Dry Run)
         for file_info in data.get('files', []):

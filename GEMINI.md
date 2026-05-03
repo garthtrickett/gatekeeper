@@ -51,6 +51,11 @@ Before generating an edit, ask yourself these questions in order:
 9. Handling Top-Level Functions
 
         If a legacy file contains multiple top-level functions alongside classes/objects, you must target them individually with replace_function (e.g., fun reduce_Deleted(...) { return state }) rather than trying to perform a massive smart_replace deletion.
+10.     Context is King for Duplicate Lines: If a line of code appears multiple times in a file (e.g., if (success) return), you MUST include the uniquely identifying lines immediately above or below it in the search block. The search block must map to exactly ONE location in the file.
+
+11.     Beware of Trailing Commas & Auto-Formatting: Formatters (like ktlint) often break long arguments across multiple lines and append trailing commas. Do NOT hand-type or guess the syntax of your search blocks. Copy the text exactly as it appears in the provided project snapshot so hidden characters like trailing commas are included.
+
+12.     Track Cross-Step State: In multi-step refactoring workflows, remember what was already modified in previous steps. Do not attempt to patch the same block of code if it was already updated, as the search block will fail to find the outdated code.
 
     ```
 

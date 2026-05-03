@@ -75,11 +75,11 @@ class ContentBankUiTest {
         val stateFlowField = GatekeeperStateManager.javaClass.getDeclaredField("_state")
         stateFlowField.isAccessible = true
         @Suppress("UNCHECKED_CAST")
-        val stateFlow =
+                val stateFlow =
             stateFlowField.get(
                 GatekeeperStateManager,
             ) as kotlinx.coroutines.flow.MutableStateFlow<com.aegisgatekeeper.app.domain.GatekeeperState>
-        stateFlow.value = stateFlow.value.copy(isProcessingLink = true)
+        stateFlow.value = stateFlow.value.copy(media = stateFlow.value.media.copy(isProcessingLink = true))
 
         composeTestRule.setContent {
             GatekeeperTheme {
@@ -353,9 +353,9 @@ class ContentBankUiTest {
         composeTestRule.waitForIdle()
 
         // Assert: The state manager should now have an active audio URL
-        val state = GatekeeperStateManager.state.value
+                val state = GatekeeperStateManager.state.value
         com.google.common.truth.Truth
-            .assertThat(state.activeAudioUrl)
+            .assertThat(state.media.activeAudioUrl)
             .isEqualTo(soundcloudUrl)
 
         // Assert: The modal UI should be visible
@@ -396,12 +396,12 @@ class ContentBankUiTest {
         composeTestRule.waitForIdle()
 
         // Assert: The state manager should now have an active native media item
-        val state = GatekeeperStateManager.state.value
+                val state = GatekeeperStateManager.state.value
         com.google.common.truth.Truth
-            .assertThat(state.activeNativeMediaItem)
+            .assertThat(state.media.activeNativeMediaItem)
             .isNotNull()
         com.google.common.truth.Truth
-            .assertThat(state.activeNativeMediaItem!!.title)
+            .assertThat(state.media.activeNativeMediaItem!!.title)
             .isEqualTo("Test Podcast Episode")
 
         // Assert: The native modal UI should be visible
