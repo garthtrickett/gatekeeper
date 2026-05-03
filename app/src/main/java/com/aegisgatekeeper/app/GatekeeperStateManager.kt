@@ -388,8 +388,10 @@ object GatekeeperStateManager_Deleted {
         context: Context,
         currentApp: String,
     ) {
-        com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(context, currentApp)
+                com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(context, currentApp)
     }
+
+    fun performAppValidationLegacy(
         context: Context,
         currentApp: String,
     ) {

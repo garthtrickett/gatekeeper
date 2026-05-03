@@ -32,6 +32,7 @@ Before generating an edit, ask yourself these questions in order:
       "search": "data class GatekeeperState(",
       "replace": "data class GatekeeperState_Deleted("
     }
+   6. If repairing a file that contains malformed syntax (e.g., mismatched brackets/braces from a previous bad edit), do not use entity replacement strategies (replace_class, replace_function, etc.). Always fall back to smart_replace to fix syntax errors."
 
     ```
 
