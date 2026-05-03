@@ -38,8 +38,8 @@ class MainActivityTest {
         ActivityScenario.launch<MainActivity>(intent).use {
             // Assert: The intent should have been intercepted in onCreate(),
             // dispatching OpenCleanPlayer and setting the activeVideoId in the StateManager.
-            val currentState = GatekeeperStateManager.state.value
-            assertThat(currentState.activeVideoId).isEqualTo(testVideoId)
+                        val currentState = GatekeeperStateManager.state.value
+            assertThat(currentState.media.activeVideoId).isEqualTo(testVideoId)
         }
     }
 
@@ -52,8 +52,8 @@ class MainActivityTest {
             }
 
         ActivityScenario.launch<MainActivity>(intent).use {
-            val currentState = GatekeeperStateManager.state.value
-            assertThat(currentState.activeAudioUrl).isEqualTo(testUrl)
+                        val currentState = GatekeeperStateManager.state.value
+            assertThat(currentState.media.activeAudioUrl).isEqualTo(testUrl)
         }
     }
 
@@ -80,8 +80,8 @@ class MainActivityTest {
             }
 
                 ActivityScenario.launch<MainActivity>(intent).use {
-            val currentState = GatekeeperStateManager.state.value
-            assertThat(currentState.activeNativeMediaItem?.id).isEqualTo(savedItem.id)
+                        val currentState = GatekeeperStateManager.state.value
+            assertThat(currentState.media.activeNativeMediaItem?.id).isEqualTo(savedItem.id)
         }
     }
 
@@ -109,8 +109,8 @@ class MainActivityTest {
             }
 
         ActivityScenario.launch<MainActivity>(intent).use {
-            val currentState = GatekeeperStateManager.state.value
-            assertThat(currentState.activeNativeMediaItem?.id).isEqualTo(item.id)
+                        val currentState = GatekeeperStateManager.state.value
+            assertThat(currentState.media.activeNativeMediaItem?.id).isEqualTo(item.id)
         }
     }
 }
