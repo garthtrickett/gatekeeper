@@ -52,9 +52,9 @@ class SurgicalFacebookUiTest {
         composeTestRule.setContent {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
-                if (state.activeFacebookUrl != null) {
+                                if (state.media.activeFacebookUrl != null) {
                     SurgicalFacebookScreen(
-                        url = state.activeFacebookUrl!!,
+                        url = state.media.activeFacebookUrl!!,
                         onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalFacebook) },
                     )
                 }
@@ -88,9 +88,9 @@ class SurgicalFacebookUiTest {
         composeTestRule.setContent {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
-                if (state.activeFacebookUrl != null) {
+                                if (state.media.activeFacebookUrl != null) {
                     SurgicalFacebookScreen(
-                        url = state.activeFacebookUrl!!,
+                        url = state.media.activeFacebookUrl!!,
                         onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalFacebook) },
                     )
                 }
@@ -119,9 +119,9 @@ class SurgicalFacebookUiTest {
         composeTestRule.setContent {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
-                if (state.activeFacebookUrl != null) {
+                                if (state.media.activeFacebookUrl != null) {
                     SurgicalFacebookScreen(
-                        url = state.activeFacebookUrl!!,
+                        url = state.media.activeFacebookUrl!!,
                         onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalFacebook) },
                     )
                 }

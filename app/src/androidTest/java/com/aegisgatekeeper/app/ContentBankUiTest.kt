@@ -336,9 +336,9 @@ class ContentBankUiTest {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
                 ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
-                                if (state.activeAudioUrl != null) {
+                                                                if (state.media.activeAudioUrl != null) {
                     com.aegisgatekeeper.app.views.CleanAudioPlayerModal(
-                        url = state.activeAudioUrl!!,
+                        url = state.media.activeAudioUrl!!,
                         isVisible = true,
                         onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
                         onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
@@ -380,9 +380,9 @@ class ContentBankUiTest {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
                 ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
-                                if (state.activeNativeMediaItem != null) {
+                                                                if (state.media.activeNativeMediaItem != null) {
                     com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
-                        contentItem = state.activeNativeMediaItem!!,
+                        contentItem = state.media.activeNativeMediaItem!!,
                         isVisible = true,
                         onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
                         onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
