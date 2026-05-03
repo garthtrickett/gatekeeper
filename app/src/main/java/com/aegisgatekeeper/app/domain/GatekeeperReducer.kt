@@ -8,7 +8,7 @@ import android.util.Log
  * Pure top-level function. Evaluates actions and returns a new state.
  * No side effects allowed here (no DB calls, no clock reads, no API calls).
  */
-fun deletedReduce(
+fun deletedReduce(state: GatekeeperState, action: GatekeeperAction): GatekeeperState = state
     state: GatekeeperState,
     action: GatekeeperAction,
 ): GatekeeperState {

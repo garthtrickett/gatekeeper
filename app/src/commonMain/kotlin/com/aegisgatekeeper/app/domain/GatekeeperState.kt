@@ -5,6 +5,14 @@ package com.aegisgatekeeper.app.domain
  * Always use .copy() to update values. Never use var.
  */
 data class GatekeeperState(
+    val interception: InterceptionState = InterceptionState(),
+    val data: DataState = DataState(),
+    val media: MediaState = MediaState(),
+    val sync: SyncAndIntegrationState = SyncAndIntegrationState(),
+) {
+    val isDualMoatEnabled: Boolean
+        get() = interception.isDualMoatEnabled
+}
     val appGroups: List<AppGroup> = emptyList(),
     val isOverlayActive: Boolean = false,
     val currentlyInterceptedApp: String? = null,

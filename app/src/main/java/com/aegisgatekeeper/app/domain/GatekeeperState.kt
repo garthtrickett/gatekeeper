@@ -6,7 +6,7 @@ import com.aegisgatekeeper.app.BuildConfig
  * The strict, immutable representation of the app's current state.
  * Always use .copy() to update values. Never use var.
  */
-data class DeletedGatekeeperState(
+class DeletedGatekeeperState
     val appGroups: List<AppGroup> = emptyList(),
     // --- Active UI State ---
     val isOverlayActive: Boolean = false,

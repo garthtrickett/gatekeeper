@@ -2,7 +2,7 @@ package com.aegisgatekeeper.app.domain
 
 import java.time.LocalTime
 
-data class DeletedGatekeeperState(
+class DeletedGatekeeperState
     val isOverlayActive: Boolean = false,
     val currentlyInterceptedApp: String? = null,
     val notificationDigest: List<NotificationLog> = emptyList(),
