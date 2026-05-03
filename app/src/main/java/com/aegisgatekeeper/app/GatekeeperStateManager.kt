@@ -547,12 +547,7 @@ object GatekeeperStateManager_Deleted {
             dispatch(GatekeeperAction.AppBroughtToForeground(currentApp, System.currentTimeMillis()))
         }
 
-        lastDetectedPackage = currentApp
+                lastDetectedPackage = currentApp
     }
-
-    
 }
-package com.aegisgatekeeper.app
-
-object GatekeeperStateManager_Deleted {}
 

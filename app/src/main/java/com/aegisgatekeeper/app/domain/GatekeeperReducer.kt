@@ -1035,11 +1035,8 @@ private fun reduceSyncAndAuth_Deleted(
             )
         }
 
-        else -> {
+                else -> {
             state
         }
     }
-package com.aegisgatekeeper.app.domain
-
-fun reduce_Deleted() {}
 

@@ -280,11 +280,8 @@ object GatekeeperStateManager_Deleted {
                     )
             }
 
-            else -> { /* Not all actions are handled on desktop */ }
+                        else -> { /* Not all actions are handled on desktop */ }
         }
     }
 }
-package com.aegisgatekeeper.app
-
-object GatekeeperStateManager_Deleted {}
 
