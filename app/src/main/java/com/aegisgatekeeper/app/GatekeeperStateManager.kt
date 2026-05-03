@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-object GatekeeperStateManager {
+object GatekeeperStateManager_Deleted {
     @OptIn(ExperimentalCoroutinesApi::class)
     private val sideEffectDispatcher = Dispatchers.IO.limitedParallelism(1)
     private val scope = CoroutineScope(sideEffectDispatcher + SupervisorJob())

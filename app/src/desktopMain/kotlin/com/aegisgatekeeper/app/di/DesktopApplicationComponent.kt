@@ -20,6 +20,9 @@ abstract class DesktopApplicationComponent : SharedApplicationComponent {
     @get:Provides
     override val beeperClient: com.aegisgatekeeper.app.integrations.BeeperClient get() = desktopBeeperClient
 
+    abstract val desktopEffectHandler: com.aegisgatekeeper.app.effects.DesktopEffectHandler
+    @get:Provides override val effectHandler: com.aegisgatekeeper.app.effects.PlatformEffectHandler get() = desktopEffectHandler
+
     @Provides
     fun sqlDriverFactory(factory: DesktopSqlDriverFactory): SqlDriverFactory = factory
 }

@@ -48,6 +48,7 @@ class App :
                     .AndroidSqlDriverFactory(this),
             )
         com.aegisgatekeeper.app.di.GlobalDI.component = com.aegisgatekeeper.app.di.AndroidApplicationComponent::class.create(this)
+        com.aegisgatekeeper.app.GatekeeperStateManager.dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.LoadInitialState)
 
         // Schedule periodic podcast refresh (every 6 hours)
         val podcastConstraints =

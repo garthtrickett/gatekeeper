@@ -4,6 +4,8 @@ fun reduce(
     state: GatekeeperState,
     action: GatekeeperAction,
 ): GatekeeperState {
+    if (action is GatekeeperAction.InitialStateLoaded) return action.state
+    
     var newState = reduceRulesAndIntercepts(state, action)
     newState = reduceContentAndVault(newState, action)
     newState = reduceSyncAndAuth(newState, action)

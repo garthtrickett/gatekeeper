@@ -97,6 +97,7 @@ fun main() =
                     onRestartRequired = { /* handle restart */ },
                 )
                 webViewReady = true
+                GatekeeperStateManager.dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.LoadInitialState)
                 GatekeeperStateManager.dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.WebEngineInitialized)
             }
         }

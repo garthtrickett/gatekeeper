@@ -13,4 +13,5 @@ interface SharedApplicationComponent {
     val tokenProvider: TokenProvider
     val syncClient: SyncClient
     val beeperClient: BeeperClient
+    val effectHandler: com.aegisgatekeeper.app.effects.PlatformEffectHandler
 }

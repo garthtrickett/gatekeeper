@@ -4,6 +4,9 @@ package com.aegisgatekeeper.app.domain
  * A closed set of all possible intents or events in the system.
  */
 sealed interface GatekeeperAction {
+    object LoadInitialState : GatekeeperAction
+    data class InitialStateLoaded(val state: GatekeeperState) : GatekeeperAction
+
     data class AppBroughtToForeground(val packageName: String, val currentTimestamp: Long) : GatekeeperAction
     data class RuleViolationDetected(val packageName: String, val reason: String, val currentTimestamp: Long) : GatekeeperAction
     object DismissOverlay : GatekeeperAction

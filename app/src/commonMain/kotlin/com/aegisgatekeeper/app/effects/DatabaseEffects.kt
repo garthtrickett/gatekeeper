@@ -15,6 +15,109 @@ fun handleDatabaseEffects(
     dispatch: (GatekeeperAction) -> Unit,
 ) {
     when (action) {
+        GatekeeperAction.LoadInitialState -> {
+            platformLog("Gatekeeper", "🗄️ DB: Loading initial state from DB asynchronously...")
+            db.appSettingsQueries.insertDefault()
+
+            if (db.appGroupQueries.selectAllGroups().executeAsList().isEmpty()) {
+                platformLog("Gatekeeper", "🗄️ DB: Seeding initial app groups...")
+                val initialApps = setOf("com.android.chrome", "org.mozilla.firefox", "com.instagram.android")
+                val groupId = com.aegisgatekeeper.app.domain.randomUUIDString()
+                db.transaction {
+                    db.appGroupQueries.insertGroup(groupId, "Distractions", com.aegisgatekeeper.app.domain.RuleCombinator.ANY)
+                    initialApps.forEach { packageName ->
+                        db.appGroupQueries.insertGroupedApp(groupId, packageName)
+                    }
+                }
+            }
+
+            db.transaction {
+                val allContent = db.contentItemQueries.selectAllByRank().executeAsList()
+                val allSlots = db.intentionalSlotQueries.selectAll().executeAsList()
+
+                allSlots.forEach { slot ->
+                    val freshest =
+                        allContent
+                            .filter { it.videoId == slot.videoId && it.isDeleted != true }
+                            .maxByOrNull { it.lastModified }
+
+                    if (freshest != null && freshest.id != slot.id) {
+                        db.intentionalSlotQueries.insert(slot.slotIndex, freshest.id)
+                    } else if (slot.isDeleted == true || freshest == null) {
+                        db.intentionalSlotQueries.delete(slot.slotIndex)
+                    }
+                }
+            }
+
+            val groupsFromDb = db.appGroupQueries.selectAllGroups().executeAsList()
+            val groupedApps = db.appGroupQueries.selectAllGroupedApps().executeAsList()
+            val rulesFromDb = db.blockingRuleQueries.selectAllRules().executeAsList()
+            val timeLimits = db.blockingRuleQueries.selectAllTimeLimitRules().executeAsList().associateBy { it.ruleId }
+            val scheduledBlocks = db.blockingRuleQueries.selectAllScheduledBlockRules().executeAsList().associateBy { it.ruleId }
+            val checkInRules = db.blockingRuleQueries.selectAllCheckInRules().executeAsList().associateBy { it.ruleId }
+            val domainBlocks = db.domainBlockRuleQueries.selectAll().executeAsList().associateBy { it.ruleId }
+            val consumedCheckInsFromDb = db.blockingRuleQueries.selectAllConsumedCheckIns().executeAsList()
+            val consumedCheckInsList = consumedCheckInsFromDb.map { com.aegisgatekeeper.app.domain.ConsumedCheckIn(it.id, it.groupId, it.timeMinutes.toInt(), it.timestamp) }
+
+            val appGroupsList =
+                groupsFromDb.map { group ->
+                    val appsForGroup = groupedApps.filter { it.groupId == group.id }.map { it.packageName }.toSet()
+                    val rulesForGroup =
+                        rulesFromDb.filter { it.groupId == group.id }.mapNotNull { rule ->
+                            when (rule.ruleType) {
+                                "TIME_LIMIT" -> timeLimits[rule.id]?.let { tl -> com.aegisgatekeeper.app.domain.BlockingRule.TimeLimit(id = rule.id, groupId = rule.groupId, isEnabled = rule.isEnabled, timeLimitMinutes = tl.timeLimitMinutes.toInt()) }
+                                "SCHEDULED" -> scheduledBlocks[rule.id]?.let { sb -> com.aegisgatekeeper.app.domain.BlockingRule.ScheduledBlock(id = rule.id, groupId = rule.groupId, isEnabled = rule.isEnabled, timeSlots = sb.timeSlots.split(",").filter { it.isNotEmpty() }.map { val parts = it.split("-"); com.aegisgatekeeper.app.domain.TimeSlot(parts[0].toInt(), parts[1].toInt()) }, daysOfWeek = sb.daysOfWeek.split(",").filter { it.isNotEmpty() }.map { com.aegisgatekeeper.app.domain.DayOfWeek.valueOf(it) }.toSet()) }
+                                "CHECK_IN" -> checkInRules[rule.id]?.let { ci -> com.aegisgatekeeper.app.domain.BlockingRule.CheckIn(id = rule.id, groupId = rule.groupId, isEnabled = rule.isEnabled, checkInTimesMinutes = ci.checkInTimes.split(",").filter { it.isNotEmpty() }.map { it.toInt() }, durationMinutes = ci.durationMinutes.toInt(), daysOfWeek = ci.daysOfWeek.split(",").filter { it.isNotEmpty() }.map { com.aegisgatekeeper.app.domain.DayOfWeek.valueOf(it) }.toSet()) }
+                                "DOMAIN_BLOCK" -> domainBlocks[rule.id]?.let { dbBlock -> com.aegisgatekeeper.app.domain.BlockingRule.DomainBlock(id = rule.id, groupId = rule.groupId, isEnabled = rule.isEnabled, domains = dbBlock.domains.split(",").filter { it.isNotEmpty() }.toSet()) }
+                                "ALWAYS_BLOCK" -> com.aegisgatekeeper.app.domain.BlockingRule.AlwaysBlock(id = rule.id, groupId = rule.groupId, isEnabled = rule.isEnabled)
+                                else -> null
+                            }
+                        }
+                    com.aegisgatekeeper.app.domain.AppGroup(group.id, group.name, appsForGroup, rulesForGroup, group.ruleCombinator)
+                }
+
+            val customMessagesFromDb = db.customInterceptionMessageQueries.selectAll().executeAsList().associate { it.packageName to it.message }
+            val alternativeActivitiesFromDb = db.alternativeActivityQueries.selectAll().executeAsList()
+            val vaultItemsFromDb = db.vaultItemQueries.selectAll().executeAsList()
+            val contentItemsFromDb = db.contentItemQueries.selectAllByRank().executeAsList()
+            val sessionLogsFromDb = db.sessionLogQueries.selectAll().executeAsList()
+            val slotsFromDb = db.intentionalSlotQueries.selectAll().executeAsList()
+            val podcastSubscriptionsFromDb = db.podcastSubscriptionQueries.selectAll().executeAsList()
+            val mediaPositionsFromDb = db.mediaPositionQueries.selectAll().executeAsList().associate { it.mediaId to it.positionSeconds.toFloat() }
+            val appSettings = db.appSettingsQueries.getSettings().executeAsOneOrNull()
+            val pinnedWebsitesFromDb = db.missionControlWebsiteQueries.selectAll().executeAsList().map { com.aegisgatekeeper.app.domain.PinnedWebsite(it.id, it.label, it.url) }
+            val scheduledMessagesFromDb = db.scheduledMessageQueries.selectAll().executeAsList().map { com.aegisgatekeeper.app.domain.ScheduledMessage(it.id, it.beeperRoomId, it.chatName, it.messageText, it.scheduledTimestamp, it.status) }
+            val missionControlAppsFromDb = db.missionControlAppQueries.selectAll().executeAsList().map { it.packageName }
+            
+            val token = com.aegisgatekeeper.app.di.GlobalDI.component.tokenProvider.getToken()
+
+            val loadedState = com.aegisgatekeeper.app.domain.GatekeeperState(
+                isProTier = appSettings?.isProTier ?: false,
+                podcastSubscriptions = podcastSubscriptionsFromDb.map { com.aegisgatekeeper.app.domain.PodcastSubscription(id = it.id, feedUrl = it.feedUrl, showTitle = it.showTitle, artworkUrl = it.artworkUrl, lastModified = com.aegisgatekeeper.app.domain.currentTimeMillis(), isSynced = false, isDeleted = false) },
+                isAuthenticated = token != null,
+                jwtToken = token,
+                isManualLockdownActive = appSettings?.isManualLockdownActive ?: false,
+                deepWorkStartMinutes = appSettings?.deepWorkStartMinutes?.toInt() ?: 540,
+                deepWorkEndMinutes = appSettings?.deepWorkEndMinutes?.toInt() ?: 1020,
+                gatheringStartMinutes = appSettings?.gatheringStartMinutes?.toInt() ?: 1080,
+                gatheringEndMinutes = appSettings?.gatheringEndMinutes?.toInt() ?: 1110,
+                activeFrictionGame = appSettings?.activeFrictionGame ?: com.aegisgatekeeper.app.domain.FrictionGame.GAUNTLET,
+                missionControlApps = missionControlAppsFromDb,
+                missionControlWebsites = pinnedWebsitesFromDb,
+                appGroups = appGroupsList,
+                customMessages = customMessagesFromDb,
+                consumedCheckIns = consumedCheckInsList,
+                alternativeActivities = alternativeActivitiesFromDb.map { com.aegisgatekeeper.app.domain.AlternativeActivity(it.id, it.description, it.createdAtTimestamp) },
+                vaultItems = vaultItemsFromDb.map { com.aegisgatekeeper.app.domain.VaultItem(it.id, it.query, it.capturedAtTimestamp, it.isResolved, it.lastModified, it.isSynced, it.isDeleted) },
+                contentItems = contentItemsFromDb.map { com.aegisgatekeeper.app.domain.ContentItem(id = it.id, podcastId = it.podcastId, videoId = it.videoId, title = it.title, channelName = it.channelName, source = it.source, type = it.type, rank = it.rank, capturedAtTimestamp = it.capturedAtTimestamp, durationSeconds = it.durationSeconds, lastModified = it.lastModified, isSynced = it.isSynced, isDeleted = it.isDeleted, localFilePath = it.localFilePath, downloadStatus = it.downloadStatus) },
+                savedMediaPositions = mediaPositionsFromDb,
+                sessionLogs = sessionLogsFromDb.map { com.aegisgatekeeper.app.domain.SessionLog(it.id, it.packageName, it.durationMillis, it.emotion, it.loggedAtTimestamp) },
+                scheduledMessages = scheduledMessagesFromDb,
+                intentionalSlots = slotsFromDb.map { slot -> com.aegisgatekeeper.app.domain.IntentionalSlotItem(slotIndex = slot.slotIndex.toInt(), contentItem = com.aegisgatekeeper.app.domain.ContentItem(id = slot.id, podcastId = slot.podcastId, videoId = slot.videoId, title = slot.title, channelName = slot.channelName, source = slot.source, type = slot.type, rank = slot.rank, capturedAtTimestamp = slot.capturedAtTimestamp, durationSeconds = slot.durationSeconds, lastModified = slot.lastModified, isSynced = slot.isSynced, isDeleted = slot.isDeleted, localFilePath = slot.localFilePath, downloadStatus = slot.downloadStatus)) }
+            )
+            dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.InitialStateLoaded(loadedState))
+        }
+
         is GatekeeperAction.SaveToVault -> {
             val newItem = (newState.vaultItems - oldState.vaultItems.toSet()).firstOrNull()
             newItem?.let {

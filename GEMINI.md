@@ -24,12 +24,15 @@ Before generating an edit, ask yourself these questions in order:
     *   YES: Because there is no `delete_file` command, you must neutralize the old file so it doesn't cause `Duplicate class` compilation errors. 
     *   **The Protocol:** Use `smart_replace`. Do NOT try to replace the entire file content. Instead, do a surgical rename of the class/interface signatures to append `_Deleted` or `_Legacy`. 
     *   *Example:*
+ **5. Pay Strict Attention to KMP File Paths:** 
+    *Do not rely on your training to guess file paths (e.g., defaulting to `app/src/main/java`). Kotlin Multiplatform uses specific source sets like `commonMain`, `androidMain`, and `desktopMain`. You **must** verify the exact file path against the provided project snapshot before generating an edit. An incorrect path will cause the patcher to fail.
     ```json
     {
       "type": "smart_replace",
       "search": "data class GatekeeperState(",
       "replace": "data class GatekeeperState_Deleted("
     }
+
     ```
 
 --- 
