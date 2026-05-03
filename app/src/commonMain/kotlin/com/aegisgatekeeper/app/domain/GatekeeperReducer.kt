@@ -682,8 +682,12 @@ private fun reduceMedia(
         is GatekeeperAction.PodcastEpisodesLoaded -> {
             slice.copy(isLoadingEpisodes = false, activePodcastEpisodes = action.episodes, activePodcastId = action.podcastId)
         }
-        is GatekeeperAction.ClearPodcastEpisodes -> {
+                is GatekeeperAction.ClearPodcastEpisodes -> {
             slice.copy(isLoadingEpisodes = false, activePodcastEpisodes = null, activePodcastId = null)
+        }
+        is GatekeeperAction.CacheParsedEpisodes -> {
+            effects.add(GatekeeperEffect.DbCacheParsedEpisodes(action.episodes, action.podcastId))
+            slice
         }
         is GatekeeperAction.LoadLatestGlobalEpisodes -> {
             effects.add(GatekeeperEffect.DbLoadLatestGlobalEpisodes)
