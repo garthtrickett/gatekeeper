@@ -149,7 +149,8 @@ def main():
 
     file_updates = {}
 
-    try:
+        try:
+        errors =[]
         # Phase 1: Calculate all changes in-memory (Dry Run)
         for file_info in data.get('files', []):
             file_path = file_info['file_path']
@@ -171,14 +172,25 @@ def main():
 
             for edit in edits:
                 edit_type = edit.get('type')
-                if edit_type == 'smart_replace':
-                    text = apply_smart_replace(text, edit.get('search', ''), edit['replace'])
-                elif edit_type in ('replace_function', 'replace_class', 'replace_object', 'replace_interface'):
-                    text = apply_entity_replace(text, edit_type, edit['name'], edit['replace'])
-                else:
-                    raise Exception(f"Unknown edit type: {edit_type} in file {file_path}")
+                try:
+                    if edit_type == 'smart_replace':
+                        text = apply_smart_replace(text, edit.get('search', ''), edit['replace'])
+                    elif edit_type in ('replace_function', 'replace_class', 'replace_object', 'replace_interface'):
+                        text = apply_entity_replace(text, edit_type, edit['name'], edit['replace'])
+                    else:
+                        raise Exception(f"Unknown edit type: {edit_type} in file {file_path}")
+                except Exception as e:
+                    errors.append(f"[{file_path}] {e}")
 
             file_updates[file_path] = text
+
+        if errors:
+            print("\n❌ FATAL ERRORS FOUND DURING DRY RUN:")
+            for err in errors:
+                print(f"----------------------------------------\n{err}")
+            print("----------------------------------------")
+            print("🛑 Transaction aborted. No files were modified on disk.")
+            sys.exit(1)
 
         # Phase 2: Write to disk only if EVERYTHING succeeded
         for path, new_text in file_updates.items():
