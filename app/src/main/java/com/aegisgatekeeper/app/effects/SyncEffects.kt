@@ -27,7 +27,7 @@ fun deletedHandleSyncAndAuthEffects(
             // Actual API call to backend would go here
         }
 
-                is GatekeeperAction.RemoteSyncCompleted -> {
+        is GatekeeperAction.RemoteSyncCompleted -> {
             Log.i("Gatekeeper", "DB: Upserting remotely synced items.")
             db.transaction {
                 newState.data.vaultItems.forEach {
@@ -40,7 +40,7 @@ fun deletedHandleSyncAndAuthEffects(
                         isSynced = true, // Mark as synced
                         isDeleted = it.isDeleted,
                     )
-                                }
+                }
                 newState.data.contentItems.forEach {
                     db.contentItemQueries.insert(
                         id = it.id,

@@ -93,9 +93,17 @@ class NotificationDigestUiTest {
         composeTestRule.onNodeWithText("Replied ✓").assertIsDisplayed()
 
         // Assert: Message was scheduled in the StateManager
-                val state = GatekeeperStateManager.state.value
+        val state = GatekeeperStateManager.state.value
         assertThat(state.sync.scheduledMessages).hasSize(1)
-        assertThat(state.sync.scheduledMessages.first().messageText).isEqualTo("Yes, see you at 8!")
-        assertThat(state.sync.scheduledMessages.first().beeperRoomId).isEqualTo("room123")
+        assertThat(
+            state.sync.scheduledMessages
+                .first()
+                .messageText,
+        ).isEqualTo("Yes, see you at 8!")
+        assertThat(
+            state.sync.scheduledMessages
+                .first()
+                .beeperRoomId,
+        ).isEqualTo("room123")
     }
 }

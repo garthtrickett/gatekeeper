@@ -38,7 +38,7 @@ class MainActivityTest {
         ActivityScenario.launch<MainActivity>(intent).use {
             // Assert: The intent should have been intercepted in onCreate(),
             // dispatching OpenCleanPlayer and setting the activeVideoId in the StateManager.
-                        val currentState = GatekeeperStateManager.state.value
+            val currentState = GatekeeperStateManager.state.value
             assertThat(currentState.media.activeVideoId).isEqualTo(testVideoId)
         }
     }
@@ -52,7 +52,7 @@ class MainActivityTest {
             }
 
         ActivityScenario.launch<MainActivity>(intent).use {
-                        val currentState = GatekeeperStateManager.state.value
+            val currentState = GatekeeperStateManager.state.value
             assertThat(currentState.media.activeAudioUrl).isEqualTo(testUrl)
         }
     }
@@ -70,7 +70,7 @@ class MainActivityTest {
             ),
         )
 
-                val savedItem =
+        val savedItem =
             GatekeeperStateManager.state.value.data.contentItems
                 .first { it.videoId == videoId }
 
@@ -79,8 +79,8 @@ class MainActivityTest {
                 putExtra("OPEN_NATIVE_AUDIO_ID", savedItem.id)
             }
 
-                ActivityScenario.launch<MainActivity>(intent).use {
-                        val currentState = GatekeeperStateManager.state.value
+        ActivityScenario.launch<MainActivity>(intent).use {
+            val currentState = GatekeeperStateManager.state.value
             assertThat(currentState.media.activeNativeMediaItem?.id).isEqualTo(savedItem.id)
         }
     }
@@ -98,7 +98,7 @@ class MainActivityTest {
                 capturedAtTimestamp = 0L,
             )
 
-                GatekeeperStateManager.dispatch(
+        GatekeeperStateManager.dispatch(
             com.aegisgatekeeper.app.domain.GatekeeperAction
                 .OpenNativePlayer(item),
         )
@@ -109,7 +109,7 @@ class MainActivityTest {
             }
 
         ActivityScenario.launch<MainActivity>(intent).use {
-                        val currentState = GatekeeperStateManager.state.value
+            val currentState = GatekeeperStateManager.state.value
             assertThat(currentState.media.activeNativeMediaItem?.id).isEqualTo(item.id)
         }
     }

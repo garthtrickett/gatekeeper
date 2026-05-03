@@ -64,7 +64,7 @@ fun OutpostScreen() {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                                IndustrialButton(
+                IndustrialButton(
                     onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.RequestBeeperSync) },
                     text = "Sync",
                     isLoading = state.sync.isSyncingBeeper,
@@ -83,7 +83,7 @@ fun OutpostScreen() {
                             selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
                         ),
                 )
-                                FilterChip(
+                FilterChip(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
                     label = { Text("Queue (${state.sync.scheduledMessages.count { it.status == MessageStatus.PENDING }})") },
@@ -97,7 +97,7 @@ fun OutpostScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-                        if (selectedTab == 0) {
+            if (selectedTab == 0) {
                 OutpostComposerView(state.sync.beeperChats)
             } else {
                 OutpostQueueView(state.sync.scheduledMessages.filter { it.status == MessageStatus.PENDING })

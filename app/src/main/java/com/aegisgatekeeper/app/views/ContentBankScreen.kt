@@ -59,7 +59,7 @@ import java.time.LocalTime
 fun ContentBankScreen(overrideTime: LocalTime? = null) {
     val state by GatekeeperStateManager.state.collectAsState()
 
-        if (!state.sync.isProTier) {
+    if (!state.sync.isProTier) {
         PaywallScreen(
             title = "The Priority Matrix",
             description =
@@ -69,10 +69,10 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
         return
     }
 
-        var activeContentFilter by remember { mutableStateOf<ContentType?>(null) }
+    var activeContentFilter by remember { mutableStateOf<ContentType?>(null) }
     var searchQuery by remember { mutableStateOf("") }
 
-        val items =
+    val items =
         state.data.contentItems
             .filter { (activeContentFilter == null || it.type == activeContentFilter) && !it.isDeleted }
             .filter {
@@ -89,12 +89,12 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
     // Deep Work & Friction State
     val currentTime by remember { mutableStateOf(overrideTime ?: LocalTime.now()) }
     val isDeepWork =
-                com.aegisgatekeeper.app.domain
+        com.aegisgatekeeper.app.domain
             .isDeepWorkHours(currentTime, state.data.deepWorkStartMinutes, state.data.deepWorkEndMinutes)
     var isEditingUnlocked by remember { mutableStateOf(false) }
     var showFriction by remember { mutableStateOf(false) }
     var pendingFilterAction by remember { mutableStateOf<(() -> Unit)?>(null) }
-        var showAddDialog by remember { mutableStateOf(false) }
+    var showAddDialog by remember { mutableStateOf(false) }
     var showFeedManagement by remember { mutableStateOf(false) }
     var showYouTubeSearch by remember { mutableStateOf(false) }
 
@@ -126,11 +126,11 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     if (searchQuery.isNotEmpty()) {
                         IndustrialButton(onClick = { searchQuery = "" }, text = "Clear")
                     }
-                                        IndustrialButton(onClick = { showFeedManagement = true }, text = "Podcasts")
+                    IndustrialButton(onClick = { showFeedManagement = true }, text = "Podcasts")
                     IndustrialButton(onClick = { showYouTubeSearch = true }, text = "YouTube")
                 }
 
-                                // Filtering Chips
+                // Filtering Chips
                 Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     val activeFilter = activeContentFilter
                     val filters =
@@ -143,7 +143,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     val labels = listOf("All", "Video", "Audio", "Read")
 
                     filters.forEachIndexed { index, type ->
-                                                FilterChip(
+                        FilterChip(
                             selected = activeFilter == type,
                             onClick = {
                                 val action = { activeContentFilter = type }
@@ -164,7 +164,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     }
                 }
 
-                                if (state.data.contentItems.none { !it.isDeleted }) {
+                if (state.data.contentItems.none { !it.isDeleted }) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
                             "Bank is empty. Share a link to Gatekeeper to capture it.",
@@ -259,7 +259,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                             },
                     ) {
                         itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
-                                                        val isBeingDragged = index == draggedItemIndex
+                            val isBeingDragged = index == draggedItemIndex
                             val elevation by animateFloatAsState(if (isBeingDragged) 8f else 0f, label = "elevation")
                             ContentItemCard(
                                 item = item,
@@ -275,7 +275,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                 }
             } // Close Column
 
-                        // Capture Button
+            // Capture Button
             if (state.media.isProcessingLink) {
                 androidx.compose.material3.FloatingActionButton(
                     onClick = { },
@@ -338,7 +338,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
             )
         }
 
-                if (showFeedManagement) {
+        if (showFeedManagement) {
             FeedManagementDialog(onDismiss = { showFeedManagement = false })
         }
 
@@ -499,7 +499,7 @@ private fun ContentItemCard(
                     if (item.type == ContentType.AUDIO && item.source != ContentSource.SOUNDCLOUD) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             val status = item.downloadStatus
-                                                        val progress = state.media.activeDownloads[item.id] ?: 0f
+                            val progress = state.media.activeDownloads[item.id] ?: 0f
                             if (status == com.aegisgatekeeper.app.domain.DownloadStatus.DOWNLOADING ||
                                 status == com.aegisgatekeeper.app.domain.DownloadStatus.QUEUED
                             ) {

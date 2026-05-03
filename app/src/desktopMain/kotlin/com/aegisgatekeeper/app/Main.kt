@@ -228,7 +228,7 @@ fun main() =
         }
 
         // The Interception Trigger: Instantly spawn a fullscreen blocking window
-                if (state.interception.isOverlayActive && state.interception.currentlyInterceptedApp != null) {
+        if (state.interception.isOverlayActive && state.interception.currentlyInterceptedApp != null) {
             Window(
                 onCloseRequest = { /* Blocked by design: User must complete task */ },
                 title = "Gatekeeper Interception",
@@ -276,7 +276,7 @@ fun main() =
                             }
 
                             3 -> {
-                                                                if (state.media.isWebEngineReady) {
+                                if (state.media.isWebEngineReady) {
                                     com.aegisgatekeeper.app.views
                                         .SurgicalWebScreen()
                                 } else {
@@ -334,7 +334,7 @@ fun main() =
                     }
                 }
 
-                                if (state.media.activePinnedWebsiteUrl != null) {
+                if (state.media.activePinnedWebsiteUrl != null) {
                     androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize()) {
                         com.aegisgatekeeper.app.views.PinnedWebModal(
                             url = state.media.activePinnedWebsiteUrl!!,

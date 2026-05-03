@@ -371,7 +371,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                                                                        val activeVideoId = state.media.activeVideoId
+                        val activeVideoId = state.media.activeVideoId
                         if (activeVideoId != null) {
                             var isPlayerModalVisible by remember(activeVideoId) { mutableStateOf(true) }
                             com.aegisgatekeeper.app.views.CleanPlayerModal(
@@ -382,7 +382,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                                                val activeAudioUrl = state.media.activeAudioUrl
+                        val activeAudioUrl = state.media.activeAudioUrl
                         if (activeAudioUrl != null) {
                             var isAudioPlayerModalVisible by remember(activeAudioUrl) { mutableStateOf(true) }
                             com.aegisgatekeeper.app.views.CleanAudioPlayerModal(
@@ -393,7 +393,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                                                val activeNativeMediaItem = state.media.activeNativeMediaItem
+                        val activeNativeMediaItem = state.media.activeNativeMediaItem
                         if (activeNativeMediaItem != null) {
                             var isNativeAudioPlayerModalVisible by remember(activeNativeMediaItem) { mutableStateOf(true) }
                             com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
@@ -404,21 +404,21 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                                                if (state.media.activeFacebookUrl != null) {
+                        if (state.media.activeFacebookUrl != null) {
                             com.aegisgatekeeper.app.views.SurgicalFacebookScreen(
                                 url = state.media.activeFacebookUrl!!,
                                 onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalFacebook) },
                             )
                         }
 
-                                                if (state.media.activePinnedWebsiteUrl != null) {
+                        if (state.media.activePinnedWebsiteUrl != null) {
                             com.aegisgatekeeper.app.views.PinnedWebModal(
                                 url = state.media.activePinnedWebsiteUrl!!,
                                 onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.ClosePinnedWebsite) },
                             )
                         }
 
-                                                                        if (state.data.pendingMetacognition != null) {
+                        if (state.data.pendingMetacognition != null) {
                             com.aegisgatekeeper.app.views.MetacognitionDialog(
                                 request = state.data.pendingMetacognition!!,
                                 onDismiss = { GatekeeperStateManager.dispatch(GatekeeperAction.ClearMetacognition) },

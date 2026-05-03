@@ -202,7 +202,12 @@ class GatekeeperStateManagerTest {
                 isSynced = initialItem.isSynced,
                 isDeleted = initialItem.isDeleted,
             )
-                        mutableState.value = GatekeeperState(data = com.aegisgatekeeper.app.domain.DataState(vaultItems = listOf(initialItem)))
+            mutableState.value =
+                GatekeeperState(
+                    data =
+                        com.aegisgatekeeper.app.domain
+                            .DataState(vaultItems = listOf(initialItem)),
+                )
 
             val action = GatekeeperAction.MarkVaultItemResolved(initialItem.id, System.currentTimeMillis())
 

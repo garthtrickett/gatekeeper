@@ -188,7 +188,9 @@ data class InterceptionState(
     val isBatteryOptimizationDisabled: Boolean = false,
 ) {
     val isDualMoatEnabled: Boolean
-        get() = hasOverlayPermission && hasUsageAccessPermission && hasAccessibilityPermission && hasNotificationAccessPermission && isBatteryOptimizationDisabled
+        get() =
+            hasOverlayPermission && hasUsageAccessPermission && hasAccessibilityPermission && hasNotificationAccessPermission &&
+                isBatteryOptimizationDisabled
 }
 
 data class DataState(

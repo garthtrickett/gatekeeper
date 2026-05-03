@@ -2,7 +2,6 @@ package com.aegisgatekeeper.app.domain
 
 import java.time.LocalTime
 
-
 fun isDeepWorkHours(
     currentTime: LocalTime,
     startMinutes: Int,

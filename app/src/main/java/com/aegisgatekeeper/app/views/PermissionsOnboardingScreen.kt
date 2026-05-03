@@ -35,7 +35,7 @@ fun PermissionsOnboardingScreen() {
     val pagerState = rememberPagerState { 5 }
 
     // Auto-advance logic driven purely by the SAM loop state
-        LaunchedEffect(
+    LaunchedEffect(
         state.interception.hasOverlayPermission,
         state.interception.hasUsageAccessPermission,
         state.interception.hasAccessibilityPermission,

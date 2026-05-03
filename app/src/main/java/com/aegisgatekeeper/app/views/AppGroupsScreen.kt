@@ -32,7 +32,7 @@ fun AppGroupsScreen() {
         return
     }
 
-        if (selectedGroup != null) {
+    if (selectedGroup != null) {
         val currentGroup = state.interception.appGroups.find { it.id == selectedGroup!!.id }
         if (currentGroup == null) {
             selectedGroup = null

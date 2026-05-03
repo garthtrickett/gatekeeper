@@ -58,7 +58,7 @@ fun SettingsScreen() {
         return null
     }
 
-        var dwStart by remember(state.data.deepWorkStartMinutes) { mutableStateOf(formatTime(state.data.deepWorkStartMinutes)) }
+    var dwStart by remember(state.data.deepWorkStartMinutes) { mutableStateOf(formatTime(state.data.deepWorkStartMinutes)) }
     var dwEnd by remember(state.data.deepWorkEndMinutes) { mutableStateOf(formatTime(state.data.deepWorkEndMinutes)) }
     var gStart by remember(state.data.gatheringStartMinutes) { mutableStateOf(formatTime(state.data.gatheringStartMinutes)) }
     var gEnd by remember(state.data.gatheringEndMinutes) { mutableStateOf(formatTime(state.data.gatheringEndMinutes)) }
@@ -154,7 +154,7 @@ fun SettingsScreen() {
                 }
             }
 
-                IndustrialButton(
+        IndustrialButton(
             onClick = {
                 permissionLauncher.launch(
                     arrayOf(
@@ -193,7 +193,7 @@ fun SettingsScreen() {
 
         if (showAdvanced) {
             Spacer(modifier = Modifier.height(16.dp))
-                        IndustrialTextField(
+            IndustrialTextField(
                 value = state.sync.syncServerUrl,
                 onValueChange = { GatekeeperStateManager.dispatch(GatekeeperAction.UpdateSyncUrl(it)) },
                 label = { Text("Custom Sync Server URL") },

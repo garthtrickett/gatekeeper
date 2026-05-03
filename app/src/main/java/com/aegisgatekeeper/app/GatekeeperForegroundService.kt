@@ -306,7 +306,8 @@ class GatekeeperForegroundService : Service() {
                     // Layer Alpha polls UsageStats if Accessibility is offline or fails
                     val currentApp =
                         if (!state.interception.isLayerOmegaActive) {
-                            ForegroundAppDetector.getForegroundApp(this@GatekeeperForegroundService) ?: state.interception.activeForegroundApp
+                            ForegroundAppDetector.getForegroundApp(this@GatekeeperForegroundService)
+                                ?: state.interception.activeForegroundApp
                         } else {
                             state.interception.activeForegroundApp
                         }

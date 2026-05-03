@@ -43,7 +43,7 @@ suspend fun deletedHandleMediaAndSystemEffects(
                 )
         }
 
-                is GatekeeperAction.DownloadMediaRequested -> {
+        is GatekeeperAction.DownloadMediaRequested -> {
             val item = newState.data.contentItems.find { it.id == action.id }
             if (item != null) {
                 Log.d("Gatekeeper", "⬇️ Starting download for ${item.title}")
@@ -100,7 +100,7 @@ suspend fun deletedHandleMediaAndSystemEffects(
             result.fold(
                 ifLeft = { error ->
                     Log.e("Gatekeeper", "❌ Failed to load podcast episodes: $error")
-                                        if (newState.media.activePodcastEpisodes == null) {
+                    if (newState.media.activePodcastEpisodes == null) {
                         dispatch(GatekeeperAction.ClearPodcastEpisodes)
                     } else {
                         dispatch(GatekeeperAction.PodcastEpisodesLoaded(newState.media.activePodcastEpisodes!!, action.podcastId))
@@ -159,7 +159,7 @@ suspend fun deletedHandleMediaAndSystemEffects(
         is GatekeeperAction.ProcessSharedLink -> {
             Log.i("Gatekeeper", "Processing shared link: ${action.url}")
             val pattern = """(?<=youtu\.be/|watch\?v=|/shorts/)([a-zA-Z0-9_-]{11})""".toRegex()
-                        val videoId = pattern.find(action.url)?.value
+            val videoId = pattern.find(action.url)?.value
 
             if (videoId != null) {
                 dispatch(
@@ -245,7 +245,7 @@ suspend fun deletedHandleMediaAndSystemEffects(
                 }
             }
 
-                        Log.d("Gatekeeper", "⚙️ FrictionCompleted: Scheduling SessionExpired in ${action.allocatedDurationMillis}ms")
+            Log.d("Gatekeeper", "⚙️ FrictionCompleted: Scheduling SessionExpired in ${action.allocatedDurationMillis}ms")
             delay(action.allocatedDurationMillis)
             if (GatekeeperStateManager.state.value.interception.activeForegroundApp == action.packageName) {
                 dispatch(GatekeeperAction.SessionExpired(action.packageName, action.allocatedDurationMillis))
@@ -262,14 +262,14 @@ suspend fun deletedHandleMediaAndSystemEffects(
                 }
             }
 
-                        Log.d("Gatekeeper", "⚙️ EmergencyBypassRequested: Scheduling SessionExpired in ${action.allocatedDurationMillis}ms")
+            Log.d("Gatekeeper", "⚙️ EmergencyBypassRequested: Scheduling SessionExpired in ${action.allocatedDurationMillis}ms")
             delay(action.allocatedDurationMillis)
             if (GatekeeperStateManager.state.value.interception.activeForegroundApp == action.packageName) {
                 dispatch(GatekeeperAction.SessionExpired(action.packageName, action.allocatedDurationMillis))
             }
         }
 
-                is GatekeeperAction.RedeemCheckInToken -> {
+        is GatekeeperAction.RedeemCheckInToken -> {
             val group = newState.interception.appGroups.find { it.id == action.groupId }
             val apps = group?.apps ?: emptySet()
             if (oldState.interception.currentlyInterceptedApp in apps) {
@@ -284,7 +284,7 @@ suspend fun deletedHandleMediaAndSystemEffects(
                 }
 
                 val durationMillis = action.durationMinutes * 60_000L
-                                Log.d("Gatekeeper", "⚙️ RedeemCheckInToken: Scheduling SessionExpired in ${durationMillis}ms")
+                Log.d("Gatekeeper", "⚙️ RedeemCheckInToken: Scheduling SessionExpired in ${durationMillis}ms")
                 delay(durationMillis)
                 if (GatekeeperStateManager.state.value.interception.activeForegroundApp == packageName) {
                     dispatch(GatekeeperAction.SessionExpired(packageName, durationMillis))

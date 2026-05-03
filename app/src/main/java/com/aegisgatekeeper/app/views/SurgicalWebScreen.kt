@@ -22,7 +22,7 @@ import com.aegisgatekeeper.app.domain.IndustrialTextField
 @Composable
 fun SurgicalWebScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
-        var urlInput by remember(state.media.currentSurgicalUrl) {
+    var urlInput by remember(state.media.currentSurgicalUrl) {
         mutableStateOf(state.media.currentSurgicalUrl ?: "https://google.com")
     }
 
@@ -75,7 +75,7 @@ fun SurgicalWebScreen() {
                 "googletagmanager.com",
             )
 
-                BaseSurgicalWebView(
+        BaseSurgicalWebView(
             url = state.media.currentSurgicalUrl ?: "https://google.com",
             modifier = Modifier.weight(1f),
             cssInjector = { currentUrl ->

@@ -77,7 +77,7 @@ fun NotificationDigestScreen() {
         val nextDeliveryTime: Int?,
     )
 
-        val sections =
+    val sections =
         remember(state.sync.notificationDigest, state.interception.appGroups, currentMinutes, currentDay) {
             val groupsWithCheckIn =
                 state.interception.appGroups.filter { group ->
@@ -93,7 +93,7 @@ fun NotificationDigestScreen() {
                         it is com.aegisgatekeeper.app.domain.BlockingRule.CheckIn && it.isEnabled
                     } as com.aegisgatekeeper.app.domain.BlockingRule.CheckIn
 
-                                val groupLogs = state.sync.notificationDigest.filter { it.packageName in group.apps }
+                val groupLogs = state.sync.notificationDigest.filter { it.packageName in group.apps }
                 if (groupLogs.isEmpty()) continue
 
                 val delivered = mutableListOf<com.aegisgatekeeper.app.domain.NotificationLog>()
@@ -117,7 +117,7 @@ fun NotificationDigestScreen() {
                 result.add(DigestSection(group.name, delivered, heldCount, nextTime))
             }
 
-                        val generalLogs = state.sync.notificationDigest.filter { it.id !in processedLogIds }
+            val generalLogs = state.sync.notificationDigest.filter { it.id !in processedLogIds }
             if (generalLogs.isNotEmpty()) {
                 result.add(DigestSection("General", generalLogs, 0, null))
             }
@@ -136,7 +136,7 @@ fun NotificationDigestScreen() {
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-                        if (state.sync.notificationDigest.isEmpty()) {
+            if (state.sync.notificationDigest.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text(
                         "No intercepted notifications. Your focus is pristine.",
@@ -195,7 +195,7 @@ fun NotificationDigestScreen() {
 
                         items(section.delivered) { log ->
                             val baseName = log.title.substringAfter(":").trim()
-                                                        val matchedChat =
+                            val matchedChat =
                                 state.sync.beeperChats.firstOrNull {
                                     it.name.contains(baseName, ignoreCase = true) || baseName.contains(it.name, ignoreCase = true)
                                 }

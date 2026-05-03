@@ -54,7 +54,7 @@ class SettingsUiTest {
         composeTestRule.waitForIdle()
 
         // Verify state is updated
-                val state = GatekeeperStateManager.state.value
+        val state = GatekeeperStateManager.state.value
         assertThat(state.data.deepWorkStartMinutes).isEqualTo(480)
         assertThat(state.data.gatheringEndMinutes).isEqualTo(1140)
     }

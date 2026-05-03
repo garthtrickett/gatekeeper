@@ -57,7 +57,7 @@ fun VaultReviewScreen(
     }
 
     val isUnlocked =
-                com.aegisgatekeeper.app.domain
+        com.aegisgatekeeper.app.domain
             .isVaultUnlocked(currentTime, state.data.gatheringStartMinutes, state.data.gatheringEndMinutes)
     // Transform, don't mutate: Filter only unresolved items
     val unresolvedItems = state.data.vaultItems.filter { !it.isResolved && !it.isDeleted }
@@ -76,7 +76,7 @@ fun VaultReviewScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             if (isUnlocked) {
-                                VaultList(
+                VaultList(
                     items = unresolvedItems,
                     gatheringEndMinutes = state.data.gatheringEndMinutes,
                     onNavigateToWeb = onNavigateToWeb,
@@ -86,7 +86,7 @@ fun VaultReviewScreen(
                     },
                     modifier = Modifier.weight(1f),
                 )
-                        } else {
+            } else {
                 LockedVaultMessage(state.data.gatheringStartMinutes, Modifier.weight(1f))
             }
         }
@@ -186,7 +186,7 @@ private fun VaultItemCard(
                     },
                     text = "🌐 Web",
                 )
-                                IndustrialButton(
+                IndustrialButton(
                     onClick = {
                         GatekeeperStateManager.dispatch(GatekeeperAction.MarkVaultItemResolved(item.id, System.currentTimeMillis()))
                         val encoded = java.net.URLEncoder.encode(item.query, "UTF-8")

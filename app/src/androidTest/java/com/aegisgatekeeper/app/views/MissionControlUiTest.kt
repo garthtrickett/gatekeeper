@@ -191,7 +191,7 @@ class MissionControlUiTest {
         composeTestRule.onNodeWithText("FB Groups").performClick()
 
         // Assert: State updated correctly
-                val state = GatekeeperStateManager.state.value
+        val state = GatekeeperStateManager.state.value
         com.google.common.truth.Truth
             .assertThat(state.media.activeFacebookUrl)
             .contains("/groups/")

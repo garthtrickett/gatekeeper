@@ -32,7 +32,7 @@ suspend fun handleMediaAndSystemEffects(
             )
         }
 
-                is GatekeeperAction.DownloadMediaRequested -> {
+        is GatekeeperAction.DownloadMediaRequested -> {
             val item = newState.data.contentItems.find { it.id == action.id }
             if (item != null) {
                 platformLog("Gatekeeper", "⬇️ Starting download for ${item.title}")
@@ -70,7 +70,7 @@ suspend fun handleMediaAndSystemEffects(
         is GatekeeperAction.LoadPodcastEpisodes -> {
             platformLog("Gatekeeper", "📡 Loading Podcast Episodes from RSS: ${action.feedUrl}")
             effectHandler.fetchPodcastFeed(action.feedUrl).fold(
-                                ifLeft = { error ->
+                ifLeft = { error ->
                     platformLog("Gatekeeper", "❌ Failed to load podcast episodes: $error")
                     if (newState.media.activePodcastEpisodes == null) {
                         dispatch(GatekeeperAction.ClearPodcastEpisodes)
@@ -120,7 +120,7 @@ suspend fun handleMediaAndSystemEffects(
         is GatekeeperAction.ProcessSharedLink -> {
             platformLog("Gatekeeper", "Processing shared link: ${action.url}")
             val pattern = """(?<=youtu\.be/|watch\?v=|/shorts/)([a-zA-Z0-9_-]{11})""".toRegex()
-                        val videoId = pattern.find(action.url)?.value
+            val videoId = pattern.find(action.url)?.value
 
             if (videoId != null) {
                 dispatch(
@@ -191,7 +191,7 @@ suspend fun handleMediaAndSystemEffects(
             dispatch(GatekeeperAction.SessionExpired(action.packageName, action.allocatedDurationMillis))
         }
 
-                is GatekeeperAction.RedeemCheckInToken -> {
+        is GatekeeperAction.RedeemCheckInToken -> {
             val group = newState.interception.appGroups.find { it.id == action.groupId }
             val apps = group?.apps ?: emptySet()
             if (oldState.interception.currentlyInterceptedApp in apps) {

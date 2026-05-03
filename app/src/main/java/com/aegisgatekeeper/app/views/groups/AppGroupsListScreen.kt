@@ -74,7 +74,7 @@ fun AppGroupsListScreen(
             }
 
             item {
-                                // Manual Lockdown Toggle
+                // Manual Lockdown Toggle
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors =
@@ -84,10 +84,15 @@ fun AppGroupsListScreen(
                                     Color(
                                         0xFF93000A,
                                     )
-                                } else {
+                                                                } else {
                                     MaterialTheme.colorScheme.surfaceVariant
                                 },
-                                                        contentColor = if (state.interception.isManualLockdownActive) Color.White else MaterialTheme.colorScheme.onSurface,
+                            contentColor =
+                                if (state.interception.isManualLockdownActive) {
+                                    Color.White
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                },
                         ),
                 ) {
                     Column(modifier = Modifier.padding(24.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -111,7 +116,7 @@ fun AppGroupsListScreen(
                                 },
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                                                IndustrialButton(
+                        IndustrialButton(
                             onClick = {
                                 GatekeeperStateManager.dispatch(
                                     GatekeeperAction.SetManualLockdown(!state.interception.isManualLockdownActive),
@@ -125,7 +130,7 @@ fun AppGroupsListScreen(
                 }
             }
 
-                        if (state.interception.activeWhitelists.isNotEmpty()) {
+            if (state.interception.activeWhitelists.isNotEmpty()) {
                 item {
                     ShieldStatusCard(state.interception.activeWhitelists)
                 }
@@ -143,7 +148,7 @@ fun AppGroupsListScreen(
                         Text("Friction Type", fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                        FilterChip(
+                            FilterChip(
                                 selected = state.interception.activeFrictionGame == com.aegisgatekeeper.app.domain.FrictionGame.HOLD_STEADY,
                                 onClick = {
                                     GatekeeperStateManager.dispatch(
@@ -157,7 +162,7 @@ fun AppGroupsListScreen(
                                         selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
                                     ),
                             )
-                                                        FilterChip(
+                            FilterChip(
                                 selected = state.interception.activeFrictionGame == com.aegisgatekeeper.app.domain.FrictionGame.GAUNTLET,
                                 onClick = {
                                     GatekeeperStateManager.dispatch(
@@ -176,14 +181,14 @@ fun AppGroupsListScreen(
                 }
             }
 
-                        if (state.interception.appGroups.isEmpty()) {
+            if (state.interception.appGroups.isEmpty()) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
                         Text("No groups configured. Create one to get started.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             } else {
-                                items(state.interception.appGroups) { group ->
+                items(state.interception.appGroups) { group ->
                     TerminalPanel(modifier = Modifier.fillMaxWidth().clickable { onGroupSelected(group) }) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
@@ -380,7 +385,7 @@ fun CheckInTokensRow(
     calendar.set(java.util.Calendar.MILLISECOND, 0)
     val startOfDay = calendar.timeInMillis
 
-        val consumedToday = state.data.consumedCheckIns.filter { it.groupId == group.id && it.timestamp >= startOfDay }
+    val consumedToday = state.data.consumedCheckIns.filter { it.groupId == group.id && it.timestamp >= startOfDay }
     val consumedTimes = consumedToday.map { it.timeMinutes }
 
     var showAccountabilityForTime by remember { mutableStateOf<Int?>(null) }

@@ -99,7 +99,7 @@ class IntentionalAudioScreenTest {
         Thread.sleep(500)
 
         // Retrieve the fully formed item (with DB-generated UUID) from the state
-                val savedItem =
+        val savedItem =
             GatekeeperStateManager.state.value.data.contentItems
                 .first { it.title == "Deep Focus Ambient" }
 

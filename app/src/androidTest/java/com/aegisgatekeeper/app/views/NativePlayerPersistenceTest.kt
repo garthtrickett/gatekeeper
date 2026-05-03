@@ -64,7 +64,7 @@ class NativePlayerPersistenceTest {
         composeTestRule.setContent {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
-                                                                if (state.media.activeNativeMediaItem != null) {
+                if (state.media.activeNativeMediaItem != null) {
                     NativeAudioPlayerModal(
                         contentItem = state.media.activeNativeMediaItem!!,
                         isVisible = true,
@@ -87,7 +87,7 @@ class NativePlayerPersistenceTest {
         composeTestRule.waitForIdle()
 
         // 5. Assert: Verify the seeded 45-minute mark was NOT wiped out by ExoPlayer's error state (0).
-                val finalState = GatekeeperStateManager.state.value
+        val finalState = GatekeeperStateManager.state.value
         com.google.common.truth.Truth
             .assertThat(finalState.media.savedMediaPositions[podcastUrl])
             .isEqualTo(2700f)

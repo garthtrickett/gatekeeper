@@ -65,7 +65,7 @@ class FeedManagementUiTest {
         composeTestRule.waitForIdle()
 
         // Assert: State updated to active podcast (don't sleep, avoid network failure race)
-                val state = GatekeeperStateManager.state.value
+        val state = GatekeeperStateManager.state.value
         assertThat(state.media.activePodcastId).isEqualTo("podcast_123")
         assertThat(state.media.isLoadingEpisodes).isTrue() // Because we dispatched LoadPodcastEpisodes
 
@@ -118,7 +118,7 @@ class FeedManagementUiTest {
 
         // Assert: Check that it was added to the bank (button should now be a checkmark)
         // The AddEpisodeToBank action dispatches SaveToContentBank immediately.
-                val state = GatekeeperStateManager.state.value
+        val state = GatekeeperStateManager.state.value
         val bankedItem = state.data.contentItems.find { it.videoId == "https://example.com/ep1.mp3" }
         assertThat(bankedItem).isNotNull()
         assertThat(bankedItem?.title).isEqualTo("Episode 1: Focus")
@@ -179,7 +179,7 @@ class FeedManagementUiTest {
         Thread.sleep(500) // Wait for Coroutine side-effect dispatch
 
         // Assert: Check that it was added to the bank (button should now be 'Download')
-                val state = GatekeeperStateManager.state.value
+        val state = GatekeeperStateManager.state.value
         val bankedItem = state.data.contentItems.find { it.videoId == "https://example.com/global1.mp3" }
         assertThat(bankedItem).isNotNull()
         assertThat(bankedItem?.title).isEqualTo("Global Episode 1")
@@ -190,7 +190,7 @@ class FeedManagementUiTest {
         // Act: Click Refresh and verify state update
         composeTestRule.onNodeWithText("Refresh").performClick()
         composeTestRule.waitForIdle()
-                assertThat(GatekeeperStateManager.state.value.sync.isSyncingPodcasts).isTrue()
+        assertThat(GatekeeperStateManager.state.value.sync.isSyncingPodcasts).isTrue()
 
         showDialog.value = false
         composeTestRule.waitForIdle()
@@ -219,7 +219,7 @@ class FeedManagementUiTest {
         composeTestRule.waitForIdle()
 
         // Assert: We are back at the subscriptions list
-                assertThat(GatekeeperStateManager.state.value.media.activePodcastId).isNull()
+        assertThat(GatekeeperStateManager.state.value.media.activePodcastId).isNull()
         composeTestRule.onNodeWithText("Manage Podcasts").assertIsDisplayed()
 
         showDialog.value = false

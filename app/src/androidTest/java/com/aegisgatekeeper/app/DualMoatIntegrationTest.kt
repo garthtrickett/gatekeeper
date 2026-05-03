@@ -32,7 +32,12 @@ class DualMoatIntegrationTest {
                 apps = setOf(testAppPackage),
                 combinator = com.aegisgatekeeper.app.domain.RuleCombinator.ANY,
             )
-                val initialBlacklist = GatekeeperState(interception = com.aegisgatekeeper.app.domain.InterceptionState(appGroups = listOf(initialAppGroup)))
+        val initialBlacklist =
+            GatekeeperState(
+                interception =
+                    com.aegisgatekeeper.app.domain
+                        .InterceptionState(appGroups = listOf(initialAppGroup)),
+            )
         // Use reflection to set this initial state
         val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
         stateFlowField.isAccessible = true
@@ -45,7 +50,7 @@ class DualMoatIntegrationTest {
         runTest {
             // Arrange: Manually set the state to indicate Layer Omega is alive
             stateManager.dispatch(GatekeeperAction.LayerOmegaConnected)
-                        assertThat(stateManager.state.value.interception.isLayerOmegaActive).isTrue()
+            assertThat(stateManager.state.value.interception.isLayerOmegaActive).isTrue()
 
             // Act: Simulate the logic from the service's heartbeat. We are testing if the throttle works.
             var wasPollingLogicExecuted = false
@@ -63,7 +68,7 @@ class DualMoatIntegrationTest {
         runTest {
             // Arrange: Ensure state indicates Layer Omega is disconnected
             stateManager.dispatch(GatekeeperAction.LayerOmegaDisconnected)
-                        assertThat(stateManager.state.value.interception.isLayerOmegaActive).isFalse()
+            assertThat(stateManager.state.value.interception.isLayerOmegaActive).isFalse()
 
             var wasActionDispatched = false
             var lastDetectedPackage: String? = null
@@ -81,7 +86,7 @@ class DualMoatIntegrationTest {
             // Assert: The action should have been fired
             assertThat(wasActionDispatched).isTrue()
             // And the reducer, upon receiving the action for a blacklisted app, should activate the overlay.
-                        assertThat(stateManager.state.value.interception.isOverlayActive).isTrue()
+            assertThat(stateManager.state.value.interception.isOverlayActive).isTrue()
             assertThat(stateManager.state.value.interception.activeBlockReason).isEqualTo("Test Reason")
         }
 
@@ -89,19 +94,20 @@ class DualMoatIntegrationTest {
     fun whenManualLockdownIsActive_blocksAppRegardlessOfRules() =
         runTest {
             // Arrange: A group with NO rules, but Manual Lockdown is enabled.
-                        val stateWithLockdown =
+            val stateWithLockdown =
                 GatekeeperState(
-                    interception = com.aegisgatekeeper.app.domain.InterceptionState(
-                        isManualLockdownActive = true,
-                        appGroups =
-                            listOf(
-                            com.aegisgatekeeper.app.domain.AppGroup(
-                                id = "test-group-id",
-                                name = "Test Group",
-                                apps = setOf(testAppPackage                            ),
-                        )
-                    )
-                ),
+                    interception =
+                        com.aegisgatekeeper.app.domain.InterceptionState(
+                            isManualLockdownActive = true,
+                            appGroups =
+                                listOf(
+                                    com.aegisgatekeeper.app.domain.AppGroup(
+                                        id = "test-group-id",
+                                        name = "Test Group",
+                                        apps = setOf(testAppPackage),
+                                    ),
+                                ),
+                        ),
                 )
 
             val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
@@ -116,7 +122,7 @@ class DualMoatIntegrationTest {
             )
 
             // Assert: The overlay should instantly intercept with the Lockdown reason.
-                        assertThat(stateManager.state.value.interception.isOverlayActive).isTrue()
+            assertThat(stateManager.state.value.interception.isOverlayActive).isTrue()
             assertThat(stateManager.state.value.interception.activeBlockReason).isEqualTo("Manual Lockdown Engaged")
         }
 
@@ -125,11 +131,16 @@ class DualMoatIntegrationTest {
         runTest {
             // Arrange: Add an Always Block rule to the test group
             val rule = BlockingRule.AlwaysBlock(id = "test-rule", groupId = "test-group-id")
-                        val group =
+            val group =
                 stateManager.state.value.interception.appGroups
                     .first()
-                        val updatedGroup = group.copy(rules = listOf(rule))
-            val stateWithRule = GatekeeperState(interception = com.aegisgatekeeper.app.domain.InterceptionState(appGroups = listOf(updatedGroup)))
+            val updatedGroup = group.copy(rules = listOf(rule))
+            val stateWithRule =
+                GatekeeperState(
+                    interception =
+                        com.aegisgatekeeper.app.domain
+                            .InterceptionState(appGroups = listOf(updatedGroup)),
+                )
 
             val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
             stateFlowField.isAccessible = true
@@ -143,7 +154,7 @@ class DualMoatIntegrationTest {
             )
 
             // Assert: The overlay should be active with the correct reason.
-                        assertThat(stateManager.state.value.interception.isOverlayActive).isTrue()
+            assertThat(stateManager.state.value.interception.isOverlayActive).isTrue()
             assertThat(stateManager.state.value.interception.activeBlockReason).isEqualTo("Policy Violation: Always Block for 'Test Group'")
         }
 
@@ -154,17 +165,18 @@ class DualMoatIntegrationTest {
             val whitelist =
                 com.aegisgatekeeper.app.domain
                     .TemporaryWhitelist(testAppPackage, "Test", 0L, Long.MAX_VALUE, 1000L)
-                        val stateWithWhitelist =
+            val stateWithWhitelist =
                 GatekeeperState(
-                    interception = com.aegisgatekeeper.app.domain.InterceptionState(
-                        activeForegroundApp = testAppPackage,
-                        activeWhitelists = mapOf(testAppPackage to whitelist),
-                        appGroups =
-                            listOf(
-                                com.aegisgatekeeper.app.domain
-                                    .AppGroup(id = "group1", name = "Test", apps = setOf(testAppPackage)),
-                            ),
-                    )
+                    interception =
+                        com.aegisgatekeeper.app.domain.InterceptionState(
+                            activeForegroundApp = testAppPackage,
+                            activeWhitelists = mapOf(testAppPackage to whitelist),
+                            appGroups =
+                                listOf(
+                                    com.aegisgatekeeper.app.domain
+                                        .AppGroup(id = "group1", name = "Test", apps = setOf(testAppPackage)),
+                                ),
+                        ),
                 )
 
             val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
@@ -188,7 +200,7 @@ class DualMoatIntegrationTest {
             )
 
             // Assert: The exit interview should be triggered for the app we just left
-                        assertThat(stateManager.state.value.interception.isOverlayActive).isTrue()
+            assertThat(stateManager.state.value.interception.isOverlayActive).isTrue()
             assertThat(stateManager.state.value.interception.pendingExitInterview).isEqualTo(testAppPackage)
         }
 
@@ -204,7 +216,12 @@ class DualMoatIntegrationTest {
                     apps = emptySet(),
                     rules = listOf(BlockingRule.AlwaysBlock(id = "rule1", groupId = "empty-group")),
                 )
-                        val stateWithEmptyGroup = GatekeeperState(interception = com.aegisgatekeeper.app.domain.InterceptionState(appGroups = listOf(emptyGroup)))
+            val stateWithEmptyGroup =
+                GatekeeperState(
+                    interception =
+                        com.aegisgatekeeper.app.domain
+                            .InterceptionState(appGroups = listOf(emptyGroup)),
+                )
 
             val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
             stateFlowField.isAccessible = true
@@ -218,7 +235,7 @@ class DualMoatIntegrationTest {
             )
 
             // Assert: The overlay should NOT activate for app interception.
-                        assertThat(stateManager.state.value.interception.isOverlayActive).isFalse()
+            assertThat(stateManager.state.value.interception.isOverlayActive).isFalse()
         }
 
     @Test
@@ -258,15 +275,20 @@ class DualMoatIntegrationTest {
                             .toSet(),
                 )
 
-                        val group =
+            val group =
                 stateManager.state.value.interception.appGroups
                     .first()
-                        val updatedGroup =
+            val updatedGroup =
                 group.copy(
                     rules = listOf(scheduledRule, timeLimitRule, checkInRule),
                     combinator = com.aegisgatekeeper.app.domain.RuleCombinator.ALL,
                 )
-            val stateWithRule = GatekeeperState(interception = com.aegisgatekeeper.app.domain.InterceptionState(appGroups = listOf(updatedGroup)))
+            val stateWithRule =
+                GatekeeperState(
+                    interception =
+                        com.aegisgatekeeper.app.domain
+                            .InterceptionState(appGroups = listOf(updatedGroup)),
+                )
 
             val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
             stateFlowField.isAccessible = true
@@ -280,14 +302,14 @@ class DualMoatIntegrationTest {
                 testAppPackage,
             )
 
-                        assertThat(stateManager.state.value.interception.isOverlayActive).isTrue()
+            assertThat(stateManager.state.value.interception.isOverlayActive).isTrue()
             val reason = stateManager.state.value.interception.activeBlockReason
             assertThat(reason).contains("Scheduled Block (00:00 - 24:00)")
             assertThat(reason).contains("Time Limit Reached")
             assertThat(reason).contains("Check-In Required (10:00, 12:00)")
         }
 
-        @Test
+    @Test
     fun whenRuleIsBroken_layerAlphaDispatchesViolation() =
         runTest {
             // Arrange: Add a time limit rule to the test group
@@ -301,7 +323,12 @@ class DualMoatIntegrationTest {
                 stateManager.state.value.interception.appGroups
                     .first()
             val updatedGroup = group.copy(rules = listOf(rule))
-            val stateWithRule = GatekeeperState(interception = com.aegisgatekeeper.app.domain.InterceptionState(appGroups = listOf(updatedGroup)))
+            val stateWithRule =
+                GatekeeperState(
+                    interception =
+                        com.aegisgatekeeper.app.domain
+                            .InterceptionState(appGroups = listOf(updatedGroup)),
+                )
 
             val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
             stateFlowField.isAccessible = true
@@ -322,6 +349,6 @@ class DualMoatIntegrationTest {
             assertThat(stateManager.state.value.interception.isOverlayActive).isTrue()
             assertThat(
                 stateManager.state.value.interception.activeBlockReason,
-                        ).isEqualTo("Policy Violation: Time Limit Reached (0m left, used 0/0m) for 'Test Group'")
+            ).isEqualTo("Policy Violation: Time Limit Reached (0m left, used 0/0m) for 'Test Group'")
         }
 }

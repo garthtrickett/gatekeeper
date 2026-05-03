@@ -75,7 +75,7 @@ class ContentBankUiTest {
         val stateFlowField = GatekeeperStateManager.javaClass.getDeclaredField("_state")
         stateFlowField.isAccessible = true
         @Suppress("UNCHECKED_CAST")
-                val stateFlow =
+        val stateFlow =
             stateFlowField.get(
                 GatekeeperStateManager,
             ) as kotlinx.coroutines.flow.MutableStateFlow<com.aegisgatekeeper.app.domain.GatekeeperState>
@@ -304,14 +304,14 @@ class ContentBankUiTest {
         // 4. Click Add
         composeTestRule.onNodeWithText("Add Intent").performClick()
 
-                // 5. Verify dialog is dismissed and content item is queued via ProcessSharedLink
+        // 5. Verify dialog is dismissed and content item is queued via ProcessSharedLink
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Add to Bank").assertDoesNotExist()
 
         // Wait for coroutine to process metadata
         Thread.sleep(1000)
 
-                val state = GatekeeperStateManager.state.value
+        val state = GatekeeperStateManager.state.value
         val item = state.data.contentItems.find { it.videoId == "dQw4w9WgXcQ" }
         com.google.common.truth.Truth
             .assertThat(item)
@@ -336,7 +336,7 @@ class ContentBankUiTest {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
                 ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
-                                                                if (state.media.activeAudioUrl != null) {
+                if (state.media.activeAudioUrl != null) {
                     com.aegisgatekeeper.app.views.CleanAudioPlayerModal(
                         url = state.media.activeAudioUrl!!,
                         isVisible = true,
@@ -353,7 +353,7 @@ class ContentBankUiTest {
         composeTestRule.waitForIdle()
 
         // Assert: The state manager should now have an active audio URL
-                val state = GatekeeperStateManager.state.value
+        val state = GatekeeperStateManager.state.value
         com.google.common.truth.Truth
             .assertThat(state.media.activeAudioUrl)
             .isEqualTo(soundcloudUrl)
@@ -380,7 +380,7 @@ class ContentBankUiTest {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
                 ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
-                                                                if (state.media.activeNativeMediaItem != null) {
+                if (state.media.activeNativeMediaItem != null) {
                     com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
                         contentItem = state.media.activeNativeMediaItem!!,
                         isVisible = true,
@@ -396,7 +396,7 @@ class ContentBankUiTest {
         composeTestRule.waitForIdle()
 
         // Assert: The state manager should now have an active native media item
-                val state = GatekeeperStateManager.state.value
+        val state = GatekeeperStateManager.state.value
         com.google.common.truth.Truth
             .assertThat(state.media.activeNativeMediaItem)
             .isNotNull()

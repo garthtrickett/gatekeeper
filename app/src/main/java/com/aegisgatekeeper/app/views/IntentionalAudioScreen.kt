@@ -70,7 +70,7 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 fun IntentionalContentScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
 
-        if (!state.sync.isProTier) {
+    if (!state.sync.isProTier) {
         PaywallScreen(
             title = "Intentional Slots Dashboard",
             description =
@@ -94,7 +94,7 @@ fun IntentionalContentScreen() {
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-                        for (i in 0 until 5) {
+            for (i in 0 until 5) {
                 val item = state.data.intentionalSlots.find { it.slotIndex == i }
                 Card(
                     modifier =
@@ -210,7 +210,7 @@ fun IntentionalContentScreen() {
                             }
                         }
 
-                                                if (item != null) {
+                        if (item != null) {
                             val savedPosition = state.media.savedMediaPositions[item.contentItem.videoId]
                             if (savedPosition != null && savedPosition > 0f && item.contentItem.durationSeconds != null &&
                                 item.contentItem.durationSeconds > 0
@@ -258,7 +258,7 @@ fun IntentionalContentScreen() {
                         Text("Assign Content to Slot ${slotToEdit!! + 1}", style = MaterialTheme.typography.titleLarge)
                         Spacer(modifier = Modifier.height(16.dp))
 
-                                                val availableItems =
+                        val availableItems =
                             state.data.contentItems.filter { content ->
                                 state.data.intentionalSlots.none { it.contentItem.id == content.id }
                             }
@@ -295,7 +295,7 @@ fun IntentionalContentScreen() {
 
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                                                        val currentItem = state.data.intentionalSlots.find { it.slotIndex == slotToEdit }
+                            val currentItem = state.data.intentionalSlots.find { it.slotIndex == slotToEdit }
                             if (currentItem != null) {
                                 IndustrialButton(
                                     onClick = {
@@ -329,13 +329,16 @@ fun CleanAudioPlayerModal(
     var resolvedUrl by remember { mutableStateOf<String?>(null) }
 
     val context = LocalContext.current
-        val state by GatekeeperStateManager.state.collectAsState()
+    val state by GatekeeperStateManager.state.collectAsState()
     val startSeconds = state.media.savedMediaPositions[url] ?: 0f
     var currentPosition by remember { androidx.compose.runtime.mutableFloatStateOf(startSeconds) }
 
     val audioTitle =
-                remember(url) {
-            val cleanTitle = state.data.contentItems.find { it.videoId == url }?.title ?: "Clean Audio Player"
+        remember(url) {
+            val cleanTitle =
+                state.data.contentItems
+                    .find { it.videoId == url }
+                    ?.title ?: "Clean Audio Player"
             cleanTitle
                 .replace("&amp;", "&")
                 .replace("&#39;", "'")

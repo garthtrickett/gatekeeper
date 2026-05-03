@@ -57,7 +57,7 @@ fun FeedManagementDialog(
             color = MaterialTheme.colorScheme.surface,
             modifier = Modifier.fillMaxWidth().height(600.dp).padding(16.dp),
         ) {
-                if (state.media.activePodcastId != null) {
+            if (state.media.activePodcastId != null) {
                 PodcastEpisodesView(state, handleDismiss)
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
@@ -77,7 +77,7 @@ fun FeedManagementDialog(
                         )
                         androidx.compose.material3.FilterChip(
                             selected = selectedTab == 1,
-                                                        onClick = {
+                            onClick = {
                                 selectedTab = 1
                                 if (state.media.latestGlobalEpisodes == null) {
                                     GatekeeperStateManager.dispatch(GatekeeperAction.LoadLatestGlobalEpisodes)
@@ -139,7 +139,7 @@ private fun PodcastSubscriptionsView(
                     androidx.compose.foundation.text.KeyboardOptions(
                         imeAction = androidx.compose.ui.text.input.ImeAction.Search,
                     ),
-                                keyboardActions =
+                keyboardActions =
                     androidx.compose.foundation.text.KeyboardActions(onSearch = {
                         if (query.isNotBlank() && !state.media.isSearchingPodcasts) {
                             isSearchMode = true
@@ -217,7 +217,7 @@ private fun PodcastSubscriptionsView(
                     }
                 }
             }
-                } else {
+        } else {
             if (state.sync.podcastSubscriptions.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text("No podcast subscriptions yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -289,21 +289,21 @@ private fun PodcastEpisodesView(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-            if (state.media.isLoadingEpisodes) {
-        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            androidx.compose.material3.CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.primary,
-                strokeWidth = 2.dp,
-            )
-        }
-    } else if (state.media.activePodcastEpisodes.isNullOrEmpty()) {
-        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Text("No episodes found.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    } else {
-        LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(state.media.activePodcastEpisodes!!, key = { it.audioUrl }) { ep ->
-                val isAlreadyInBank = state.data.contentItems.any { it.videoId == ep.audioUrl && !it.isDeleted }
+        if (state.media.isLoadingEpisodes) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                androidx.compose.material3.CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 2.dp,
+                )
+            }
+        } else if (state.media.activePodcastEpisodes.isNullOrEmpty()) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Text("No episodes found.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        } else {
+            LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(state.media.activePodcastEpisodes!!, key = { it.audioUrl }) { ep ->
+                    val isAlreadyInBank = state.data.contentItems.any { it.videoId == ep.audioUrl && !it.isDeleted }
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -336,7 +336,11 @@ private fun PodcastEpisodesView(
                                 }
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                                                        val contentItem = state.data.contentItems.find { it.videoId == ep.audioUrl && !it.isDeleted }
+                            val contentItem =
+                                state.data.contentItems.find {
+                                    it.videoId == ep.audioUrl &&
+                                        !it.isDeleted
+                                }
                             if (contentItem != null) {
                                 val status = contentItem.downloadStatus
                                 val progress = state.media.activeDownloads[contentItem.id] ?: 0f
@@ -382,7 +386,7 @@ private fun PodcastEpisodesView(
                                     )
                                 }
                             } else {
-                                                                IndustrialButton(
+                                IndustrialButton(
                                     onClick = {
                                         if (state.media.activePodcastId != null) {
                                             GatekeeperStateManager.dispatch(
@@ -430,7 +434,7 @@ private fun LatestEpisodesView(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text("Latest Episodes", style = MaterialTheme.typography.titleLarge)
-                        IndustrialButton(
+            IndustrialButton(
                 onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.RefreshAllFeedsRequested) },
                 text = "Refresh",
                 isLoading = state.sync.isSyncingPodcasts,
@@ -497,7 +501,11 @@ private fun LatestEpisodesView(
                             }
                             Spacer(modifier = Modifier.width(8.dp))
 
-                                                        val contentItem = state.data.contentItems.find { it.videoId == ep.audioUrl && !it.isDeleted }
+                            val contentItem =
+                                state.data.contentItems.find {
+                                    it.videoId == ep.audioUrl &&
+                                        !it.isDeleted
+                                }
                             if (contentItem != null) {
                                 val status = contentItem.downloadStatus
                                 val progress = state.media.activeDownloads[contentItem.id] ?: 0f

@@ -69,7 +69,10 @@ class YouTubeSurgicalBridge {
 
 @Suppress("FunctionName")
 @Composable
-fun CleanYouTubeDialog(initialUrl: String = "", onDismiss: () -> Unit) {
+fun CleanYouTubeDialog(
+    initialUrl: String = "",
+    onDismiss: () -> Unit,
+) {
     val state by GatekeeperStateManager.state.collectAsState()
     var query by remember { mutableStateOf("") }
     var currentUrl by remember { mutableStateOf(initialUrl) }

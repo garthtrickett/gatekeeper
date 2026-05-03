@@ -52,7 +52,7 @@ class SurgicalFacebookUiTest {
         composeTestRule.setContent {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
-                                if (state.media.activeFacebookUrl != null) {
+                if (state.media.activeFacebookUrl != null) {
                     SurgicalFacebookScreen(
                         url = state.media.activeFacebookUrl!!,
                         onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalFacebook) },
@@ -72,7 +72,7 @@ class SurgicalFacebookUiTest {
         composeTestRule.waitForIdle()
 
         // Assert: URL is cleared in state manager
-                assertThat(GatekeeperStateManager.state.value.media.activeFacebookUrl).isNull()
+        assertThat(GatekeeperStateManager.state.value.media.activeFacebookUrl).isNull()
         composeTestRule.onNodeWithText("Exit").assertDoesNotExist()
     }
 
@@ -88,7 +88,7 @@ class SurgicalFacebookUiTest {
         composeTestRule.setContent {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
-                                if (state.media.activeFacebookUrl != null) {
+                if (state.media.activeFacebookUrl != null) {
                     SurgicalFacebookScreen(
                         url = state.media.activeFacebookUrl!!,
                         onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalFacebook) },
@@ -119,7 +119,7 @@ class SurgicalFacebookUiTest {
         composeTestRule.setContent {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
-                                if (state.media.activeFacebookUrl != null) {
+                if (state.media.activeFacebookUrl != null) {
                     SurgicalFacebookScreen(
                         url = state.media.activeFacebookUrl!!,
                         onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalFacebook) },
@@ -139,6 +139,6 @@ class SurgicalFacebookUiTest {
 
         // Assert: State updated to Events URL
         val state = GatekeeperStateManager.state.value
-                assertThat(state.media.activeFacebookUrl).contains("/events/")
+        assertThat(state.media.activeFacebookUrl).contains("/events/")
     }
 }

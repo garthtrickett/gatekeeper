@@ -29,7 +29,7 @@ fun AnalyticsScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
     val context = LocalContext.current
 
-        if (!state.sync.isProTier) {
+    if (!state.sync.isProTier) {
         PaywallScreen(
             title = "Pro Analytics & Export",
             description =
@@ -39,7 +39,7 @@ fun AnalyticsScreen() {
         return
     }
 
-        LaunchedEffect(state.data.exportData) {
+    LaunchedEffect(state.data.exportData) {
         state.data.exportData?.let { data ->
             val intent =
                 Intent(Intent.ACTION_SEND).apply {
@@ -51,7 +51,7 @@ fun AnalyticsScreen() {
         }
     }
 
-        val totalInterceptions = state.data.analyticsBypasses + state.data.analyticsGiveUps
+    val totalInterceptions = state.data.analyticsBypasses + state.data.analyticsGiveUps
     val successRate =
         if (totalInterceptions > 0) {
             (state.data.analyticsGiveUps.toFloat() / totalInterceptions) * 100
@@ -83,7 +83,7 @@ fun AnalyticsScreen() {
                         style = MaterialTheme.typography.displayMedium,
                         color = MaterialTheme.colorScheme.primary,
                     )
-                                        Text(
+                    Text(
                         "${state.data.analyticsGiveUps} Give-Ups vs ${state.data.analyticsBypasses} Bypasses",
                         style = MaterialTheme.typography.bodySmall,
                     )

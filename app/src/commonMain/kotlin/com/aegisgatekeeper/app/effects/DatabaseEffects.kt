@@ -237,110 +237,114 @@ fun handleDatabaseEffects(
 
             val loadedState =
                 com.aegisgatekeeper.app.domain.GatekeeperState(
-                    sync = com.aegisgatekeeper.app.domain.SyncAndIntegrationState(
-                        isProTier = appSettings?.isProTier ?: false,
-                        isAuthenticated = token != null,
-                        jwtToken = token,
-                        scheduledMessages = scheduledMessagesFromDb,
-                        podcastSubscriptions =
-                            podcastSubscriptionsFromDb.map {
-                                com.aegisgatekeeper.app.domain.PodcastSubscription(
-                                    id = it.id,
-                                    feedUrl = it.feedUrl,
-                                    showTitle = it.showTitle,
-                                    artworkUrl = it.artworkUrl,
-                                    lastModified =
-                                        com.aegisgatekeeper.app.domain
-                                            .currentTimeMillis(),
-                                    isSynced = false,
-                                    isDeleted = false,
-                                )
-                            },
-                    ),
-                    interception = com.aegisgatekeeper.app.domain.InterceptionState(
-                        isManualLockdownActive = appSettings?.isManualLockdownActive ?: false,
-                        activeFrictionGame = appSettings?.activeFrictionGame ?: com.aegisgatekeeper.app.domain.FrictionGame.GAUNTLET,
-                        appGroups = appGroupsList,
-                    ),
-                    data = com.aegisgatekeeper.app.domain.DataState(
-                        deepWorkStartMinutes = appSettings?.deepWorkStartMinutes?.toInt() ?: 540,
-                        deepWorkEndMinutes = appSettings?.deepWorkEndMinutes?.toInt() ?: 1020,
-                        gatheringStartMinutes = appSettings?.gatheringStartMinutes?.toInt() ?: 1080,
-                        gatheringEndMinutes = appSettings?.gatheringEndMinutes?.toInt() ?: 1110,
-                        missionControlApps = missionControlAppsFromDb,
-                        missionControlWebsites = pinnedWebsitesFromDb,
-                        customMessages = customMessagesFromDb,
-                        consumedCheckIns = consumedCheckInsList,
-                        alternativeActivities =
-                            alternativeActivitiesFromDb.map {
-                                com.aegisgatekeeper.app.domain
-                                    .AlternativeActivity(it.id, it.description, it.createdAtTimestamp)
-                            },
-                        vaultItems =
-                            vaultItemsFromDb.map {
-                                com.aegisgatekeeper.app.domain.VaultItem(
-                                    it.id,
-                                    it.query,
-                                    it.capturedAtTimestamp,
-                                    it.isResolved,
-                                    it.lastModified,
-                                    it.isSynced,
-                                    it.isDeleted,
-                                )
-                            },
-                        contentItems =
-                            contentItemsFromDb.map {
-                                com.aegisgatekeeper.app.domain.ContentItem(
-                                    id = it.id,
-                                    podcastId = it.podcastId,
-                                    videoId = it.videoId,
-                                    title = it.title,
-                                    channelName = it.channelName,
-                                    source = it.source,
-                                    type = it.type,
-                                    rank = it.rank,
-                                    capturedAtTimestamp = it.capturedAtTimestamp,
-                                    durationSeconds = it.durationSeconds,
-                                    lastModified = it.lastModified,
-                                    isSynced = it.isSynced,
-                                    isDeleted = it.isDeleted,
-                                    localFilePath = it.localFilePath,
-                                    downloadStatus = it.downloadStatus,
-                                )
-                            },
-                        sessionLogs =
-                            sessionLogsFromDb.map {
-                                com.aegisgatekeeper.app.domain
-                                    .SessionLog(it.id, it.packageName, it.durationMillis, it.emotion, it.loggedAtTimestamp)
-                            },
-                        intentionalSlots =
-                            slotsFromDb.map { slot ->
-                                com.aegisgatekeeper.app.domain.IntentionalSlotItem(
-                                    slotIndex = slot.slotIndex.toInt(),
-                                    contentItem =
-                                        com.aegisgatekeeper.app.domain.ContentItem(
-                                            id = slot.id,
-                                            podcastId = slot.podcastId,
-                                            videoId = slot.videoId,
-                                            title = slot.title,
-                                            channelName = slot.channelName,
-                                            source = slot.source,
-                                            type = slot.type,
-                                            rank = slot.rank,
-                                            capturedAtTimestamp = slot.capturedAtTimestamp,
-                                            durationSeconds = slot.durationSeconds,
-                                            lastModified = slot.lastModified,
-                                            isSynced = slot.isSynced,
-                                            isDeleted = slot.isDeleted,
-                                            localFilePath = slot.localFilePath,
-                                            downloadStatus = slot.downloadStatus,
-                                        ),
-                                )
-                            },
-                    ),
-                    media = com.aegisgatekeeper.app.domain.MediaState(
-                        savedMediaPositions = mediaPositionsFromDb
-                    )
+                    sync =
+                        com.aegisgatekeeper.app.domain.SyncAndIntegrationState(
+                            isProTier = appSettings?.isProTier ?: false,
+                            isAuthenticated = token != null,
+                            jwtToken = token,
+                            scheduledMessages = scheduledMessagesFromDb,
+                            podcastSubscriptions =
+                                podcastSubscriptionsFromDb.map {
+                                    com.aegisgatekeeper.app.domain.PodcastSubscription(
+                                        id = it.id,
+                                        feedUrl = it.feedUrl,
+                                        showTitle = it.showTitle,
+                                        artworkUrl = it.artworkUrl,
+                                        lastModified =
+                                            com.aegisgatekeeper.app.domain
+                                                .currentTimeMillis(),
+                                        isSynced = false,
+                                        isDeleted = false,
+                                    )
+                                },
+                        ),
+                    interception =
+                        com.aegisgatekeeper.app.domain.InterceptionState(
+                            isManualLockdownActive = appSettings?.isManualLockdownActive ?: false,
+                            activeFrictionGame = appSettings?.activeFrictionGame ?: com.aegisgatekeeper.app.domain.FrictionGame.GAUNTLET,
+                            appGroups = appGroupsList,
+                        ),
+                    data =
+                        com.aegisgatekeeper.app.domain.DataState(
+                            deepWorkStartMinutes = appSettings?.deepWorkStartMinutes?.toInt() ?: 540,
+                            deepWorkEndMinutes = appSettings?.deepWorkEndMinutes?.toInt() ?: 1020,
+                            gatheringStartMinutes = appSettings?.gatheringStartMinutes?.toInt() ?: 1080,
+                            gatheringEndMinutes = appSettings?.gatheringEndMinutes?.toInt() ?: 1110,
+                            missionControlApps = missionControlAppsFromDb,
+                            missionControlWebsites = pinnedWebsitesFromDb,
+                            customMessages = customMessagesFromDb,
+                            consumedCheckIns = consumedCheckInsList,
+                            alternativeActivities =
+                                alternativeActivitiesFromDb.map {
+                                    com.aegisgatekeeper.app.domain
+                                        .AlternativeActivity(it.id, it.description, it.createdAtTimestamp)
+                                },
+                            vaultItems =
+                                vaultItemsFromDb.map {
+                                    com.aegisgatekeeper.app.domain.VaultItem(
+                                        it.id,
+                                        it.query,
+                                        it.capturedAtTimestamp,
+                                        it.isResolved,
+                                        it.lastModified,
+                                        it.isSynced,
+                                        it.isDeleted,
+                                    )
+                                },
+                            contentItems =
+                                contentItemsFromDb.map {
+                                    com.aegisgatekeeper.app.domain.ContentItem(
+                                        id = it.id,
+                                        podcastId = it.podcastId,
+                                        videoId = it.videoId,
+                                        title = it.title,
+                                        channelName = it.channelName,
+                                        source = it.source,
+                                        type = it.type,
+                                        rank = it.rank,
+                                        capturedAtTimestamp = it.capturedAtTimestamp,
+                                        durationSeconds = it.durationSeconds,
+                                        lastModified = it.lastModified,
+                                        isSynced = it.isSynced,
+                                        isDeleted = it.isDeleted,
+                                        localFilePath = it.localFilePath,
+                                        downloadStatus = it.downloadStatus,
+                                    )
+                                },
+                            sessionLogs =
+                                sessionLogsFromDb.map {
+                                    com.aegisgatekeeper.app.domain
+                                        .SessionLog(it.id, it.packageName, it.durationMillis, it.emotion, it.loggedAtTimestamp)
+                                },
+                            intentionalSlots =
+                                slotsFromDb.map { slot ->
+                                    com.aegisgatekeeper.app.domain.IntentionalSlotItem(
+                                        slotIndex = slot.slotIndex.toInt(),
+                                        contentItem =
+                                            com.aegisgatekeeper.app.domain.ContentItem(
+                                                id = slot.id,
+                                                podcastId = slot.podcastId,
+                                                videoId = slot.videoId,
+                                                title = slot.title,
+                                                channelName = slot.channelName,
+                                                source = slot.source,
+                                                type = slot.type,
+                                                rank = slot.rank,
+                                                capturedAtTimestamp = slot.capturedAtTimestamp,
+                                                durationSeconds = slot.durationSeconds,
+                                                lastModified = slot.lastModified,
+                                                isSynced = slot.isSynced,
+                                                isDeleted = slot.isDeleted,
+                                                localFilePath = slot.localFilePath,
+                                                downloadStatus = slot.downloadStatus,
+                                            ),
+                                    )
+                                },
+                        ),
+                    media =
+                        com.aegisgatekeeper.app.domain.MediaState(
+                            savedMediaPositions = mediaPositionsFromDb,
+                        ),
                 )
             dispatch(
                 com.aegisgatekeeper.app.domain.GatekeeperAction
@@ -817,7 +821,9 @@ fun handleDatabaseEffects(
                 id = action.id,
                 label = action.label,
                 url = action.url,
-                rank = newState.data.missionControlWebsites.size.toLong(),
+                rank =
+                    newState.data.missionControlWebsites.size
+                        .toLong(),
             )
         }
 

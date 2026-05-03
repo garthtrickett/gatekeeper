@@ -144,7 +144,10 @@ fun VaultReviewScreen() {
 
 @Suppress("FunctionName")
 @Composable
-fun CleanYouTubeDialog(initialUrl: String = "", onDismiss: () -> Unit) {
+fun CleanYouTubeDialog(
+    initialUrl: String = "",
+    onDismiss: () -> Unit,
+) {
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             Column(

@@ -71,7 +71,7 @@ class OutpostUiTest {
         composeTestRule.waitForIdle()
 
         // Assert: Message was added to state
-                val state = GatekeeperStateManager.state.value
+        val state = GatekeeperStateManager.state.value
         assertThat(state.sync.scheduledMessages).hasSize(1)
         val msg = state.sync.scheduledMessages.first()
         assertThat(msg.chatName).isEqualTo("John Doe")
@@ -138,7 +138,7 @@ class OutpostUiTest {
         composeTestRule.onNodeWithText("Queue is empty.").assertIsDisplayed()
 
         // Assert: Underlying state status is updated
-                val state = GatekeeperStateManager.state.value
+        val state = GatekeeperStateManager.state.value
         assertThat(
             state.sync.scheduledMessages
                 .first()
