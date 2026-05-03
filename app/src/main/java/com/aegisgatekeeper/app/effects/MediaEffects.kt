@@ -22,6 +22,11 @@ suspend fun handleMediaAndSystemEffects_Deleted(
     oldState: GatekeeperState,
     newState: GatekeeperState,
     dispatch: (GatekeeperAction) -> Unit,
+) {}
+    action: GatekeeperAction,
+    oldState: GatekeeperState,
+    newState: GatekeeperState,
+    dispatch: (GatekeeperAction) -> Unit,
 ) {
     when (action) {
         is GatekeeperAction.SearchPodcastsRequested -> {

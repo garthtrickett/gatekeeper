@@ -15,6 +15,10 @@ suspend fun handleIntegrationEffects_Deleted(
     action: GatekeeperAction,
     newState: GatekeeperState,
     dispatch: (GatekeeperAction) -> Unit,
+) {}
+    action: GatekeeperAction,
+    newState: GatekeeperState,
+    dispatch: (GatekeeperAction) -> Unit,
 ) {
     when (action) {
         is GatekeeperAction.RequestBeeperSync -> {
