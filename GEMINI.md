@@ -20,27 +20,18 @@ Before generating an edit, ask yourself these questions in order:
 3.  **Is it anything else?** (e.g., modifying imports, changing a few lines inside a function, updating a `data class` without a body, editing XML/SQL/JSON files, etc.)
     *   YES: Use the **`smart_replace`** strategy. This should be your default choice for most modifications.
 
-4.  **Am I migrating a file to a different module (e.g., androidMain to commonMain) or gutting it completely?**
-    *   YES: Because there is no `delete_file` command, you must neutralize the old file so it doesn't cause `Duplicate class` compilation errors. 
-    *   **The Protocol:** Use `smart_replace`. Do NOT try to replace the entire file content. Instead, do a surgical rename of the class/interface signatures to append `_Deleted` or `_Legacy`. 
-    *   *Example:*
- **5. Pay Strict Attention to KMP File Paths:** 
-    *Do not rely on your training to guess file paths (e.g., defaulting to `app/src/main/java`). Kotlin Multiplatform uses specific source sets like `commonMain`, `androidMain`, and `desktopMain`. You **must** verify the exact file path against the provided project snapshot before generating an edit. An incorrect path will cause the patcher to fail.
-    ```json
-    {
-      "type": "smart_replace",
-      "search": "data class GatekeeperState(",
-      "replace": "data class GatekeeperState_Deleted("
-    }
-   6. If repairing a file that contains malformed syntax (e.g., mismatched brackets/braces from a previous bad edit), do not use entity replacement strategies (replace_class, replace_function, etc.). Always fall back to smart_replace to fix syntax errors."
+4.  **Am I migrating a file, deleting a function, or gutting a file completely?**
+    *   YES: **NEVER** just rename the signature while leaving the old body intact. Orphaned code blocks will trigger "Unresolved reference" and syntax errors during compilation.
+    *   **The Protocol:**
+        *   **Option A (Whole File):** If the entire file is obsolete, do not use JSON patches. Ask the user to delete it via a bash block (e.g., `rm app/src/main/java/.../LegacyFile.kt`).
+        *   **Option B (Specific Entities):** If you must neutralize specific functions or classes within a file, use `replace_class`, `replace_object`, or `replace_function` to replace the ENTIRE entity (signature AND body) with an empty stub.
+        *   *Example Replacement:* `fun deleted_oldFunction() {}`
+        *   🚨 NEVER use multi-step `smart_replace` to inject `/*` and `*/` to comment out files. The end-of-file whitespace makes matching the bottom comment impossible.
+ 5.  **Pay Strict Attention to KMP File Paths:** 
+    *   Do not rely on your training to guess file paths. Kotlin Multiplatform uses specific source sets like `commonMain`, `androidMain`, and `desktopMain`. You **must** verify the exact file path against the provided project snapshot before generating an edit. An incorrect path will cause the patcher to fail.
+6. If repairing a file that contains malformed syntax (e.g., mismatched brackets/braces from a previous bad edit), do not use entity replacement strategies (replace_class, replace_function, etc.). Always fall back to smart_replace to fix syntax errors."
    7. Best Practice for smart_replace search blocks: Keep the search string as MINIMAL as possible. Use just 1 or 2 lines that uniquely identify the location. Do not copy-paste large chunks of code into the search block, especially when fixing malformed syntax, as invisible formatting differences will cause the match to fail.
-8. Ban Multi-Step File Commenting
-
-        🚨 NEVER attempt to comment out an entire file by using two separate smart_replace blocks to insert /* at the top and */ at the bottom. The bottom match is highly likely to fail due to unpredictable end-of-file whitespace.
-
-        Instead: If you need to neutralize a file (like a _Deleted file), use replace_class, replace_object, or replace_function to individually replace the entities with empty bodies {}. Or just tell me which files to delete in a seperate code block not the json output with rm commands
-
-9. Strict Limits on Search Blocks
+8. Strict Limits on Search Blocks
 
         Keep search blocks hyper-focused (1 to 3 lines). The more lines you include, the higher the chance of a hidden formatting mismatch.
 
@@ -50,7 +41,7 @@ Before generating an edit, ask yourself these questions in order:
 
 9. Handling Top-Level Functions
 
-        If a legacy file contains multiple top-level functions alongside classes/objects, you must target them individually with replace_function (e.g., fun reduce_Deleted(...) { return state }) rather than trying to perform a massive smart_replace deletion.
+        If a legacy file contains multiple top-level functions alongside classes/objects, you must target them individually with replace_function (e.g., `fun deleted_reduce() {}`) rather than trying to perform a massive smart_replace deletion.
 10.     Context is King for Duplicate Lines: If a line of code appears multiple times in a file (e.g., if (success) return), you MUST include the uniquely identifying lines immediately above or below it in the search block. The search block must map to exactly ONE location in the file.
 
 11.     Beware of Trailing Commas & Auto-Formatting: Formatters (like ktlint) often break long arguments across multiple lines and append trailing commas. Do NOT hand-type or guess the syntax of your search blocks. Copy the text exactly as it appears in the provided project snapshot so hidden characters like trailing commas are included.
