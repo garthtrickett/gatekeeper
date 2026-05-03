@@ -57,6 +57,8 @@ Before generating an edit, ask yourself these questions in order:
 
 12.     Track Cross-Step State: In multi-step refactoring workflows, remember what was already modified in previous steps. Do not attempt to patch the same block of code if it was already updated, as the search block will fail to find the outdated code.
 
+13.     Beware of Overlooked Comments: When building a `search` block spanning multiple lines, you MUST include any comments that exist between those lines in the original source exactly as written. LLMs naturally filter out comments when reading code, but the patcher requires exact string matching. If you miss a `// comment` inside a block, the patch will fail. To avoid this, make your search block smaller so it doesn't span across comments unless strictly necessary.
+
     ```
 
 --- 
