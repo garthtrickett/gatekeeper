@@ -20,6 +20,18 @@ Before generating an edit, ask yourself these questions in order:
 3.  **Is it anything else?** (e.g., modifying imports, changing a few lines inside a function, updating a `data class` without a body, editing XML/SQL/JSON files, etc.)
     *   YES: Use the **`smart_replace`** strategy. This should be your default choice for most modifications.
 
+4.  **Am I migrating a file to a different module (e.g., androidMain to commonMain) or gutting it completely?**
+    *   YES: Because there is no `delete_file` command, you must neutralize the old file so it doesn't cause `Duplicate class` compilation errors. 
+    *   **The Protocol:** Use `smart_replace`. Do NOT try to replace the entire file content. Instead, do a surgical rename of the class/interface signatures to append `_Deleted` or `_Legacy`. 
+    *   *Example:*
+    ```json
+    {
+      "type": "smart_replace",
+      "search": "data class GatekeeperState(",
+      "replace": "data class GatekeeperState_Deleted("
+    }
+    ```
+
 --- 
 
 ### Strategy Details & Best Practices
@@ -43,7 +55,8 @@ Use this for the majority of edits. It is whitespace-agnostic.
 **2. `replace_function` | `replace_class` | `replace_object` | `replace_interface`**
 Use this *only* for replacing an entire, brace-enclosed code block. 
 
-*   **CRITICAL EXCEPTION:** If the entity does **not** have curly braces (like a simple `data class` or a single-expression function), **DO NOT** use this strategy. Use `smart_replace` instead.
+*   🚨 **CRITICAL KOTLIN EXCEPTION:** The `replace_class`, `replace_interface`, and `replace_function` strategies **WILL FAIL** if the target does not have opening and closing curly braces `{ ... }`. 
+*   **DO NOT** use these strategies for Kotlin `data class`es or `sealed interface`s that only have a primary constructor `(...)` and no body. You **MUST** use `smart_replace` for these.
 *   **Best Practice:**
     *   Provide the full name of the entity in the `\"name\"` field.
     *   Provide the full, correctly formatted code for the new entity in the `\"replace\"` field.
@@ -69,6 +82,9 @@ To create a new file, use a single `smart_replace` edit with an empty `search` s
 ```
 
 --- 
+
+### Edit Density Limit
+*   Avoid issuing more than 3-4 `smart_replace` blocks in a single file if possible. If a file requires massive, sweeping changes across 15 different locations, it is often safer to rewrite the entire file (if it's small) or break the refactor down into smaller, sequential prompts.
 
 ### Full Example Response
 ```json
