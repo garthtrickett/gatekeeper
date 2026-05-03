@@ -76,14 +76,14 @@ class MainActivity : ComponentActivity() {
         } else if (nativeAudioIdToPlay != null) {
             android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Native Audio Player (ID: $nativeAudioIdToPlay)")
             val item =
-                GatekeeperStateManager.state.value.contentItems
+                GatekeeperStateManager.state.value.data.contentItems
                     .find { it.id == nativeAudioIdToPlay }
             if (item != null) {
                 GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
             }
         } else if (openActiveNativePlayer) {
             android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Active Native Audio Player")
-            val item = GatekeeperStateManager.state.value.activeNativeMediaItem
+            val item = GatekeeperStateManager.state.value.media.activeNativeMediaItem
             if (item != null) {
                 GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
             }
@@ -121,7 +121,7 @@ class MainActivity : ComponentActivity() {
 
         // Register device with backend for real-time FCM sync pokes
         lifecycleScope.launch {
-            if (GatekeeperStateManager.state.value.isAuthenticated) {
+            if (GatekeeperStateManager.state.value.sync.isAuthenticated) {
                 FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         val token = task.result
@@ -150,8 +150,8 @@ class MainActivity : ComponentActivity() {
 
         // Auto-sync Beeper if permission already granted
         if (checkSelfPermission("com.beeper.android.permission.READ_PERMISSION") == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            if (GatekeeperStateManager.state.value.beeperChats
-                    .isEmpty() && !GatekeeperStateManager.state.value.isSyncingBeeper
+            if (GatekeeperStateManager.state.value.sync.beeperChats
+                    .isEmpty() && !GatekeeperStateManager.state.value.sync.isSyncingBeeper
             ) {
                 GatekeeperStateManager.dispatch(GatekeeperAction.RequestBeeperSync)
             }
@@ -223,7 +223,7 @@ class MainActivity : ComponentActivity() {
                                 "RESOLVE_VAULT" -> {
                                     val query = intent.getStringExtra("query") ?: "E2E Test Item"
                                     val item =
-                                        GatekeeperStateManager.state.value.vaultItems
+                                        GatekeeperStateManager.state.value.data.vaultItems
                                             .find { it.query == query }
                                     if (item != null) {
                                         GatekeeperStateManager.dispatch(
@@ -258,7 +258,7 @@ class MainActivity : ComponentActivity() {
                 GatekeeperTheme {
                     val state by GatekeeperStateManager.state.collectAsState()
 
-                    if (!state.isDualMoatEnabled) {
+                    if (!state.interception.isDualMoatEnabled) {
                         com.aegisgatekeeper.app.views
                             .PermissionsOnboardingScreen()
                     } else {
@@ -268,14 +268,14 @@ class MainActivity : ComponentActivity() {
                             listOf(
                                 "Home" to "🏠",
                                 "Vault" to "🔍",
-                                "Bank" to (if (state.isProTier) "🎬" else "🔒"),
-                                "Slots" to (if (state.isProTier) "📥" else "🔒"),
+                                "Bank" to (if (state.sync.isProTier) "🎬" else "🔒"),
+                                "Slots" to (if (state.sync.isProTier) "📥" else "🔒"),
                                 "Outpost" to "🎯",
                                 "Digest" to "🔔",
                                 "Web" to "🌐",
                                 "Rules" to "🛡️",
                                 "Habits" to "🏃",
-                                "Insights" to (if (state.isProTier) "📊" else "🔒"),
+                                "Insights" to (if (state.sync.isProTier) "📊" else "🔒"),
                                 "Account" to "👤",
                             )
 
@@ -370,7 +370,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                                                val activeVideoId = state.activeVideoId
+                                                                        val activeVideoId = state.media.activeVideoId
                         if (activeVideoId != null) {
                             var isPlayerModalVisible by remember(activeVideoId) { mutableStateOf(true) }
                             com.aegisgatekeeper.app.views.CleanPlayerModal(
@@ -381,7 +381,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        val activeAudioUrl = state.activeAudioUrl
+                                                val activeAudioUrl = state.media.activeAudioUrl
                         if (activeAudioUrl != null) {
                             var isAudioPlayerModalVisible by remember(activeAudioUrl) { mutableStateOf(true) }
                             com.aegisgatekeeper.app.views.CleanAudioPlayerModal(
@@ -392,7 +392,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        val activeNativeMediaItem = state.activeNativeMediaItem
+                                                val activeNativeMediaItem = state.media.activeNativeMediaItem
                         if (activeNativeMediaItem != null) {
                             var isNativeAudioPlayerModalVisible by remember(activeNativeMediaItem) { mutableStateOf(true) }
                             com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
@@ -403,23 +403,23 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        if (state.activeFacebookUrl != null) {
+                                                if (state.media.activeFacebookUrl != null) {
                             com.aegisgatekeeper.app.views.SurgicalFacebookScreen(
-                                url = state.activeFacebookUrl!!,
+                                url = state.media.activeFacebookUrl!!,
                                 onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalFacebook) },
                             )
                         }
 
-                        if (state.activePinnedWebsiteUrl != null) {
+                                                if (state.media.activePinnedWebsiteUrl != null) {
                             com.aegisgatekeeper.app.views.PinnedWebModal(
-                                url = state.activePinnedWebsiteUrl!!,
+                                url = state.media.activePinnedWebsiteUrl!!,
                                 onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.ClosePinnedWebsite) },
                             )
                         }
 
-                                                if (state.pendingMetacognition != null) {
+                                                                        if (state.data.pendingMetacognition != null) {
                             com.aegisgatekeeper.app.views.MetacognitionDialog(
-                                request = state.pendingMetacognition!!,
+                                request = state.data.pendingMetacognition!!,
                                 onDismiss = { GatekeeperStateManager.dispatch(GatekeeperAction.ClearMetacognition) },
                             )
                         }

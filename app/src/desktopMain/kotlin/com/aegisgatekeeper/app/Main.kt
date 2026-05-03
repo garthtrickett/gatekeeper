@@ -120,8 +120,8 @@ fun main() =
         }
 
         // Initialize Offline-First Sync Engine Loop for Desktop
-        LaunchedEffect(state.isAuthenticated) {
-            if (state.isAuthenticated) {
+        LaunchedEffect(state.sync.isAuthenticated) {
+            if (state.sync.isAuthenticated) {
                 withContext(Dispatchers.IO) {
                     val syncClient = com.aegisgatekeeper.app.di.GlobalDI.component.syncClient
                     while (true) {
@@ -129,7 +129,7 @@ fun main() =
                             val pushPayload =
                                 com.aegisgatekeeper.app.sync.SyncPushPayload(
                                     vaultItems =
-                                        state.vaultItems.map {
+                                        state.data.vaultItems.map {
                                             com.aegisgatekeeper.app.sync.VaultItemDto(
                                                 it.id,
                                                 it.query,
@@ -140,7 +140,7 @@ fun main() =
                                             )
                                         },
                                     contentItems =
-                                        state.contentItems.map {
+                                        state.data.contentItems.map {
                                             com.aegisgatekeeper.app.sync.ContentItemDto(
                                                 id = it.id,
                                                 podcastId = it.podcastId,
@@ -228,7 +228,7 @@ fun main() =
         }
 
         // The Interception Trigger: Instantly spawn a fullscreen blocking window
-        if (state.isOverlayActive && state.currentlyInterceptedApp != null) {
+                if (state.interception.isOverlayActive && state.interception.currentlyInterceptedApp != null) {
             Window(
                 onCloseRequest = { /* Blocked by design: User must complete task */ },
                 title = "Gatekeeper Interception",
@@ -237,7 +237,7 @@ fun main() =
                 state = rememberWindowState(placement = WindowPlacement.Fullscreen),
             ) {
                 GatekeeperTheme {
-                    DesktopInterceptionOverlay(interceptedApp = state.currentlyInterceptedApp!!)
+                    DesktopInterceptionOverlay(interceptedApp = state.interception.currentlyInterceptedApp!!)
                 }
             }
         }
@@ -276,7 +276,7 @@ fun main() =
                             }
 
                             3 -> {
-                                if (state.isWebEngineReady) {
+                                                                if (state.media.isWebEngineReady) {
                                     com.aegisgatekeeper.app.views
                                         .SurgicalWebScreen()
                                 } else {
@@ -334,10 +334,10 @@ fun main() =
                     }
                 }
 
-                if (state.activePinnedWebsiteUrl != null) {
+                                if (state.media.activePinnedWebsiteUrl != null) {
                     androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize()) {
                         com.aegisgatekeeper.app.views.PinnedWebModal(
-                            url = state.activePinnedWebsiteUrl!!,
+                            url = state.media.activePinnedWebsiteUrl!!,
                             onClose = {
                                 GatekeeperStateManager.dispatch(
                                     com.aegisgatekeeper.app.domain.GatekeeperAction.ClosePinnedWebsite,

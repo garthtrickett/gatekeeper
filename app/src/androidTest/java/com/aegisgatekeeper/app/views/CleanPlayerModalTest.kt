@@ -62,8 +62,8 @@ class CleanPlayerModalTest {
 
         // Verify state manager got the TriggerMetacognition action
         val state = GatekeeperStateManager.state.value
-        assertThat(state.pendingMetacognition).isNotNull()
-        assertThat(state.pendingMetacognition!!.packageName).isEqualTo("CleanPlayer: YouTube")
+                assertThat(state.data.pendingMetacognition).isNotNull()
+        assertThat(state.data.pendingMetacognition!!.packageName).isEqualTo("CleanPlayer: YouTube")
     }
 
     @Test
@@ -97,6 +97,6 @@ class CleanPlayerModalTest {
 
         // Verify state manager did NOT get the TriggerMetacognition action
         val state = GatekeeperStateManager.state.value
-        assertThat(state.pendingMetacognition).isNull()
+                assertThat(state.data.pendingMetacognition).isNull()
     }
 }

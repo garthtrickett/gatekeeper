@@ -49,8 +49,8 @@ class AlternativeActivitiesUiTest {
 
         // 2. Verify it appears in the list
         composeTestRule.onNodeWithText(habitDescription).assertIsDisplayed()
-        assertThat(
-            GatekeeperStateManager.state.value.alternativeActivities
+                assertThat(
+            GatekeeperStateManager.state.value.data.alternativeActivities
                 .any { it.description == habitDescription },
         ).isTrue()
 
@@ -60,6 +60,6 @@ class AlternativeActivitiesUiTest {
 
         // 4. Verify it is gone
         composeTestRule.onNodeWithText(habitDescription).assertDoesNotExist()
-        assertThat(GatekeeperStateManager.state.value.alternativeActivities).isEmpty()
+                assertThat(GatekeeperStateManager.state.value.data.alternativeActivities).isEmpty()
     }
 }

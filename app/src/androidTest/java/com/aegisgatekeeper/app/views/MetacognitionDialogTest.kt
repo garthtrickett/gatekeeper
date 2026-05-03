@@ -52,9 +52,9 @@ class MetacognitionDialogTest {
 
         assertThat(dismissed).isTrue()
 
-        val state = GatekeeperStateManager.state.value
-        assertThat(state.sessionLogs).hasSize(1)
-        assertThat(state.sessionLogs.first().packageName).isEqualTo("TestApp")
-        assertThat(state.sessionLogs.first().emotion).isEqualTo(Emotion.HAPPY)
+                val state = GatekeeperStateManager.state.value
+        assertThat(state.data.sessionLogs).hasSize(1)
+        assertThat(state.data.sessionLogs.first().packageName).isEqualTo("TestApp")
+        assertThat(state.data.sessionLogs.first().emotion).isEqualTo(Emotion.HAPPY)
     }
 }

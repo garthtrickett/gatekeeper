@@ -59,15 +59,15 @@ class GatekeeperNotificationListenerService : NotificationListenerService() {
         val state = GatekeeperStateManager.state.value
 
         // If there's a valid temporary whitelist, it's not blocked
-        val whitelist = state.activeWhitelists[packageName]
+        val whitelist = state.interception.activeWhitelists[packageName]
         if (whitelist != null && System.currentTimeMillis() < whitelist.expiresAtTimestamp) {
             return false
         }
 
-        val activeGroups = state.appGroups.filter { it.apps.contains(packageName) }
+        val activeGroups = state.interception.appGroups.filter { it.apps.contains(packageName) }
         if (activeGroups.isEmpty()) return false
 
-        if (state.isManualLockdownActive) return true
+        if (state.interception.isManualLockdownActive) return true
 
         val calendar = java.util.Calendar.getInstance()
         val currentMinutes = calendar.get(java.util.Calendar.HOUR_OF_DAY) * 60 + calendar.get(java.util.Calendar.MINUTE)

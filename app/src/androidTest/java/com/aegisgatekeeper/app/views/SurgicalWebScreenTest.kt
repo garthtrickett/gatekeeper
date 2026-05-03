@@ -63,7 +63,7 @@ class SurgicalWebScreenTest {
         // Assert: The StateManager should have received the URL with https:// prepended
         val currentState = GatekeeperStateManager.state.value
         com.google.common.truth.Truth
-            .assertThat(currentState.currentSurgicalUrl)
+                        .assertThat(currentState.media.currentSurgicalUrl)
             .isEqualTo("https://news.ycombinator.com")
     }
 

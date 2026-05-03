@@ -31,10 +31,10 @@ object GatekeeperStateManager {
     fun dispatch(action: GatekeeperAction) {
         val actionName = action::class.simpleName ?: "UnknownAction"
 
-        if (action !is GatekeeperAction.AppBroughtToForeground) {
+                if (action !is GatekeeperAction.AppBroughtToForeground) {
             platformLog("Gatekeeper", "\ud83d\udce5 Action Dispatched: $actionName")
         } else {
-            if (_state.value.appGroups.any { it.apps.contains(action.packageName) }) {
+            if (_state.value.interception.appGroups.any { it.apps.contains(action.packageName) }) {
                 platformLog("Gatekeeper", "\ud83d\udce5 Action Dispatched: $actionName (${action.packageName})")
             }
         }

@@ -76,14 +76,14 @@ fun AlternativeActivitiesScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            if (state.alternativeActivities.isEmpty()) {
+                        if (state.data.alternativeActivities.isEmpty()) {
                 Text(
                     "No habits configured yet.",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             } else {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
-                    items(state.alternativeActivities) { activity ->
+                                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
+                    items(state.data.alternativeActivities) { activity ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),

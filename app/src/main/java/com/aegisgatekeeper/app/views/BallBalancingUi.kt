@@ -84,7 +84,7 @@ fun BallBalancingUi(
 ) {
     val state by GatekeeperStateManager.state.collectAsState()
 
-    if (state.activeFrictionGame == com.aegisgatekeeper.app.domain.FrictionGame.HOLD_STEADY) {
+        if (state.interception.activeFrictionGame == com.aegisgatekeeper.app.domain.FrictionGame.HOLD_STEADY) {
         HoldSteadyGame(
             title = title ?: "Hold Steady",
             subtitle = subtitle ?: "Keep the ball in the center circle.",
@@ -97,7 +97,7 @@ fun BallBalancingUi(
             subtitle = subtitle ?: "Guide the ball to the goal at the bottom.",
             onSuccess = onSuccess,
             onClose = onClose,
-            bypassCount = state.analyticsBypasses,
+                        bypassCount = state.data.analyticsBypasses,
         )
     }
 }

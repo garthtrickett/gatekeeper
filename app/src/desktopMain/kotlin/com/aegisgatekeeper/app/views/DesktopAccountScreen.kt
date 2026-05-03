@@ -38,8 +38,8 @@ fun AccountScreen() {
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier.weight(1f)) {
-                if (state.isAuthenticated) {
+                        Box(modifier = Modifier.weight(1f)) {
+                if (state.sync.isAuthenticated) {
                     AuthenticatedView(onLogout = { GatekeeperStateManager.dispatch(GatekeeperAction.Logout) })
                 } else {
                     LoginView()
@@ -171,10 +171,10 @@ fun SettingsScreen() {
         return null
     }
 
-    var dwStart by remember(state.deepWorkStartMinutes) { mutableStateOf(formatTime(state.deepWorkStartMinutes)) }
-    var dwEnd by remember(state.deepWorkEndMinutes) { mutableStateOf(formatTime(state.deepWorkEndMinutes)) }
-    var gStart by remember(state.gatheringStartMinutes) { mutableStateOf(formatTime(state.gatheringStartMinutes)) }
-    var gEnd by remember(state.gatheringEndMinutes) { mutableStateOf(formatTime(state.gatheringEndMinutes)) }
+        var dwStart by remember(state.data.deepWorkStartMinutes) { mutableStateOf(formatTime(state.data.deepWorkStartMinutes)) }
+    var dwEnd by remember(state.data.deepWorkEndMinutes) { mutableStateOf(formatTime(state.data.deepWorkEndMinutes)) }
+    var gStart by remember(state.data.gatheringStartMinutes) { mutableStateOf(formatTime(state.data.gatheringStartMinutes)) }
+    var gEnd by remember(state.data.gatheringEndMinutes) { mutableStateOf(formatTime(state.data.gatheringEndMinutes)) }
 
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         Text("Phase Boundaries", style = MaterialTheme.typography.titleMedium)
@@ -261,8 +261,8 @@ fun SettingsScreen() {
 
         if (showAdvanced) {
             Spacer(modifier = Modifier.height(16.dp))
-            IndustrialTextField(
-                value = state.syncServerUrl,
+                        IndustrialTextField(
+                value = state.sync.syncServerUrl,
                 onValueChange = { GatekeeperStateManager.dispatch(GatekeeperAction.UpdateSyncUrl(it)) },
                 label = { Text("Custom Sync Server URL") },
                 modifier = Modifier.fillMaxWidth(),

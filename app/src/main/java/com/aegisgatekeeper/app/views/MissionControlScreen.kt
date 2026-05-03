@@ -73,15 +73,15 @@ fun MissionControlScreen() {
     var showWebsiteDialog by remember { mutableStateOf(false) }
     var pinnedAppsInfo by remember { mutableStateOf<List<AppInfo>>(emptyList()) }
 
-    LaunchedEffect(state.missionControlApps, state.appGroups) {
+        LaunchedEffect(state.data.missionControlApps, state.interception.appGroups) {
         withContext(Dispatchers.IO) {
             val loaded =
-                state.missionControlApps.mapNotNull { pkg ->
+                state.data.missionControlApps.mapNotNull { pkg ->
                     try {
                         val appInfo = pm.getApplicationInfo(pkg, 0)
                         val name = pm.getApplicationLabel(appInfo).toString()
                         val icon = pm.getApplicationIcon(appInfo)
-                        val groups = state.appGroups.filter { it.apps.contains(pkg) }.map { it.name }
+                        val groups = state.interception.appGroups.filter { it.apps.contains(pkg) }.map { it.name }
                         AppInfo(pkg, name, icon, groups)
                     } catch (e: Exception) {
                         null
@@ -106,8 +106,8 @@ fun MissionControlScreen() {
     }
 
     if (showAppPicker) {
-        AppPickerDialog(
-            currentPinned = state.missionControlApps.toSet(),
+                AppPickerDialog(
+            currentPinned = state.data.missionControlApps.toSet(),
             onDismiss = { showAppPicker = false },
             onSave = { newPinned ->
                 GatekeeperStateManager.dispatch(GatekeeperAction.UpdateMissionControlApps(newPinned.toList()))
@@ -185,7 +185,7 @@ fun MissionControlScreen() {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                if (pinnedAppsInfo.isEmpty() && state.missionControlWebsites.isEmpty()) {
+                                if (pinnedAppsInfo.isEmpty() && state.data.missionControlWebsites.isEmpty()) {
                     Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                         Text("No shortcuts pinned. Add some essentials.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -221,8 +221,8 @@ fun MissionControlScreen() {
                             }
                         }
 
-                        val groupsToPinnedApps =
-                            state.appGroups.mapNotNull { group ->
+                                                val groupsToPinnedApps =
+                            state.interception.appGroups.mapNotNull { group ->
                                 val appsInGroup = restrictedApps.filter { group.name in it.groupNames }
                                 if (appsInGroup.isNotEmpty()) group to appsInGroup else null
                             }
@@ -249,7 +249,7 @@ fun MissionControlScreen() {
                             }
                         }
 
-                        if (state.missionControlWebsites.isNotEmpty()) {
+                                                if (state.data.missionControlWebsites.isNotEmpty()) {
                             item(span = {
                                 androidx.compose.foundation.lazy.grid
                                     .GridItemSpan(maxLineSpan)
@@ -260,7 +260,7 @@ fun MissionControlScreen() {
                                     modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
                                 )
                             }
-                            items(state.missionControlWebsites, key = { it.id }) { website ->
+                                                        items(state.data.missionControlWebsites, key = { it.id }) { website ->
                                 WebsiteDockButton(
                                     website = website,
                                     onClick = {

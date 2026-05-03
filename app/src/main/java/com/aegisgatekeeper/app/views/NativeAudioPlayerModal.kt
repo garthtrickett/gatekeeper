@@ -78,10 +78,10 @@ fun NativeAudioPlayerModal(
     var duration by remember { mutableLongStateOf(0L) }
     var playbackSpeed by remember { mutableFloatStateOf(1.0f) }
 
-    val state by GatekeeperStateManager.state.collectAsState()
-    val savedPosition = state.savedMediaPositions[contentItem.videoId] ?: 0f
+        val state by GatekeeperStateManager.state.collectAsState()
+    val savedPosition = state.media.savedMediaPositions[contentItem.videoId] ?: 0f
 
-    val podcastSub = state.podcastSubscriptions.find { it.id == contentItem.podcastId }
+    val podcastSub = state.sync.podcastSubscriptions.find { it.id == contentItem.podcastId }
     val artworkUrl = podcastSub?.artworkUrl
 
     DisposableEffect(contentItem.videoId) {

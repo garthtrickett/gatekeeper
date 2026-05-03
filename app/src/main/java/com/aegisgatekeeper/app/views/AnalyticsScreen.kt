@@ -29,7 +29,7 @@ fun AnalyticsScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
     val context = LocalContext.current
 
-    if (!state.isProTier) {
+        if (!state.sync.isProTier) {
         PaywallScreen(
             title = "Pro Analytics & Export",
             description =
@@ -39,8 +39,8 @@ fun AnalyticsScreen() {
         return
     }
 
-    LaunchedEffect(state.exportData) {
-        state.exportData?.let { data ->
+        LaunchedEffect(state.data.exportData) {
+        state.data.exportData?.let { data ->
             val intent =
                 Intent(Intent.ACTION_SEND).apply {
                     type = "text/markdown"
@@ -51,15 +51,15 @@ fun AnalyticsScreen() {
         }
     }
 
-    val totalInterceptions = state.analyticsBypasses + state.analyticsGiveUps
+        val totalInterceptions = state.data.analyticsBypasses + state.data.analyticsGiveUps
     val successRate =
         if (totalInterceptions > 0) {
-            (state.analyticsGiveUps.toFloat() / totalInterceptions) * 100
+            (state.data.analyticsGiveUps.toFloat() / totalInterceptions) * 100
         } else {
             0f
         }
 
-    val timeReclaimedMinutes = state.analyticsGiveUps * 15
+    val timeReclaimedMinutes = state.data.analyticsGiveUps * 15
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -83,8 +83,8 @@ fun AnalyticsScreen() {
                         style = MaterialTheme.typography.displayMedium,
                         color = MaterialTheme.colorScheme.primary,
                     )
-                    Text(
-                        "${state.analyticsGiveUps} Give-Ups vs ${state.analyticsBypasses} Bypasses",
+                                        Text(
+                        "${state.data.analyticsGiveUps} Give-Ups vs ${state.data.analyticsBypasses} Bypasses",
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }

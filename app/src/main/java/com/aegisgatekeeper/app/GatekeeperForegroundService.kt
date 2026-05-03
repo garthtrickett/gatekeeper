@@ -70,7 +70,7 @@ class GatekeeperForegroundService : Service() {
             var vpnStarted = false
             GatekeeperStateManager.state.collect { state ->
                 val hasDomainBlocks =
-                    state.appGroups.any { group ->
+                    state.interception.appGroups.any { group ->
                         group.rules.any { it is com.aegisgatekeeper.app.domain.BlockingRule.DomainBlock && it.isEnabled }
                     }
                 if (hasDomainBlocks && !vpnStarted) {
@@ -99,16 +99,16 @@ class GatekeeperForegroundService : Service() {
                 val currentDay = calendar.get(java.util.Calendar.DAY_OF_YEAR)
 
                 val isGathering =
-                    if (state.gatheringStartMinutes <= state.gatheringEndMinutes) {
-                        currentMinutes in state.gatheringStartMinutes until state.gatheringEndMinutes
+                    if (state.data.gatheringStartMinutes <= state.data.gatheringEndMinutes) {
+                        currentMinutes in state.data.gatheringStartMinutes until state.data.gatheringEndMinutes
                     } else {
-                        currentMinutes >= state.gatheringStartMinutes || currentMinutes < state.gatheringEndMinutes
+                        currentMinutes >= state.data.gatheringStartMinutes || currentMinutes < state.data.gatheringEndMinutes
                     }
 
                 if (isGathering && currentDay != lastNotifiedDay) {
                     lastNotifiedDay = currentDay
 
-                    val unresolvedVaultItems = state.vaultItems.count { !it.isResolved && !it.isDeleted }
+                    val unresolvedVaultItems = state.data.vaultItems.count { !it.isResolved && !it.isDeleted }
 
                     sendGatheringNotification(unresolvedVaultItems)
                 }
@@ -133,20 +133,20 @@ class GatekeeperForegroundService : Service() {
                     }
                 val startOfDay = startOfDayCalendar.timeInMillis
 
-                state.appGroups.forEach { group ->
+                state.interception.appGroups.forEach { group ->
                     group.rules.filterIsInstance<com.aegisgatekeeper.app.domain.BlockingRule.CheckIn>().forEach { rule ->
                         if (rule.isEnabled && rule.daysOfWeek.contains(currentDayOfWeek)) {
                             rule.checkInTimesMinutes.forEach { time ->
                                 val checkInKey = "${group.id}_${time}_$currentDay"
                                 if (currentMinutes >= time && !notifiedCheckIns.contains(checkInKey)) {
                                     val isConsumed =
-                                        state.consumedCheckIns.any {
+                                        state.data.consumedCheckIns.any {
                                             it.groupId == group.id && it.timeMinutes == time &&
                                                 it.timestamp >= startOfDay
                                         }
                                     if (!isConsumed) {
                                         val groupNotifications =
-                                            state.notificationDigest.count { log ->
+                                            state.sync.notificationDigest.count { log ->
                                                 group.apps.contains(log.packageName) &&
                                                     com.aegisgatekeeper.app.domain.isMailDelivered(
                                                         log.timestamp,
@@ -305,10 +305,10 @@ class GatekeeperForegroundService : Service() {
 
                     // Layer Alpha polls UsageStats if Accessibility is offline or fails
                     val currentApp =
-                        if (!state.isLayerOmegaActive) {
-                            ForegroundAppDetector.getForegroundApp(this@GatekeeperForegroundService) ?: state.activeForegroundApp
+                        if (!state.interception.isLayerOmegaActive) {
+                            ForegroundAppDetector.getForegroundApp(this@GatekeeperForegroundService) ?: state.interception.activeForegroundApp
                         } else {
-                            state.activeForegroundApp
+                            state.interception.activeForegroundApp
                         }
 
                     if (currentApp != null) {

@@ -7,8 +7,8 @@ import me.tatarka.inject.annotations.Inject
 class AndroidTokenProvider : TokenProvider {
     override fun getToken(): String? {
         // We must access the state directly on the thread that calls this.
-        return GatekeeperStateManager.state.value.jwtToken
+        return GatekeeperStateManager.state.value.sync.jwtToken
     }
 
-    override fun getSyncServerUrl(): String = GatekeeperStateManager.state.value.syncServerUrl
+    override fun getSyncServerUrl(): String = GatekeeperStateManager.state.value.sync.syncServerUrl
 }

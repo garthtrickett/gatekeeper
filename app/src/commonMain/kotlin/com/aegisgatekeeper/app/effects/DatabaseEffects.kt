@@ -237,102 +237,110 @@ fun handleDatabaseEffects(
 
             val loadedState =
                 com.aegisgatekeeper.app.domain.GatekeeperState(
-                    isProTier = appSettings?.isProTier ?: false,
-                    podcastSubscriptions =
-                        podcastSubscriptionsFromDb.map {
-                            com.aegisgatekeeper.app.domain.PodcastSubscription(
-                                id = it.id,
-                                feedUrl = it.feedUrl,
-                                showTitle = it.showTitle,
-                                artworkUrl = it.artworkUrl,
-                                lastModified =
-                                    com.aegisgatekeeper.app.domain
-                                        .currentTimeMillis(),
-                                isSynced = false,
-                                isDeleted = false,
-                            )
-                        },
-                    isAuthenticated = token != null,
-                    jwtToken = token,
-                    isManualLockdownActive = appSettings?.isManualLockdownActive ?: false,
-                    deepWorkStartMinutes = appSettings?.deepWorkStartMinutes?.toInt() ?: 540,
-                    deepWorkEndMinutes = appSettings?.deepWorkEndMinutes?.toInt() ?: 1020,
-                    gatheringStartMinutes = appSettings?.gatheringStartMinutes?.toInt() ?: 1080,
-                    gatheringEndMinutes = appSettings?.gatheringEndMinutes?.toInt() ?: 1110,
-                    activeFrictionGame = appSettings?.activeFrictionGame ?: com.aegisgatekeeper.app.domain.FrictionGame.GAUNTLET,
-                    missionControlApps = missionControlAppsFromDb,
-                    missionControlWebsites = pinnedWebsitesFromDb,
-                    appGroups = appGroupsList,
-                    customMessages = customMessagesFromDb,
-                    consumedCheckIns = consumedCheckInsList,
-                    alternativeActivities =
-                        alternativeActivitiesFromDb.map {
-                            com.aegisgatekeeper.app.domain
-                                .AlternativeActivity(it.id, it.description, it.createdAtTimestamp)
-                        },
-                    vaultItems =
-                        vaultItemsFromDb.map {
-                            com.aegisgatekeeper.app.domain.VaultItem(
-                                it.id,
-                                it.query,
-                                it.capturedAtTimestamp,
-                                it.isResolved,
-                                it.lastModified,
-                                it.isSynced,
-                                it.isDeleted,
-                            )
-                        },
-                    contentItems =
-                        contentItemsFromDb.map {
-                            com.aegisgatekeeper.app.domain.ContentItem(
-                                id = it.id,
-                                podcastId = it.podcastId,
-                                videoId = it.videoId,
-                                title = it.title,
-                                channelName = it.channelName,
-                                source = it.source,
-                                type = it.type,
-                                rank = it.rank,
-                                capturedAtTimestamp = it.capturedAtTimestamp,
-                                durationSeconds = it.durationSeconds,
-                                lastModified = it.lastModified,
-                                isSynced = it.isSynced,
-                                isDeleted = it.isDeleted,
-                                localFilePath = it.localFilePath,
-                                downloadStatus = it.downloadStatus,
-                            )
-                        },
-                    savedMediaPositions = mediaPositionsFromDb,
-                    sessionLogs =
-                        sessionLogsFromDb.map {
-                            com.aegisgatekeeper.app.domain
-                                .SessionLog(it.id, it.packageName, it.durationMillis, it.emotion, it.loggedAtTimestamp)
-                        },
-                    scheduledMessages = scheduledMessagesFromDb,
-                    intentionalSlots =
-                        slotsFromDb.map { slot ->
-                            com.aegisgatekeeper.app.domain.IntentionalSlotItem(
-                                slotIndex = slot.slotIndex.toInt(),
-                                contentItem =
-                                    com.aegisgatekeeper.app.domain.ContentItem(
-                                        id = slot.id,
-                                        podcastId = slot.podcastId,
-                                        videoId = slot.videoId,
-                                        title = slot.title,
-                                        channelName = slot.channelName,
-                                        source = slot.source,
-                                        type = slot.type,
-                                        rank = slot.rank,
-                                        capturedAtTimestamp = slot.capturedAtTimestamp,
-                                        durationSeconds = slot.durationSeconds,
-                                        lastModified = slot.lastModified,
-                                        isSynced = slot.isSynced,
-                                        isDeleted = slot.isDeleted,
-                                        localFilePath = slot.localFilePath,
-                                        downloadStatus = slot.downloadStatus,
-                                    ),
-                            )
-                        },
+                    sync = com.aegisgatekeeper.app.domain.SyncAndIntegrationState(
+                        isProTier = appSettings?.isProTier ?: false,
+                        isAuthenticated = token != null,
+                        jwtToken = token,
+                        scheduledMessages = scheduledMessagesFromDb,
+                        podcastSubscriptions =
+                            podcastSubscriptionsFromDb.map {
+                                com.aegisgatekeeper.app.domain.PodcastSubscription(
+                                    id = it.id,
+                                    feedUrl = it.feedUrl,
+                                    showTitle = it.showTitle,
+                                    artworkUrl = it.artworkUrl,
+                                    lastModified =
+                                        com.aegisgatekeeper.app.domain
+                                            .currentTimeMillis(),
+                                    isSynced = false,
+                                    isDeleted = false,
+                                )
+                            },
+                    ),
+                    interception = com.aegisgatekeeper.app.domain.InterceptionState(
+                        isManualLockdownActive = appSettings?.isManualLockdownActive ?: false,
+                        activeFrictionGame = appSettings?.activeFrictionGame ?: com.aegisgatekeeper.app.domain.FrictionGame.GAUNTLET,
+                        appGroups = appGroupsList,
+                    ),
+                    data = com.aegisgatekeeper.app.domain.DataState(
+                        deepWorkStartMinutes = appSettings?.deepWorkStartMinutes?.toInt() ?: 540,
+                        deepWorkEndMinutes = appSettings?.deepWorkEndMinutes?.toInt() ?: 1020,
+                        gatheringStartMinutes = appSettings?.gatheringStartMinutes?.toInt() ?: 1080,
+                        gatheringEndMinutes = appSettings?.gatheringEndMinutes?.toInt() ?: 1110,
+                        missionControlApps = missionControlAppsFromDb,
+                        missionControlWebsites = pinnedWebsitesFromDb,
+                        customMessages = customMessagesFromDb,
+                        consumedCheckIns = consumedCheckInsList,
+                        alternativeActivities =
+                            alternativeActivitiesFromDb.map {
+                                com.aegisgatekeeper.app.domain
+                                    .AlternativeActivity(it.id, it.description, it.createdAtTimestamp)
+                            },
+                        vaultItems =
+                            vaultItemsFromDb.map {
+                                com.aegisgatekeeper.app.domain.VaultItem(
+                                    it.id,
+                                    it.query,
+                                    it.capturedAtTimestamp,
+                                    it.isResolved,
+                                    it.lastModified,
+                                    it.isSynced,
+                                    it.isDeleted,
+                                )
+                            },
+                        contentItems =
+                            contentItemsFromDb.map {
+                                com.aegisgatekeeper.app.domain.ContentItem(
+                                    id = it.id,
+                                    podcastId = it.podcastId,
+                                    videoId = it.videoId,
+                                    title = it.title,
+                                    channelName = it.channelName,
+                                    source = it.source,
+                                    type = it.type,
+                                    rank = it.rank,
+                                    capturedAtTimestamp = it.capturedAtTimestamp,
+                                    durationSeconds = it.durationSeconds,
+                                    lastModified = it.lastModified,
+                                    isSynced = it.isSynced,
+                                    isDeleted = it.isDeleted,
+                                    localFilePath = it.localFilePath,
+                                    downloadStatus = it.downloadStatus,
+                                )
+                            },
+                        sessionLogs =
+                            sessionLogsFromDb.map {
+                                com.aegisgatekeeper.app.domain
+                                    .SessionLog(it.id, it.packageName, it.durationMillis, it.emotion, it.loggedAtTimestamp)
+                            },
+                        intentionalSlots =
+                            slotsFromDb.map { slot ->
+                                com.aegisgatekeeper.app.domain.IntentionalSlotItem(
+                                    slotIndex = slot.slotIndex.toInt(),
+                                    contentItem =
+                                        com.aegisgatekeeper.app.domain.ContentItem(
+                                            id = slot.id,
+                                            podcastId = slot.podcastId,
+                                            videoId = slot.videoId,
+                                            title = slot.title,
+                                            channelName = slot.channelName,
+                                            source = slot.source,
+                                            type = slot.type,
+                                            rank = slot.rank,
+                                            capturedAtTimestamp = slot.capturedAtTimestamp,
+                                            durationSeconds = slot.durationSeconds,
+                                            lastModified = slot.lastModified,
+                                            isSynced = slot.isSynced,
+                                            isDeleted = slot.isDeleted,
+                                            localFilePath = slot.localFilePath,
+                                            downloadStatus = slot.downloadStatus,
+                                        ),
+                                )
+                            },
+                    ),
+                    media = com.aegisgatekeeper.app.domain.MediaState(
+                        savedMediaPositions = mediaPositionsFromDb
+                    )
                 )
             dispatch(
                 com.aegisgatekeeper.app.domain.GatekeeperAction
@@ -341,7 +349,7 @@ fun handleDatabaseEffects(
         }
 
         is GatekeeperAction.SaveToVault -> {
-            val newItem = (newState.vaultItems - oldState.vaultItems.toSet()).firstOrNull()
+            val newItem = (newState.data.vaultItems - oldState.data.vaultItems.toSet()).firstOrNull()
             newItem?.let {
                 platformLog("Gatekeeper", "🗄️ DB: Inserting new VaultItem: ${it.id}")
                 db.vaultItemQueries.insert(
@@ -378,7 +386,7 @@ fun handleDatabaseEffects(
             platformLog("Gatekeeper", "🗄️ DB: Deleting PodcastSubscription: ${action.id}")
             db.transaction {
                 db.podcastSubscriptionQueries.delete(action.id)
-                val itemsToDelete = oldState.contentItems.filter { it.podcastId == action.id }
+                val itemsToDelete = oldState.data.contentItems.filter { it.podcastId == action.id }
                 val slots = db.intentionalSlotQueries.selectAll().executeAsList()
                 itemsToDelete.forEach { item ->
                     db.contentItemQueries.delete(lastModified = action.currentTimestamp, id = item.id)
@@ -396,7 +404,7 @@ fun handleDatabaseEffects(
         }
 
         is GatekeeperAction.SaveToContentBank -> {
-            val updatedOrNewItem = newState.contentItems.find { it.videoId == action.videoId && it.source == action.source }
+            val updatedOrNewItem = newState.data.contentItems.find { it.videoId == action.videoId && it.source == action.source }
             updatedOrNewItem?.let {
                 platformLog("Gatekeeper", "🗄️ DB: Upserting ContentItem: ${it.title}")
                 db.contentItemQueries.insert(
@@ -432,7 +440,7 @@ fun handleDatabaseEffects(
                     is GatekeeperAction.DeleteDownloadedMedia -> action.id
                     else -> null
                 }
-            val item = newState.contentItems.find { it.id == actionId }
+            val item = newState.data.contentItems.find { it.id == actionId }
             if (item != null) {
                 db.contentItemQueries.updateDownloadStatus(
                     downloadStatus = item.downloadStatus,
@@ -446,7 +454,7 @@ fun handleDatabaseEffects(
         is GatekeeperAction.ReorderContentBank -> {
             platformLog("Gatekeeper", "🗄️ DB: Reordering Content Bank")
             db.transaction {
-                newState.contentItems.forEach { item ->
+                newState.data.contentItems.forEach { item ->
                     db.contentItemQueries.updateRank(rank = item.rank, lastModified = action.currentTimestamp, id = item.id)
                 }
             }
@@ -504,7 +512,7 @@ fun handleDatabaseEffects(
                 db.podcastEpisodeQueries.deleteOldEpisodes(action.podcastId, 200)
             }
 
-            if (newState.activePodcastId == action.podcastId) {
+            if (newState.media.activePodcastId == action.podcastId) {
                 val cached =
                     db.podcastEpisodeQueries.selectAllForPodcast(action.podcastId).executeAsList().map {
                         com.aegisgatekeeper.app.domain.CachedEpisode(
@@ -520,7 +528,7 @@ fun handleDatabaseEffects(
                 dispatch(GatekeeperAction.PodcastEpisodesLoaded(cached, action.podcastId))
             }
 
-            if (newState.latestGlobalEpisodes != null || newState.activePodcastId == null) {
+            if (newState.media.latestGlobalEpisodes != null || newState.media.activePodcastId == null) {
                 dispatch(GatekeeperAction.LoadLatestGlobalEpisodes)
             }
         }
@@ -647,7 +655,7 @@ fun handleDatabaseEffects(
         }
 
         is GatekeeperAction.RedeemCheckInToken -> {
-            val log = (newState.consumedCheckIns - oldState.consumedCheckIns.toSet()).firstOrNull()
+            val log = (newState.data.consumedCheckIns - oldState.data.consumedCheckIns.toSet()).firstOrNull()
             if (log != null) {
                 db.blockingRuleQueries.insertConsumedCheckIn(log.id, log.groupId, log.timeMinutes.toLong(), log.timestamp)
             }
@@ -700,7 +708,7 @@ fun handleDatabaseEffects(
         }
 
         is GatekeeperAction.NotificationIntercepted -> {
-            val newLog = (newState.notificationDigest - oldState.notificationDigest.toSet()).firstOrNull()
+            val newLog = (newState.sync.notificationDigest - oldState.sync.notificationDigest.toSet()).firstOrNull()
             newLog?.let {
                 platformLog("Gatekeeper", "🗄️ DB: Inserting new NotificationDigest: ${it.id}")
                 db.notificationDigestQueries.insert(
@@ -763,7 +771,7 @@ fun handleDatabaseEffects(
         }
 
         is GatekeeperAction.LogSessionMetacognition -> {
-            val newLog = (newState.sessionLogs - oldState.sessionLogs.toSet()).firstOrNull()
+            val newLog = (newState.data.sessionLogs - oldState.data.sessionLogs.toSet()).firstOrNull()
             newLog?.let {
                 platformLog("Gatekeeper", "🗄️ DB: Inserting new SessionLog: ${it.id}")
                 db.sessionLogQueries.insert(
@@ -809,7 +817,7 @@ fun handleDatabaseEffects(
                 id = action.id,
                 label = action.label,
                 url = action.url,
-                rank = newState.missionControlWebsites.size.toLong(),
+                rank = newState.data.missionControlWebsites.size.toLong(),
             )
         }
 
@@ -819,7 +827,7 @@ fun handleDatabaseEffects(
         }
 
         is GatekeeperAction.AddAlternativeActivity -> {
-            val newActivity = (newState.alternativeActivities - oldState.alternativeActivities.toSet()).firstOrNull()
+            val newActivity = (newState.data.alternativeActivities - oldState.data.alternativeActivities.toSet()).firstOrNull()
             newActivity?.let {
                 platformLog("Gatekeeper", "🗄️ DB: Inserting new AlternativeActivity: ${it.description}")
                 db.alternativeActivityQueries.insert(

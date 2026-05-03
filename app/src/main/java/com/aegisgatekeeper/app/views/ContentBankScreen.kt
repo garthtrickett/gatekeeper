@@ -59,7 +59,7 @@ import java.time.LocalTime
 fun ContentBankScreen(overrideTime: LocalTime? = null) {
     val state by GatekeeperStateManager.state.collectAsState()
 
-    if (!state.isProTier) {
+        if (!state.sync.isProTier) {
         PaywallScreen(
             title = "The Priority Matrix",
             description =
@@ -72,8 +72,8 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
         var activeContentFilter by remember { mutableStateOf<ContentType?>(null) }
     var searchQuery by remember { mutableStateOf("") }
 
-    val items =
-        state.contentItems
+        val items =
+        state.data.contentItems
             .filter { (activeContentFilter == null || it.type == activeContentFilter) && !it.isDeleted }
             .filter {
                 it.title.contains(searchQuery, ignoreCase = true) ||
@@ -89,8 +89,8 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
     // Deep Work & Friction State
     val currentTime by remember { mutableStateOf(overrideTime ?: LocalTime.now()) }
     val isDeepWork =
-        com.aegisgatekeeper.app.domain
-            .isDeepWorkHours(currentTime, state.deepWorkStartMinutes, state.deepWorkEndMinutes)
+                com.aegisgatekeeper.app.domain
+            .isDeepWorkHours(currentTime, state.data.deepWorkStartMinutes, state.data.deepWorkEndMinutes)
     var isEditingUnlocked by remember { mutableStateOf(false) }
     var showFriction by remember { mutableStateOf(false) }
     var pendingFilterAction by remember { mutableStateOf<(() -> Unit)?>(null) }
@@ -164,7 +164,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     }
                 }
 
-                if (state.contentItems.none { !it.isDeleted }) {
+                                if (state.data.contentItems.none { !it.isDeleted }) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
                             "Bank is empty. Share a link to Gatekeeper to capture it.",
@@ -259,11 +259,11 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                             },
                     ) {
                         itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
-                            val isBeingDragged = index == draggedItemIndex
+                                                        val isBeingDragged = index == draggedItemIndex
                             val elevation by animateFloatAsState(if (isBeingDragged) 8f else 0f, label = "elevation")
                             ContentItemCard(
                                 item = item,
-                                savedPosition = state.savedMediaPositions[item.videoId],
+                                savedPosition = state.media.savedMediaPositions[item.videoId],
                                 modifier =
                                     Modifier.graphicsLayer {
                                         translationY = if (isBeingDragged) dragOffset else 0f
@@ -275,8 +275,8 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                 }
             } // Close Column
 
-            // Capture Button
-            if (state.isProcessingLink) {
+                        // Capture Button
+            if (state.media.isProcessingLink) {
                 androidx.compose.material3.FloatingActionButton(
                     onClick = { },
                     modifier =
@@ -499,7 +499,7 @@ private fun ContentItemCard(
                     if (item.type == ContentType.AUDIO && item.source != ContentSource.SOUNDCLOUD) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             val status = item.downloadStatus
-                            val progress = state.activeDownloads[item.id] ?: 0f
+                                                        val progress = state.media.activeDownloads[item.id] ?: 0f
                             if (status == com.aegisgatekeeper.app.domain.DownloadStatus.DOWNLOADING ||
                                 status == com.aegisgatekeeper.app.domain.DownloadStatus.QUEUED
                             ) {

@@ -28,7 +28,7 @@ object AndroidRuleEvaluator {
 
         val state = GatekeeperStateManager.state.value
 
-        if (state.isOverlayActive && currentApp == context.packageName) {
+        if (state.interception.isOverlayActive && currentApp == context.packageName) {
             return
         }
 
@@ -36,7 +36,7 @@ object AndroidRuleEvaluator {
 
         if (isNewApp) {
             if (lastDetectedPackage != null) {
-                val whitelist = state.activeWhitelists[lastDetectedPackage]
+                val whitelist = state.interception.activeWhitelists[lastDetectedPackage]
                 if (whitelist != null && System.currentTimeMillis() < whitelist.expiresAtTimestamp &&
                     whitelist.reason != "GIVE_UP_GRACE_PERIOD"
                 ) {
@@ -45,7 +45,7 @@ object AndroidRuleEvaluator {
             }
         }
 
-        val activeGroups = state.appGroups.filter { it.apps.contains(currentApp) }
+        val activeGroups = state.interception.appGroups.filter { it.apps.contains(currentApp) }
 
         Log.d("Gatekeeper", "👁️ Validating app: $currentApp | Active Groups Found: ${activeGroups.size}")
 
@@ -69,7 +69,7 @@ object AndroidRuleEvaluator {
             val checkUsage = isNewApp || ticksSinceLastUsageCheck >= 5
             if (checkUsage) ticksSinceLastUsageCheck = 0
 
-            if (state.isManualLockdownActive) {
+            if (state.interception.isManualLockdownActive) {
                 isBlocked = true
                 blockReason = "Manual Lockdown Engaged"
             } else {
@@ -156,7 +156,7 @@ object AndroidRuleEvaluator {
             }
 
             if (isBlocked) {
-                if (isNewApp || !state.isOverlayActive) {
+                if (isNewApp || !state.interception.isOverlayActive) {
                     GatekeeperStateManager.dispatch(
                         GatekeeperAction.RuleViolationDetected(currentApp, blockReason, System.currentTimeMillis()),
                     )

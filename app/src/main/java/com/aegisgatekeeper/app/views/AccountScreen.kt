@@ -33,8 +33,8 @@ fun AccountScreen() {
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier.weight(1f)) {
-                if (state.isAuthenticated) {
+                        Box(modifier = Modifier.weight(1f)) {
+                if (state.sync.isAuthenticated) {
                     AuthenticatedView(onLogout = { GatekeeperStateManager.dispatch(GatekeeperAction.Logout) })
                 } else {
                     LoginView()

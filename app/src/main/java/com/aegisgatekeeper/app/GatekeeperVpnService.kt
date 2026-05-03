@@ -70,7 +70,7 @@ class GatekeeperVpnService : VpnService() {
 
         // Domain blocks are now ALWAYS GLOBAL across the entire device,
         // regardless of which apps are assigned to the group.
-        state.appGroups.forEach { group ->
+        state.interception.appGroups.forEach { group ->
             group.rules.filterIsInstance<BlockingRule.DomainBlock>().filter { it.isEnabled }.forEach {
                 blockedDomains.addAll(it.domains)
             }

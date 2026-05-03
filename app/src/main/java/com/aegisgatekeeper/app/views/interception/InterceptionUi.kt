@@ -55,37 +55,37 @@ import com.aegisgatekeeper.app.views.MovingCloseButton
 fun InterceptionScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
 
-    // SAFETY VALVE: If the overlay is active but we have no reason to be here, auto-dismiss
-    if (state.currentlyInterceptedApp == null && state.pendingExitInterview == null) {
+        // SAFETY VALVE: If the overlay is active but we have no reason to be here, auto-dismiss
+    if (state.interception.currentlyInterceptedApp == null && state.interception.pendingExitInterview == null) {
         androidx.compose.runtime.LaunchedEffect(Unit) {
             GatekeeperStateManager.dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.DismissOverlay)
         }
         return
     }
 
-    if (state.currentlyInterceptedApp == null && state.pendingExitInterview != null) {
+        if (state.interception.currentlyInterceptedApp == null && state.interception.pendingExitInterview != null) {
         ExitInterviewUi(
-            packageName = state.pendingExitInterview!!,
-            onDone = { GatekeeperStateManager.dispatch(GatekeeperAction.EndAppSession(state.pendingExitInterview!!)) },
+            packageName = state.interception.pendingExitInterview!!,
+            onDone = { GatekeeperStateManager.dispatch(GatekeeperAction.EndAppSession(state.interception.pendingExitInterview!!)) },
             onKeepOpen = { GatekeeperStateManager.dispatch(GatekeeperAction.CancelExitInterview) },
         )
         return
     }
 
-    val interceptedPackage = state.currentlyInterceptedApp ?: return
+        val interceptedPackage = state.interception.currentlyInterceptedApp ?: return
 
     // This local state determines which screen to show: CHOICE, BYPASS, or FRICTION
     var screen by remember { mutableStateOf("CHOICE") }
     var selectedTimeMillis by remember { mutableStateOf(15 * 60_000L) }
 
     when (screen) {
-        "CHOICE" -> {
-            val isExpired = state.expiredSessionDurationMillis != null
-            val msg = if (isExpired) "Time's up." else (state.activeBlockReason ?: state.customMessages[interceptedPackage])
+                "CHOICE" -> {
+            val isExpired = state.interception.expiredSessionDurationMillis != null
+            val msg = if (isExpired) "Time's up." else (state.interception.activeBlockReason ?: state.data.customMessages[interceptedPackage])
             InterceptionChoiceUi(
                 interceptedPackage = interceptedPackage,
                 customMessage = msg,
-                contentItems = state.contentItems,
+                contentItems = state.data.contentItems,
                 onBypass = { time ->
                     selectedTimeMillis = time
                     screen = "BYPASS"
@@ -152,9 +152,9 @@ fun InterceptionScreen() {
             )
         }
 
-        "HABITS" -> {
+                "HABITS" -> {
             AlternativeSuggestionUi(
-                activities = state.alternativeActivities,
+                activities = state.data.alternativeActivities,
                 onSelectActivity = { _ ->
                     GatekeeperStateManager.dispatch(GatekeeperAction.LogGiveUp(interceptedPackage, System.currentTimeMillis()))
                     GatekeeperStateManager.dispatch(GatekeeperAction.DismissOverlay)
@@ -236,8 +236,8 @@ fun InterceptionChoiceUi(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    val subText =
-                        if (state.expiredSessionDurationMillis !=
+                                        val subText =
+                        if (state.interception.expiredSessionDurationMillis !=
                             null
                         ) {
                             "Do you want to continue using $appName?"
@@ -272,7 +272,7 @@ fun InterceptionChoiceUi(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    val activeGroups = state.appGroups.filter { it.apps.contains(interceptedPackage) }
+                                        val activeGroups = state.interception.appGroups.filter { it.apps.contains(interceptedPackage) }
                     val checkInGroupRules =
                         activeGroups.mapNotNull { group ->
                             val rule =
@@ -396,8 +396,8 @@ fun InterceptionChoiceUi(
                                 if (!rule.daysOfWeek.contains(currentDay)) {
                                     Text("No check-ins scheduled for today.", color = Color.Gray)
                                 } else {
-                                    val consumedToday =
-                                        state.consumedCheckIns.filter {
+                                                                        val consumedToday =
+                                        state.data.consumedCheckIns.filter {
                                             it.groupId == group.id && it.timestamp >= startOfDay
                                         }
                                     val consumedTimes = consumedToday.map { it.timeMinutes }
@@ -549,7 +549,7 @@ fun InterceptionChoiceUi(
                                                 }
                                             }
                                         }
-                                        val savedPosition = state.savedMediaPositions[item.videoId]
+                                                                                val savedPosition = state.media.savedMediaPositions[item.videoId]
                                         if (savedPosition != null && savedPosition > 0f && item.durationSeconds != null &&
                                             item.durationSeconds > 0
                                         ) {

@@ -30,7 +30,7 @@ class YouTubeSurgicalBridgeTest {
 
         // Assert: Verify state manager received the item
         val state = GatekeeperStateManager.state.value
-        val item = state.contentItems.find { it.videoId == testId }
+                val item = state.data.contentItems.find { it.videoId == testId }
 
         assertThat(item).isNotNull()
         assertThat(item?.title).isEqualTo(testTitle)

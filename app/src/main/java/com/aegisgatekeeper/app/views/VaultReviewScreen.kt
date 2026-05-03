@@ -57,10 +57,10 @@ fun VaultReviewScreen(
     }
 
     val isUnlocked =
-        com.aegisgatekeeper.app.domain
-            .isVaultUnlocked(currentTime, state.gatheringStartMinutes, state.gatheringEndMinutes)
+                com.aegisgatekeeper.app.domain
+            .isVaultUnlocked(currentTime, state.data.gatheringStartMinutes, state.data.gatheringEndMinutes)
     // Transform, don't mutate: Filter only unresolved items
-    val unresolvedItems = state.vaultItems.filter { !it.isResolved && !it.isDeleted }
+    val unresolvedItems = state.data.vaultItems.filter { !it.isResolved && !it.isDeleted }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -76,9 +76,9 @@ fun VaultReviewScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             if (isUnlocked) {
-                VaultList(
+                                VaultList(
                     items = unresolvedItems,
-                    gatheringEndMinutes = state.gatheringEndMinutes,
+                    gatheringEndMinutes = state.data.gatheringEndMinutes,
                     onNavigateToWeb = onNavigateToWeb,
                     onOpenPodcasts = { query ->
                         feedSearchQuery = query
@@ -86,8 +86,8 @@ fun VaultReviewScreen(
                     },
                     modifier = Modifier.weight(1f),
                 )
-            } else {
-                LockedVaultMessage(state.gatheringStartMinutes, Modifier.weight(1f))
+                        } else {
+                LockedVaultMessage(state.data.gatheringStartMinutes, Modifier.weight(1f))
             }
         }
     }

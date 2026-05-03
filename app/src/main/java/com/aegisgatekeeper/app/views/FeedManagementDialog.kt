@@ -57,7 +57,7 @@ fun FeedManagementDialog(
             color = MaterialTheme.colorScheme.surface,
             modifier = Modifier.fillMaxWidth().height(600.dp).padding(16.dp),
         ) {
-            if (state.activePodcastId != null) {
+                if (state.media.activePodcastId != null) {
                 PodcastEpisodesView(state, handleDismiss)
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
@@ -77,9 +77,9 @@ fun FeedManagementDialog(
                         )
                         androidx.compose.material3.FilterChip(
                             selected = selectedTab == 1,
-                            onClick = {
+                                                        onClick = {
                                 selectedTab = 1
-                                if (state.latestGlobalEpisodes == null) {
+                                if (state.media.latestGlobalEpisodes == null) {
                                     GatekeeperStateManager.dispatch(GatekeeperAction.LoadLatestGlobalEpisodes)
                                 }
                             },
@@ -139,9 +139,9 @@ private fun PodcastSubscriptionsView(
                     androidx.compose.foundation.text.KeyboardOptions(
                         imeAction = androidx.compose.ui.text.input.ImeAction.Search,
                     ),
-                keyboardActions =
+                                keyboardActions =
                     androidx.compose.foundation.text.KeyboardActions(onSearch = {
-                        if (query.isNotBlank() && !state.isSearchingPodcasts) {
+                        if (query.isNotBlank() && !state.media.isSearchingPodcasts) {
                             isSearchMode = true
                             GatekeeperStateManager.dispatch(GatekeeperAction.SearchPodcastsRequested(query))
                         }
@@ -150,32 +150,32 @@ private fun PodcastSubscriptionsView(
             Spacer(modifier = Modifier.width(8.dp))
             IndustrialButton(
                 onClick = {
-                    if (query.isNotBlank() && !state.isSearchingPodcasts) {
+                    if (query.isNotBlank() && !state.media.isSearchingPodcasts) {
                         isSearchMode = true
                         GatekeeperStateManager.dispatch(GatekeeperAction.SearchPodcastsRequested(query))
                     }
                 },
-                enabled = query.isNotBlank() && !state.isSearchingPodcasts,
+                enabled = query.isNotBlank() && !state.media.isSearchingPodcasts,
                 text = "Search",
-                isLoading = state.isSearchingPodcasts,
+                isLoading = state.media.isSearchingPodcasts,
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         if (isSearchMode) {
-            if (state.isSearchingPodcasts) {
+            if (state.media.isSearchingPodcasts) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     androidx.compose.material3.CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
-            } else if (state.podcastSearchResults.isEmpty()) {
+            } else if (state.media.podcastSearchResults.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text("No results found.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(state.podcastSearchResults, key = { it.id }) { result ->
-                        val isSubscribed = state.podcastSubscriptions.any { it.feedUrl == result.url }
+                    items(state.media.podcastSearchResults, key = { it.id }) { result ->
+                        val isSubscribed = state.sync.podcastSubscriptions.any { it.feedUrl == result.url }
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -217,14 +217,14 @@ private fun PodcastSubscriptionsView(
                     }
                 }
             }
-        } else {
-            if (state.podcastSubscriptions.isEmpty()) {
+                } else {
+            if (state.sync.podcastSubscriptions.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text("No podcast subscriptions yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(state.podcastSubscriptions, key = { it.id }) { sub ->
+                    items(state.sync.podcastSubscriptions, key = { it.id }) { sub ->
                         Card(
                             modifier =
                                 Modifier.fillMaxWidth().clickable {
@@ -277,7 +277,7 @@ private fun PodcastEpisodesView(
     state: GatekeeperState,
     onDismiss: () -> Unit,
 ) {
-    val activeSub = state.podcastSubscriptions.find { it.id == state.activePodcastId }
+    val activeSub = state.sync.podcastSubscriptions.find { it.id == state.media.activePodcastId }
     val title = activeSub?.showTitle ?: "Podcast Episodes"
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -289,21 +289,21 @@ private fun PodcastEpisodesView(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (state.isLoadingEpisodes) {
-            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                androidx.compose.material3.CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = 2.dp,
-                )
-            }
-        } else if (state.activePodcastEpisodes.isNullOrEmpty()) {
-            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Text("No episodes found.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        } else {
-            LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(state.activePodcastEpisodes!!, key = { it.audioUrl }) { ep ->
-                    val isAlreadyInBank = state.contentItems.any { it.videoId == ep.audioUrl && !it.isDeleted }
+            if (state.media.isLoadingEpisodes) {
+        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+            androidx.compose.material3.CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = 2.dp,
+            )
+        }
+    } else if (state.media.activePodcastEpisodes.isNullOrEmpty()) {
+        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Text("No episodes found.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    } else {
+        LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(state.media.activePodcastEpisodes!!, key = { it.audioUrl }) { ep ->
+                val isAlreadyInBank = state.data.contentItems.any { it.videoId == ep.audioUrl && !it.isDeleted }
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -336,10 +336,10 @@ private fun PodcastEpisodesView(
                                 }
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            val contentItem = state.contentItems.find { it.videoId == ep.audioUrl && !it.isDeleted }
+                                                        val contentItem = state.data.contentItems.find { it.videoId == ep.audioUrl && !it.isDeleted }
                             if (contentItem != null) {
                                 val status = contentItem.downloadStatus
-                                val progress = state.activeDownloads[contentItem.id] ?: 0f
+                                val progress = state.media.activeDownloads[contentItem.id] ?: 0f
                                 if (status == com.aegisgatekeeper.app.domain.DownloadStatus.DOWNLOADING ||
                                     status == com.aegisgatekeeper.app.domain.DownloadStatus.QUEUED
                                 ) {
@@ -382,13 +382,13 @@ private fun PodcastEpisodesView(
                                     )
                                 }
                             } else {
-                                IndustrialButton(
+                                                                IndustrialButton(
                                     onClick = {
-                                        if (state.activePodcastId != null) {
+                                        if (state.media.activePodcastId != null) {
                                             GatekeeperStateManager.dispatch(
                                                 GatekeeperAction.AddEpisodeToBank(
                                                     ep,
-                                                    state.activePodcastId,
+                                                    state.media.activePodcastId,
                                                     activeSub?.showTitle ?: "Podcast",
                                                 ),
                                             )
@@ -430,30 +430,30 @@ private fun LatestEpisodesView(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text("Latest Episodes", style = MaterialTheme.typography.titleLarge)
-            IndustrialButton(
+                        IndustrialButton(
                 onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.RefreshAllFeedsRequested) },
                 text = "Refresh",
-                isLoading = state.isSyncingPodcasts,
-                enabled = !state.isSyncingPodcasts,
+                isLoading = state.sync.isSyncingPodcasts,
+                enabled = !state.sync.isSyncingPodcasts,
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (state.isLoadingGlobalEpisodes) {
+        if (state.media.isLoadingGlobalEpisodes) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 androidx.compose.material3.CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
                     strokeWidth = 2.dp,
                 )
             }
-        } else if (state.latestGlobalEpisodes.isNullOrEmpty()) {
+        } else if (state.media.latestGlobalEpisodes.isNullOrEmpty()) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text("No recent episodes found.", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(state.latestGlobalEpisodes!!) { ep ->
-                    val isAlreadyInBank = state.contentItems.any { it.videoId == ep.audioUrl && !it.isDeleted }
+                items(state.media.latestGlobalEpisodes!!) { ep ->
+                    val isAlreadyInBank = state.data.contentItems.any { it.videoId == ep.audioUrl && !it.isDeleted }
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -497,10 +497,10 @@ private fun LatestEpisodesView(
                             }
                             Spacer(modifier = Modifier.width(8.dp))
 
-                            val contentItem = state.contentItems.find { it.videoId == ep.audioUrl && !it.isDeleted }
+                                                        val contentItem = state.data.contentItems.find { it.videoId == ep.audioUrl && !it.isDeleted }
                             if (contentItem != null) {
                                 val status = contentItem.downloadStatus
-                                val progress = state.activeDownloads[contentItem.id] ?: 0f
+                                val progress = state.media.activeDownloads[contentItem.id] ?: 0f
                                 if (status == com.aegisgatekeeper.app.domain.DownloadStatus.DOWNLOADING ||
                                     status == com.aegisgatekeeper.app.domain.DownloadStatus.QUEUED
                                 ) {

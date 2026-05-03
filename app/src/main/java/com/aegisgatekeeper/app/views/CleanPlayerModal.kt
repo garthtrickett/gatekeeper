@@ -71,8 +71,8 @@ actual fun CleanPlayerModal(
     val sessionStartTime by remember { mutableStateOf(System.currentTimeMillis()) }
 
     val context = LocalContext.current
-    val state by GatekeeperStateManager.state.collectAsState()
-    val startSeconds = state.savedMediaPositions[videoId] ?: 0f
+        val state by GatekeeperStateManager.state.collectAsState()
+    val startSeconds = state.media.savedMediaPositions[videoId] ?: 0f
     var currentPosition by remember { androidx.compose.runtime.mutableFloatStateOf(startSeconds) }
 
     // Intercept the native system back button instead of relying on the Dialog's onDismissRequest
@@ -83,8 +83,8 @@ actual fun CleanPlayerModal(
 
     val videoTitle =
         remember(videoId) {
-            val cleanTitle =
-                state.contentItems.find { it.videoId == videoId }?.title
+                        val cleanTitle =
+                state.data.contentItems.find { it.videoId == videoId }?.title
                     ?: "Clean Player Video"
             cleanTitle
                 .replace("&amp;", "&")

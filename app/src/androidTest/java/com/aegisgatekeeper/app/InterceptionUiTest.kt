@@ -218,8 +218,8 @@ class InterceptionUiTest {
         composeTestRule.waitForIdle()
 
         // 4. Verify state: Moat should be closed (Dismissed) and GiveUp logged
-        assertThat(GatekeeperStateManager.state.value.isOverlayActive).isFalse()
-        assertThat(GatekeeperStateManager.state.value.analyticsGiveUps).isEqualTo(1)
+                assertThat(GatekeeperStateManager.state.value.interception.isOverlayActive).isFalse()
+        assertThat(GatekeeperStateManager.state.value.data.analyticsGiveUps).isEqualTo(1)
     }
 
     @Test

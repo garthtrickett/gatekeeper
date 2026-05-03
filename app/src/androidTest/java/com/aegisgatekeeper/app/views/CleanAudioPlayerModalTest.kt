@@ -64,8 +64,8 @@ class CleanAudioPlayerModalTest {
 
         // Verify state manager got the TriggerMetacognition action
         val state = GatekeeperStateManager.state.value
-        assertThat(state.pendingMetacognition).isNotNull()
-        assertThat(state.pendingMetacognition!!.packageName).isEqualTo("CleanAudio: Player")
+                assertThat(state.data.pendingMetacognition).isNotNull()
+        assertThat(state.data.pendingMetacognition!!.packageName).isEqualTo("CleanAudio: Player")
     }
 
     @Test
@@ -99,6 +99,6 @@ class CleanAudioPlayerModalTest {
 
         // Verify state manager did NOT get the TriggerMetacognition action
         val state = GatekeeperStateManager.state.value
-        assertThat(state.pendingMetacognition).isNull()
+                assertThat(state.data.pendingMetacognition).isNull()
     }
 }

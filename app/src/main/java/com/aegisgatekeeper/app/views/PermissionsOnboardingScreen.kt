@@ -35,22 +35,22 @@ fun PermissionsOnboardingScreen() {
     val pagerState = rememberPagerState { 5 }
 
     // Auto-advance logic driven purely by the SAM loop state
-    LaunchedEffect(
-        state.hasOverlayPermission,
-        state.hasUsageAccessPermission,
-        state.hasAccessibilityPermission,
-        state.hasNotificationAccessPermission,
-        state.isBatteryOptimizationDisabled,
+        LaunchedEffect(
+        state.interception.hasOverlayPermission,
+        state.interception.hasUsageAccessPermission,
+        state.interception.hasAccessibilityPermission,
+        state.interception.hasNotificationAccessPermission,
+        state.interception.isBatteryOptimizationDisabled,
     ) {
-        if (!state.hasOverlayPermission) {
+        if (!state.interception.hasOverlayPermission) {
             pagerState.animateScrollToPage(0)
-        } else if (!state.hasUsageAccessPermission) {
+        } else if (!state.interception.hasUsageAccessPermission) {
             pagerState.animateScrollToPage(1)
-        } else if (!state.hasAccessibilityPermission) {
+        } else if (!state.interception.hasAccessibilityPermission) {
             pagerState.animateScrollToPage(2)
-        } else if (!state.hasNotificationAccessPermission) {
+        } else if (!state.interception.hasNotificationAccessPermission) {
             pagerState.animateScrollToPage(3)
-        } else if (!state.isBatteryOptimizationDisabled) {
+        } else if (!state.interception.isBatteryOptimizationDisabled) {
             pagerState.animateScrollToPage(4)
         }
     }

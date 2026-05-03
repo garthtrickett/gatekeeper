@@ -58,10 +58,10 @@ fun SettingsScreen() {
         return null
     }
 
-    var dwStart by remember(state.deepWorkStartMinutes) { mutableStateOf(formatTime(state.deepWorkStartMinutes)) }
-    var dwEnd by remember(state.deepWorkEndMinutes) { mutableStateOf(formatTime(state.deepWorkEndMinutes)) }
-    var gStart by remember(state.gatheringStartMinutes) { mutableStateOf(formatTime(state.gatheringStartMinutes)) }
-    var gEnd by remember(state.gatheringEndMinutes) { mutableStateOf(formatTime(state.gatheringEndMinutes)) }
+        var dwStart by remember(state.data.deepWorkStartMinutes) { mutableStateOf(formatTime(state.data.deepWorkStartMinutes)) }
+    var dwEnd by remember(state.data.deepWorkEndMinutes) { mutableStateOf(formatTime(state.data.deepWorkEndMinutes)) }
+    var gStart by remember(state.data.gatheringStartMinutes) { mutableStateOf(formatTime(state.data.gatheringStartMinutes)) }
+    var gEnd by remember(state.data.gatheringEndMinutes) { mutableStateOf(formatTime(state.data.gatheringEndMinutes)) }
 
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         Text("Phase Boundaries", style = MaterialTheme.typography.titleMedium)
@@ -154,7 +154,7 @@ fun SettingsScreen() {
                 }
             }
 
-        IndustrialButton(
+                IndustrialButton(
             onClick = {
                 permissionLauncher.launch(
                     arrayOf(
@@ -163,8 +163,8 @@ fun SettingsScreen() {
                     ),
                 )
             },
-            text = if (state.beeperChats.isNotEmpty()) "Beeper Connected ✓ (Resync)" else "Connect Beeper",
-            isLoading = state.isSyncingBeeper,
+            text = if (state.sync.beeperChats.isNotEmpty()) "Beeper Connected ✓ (Resync)" else "Connect Beeper",
+            isLoading = state.sync.isSyncingBeeper,
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -193,8 +193,8 @@ fun SettingsScreen() {
 
         if (showAdvanced) {
             Spacer(modifier = Modifier.height(16.dp))
-            IndustrialTextField(
-                value = state.syncServerUrl,
+                        IndustrialTextField(
+                value = state.sync.syncServerUrl,
                 onValueChange = { GatekeeperStateManager.dispatch(GatekeeperAction.UpdateSyncUrl(it)) },
                 label = { Text("Custom Sync Server URL") },
                 modifier = Modifier.fillMaxWidth(),

@@ -24,7 +24,7 @@ class SyncWorker(
         Log.i("Gatekeeper", "⚙️ SyncWorker: Starting background sync.")
 
         val state = GatekeeperStateManager.state.value
-        if (!state.isAuthenticated) {
+        if (!state.sync.isAuthenticated) {
             Log.i("Gatekeeper", "⚙️ SyncWorker: Not authenticated. Skipping sync.")
             return Result.success()
         }

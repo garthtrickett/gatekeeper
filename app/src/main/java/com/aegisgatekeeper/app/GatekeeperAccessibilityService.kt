@@ -33,10 +33,10 @@ class GatekeeperAccessibilityService : AccessibilityService() {
     private fun observeState() {
         serviceScope.launch {
             stateManager.state
-                .distinctUntilChangedBy { it.isOverlayActive }
+                .distinctUntilChangedBy { it.interception.isOverlayActive }
                 .collect { state ->
-                    if (state.isOverlayActive) {
-                        Log.i("Gatekeeper", "STATE-DRIVEN: Showing overlay for ${state.currentlyInterceptedApp}")
+                    if (state.interception.isOverlayActive) {
+                        Log.i("Gatekeeper", "STATE-DRIVEN: Showing overlay for ${state.interception.currentlyInterceptedApp}")
                         // CRITICAL: Must use 'this' (the AccessibilityService context)
                         GatekeeperOverlay.show(this@GatekeeperAccessibilityService)
                     } else {

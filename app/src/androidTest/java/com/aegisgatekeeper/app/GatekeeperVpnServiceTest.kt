@@ -53,10 +53,12 @@ class GatekeeperVpnServiceTest {
                             ),
                         ),
                 )
-            val stateWithRule =
+                        val stateWithRule =
                 GatekeeperState(
-                    appGroups = listOf(group),
-                    activeForegroundApp = "com.example.app",
+                    interception = com.aegisgatekeeper.app.domain.InterceptionState(
+                        appGroups = listOf(group),
+                        activeForegroundApp = "com.example.app",
+                    )
                 )
 
             // 4. Update the state in the service manually
@@ -67,7 +69,7 @@ class GatekeeperVpnServiceTest {
 
             // 6. Change foreground app to one not in the group
             // Since domain blocks are now globally applied, the blacklist should STILL contain the domain.
-            val stateOtherApp = stateWithRule.copy(activeForegroundApp = "com.other.app")
+                        val stateOtherApp = stateWithRule.copy(interception = stateWithRule.interception.copy(activeForegroundApp = "com.other.app"))
             service.updateBlacklist(stateOtherApp)
             assertThat(getActiveBlacklist(service)).contains("youtube.com")
         }
@@ -90,10 +92,12 @@ class GatekeeperVpnServiceTest {
                             ),
                         ),
                 )
-            val state =
+                        val state =
                 GatekeeperState(
-                    appGroups = listOf(group),
-                    activeForegroundApp = "com.any.app",
+                    interception = com.aegisgatekeeper.app.domain.InterceptionState(
+                        appGroups = listOf(group),
+                        activeForegroundApp = "com.any.app",
+                    )
                 )
             service.updateBlacklist(state)
             assertThat(getActiveBlacklist(service)).contains("global.com")
@@ -114,7 +118,7 @@ class GatekeeperVpnServiceTest {
                             BlockingRule.DomainBlock(id = "rule1", groupId = "group1", domains = setOf("reddit.com")),
                         ),
                 )
-            val state = GatekeeperState(appGroups = listOf(group), activeForegroundApp = "com.example.app")
+                        val state = GatekeeperState(interception = com.aegisgatekeeper.app.domain.InterceptionState(appGroups = listOf(group), activeForegroundApp = "com.example.app"))
             service.updateBlacklist(state)
 
             val method = GatekeeperVpnService::class.java.getDeclaredMethod("isDomainBlocked", String::class.java)

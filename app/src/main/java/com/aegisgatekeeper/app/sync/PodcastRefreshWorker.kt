@@ -61,7 +61,7 @@ class PodcastRefreshWorker(
                     }
 
                     // If this podcast is currently being viewed, refresh the UI
-                    if (GatekeeperStateManager.state.value.activePodcastId == sub.id) {
+                    if (GatekeeperStateManager.state.value.media.activePodcastId == sub.id) {
                         GatekeeperStateManager.dispatch(GatekeeperAction.LoadPodcastEpisodes(sub.feedUrl, sub.id))
                     }
                 },
@@ -70,7 +70,7 @@ class PodcastRefreshWorker(
 
         GatekeeperStateManager.dispatch(GatekeeperAction.PodcastSyncCompleted)
 
-        if (GatekeeperStateManager.state.value.latestGlobalEpisodes != null) {
+        if (GatekeeperStateManager.state.value.media.latestGlobalEpisodes != null) {
             GatekeeperStateManager.dispatch(GatekeeperAction.LoadLatestGlobalEpisodes)
         }
 
