@@ -244,5 +244,19 @@ data class SyncAndIntegrationState(
     val notificationDigest: List<NotificationLog> = emptyList(),
     val beeperChats: List<BeeperChat> = emptyList(),
     val scheduledMessages: List<ScheduledMessage> = emptyList(),
-    val isSyncingBeeper: Boolean = false,
+        val isSyncingBeeper: Boolean = false,
 )
+
+data class RuleEvaluationSnapshot(
+    val targetPackage: String,
+    val activeGroups: List<AppGroup>,
+    val isManualLockdownActive: Boolean,
+    val currentMinutes: Int,
+    val currentDay: DayOfWeek,
+    val usageStats: Map<String, Int>
+)
+
+sealed interface EvaluationVerdict {
+    object Allowed : EvaluationVerdict
+    data class Blocked(val reason: String) : EvaluationVerdict
+}
