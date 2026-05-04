@@ -4,10 +4,11 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.util.Log
 import com.aegisgatekeeper.app.GatekeeperStateManager
-import com.aegisgatekeeper.app.domain.BlockingRule
 import com.aegisgatekeeper.app.domain.DayOfWeek
+import com.aegisgatekeeper.app.domain.EvaluationVerdict
 import com.aegisgatekeeper.app.domain.GatekeeperAction
-import com.aegisgatekeeper.app.domain.RuleCombinator
+import com.aegisgatekeeper.app.domain.RuleEvaluationSnapshot
+import com.aegisgatekeeper.app.domain.evaluateRules
 import java.util.Calendar
 
 object AndroidRuleEvaluator {
@@ -63,106 +64,38 @@ object AndroidRuleEvaluator {
                     else -> DayOfWeek.SUNDAY
                 }
 
-            var isBlocked = false
-            var blockReason = ""
-
             val checkUsage = isNewApp || ticksSinceLastUsageCheck >= 5
-            if (checkUsage) ticksSinceLastUsageCheck = 0
-
-            if (state.interception.isManualLockdownActive) {
-                isBlocked = true
-                blockReason = "Manual Lockdown Engaged"
-            } else {
-                for (group in activeGroups) {
-                    val groupViolations = mutableListOf<String>()
-                    val enabledRules = group.rules.filter { it.isEnabled }
-
-                    if (enabledRules.isEmpty()) continue
-
-                    for (rule in enabledRules) {
-                        when (rule) {
-                            is BlockingRule.ScheduledBlock -> {
-                                if (rule.daysOfWeek.contains(currentDay)) {
-                                    val activeSlots = rule.timeSlots.filter { currentMinutes in it.startTimeMinutes..it.endTimeMinutes }
-                                    if (activeSlots.isNotEmpty()) {
-                                        val slotsStr =
-                                            activeSlots.joinToString(", ") {
-                                                String.format(
-                                                    "%02d:%02d - %02d:%02d",
-                                                    it.startTimeMinutes / 60,
-                                                    it.startTimeMinutes % 60,
-                                                    it.endTimeMinutes / 60,
-                                                    it.endTimeMinutes % 60,
-                                                )
-                                            }
-                                        groupViolations.add("Scheduled Block ($slotsStr)")
-                                    }
-                                }
-                            }
-
-                            is BlockingRule.TimeLimit -> {
-                                val usageMinutes =
-                                    if (checkUsage) {
-                                        val usage = getDailyUsageMinutes(context, group.apps)
-                                        cachedUsageMinutes[group.id] = usage
-                                        usage
-                                    } else {
-                                        cachedUsageMinutes[group.id] ?: 0
-                                    }
-                                if (usageMinutes >= rule.timeLimitMinutes) {
-                                    val timeLeft = maxOf(0, rule.timeLimitMinutes - usageMinutes)
-                                    groupViolations.add(
-                                        "Time Limit Reached (${timeLeft}m left, used $usageMinutes/${rule.timeLimitMinutes}m)",
-                                    )
-                                }
-                            }
-
-                            is BlockingRule.CheckIn -> {
-                                if (rule.daysOfWeek.contains(currentDay)) {
-                                    val timesStr =
-                                        rule.checkInTimesMinutes.sorted().joinToString(", ") {
-                                            String.format("%02d:%02d", it / 60, it % 60)
-                                        }
-                                    groupViolations.add("Check-In Required ($timesStr)")
-                                }
-                            }
-
-                            is BlockingRule.DomainBlock -> {}
-
-                            is BlockingRule.AlwaysBlock -> {
-                                groupViolations.add("Always Block")
-                            }
-                        }
-                    }
-
-                    val groupIsBlocked =
-                        when (group.combinator) {
-                            RuleCombinator.ANY -> {
-                                groupViolations.isNotEmpty()
-                            }
-
-                            RuleCombinator.ALL -> {
-                                groupViolations.size == enabledRules.size &&
-                                    enabledRules.isNotEmpty()
-                            }
-                        }
-
-                    if (groupIsBlocked) {
-                        isBlocked = true
-                        blockReason = "Policy Violation: " + groupViolations.joinToString(" AND ") + " for '${group.name}'"
-                        break
-                    }
-                }
+            if (checkUsage) {
+                ticksSinceLastUsageCheck = 0
+                val packagesToCheck = activeGroups.flatMap { it.apps }.toSet()
+                val usages = getDailyUsageMinutes(context, packagesToCheck)
+                cachedUsageMinutes.putAll(usages)
             }
 
-            if (isBlocked) {
-                if (isNewApp || !state.interception.isOverlayActive) {
-                    GatekeeperStateManager.dispatch(
-                        GatekeeperAction.RuleViolationDetected(currentApp, blockReason, System.currentTimeMillis()),
-                    )
+            val snapshot = RuleEvaluationSnapshot(
+                targetPackage = currentApp,
+                activeGroups = activeGroups,
+                isManualLockdownActive = state.interception.isManualLockdownActive,
+                currentMinutes = currentMinutes,
+                currentDay = currentDay,
+                usageStats = cachedUsageMinutes
+            )
+
+            val verdict = evaluateRules(snapshot)
+
+            when (verdict) {
+                is EvaluationVerdict.Blocked -> {
+                    if (isNewApp || !state.interception.isOverlayActive) {
+                        GatekeeperStateManager.dispatch(
+                            GatekeeperAction.RuleViolationDetected(currentApp, verdict.reason, System.currentTimeMillis()),
+                        )
+                    }
                 }
-            } else if (isNewApp) {
-                GatekeeperStateManager.dispatch(GatekeeperAction.AppBroughtToForeground(currentApp, System.currentTimeMillis()))
+                is EvaluationVerdict.Allowed -> {
+                    if (isNewApp) {
+                        GatekeeperStateManager.dispatch(GatekeeperAction.AppBroughtToForeground(currentApp, System.currentTimeMillis()))
+                    }
+                }
             }
 
             ticksSinceLastUsageCheck++
@@ -176,7 +109,7 @@ object AndroidRuleEvaluator {
     private fun getDailyUsageMinutes(
         context: Context,
         packages: Set<String>,
-    ): Int {
+    ): Map<String, Int> {
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, 0)
@@ -187,10 +120,11 @@ object AndroidRuleEvaluator {
         val endTime = System.currentTimeMillis()
 
         val stats = usageStatsManager.queryAndAggregateUsageStats(startTime, endTime)
-        var totalTime = 0L
+        val result = mutableMapOf<String, Int>()
         for (pkg in packages) {
-            stats[pkg]?.let { totalTime += it.totalTimeInForeground }
+            val totalTime = stats[pkg]?.totalTimeInForeground ?: 0L
+            result[pkg] = (totalTime / 60000).toInt()
         }
-        return (totalTime / 60000).toInt()
+        return result
     }
 }
