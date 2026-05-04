@@ -33,18 +33,7 @@ object AndroidRuleEvaluator {
             return
         }
 
-        val isNewApp = currentApp != lastDetectedPackage
-
-        if (isNewApp) {
-            if (lastDetectedPackage != null) {
-                val whitelist = state.interception.activeWhitelists[lastDetectedPackage]
-                if (whitelist != null && System.currentTimeMillis() < whitelist.expiresAtTimestamp &&
-                    whitelist.reason != "GIVE_UP_GRACE_PERIOD"
-                ) {
-                    GatekeeperStateManager.dispatch(GatekeeperAction.TriggerExitInterview(lastDetectedPackage!!))
-                }
-            }
-        }
+                val isNewApp = currentApp != lastDetectedPackage
 
         val activeGroups = state.interception.appGroups.filter { it.apps.contains(currentApp) }
 

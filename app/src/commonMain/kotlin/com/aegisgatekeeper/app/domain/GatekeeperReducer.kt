@@ -66,13 +66,24 @@ private fun reduceInterception(
                 }
             }
 
-            is GatekeeperAction.AppBroughtToForeground -> {
+                        is GatekeeperAction.AppBroughtToForeground -> {
+                val prevApp = slice.activeForegroundApp
                 val whitelist = slice.activeWhitelists[action.packageName]
                 val isWhitelistValid = whitelist != null && action.currentTimestamp < whitelist.expiresAtTimestamp
 
-                if (slice.pendingExitInterview != null) {
+                // Logic for triggering Exit Interview moved from Service to Reducer
+                val interviewApp = if (prevApp != null && prevApp != action.packageName) {
+                    val prevWhitelist = slice.activeWhitelists[prevApp]
+                    if (prevWhitelist != null && 
+                        action.currentTimestamp < prevWhitelist.expiresAtTimestamp &&
+                        prevWhitelist.reason != "GIVE_UP_GRACE_PERIOD") prevApp else null
+                } else null
+
+                if (slice.pendingExitInterview != null || interviewApp != null) {
                     slice.copy(
                         activeForegroundApp = action.packageName,
+                        isOverlayActive = interviewApp != null || slice.isOverlayActive,
+                        pendingExitInterview = interviewApp ?: slice.pendingExitInterview,
                         activeWhitelists =
                             if (whitelist != null && !isWhitelistValid) {
                                 slice.activeWhitelists - action.packageName
