@@ -318,9 +318,8 @@ class ContentBankUiTest {
             .isNotNull()
     }
 
-    @Test
-        @Test
-        fun testContentBank_YouTubeItem_PlaysInNativePlayer() {
+     @Test
+ fun testContentBank_YouTubeItem_PlaysInNativePlayer() {
         // Arrange
         val youtubeVideoId = "dQw4w9WgXcQ"
         GatekeeperStateManager.dispatch(
