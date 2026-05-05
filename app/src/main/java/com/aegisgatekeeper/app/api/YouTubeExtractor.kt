@@ -54,9 +54,15 @@ class YouTubeExtractor(private val client: HttpClient) {
 
         val pipedInstances = listOf(
             "https://pipedapi.kavin.rocks",
-            "https://api.piped.projectsegfau.lt",
-            "https://pipedapi.moomoo.me",
-            "https://pipedapi.drgns.space"
+            "https://piped-api.garudalinux.org",
+            "https://pipedapi.leptons.xyz",
+            "https://piped-api.lunar.icu",
+            "https://api-piped.mha.fi",
+            "https://pipedapi.smnz.de",
+            "https://pipedapi.adminforge.de",
+            "https://pipedapi.privacydev.net",
+            "https://ytapi.dc09.ru",
+            "https://pipedapi.rivo.lol"
         )
 
         for (instance in pipedInstances) {
@@ -82,6 +88,8 @@ class YouTubeExtractor(private val client: HttpClient) {
                         com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found Piped stream")
                         return item.copy(localFilePath = stream.url).right()
                     }
+                } else {
+                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Piped instance failed with status ${response.status.value}")
                 }
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
@@ -90,10 +98,14 @@ class YouTubeExtractor(private val client: HttpClient) {
         }
 
         val invidiousInstances = listOf(
+            "https://inv.thepixora.com",
+            "https://inv.nadeko.net",
             "https://invidious.lunar.icu",
-            "https://inv.tux.pizza",
-            "https://invidious.projectsegfau.lt",
-            "https://iv.melmac.it"
+            "https://invidious.privacydev.net",
+            "https://invidious.jing.rocks",
+            "https://invidious.nerdvpn.de",
+            "https://inv.bp.projectsegfau.lt",
+            "https://yewtu.be"
         )
 
         for (instance in invidiousInstances) {
@@ -118,6 +130,8 @@ class YouTubeExtractor(private val client: HttpClient) {
                         com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found Invidious stream")
                         return item.copy(localFilePath = stream.url).right()
                     }
+                } else {
+                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Invidious instance failed with status ${response.status.value}")
                 }
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
