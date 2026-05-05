@@ -192,11 +192,7 @@ sealed interface GatekeeperAction {
  val positionSeconds: Float,
  ) : GatekeeperAction
 
- data class OpenCleanPlayer(val videoId: String) : GatekeeperAction
-
-    object MinimizeCleanPlayer : GatekeeperAction
-
-    object StopCleanPlayer : GatekeeperAction
+ 
 
     data class SaveIntentionalSlot(
         val slotIndex: Int,

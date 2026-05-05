@@ -572,16 +572,18 @@ fun CleanAudioPlayerModal(
 
                                 webViewRef = this
 
-                                addJavascriptInterface(
-                                    WebAppInterface(
-                                        onVideoEnded = {
+                                                                addJavascriptInterface(
+                                    object {
+                                        @android.webkit.JavascriptInterface
+                                        fun onVideoEnded() {
                                             val duration = System.currentTimeMillis() - sessionStartTime
                                             GatekeeperStateManager.dispatch(
                                                 GatekeeperAction.TriggerMetacognition("CleanAudio: Player", duration),
                                             )
                                             onStop()
-                                        },
-                                        onStateChangeCallback = { state ->
+                                        }
+                                        @android.webkit.JavascriptInterface
+                                        fun onStateChange(state: Int) {
                                             playerStateCallback(state)
                                             if (state == 0) { // ENDED
                                                 currentPosition = 0f
@@ -589,9 +591,12 @@ fun CleanAudioPlayerModal(
                                             } else if (state == 2) { // PAUSED
                                                 GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(url, currentPosition))
                                             }
-                                        },
-                                        onTimeUpdateCallback = { time -> currentPosition = time },
-                                    ),
+                                        }
+                                        @android.webkit.JavascriptInterface
+                                        fun onTimeUpdate(time: String) {
+                                            currentPosition = time.toFloatOrNull() ?: 0f
+                                        }
+                                    },
                                     "Android",
                                 )
 

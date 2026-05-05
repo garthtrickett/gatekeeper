@@ -926,17 +926,7 @@ private fun reduceMedia(
                 slice
             }
 
-            is GatekeeperAction.OpenCleanPlayer -> {
-                slice.copy(activeVideoId = action.videoId, isVideoPlayerMaximized = true)
-            }
-
-            is GatekeeperAction.MinimizeCleanPlayer -> {
-                slice.copy(isVideoPlayerMaximized = false)
-            }
-
-            is GatekeeperAction.StopCleanPlayer -> {
-                slice.copy(activeVideoId = null, isVideoPlayerMaximized = false)
-            }
+            
 
             is GatekeeperAction.OpenCleanAudioPlayer -> {
                 slice.copy(activeAudioUrl = action.url, isAudioPlayerMaximized = true)

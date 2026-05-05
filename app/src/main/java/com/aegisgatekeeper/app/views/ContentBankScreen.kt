@@ -94,7 +94,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
     var isEditingUnlocked by remember { mutableStateOf(false) }
     var showFriction by remember { mutableStateOf(false) }
     var pendingFilterAction by remember { mutableStateOf<(() -> Unit)?>(null) }
-    var showAddDialog by remember { mutableStateOf(false) }
+        var showAddDialog by remember { mutableStateOf(false) }
     var showFeedManagement by remember { mutableStateOf(false) }
     
 
@@ -126,7 +126,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     if (searchQuery.isNotEmpty()) {
                         IndustrialButton(onClick = { searchQuery = "" }, text = "Clear")
                     }
-                                        IndustrialButton(onClick = { showFeedManagement = true }, text = "Podcasts")
+                                                            IndustrialButton(onClick = { showFeedManagement = true }, text = "Podcasts")
                 }
 
                 // Filtering Chips
