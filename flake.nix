@@ -211,9 +211,9 @@
 
 
                     alias logs='adb logcat | grep -iE "Gatekeeper|AndroidRuntime|WindowManager|FATAL"'
-                    alias deploy-dev='adb reverse tcp:8081 tcp:8081 && gradle installDevDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app.dev/com.aegisgatekeeper.app.MainActivity && echo "✅ DEV Deployed & Port 8081 Reversed. Waiting for logs..." && logs'
+                    alias deploy-dev='adb reverse tcp:8081 tcp:8081 && adb reverse tcp:9099 tcp:9099 && gradle installDevDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app.dev/com.aegisgatekeeper.app.MainActivity && echo "✅ DEV Deployed & Port 8081 Reversed. Waiting for logs..." && logs'
                     alias backend-logs='docker-compose logs -f'
-                    alias deploy-prod='adb reverse tcp:8081 tcp:8081 && gradle installProdDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app/com.aegisgatekeeper.app.MainActivity && echo "✅ PROD Deployed & Port 8081 Reversed. Waiting for logs..." && logs'
+                    alias deploy-prod='adb reverse tcp:8081 tcp:8081 && adb reverse tcp:9099 tcp:9099 && gradle installProdDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app/com.aegisgatekeeper.app.MainActivity && echo "✅ PROD Deployed & Port 8081 Reversed. Waiting for logs..." && logs'
                     alias backend-logs='docker-compose logs -f'
 
                     # Linting & Quality
@@ -235,7 +235,7 @@
                       cat << 'EOF' > /tmp/dev-sync.sh
           #!/usr/bin/env bash
           echo "🚀 Starting Cross-Platform Dev Sync..."
-          trap 'echo "🛑 Stopping dev-sync..."; kill 0; adb reverse --remove tcp:8081' EXIT
+          trap 'echo "🛑 Stopping dev-sync..."; kill 0; adb reverse --remove tcp:8081; adb reverse --remove tcp:9099' EXIT
 
           # Clean up previous state for a fresh start
           rm -f gatekeeper_backend.db
@@ -258,7 +258,8 @@
           export GATEKEEPER_DEV_TOKEN=$DEV_TOKEN
 
           adb reverse tcp:8081 tcp:8081
-          echo "✅ ADB Tunnel Established"
+          adb reverse tcp:9099 tcp:9099
+          echo "✅ ADB Tunnels Established (8081: Sync, 9099: Cobalt)"
 
           echo "📱 Deploying & logging in Android App..."
           gradle :app:installDebug
@@ -280,7 +281,7 @@
                       cat << 'EOF' > /tmp/test-sync-e2e.sh
           #!/usr/bin/env bash
           echo "🚀 Starting E2E Cross-Platform Sync Flow..."
-          trap 'echo "🛑 Stopping E2E flow..."; kill 0; adb reverse --remove tcp:8081' EXIT
+          trap 'echo "🛑 Stopping E2E flow..."; kill 0; adb reverse --remove tcp:8081; adb reverse --remove tcp:9099' EXIT
 
           # Clean up previous backend database to avoid duplicate items
           rm -f gatekeeper_backend.db backend/gatekeeper_backend.db
