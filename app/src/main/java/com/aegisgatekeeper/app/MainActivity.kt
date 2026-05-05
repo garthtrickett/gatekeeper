@@ -381,16 +381,15 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                                                val activeVideoId = state.media.activeVideoId
-                        if (false && activeVideoId != null) {
-                            // Legacy WebView player disabled
-                        }
-                                videoId = activeVideoId,
-                                isVisible = state.media.isVideoPlayerMaximized,
-                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },
-                                onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) },
-                            )
-                        }
+                                                 val activeVideoId = state.media.activeVideoId
+ if (activeVideoId != null) {
+ com.aegisgatekeeper.app.views.CleanPlayerModal(
+ videoId = activeVideoId,
+ isVisible = state.media.isVideoPlayerMaximized,
+ onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },
+ onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) },
+ )
+ }
 
                         val activeAudioUrl = state.media.activeAudioUrl
                         if (activeAudioUrl != null) {

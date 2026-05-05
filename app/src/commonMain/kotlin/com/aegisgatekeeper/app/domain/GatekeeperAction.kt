@@ -185,16 +185,14 @@ sealed interface GatekeeperAction {
         val id: String,
     ) : GatekeeperAction
 
-        data class PlayYouTubeVideo(val videoId: String) : GatekeeperAction
+         data class PlayYouTubeVideo(val videoId: String) : GatekeeperAction
 
-        data class PlayYouTubeVideo(val videoId: String) : GatekeeperAction
+ data class SaveMediaPosition(
+ val mediaId: String,
+ val positionSeconds: Float,
+ ) : GatekeeperAction
 
-    data class SaveMediaPosition(
-        val mediaId: String,
-        val positionSeconds: Float,
-    ) : GatekeeperAction
-
-        // DEPRECATED: data class OpenCleanPlayer(
+ data class OpenCleanPlayer(val videoId: String) : GatekeeperAction
 
     object MinimizeCleanPlayer : GatekeeperAction
 
