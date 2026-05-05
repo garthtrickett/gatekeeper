@@ -8,6 +8,7 @@ import com.aegisgatekeeper.app.domain.ContentItem
 import com.aegisgatekeeper.app.domain.ContentSource
 import com.aegisgatekeeper.app.domain.ContentType
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.Serializable
@@ -61,12 +62,15 @@ class YouTubeExtractor(private val client: HttpClient) {
         for (instance in pipedInstances) {
             try {
                 com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Trying Piped ($instance)")
-                val response = io.ktor.client.plugins.timeout {
-                    requestTimeoutMillis = 5000
-                }.let { client.get("$instance/streams/${item.videoId}") }
+                val response = client.get("$instance/streams/${item.videoId}") {
+                    timeout {
+                        requestTimeoutMillis = 5000
+                        connectTimeoutMillis = 5000
+                    }
+                }
 
                 if (response.status.value in 200..299) {
-                    val text = response.io.ktor.client.statement.bodyAsText()
+                    val text = response.bodyAsText()
                     val pipedResponse = parser.decodeFromString(PipedResponse.serializer(), text)
                     
                     if (pipedResponse.error != null && pipedResponse.audioStreams.isNullOrEmpty()) continue
@@ -95,12 +99,15 @@ class YouTubeExtractor(private val client: HttpClient) {
         for (instance in invidiousInstances) {
             try {
                 com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Trying Invidious ($instance)")
-                val response = io.ktor.client.plugins.timeout {
-                    requestTimeoutMillis = 5000
-                }.let { client.get("$instance/api/v1/videos/${item.videoId}") }
+                val response = client.get("$instance/api/v1/videos/${item.videoId}") {
+                    timeout {
+                        requestTimeoutMillis = 5000
+                        connectTimeoutMillis = 5000
+                    }
+                }
 
                 if (response.status.value in 200..299) {
-                    val text = response.io.ktor.client.statement.bodyAsText()
+                    val text = response.bodyAsText()
                     val invResponse = parser.decodeFromString(InvidiousResponse.serializer(), text)
                     
                     val stream = invResponse.adaptiveFormats?.firstOrNull { it.type?.startsWith("audio/mp4") == true }
