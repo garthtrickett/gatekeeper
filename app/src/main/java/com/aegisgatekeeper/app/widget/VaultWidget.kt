@@ -156,7 +156,7 @@ class VaultWidget : GlanceAppWidget() {
                                         )
                                         Spacer(modifier = GlanceModifier.height(8.dp))
 
-                                                                                val intent =
+                                        val intent =
                                             Intent(context, MainActivity::class.java).apply {
                                                 if (it.type == ContentType.VIDEO) {
                                                     putExtra("PLAY_YOUTUBE_VIDEO_ID", it.videoId)

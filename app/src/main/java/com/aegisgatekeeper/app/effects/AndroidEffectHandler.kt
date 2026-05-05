@@ -102,6 +102,6 @@ class AndroidEffectHandler(
 
     override suspend fun syncBeeperChats(): Either<String, List<BeeperChat>> = beeperClient.getChats()
 
-    override suspend fun fetchYouTubeStream(videoId: String): Either<String, com.aegisgatekeeper.app.domain.ContentItem> =
-        youtubeExtractor.extractVideo(videoId)
+        override suspend fun fetchYouTubeStream(item: com.aegisgatekeeper.app.domain.ContentItem): Either<String, com.aegisgatekeeper.app.domain.ContentItem> =
+        youtubeExtractor.extractVideo(item)
 }

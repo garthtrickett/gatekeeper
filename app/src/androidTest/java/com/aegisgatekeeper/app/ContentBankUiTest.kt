@@ -357,10 +357,9 @@ class ContentBankUiTest {
         com.google.common.truth.Truth
             .assertThat(state.media.activeNativeMediaItem)
             .isNotNull()
-        // The extractor currently returns a placeholder title, which is what we can assert against
-        com.google.common.truth.Truth
+                com.google.common.truth.Truth
             .assertThat(state.media.activeNativeMediaItem!!.title)
-            .isEqualTo("Placeholder Video Title")
+            .isEqualTo("Test YouTube Video")
 
         // Assert: The modal UI should be visible
         composeTestRule.onNodeWithText("End Session").assertIsDisplayed()

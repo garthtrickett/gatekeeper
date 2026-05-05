@@ -909,8 +909,11 @@ private fun reduceMedia(
                 }
             }
 
-            is GatekeeperAction.PlayYouTubeVideo -> {
-                effects.add(GatekeeperEffect.FetchYouTubeStream(action.videoId))
+                        is GatekeeperAction.PlayYouTubeVideo -> {
+                val item = slice.contentItems.find { it.videoId == action.videoId }
+                if (item != null) {
+                    effects.add(GatekeeperEffect.FetchYouTubeStream(item))
+                }
                 slice
             }
 

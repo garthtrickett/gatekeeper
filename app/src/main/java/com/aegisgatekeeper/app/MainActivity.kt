@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
     ) {
         if (isRecreation) return
 
-                val audioUrlToPlay = intent.getStringExtra("OPEN_CLEAN_AUDIO_URL")
+        val audioUrlToPlay = intent.getStringExtra("OPEN_CLEAN_AUDIO_URL")
         val nativeAudioIdToPlay = intent.getStringExtra("OPEN_NATIVE_AUDIO_ID")
         val openActiveNativePlayer = intent.getBooleanExtra("OPEN_ACTIVE_NATIVE_PLAYER", false)
         val youtubeVideoIdToPlay = intent.getStringExtra("PLAY_YOUTUBE_VIDEO_ID")

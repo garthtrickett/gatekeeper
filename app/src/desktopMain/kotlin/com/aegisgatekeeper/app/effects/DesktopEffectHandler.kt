@@ -47,6 +47,6 @@ class DesktopEffectHandler : PlatformEffectHandler {
 
     override suspend fun syncBeeperChats(): Either<String, List<BeeperChat>> = "Not supported on desktop".left()
 
-    override suspend fun fetchYouTubeStream(videoId: String): Either<String, com.aegisgatekeeper.app.domain.ContentItem> =
+        override suspend fun fetchYouTubeStream(item: com.aegisgatekeeper.app.domain.ContentItem): Either<String, com.aegisgatekeeper.app.domain.ContentItem> =
         "Not supported on desktop".left()
 }
