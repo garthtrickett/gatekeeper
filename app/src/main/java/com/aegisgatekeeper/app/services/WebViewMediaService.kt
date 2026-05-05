@@ -120,11 +120,12 @@ class WebViewMediaService : Service() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-        val contentIntent =
+                val contentIntent =
             PendingIntent.getActivity(
                 this,
-                0,
+                openIntentValue?.hashCode() ?: 1001,
                 Intent(this, com.aegisgatekeeper.app.MainActivity::class.java).apply {
+                    action = "com.aegisgatekeeper.app.OPEN_WEB_PLAYER_${openIntentValue ?: "unknown"}"
                     addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     if (openIntentKey != null && openIntentValue != null) {
                         putExtra(openIntentKey, openIntentValue)
