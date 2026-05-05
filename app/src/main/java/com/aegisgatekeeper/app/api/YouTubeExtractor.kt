@@ -38,12 +38,13 @@ class YouTubeExtractor(private val client: HttpClient) {
     private val parser = Json { ignoreUnknownKeys = true }
 
     private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
+        val requestUrl = "https://www.youtube.com/watch?v=$videoId"
         try {
-            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Connecting to Local Cobalt ($endpoint)")
+            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Connecting to Local Cobalt ($endpoint) for URL: $requestUrl")
             val response = client.post(endpoint) {
                 contentType(io.ktor.http.ContentType.Application.Json)
                 header("Accept", "application/json")
-                setBody(CobaltRequest(url = "https://www.youtube.com/watch?v=$videoId"))
+                setBody(CobaltRequest(url = requestUrl))
                 timeout {
                     requestTimeoutMillis = 15000
                     connectTimeoutMillis = 10000
@@ -51,6 +52,7 @@ class YouTubeExtractor(private val client: HttpClient) {
             }
 
             val responseBody = response.bodyAsText()
+            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "🔍 Cobalt Response Code: ${response.status.value}")
             com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "🔍 Cobalt Raw: $responseBody")
 
             if (response.status.value in 200..299) {
@@ -68,10 +70,14 @@ class YouTubeExtractor(private val client: HttpClient) {
 
                     com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Stream Resolved -> $finalUrl")
                     return finalUrl
+                } else {
+                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt success but no URL. Status: ${cobalt.status}, Text: ${cobalt.text}")
                 }
+            } else {
+                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "❌ YouTubeExtractor: Cobalt returned non-2xx status: ${response.status.value}")
             }
         } catch (e: Exception) {
-            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Connection failed to $endpoint")
+            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Exception during tryCobalt to $endpoint: ${e.message}")
         }
         return null
     }
@@ -90,9 +96,13 @@ class YouTubeExtractor(private val client: HttpClient) {
 
         for (endpoint in localEndpoints) {
             val url = tryCobalt(endpoint, item.videoId)
-            if (url != null) return item.copy(localFilePath = url).right()
+            if (url != null) {
+                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "🚀 YouTubeExtractor: Extraction successful for ${item.videoId}")
+                return item.copy(localFilePath = url).right()
+            }
         }
 
+        com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "💀 YouTubeExtractor: All extraction attempts failed for ${item.videoId}")
         return "Extraction Failed: Cobalt is unreachable. Run 'adb reverse tcp:9099 tcp:9099'".left()
     }
 }
