@@ -532,6 +532,7 @@ private fun ContentItemCard(
                     if (item.source == ContentSource.YOUTUBE || item.source == ContentSource.SOUNDCLOUD ||
                         item.type == ContentType.READING || item.type == ContentType.AUDIO
                     ) {
+                        val isExtracting = state.media.extractingYouTubeVideoId == item.videoId
                         IndustrialButton(
                             onClick = {
                                 when (item.source) {
@@ -560,6 +561,8 @@ private fun ContentItemCard(
                                 }
                             },
                             text = if (item.type == ContentType.READING) "Read" else "Play",
+                            isLoading = isExtracting,
+                            enabled = !isExtracting,
                         )
                     }
                     IndustrialButton(

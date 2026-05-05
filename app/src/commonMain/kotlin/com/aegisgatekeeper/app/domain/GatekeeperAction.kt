@@ -189,6 +189,11 @@ sealed interface GatekeeperAction {
         val videoId: String,
     ) : GatekeeperAction
 
+    data class YouTubeExtractionFailed(
+        val videoId: String,
+        val error: String,
+    ) : GatekeeperAction
+
     data class SaveMediaPosition(
         val mediaId: String,
         val positionSeconds: Float,

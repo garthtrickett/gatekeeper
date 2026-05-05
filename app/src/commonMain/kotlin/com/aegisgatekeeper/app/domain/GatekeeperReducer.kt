@@ -505,6 +505,14 @@ private fun reduceInterception(
                 slice
             }
 
+            is GatekeeperAction.YouTubeExtractionFailed -> {
+                if (slice.extractingYouTubeVideoId == action.videoId) {
+                    slice.copy(extractingYouTubeVideoId = null)
+                } else {
+                    slice
+                }
+            }
+
             else -> {
                 slice
             }
@@ -914,7 +922,7 @@ private fun reduceMedia(
                 if (item != null) {
                     effects.add(GatekeeperEffect.FetchYouTubeStream(item))
                 }
-                slice
+                slice.copy(extractingYouTubeVideoId = action.videoId)
             }
 
             is GatekeeperAction.OpenCleanAudioPlayer -> {
@@ -930,7 +938,7 @@ private fun reduceMedia(
             }
 
             is GatekeeperAction.OpenNativePlayer -> {
-                slice.copy(activeNativeMediaItem = action.contentItem, isNativePlayerMaximized = true)
+                slice.copy(activeNativeMediaItem = action.contentItem, isNativePlayerMaximized = true, extractingYouTubeVideoId = null)
             }
 
             is GatekeeperAction.MinimizeNativePlayer -> {

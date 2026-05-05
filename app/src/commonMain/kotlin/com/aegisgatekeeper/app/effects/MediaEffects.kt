@@ -154,6 +154,7 @@ suspend fun executeMediaAndSystemEffect(
             effectHandler.fetchYouTubeStream(effect.item).fold(
                 ifLeft = { error ->
                     platformLog("Gatekeeper", "❌ YouTube Extraction Failed: $error")
+                    dispatch(GatekeeperAction.YouTubeExtractionFailed(effect.item.videoId, error))
                 },
                 ifRight = { item ->
                     dispatch(GatekeeperAction.OpenNativePlayer(item))

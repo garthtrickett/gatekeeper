@@ -230,6 +230,7 @@ data class MediaState(
     val isNativePlayerMaximized: Boolean = false,
     val isWebEngineReady: Boolean = false,
     val currentSurgicalUrl: String? = null,
+    val extractingYouTubeVideoId: String? = null,
     val activeFacebookUrl: String? = null,
     val activePinnedWebsiteUrl: String? = null,
 )
