@@ -487,6 +487,19 @@ private fun reduceInterception(
                 slice.copy(activeWhitelists = emptyMap())
             }
 
+            is GatekeeperAction.GrantTemporaryCallWhitelist -> {
+                val expiresAt = action.currentTimestamp + 15_000L // 15-second grace period
+                val newWhitelist =
+                    TemporaryWhitelist(
+                        packageName = action.packageName,
+                        reason = "INCOMING_CALL",
+                        grantedAtTimestamp = action.currentTimestamp,
+                        expiresAtTimestamp = expiresAt,
+                        allocatedDurationMillis = 15_000L,
+                    )
+                slice.copy(activeWhitelists = slice.activeWhitelists + (action.packageName to newWhitelist))
+            }
+
             is GatekeeperAction.ResetCheckIns -> {
                 effects.add(GatekeeperEffect.DbResetCheckIns(action.groupId))
                 slice

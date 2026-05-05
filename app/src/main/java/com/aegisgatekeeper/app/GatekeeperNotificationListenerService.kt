@@ -34,6 +34,17 @@ class GatekeeperNotificationListenerService : NotificationListenerService() {
             return // Safety Filter: Do not kill ongoing events or foreground services
         }
 
+        if (notification.category == Notification.CATEGORY_CALL) {
+            Log.i("Gatekeeper", "📞 Allowing incoming call notification from ${sbn.packageName}")
+            GatekeeperStateManager.dispatch(
+                GatekeeperAction.GrantTemporaryCallWhitelist(
+                    packageName = sbn.packageName,
+                    currentTimestamp = System.currentTimeMillis(),
+                ),
+            )
+            return // Do not cancel the call notification
+        }
+
         val packageName = sbn.packageName
 
         if (isAppBlocked(packageName)) {

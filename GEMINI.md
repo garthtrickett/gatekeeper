@@ -52,6 +52,8 @@ Before generating an edit, ask yourself these questions in order:
 
 14. Beware of Decorators and Macros: When replacing or inserting code directly above a struct, class, or function, your search block MUST include the decorators or macros (e.g., #[derive(...)], @Component, @Injectable) immediately preceding it. If you omit the decorators from the search block, your insertion will split the decorators from the entity they belong to, causing catastrophic compilation errors.
 
+"15. Copy, Don't Reconstruct: When creating a search block, do not re-type the code from memory or syntactic knowledge. You must copy the exact lines directly from the provided source file snapshot. This prevents subtle but fatal mismatches, such as using is MyObject when the code actually uses just MyObject in a when block for a Kotlin singleton. The patcher requires a literal string match, not syntactic equivalence."
+
     ```
 
 --- 

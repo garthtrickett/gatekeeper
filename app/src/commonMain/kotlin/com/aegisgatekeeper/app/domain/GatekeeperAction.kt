@@ -49,6 +49,11 @@ sealed interface GatekeeperAction {
         val packageName: String,
     ) : GatekeeperAction
 
+    data class GrantTemporaryCallWhitelist(
+        val packageName: String,
+        val currentTimestamp: Long,
+    ) : GatekeeperAction
+
     data class SetCustomInterceptionMessage(
         val packageName: String,
         val message: String,
