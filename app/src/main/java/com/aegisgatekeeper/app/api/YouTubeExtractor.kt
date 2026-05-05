@@ -420,4 +420,93 @@ class YouTubeExtractor(private val client: HttpClient) {
         return "Extraction Failed: Local Cobalt container is unreachable. Is Docker running on port 9099?".left()
     }
 }
+package com.aegisgatekeeper.app.api
+
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
+import com.aegisgatekeeper.app.di.Singleton
+import com.aegisgatekeeper.app.domain.ContentItem
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.request.header
+import io.ktor.http.contentType
+import io.ktor.client.statement.bodyAsText
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import me.tatarka.inject.annotations.Inject
+
+@Serializable
+data class CobaltRequest(
+    val url: String
+)
+
+@Serializable
+data class CobaltError(
+    val code: String? = null
+)
+
+@Serializable
+data class CobaltResponse(
+    val status: String? = null,
+    val url: String? = null,
+    val error: CobaltError? = null
+)
+
+@Inject
+@Singleton
+class YouTubeExtractor(private val client: HttpClient) {
+    private val parser = Json { ignoreUnknownKeys = true }
+
+    private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
+        try {
+            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Trying Local Cobalt ($endpoint)")
+            val response = client.post(endpoint) {
+                contentType(io.ktor.http.ContentType.Application.Json)
+                header("Accept", "application/json")
+                setBody(CobaltRequest(url = "https://www.youtube.com/watch?v=$videoId"))
+                timeout {
+                    requestTimeoutMillis = 8000
+                    connectTimeoutMillis = 5000
+                }
+            }
+
+            val text = response.bodyAsText()
+            if (response.status.value in 200..299) {
+                val cobaltResponse = parser.decodeFromString(CobaltResponse.serializer(), text)
+                if ((cobaltResponse.status == "tunnel" || cobaltResponse.status == "redirect") && cobaltResponse.url != null) {
+                    return cobaltResponse.url
+                }
+            }
+        } catch (e: Exception) {
+            // Silent fail to move to next local endpoint
+        }
+        return null
+    }
+
+    suspend fun extractVideo(item: ContentItem): Either<String, ContentItem> {
+        if (com.aegisgatekeeper.app.App.isRunningTest) {
+            val placeholderStreamUrl = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
+            return item.copy(localFilePath = placeholderStreamUrl).right()
+        }
+
+        val localEndpoints = listOf(
+            "http://10.0.2.2:9099/",   // Android Emulator
+            "http://localhost:9099/",  // Desktop UI
+            "http://127.0.0.1:9099/"   // Physical Android via ADB Reverse
+        )
+
+        for (endpoint in localEndpoints) {
+            val url = tryCobalt(endpoint, item.videoId)
+            if (url != null) {
+                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found stream via $endpoint")
+                return item.copy(localFilePath = url).right()
+            }
+        }
+
+        return "Extraction Failed: Local Cobalt container is unreachable. Is Docker running on port 9099?".left()
+    }
+}
 
