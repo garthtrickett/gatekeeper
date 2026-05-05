@@ -922,9 +922,9 @@ private fun reduceMedia(
             }
 
             is GatekeeperAction.PlayYouTubeVideo -> {
-                effects.add(GatekeeperEffect.EmitAction(GatekeeperAction.OpenCleanPlayer(action.videoId)))
-                slice
-            }
+ effects.add(GatekeeperEffect.FetchYouTubeStream(action.videoId))
+ slice
+ }
 
             
 

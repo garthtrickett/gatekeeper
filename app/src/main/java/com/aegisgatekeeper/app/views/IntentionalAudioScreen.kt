@@ -158,8 +158,8 @@ fun IntentionalContentScreen() {
                                             when (item.contentItem.type) {
                                                 com.aegisgatekeeper.app.domain.ContentType.VIDEO -> {
                                                     GatekeeperStateManager.dispatch(
-                                                        GatekeeperAction.OpenCleanPlayer(item.contentItem.videoId),
-                                                    )
+ GatekeeperAction.PlayYouTubeVideo(item.contentItem.videoId),
+ )
                                                 }
 
                                                 com.aegisgatekeeper.app.domain.ContentType.AUDIO -> {
