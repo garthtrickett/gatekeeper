@@ -16,10 +16,12 @@ class PodcastMediaService : MediaSessionService() {
             override fun onCreate() {
         super.onCreate()
         
-        // Mask as Chrome to avoid 403 Forbidden from YouTube servers
+                // Mask as Chrome to avoid 403 Forbidden from YouTube servers
         val dataSourceFactory = androidx.media3.datasource.DefaultHttpDataSource.Factory()
             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36")
             .setAllowCrossProtocolRedirects(true)
+            .setConnectTimeoutMs(30000)
+            .setReadTimeoutMs(30000)
 
         val cacheDataSourceFactory =
             androidx.media3.datasource.cache.CacheDataSource

@@ -45,9 +45,9 @@ class YouTubeExtractor(private val client: HttpClient) {
                 contentType(io.ktor.http.ContentType.Application.Json)
                 header("Accept", "application/json")
                 setBody(CobaltRequest(url = requestUrl))
-                timeout {
-                    requestTimeoutMillis = 15000
-                    connectTimeoutMillis = 10000
+                                timeout {
+                    requestTimeoutMillis = 30000
+                    connectTimeoutMillis = 2000
                 }
             }
 
@@ -89,9 +89,10 @@ class YouTubeExtractor(private val client: HttpClient) {
 
         // For Physical Device + ADB Reverse, we only care about localhost.
         // We try 127.0.0.1 as well because some Android versions handle it better than 'localhost'.
-        val localEndpoints = listOf(
+                val localEndpoints = listOf(
+            "http://localhost:9099/",
             "http://127.0.0.1:9099/",
-            "http://localhost:9099/"
+            "http://10.0.2.2:9099/"
         )
 
         for (endpoint in localEndpoints) {

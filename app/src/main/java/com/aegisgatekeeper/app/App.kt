@@ -71,13 +71,14 @@ class App :
         val downloadDirectory = File(getExternalFilesDir(null), "downloads")
         downloadCache = SimpleCache(downloadDirectory, NoOpCacheEvictor(), databaseProvider)
 
-        downloadManager =
+                downloadManager =
             DownloadManager(
                 this,
                 databaseProvider,
                 downloadCache,
-                androidx.media3.datasource.DefaultHttpDataSource
-                    .Factory(),
+                androidx.media3.datasource.DefaultHttpDataSource.Factory()
+                    .setConnectTimeoutMs(30000)
+                    .setReadTimeoutMs(30000),
                 Executors.newFixedThreadPool(6),
             )
     }
