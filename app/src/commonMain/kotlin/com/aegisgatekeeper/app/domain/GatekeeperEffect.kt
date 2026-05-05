@@ -304,8 +304,13 @@ sealed interface GatekeeperEffect {
 
     object ClearToken : GatekeeperEffect
 
-    data class RequestMagicLink(
+        data class RequestMagicLink(
         val email: String,
+    ) : GatekeeperEffect
+
+    // Utility Effects
+    data class EmitAction(
+        val action: GatekeeperAction,
     ) : GatekeeperEffect
 
     // Utility Effects

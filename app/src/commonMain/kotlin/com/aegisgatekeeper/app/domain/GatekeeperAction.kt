@@ -185,6 +185,8 @@ sealed interface GatekeeperAction {
         val id: String,
     ) : GatekeeperAction
 
+        data class PlayYouTubeVideo(val videoId: String) : GatekeeperAction
+
     data class SaveMediaPosition(
         val mediaId: String,
         val positionSeconds: Float,

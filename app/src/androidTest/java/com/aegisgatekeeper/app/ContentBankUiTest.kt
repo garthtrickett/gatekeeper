@@ -319,6 +319,49 @@ class ContentBankUiTest {
     }
 
     @Test
+        @Test
+    fun testContentBank_YouTubeItem_PlaysInCleanPlayer() {
+        // Arrange
+        val youtubeVideoId = "dQw4w9WgXcQ"
+        GatekeeperStateManager.dispatch(
+            GatekeeperAction.SaveToContentBank(
+                videoId = youtubeVideoId,
+                title = "Test YouTube Video",
+                source = ContentSource.YOUTUBE,
+                type = ContentType.VIDEO,
+                currentTimestamp = 1000L,
+            ),
+        )
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                val state by GatekeeperStateManager.state.collectAsState()
+                ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
+                if (state.media.activeVideoId != null) {
+                    com.aegisgatekeeper.app.views.CleanPlayerModal(
+                        videoId = state.media.activeVideoId!!,
+                        isVisible = true,
+                        onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },
+                        onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) },
+                    )
+                }
+            }
+        }
+
+        // Act: Click the play button for our new item.
+        composeTestRule.onNodeWithText("Play").performClick()
+        composeTestRule.waitForIdle()
+
+        // Assert: The state manager should now have an active video ID
+        val state = GatekeeperStateManager.state.value
+        com.google.common.truth.Truth
+            .assertThat(state.media.activeVideoId)
+            .isEqualTo(youtubeVideoId)
+
+        // Assert: The modal UI should be visible
+        composeTestRule.onNodeWithText("End Session").assertIsDisplayed()
+    }
+
     fun testContentBank_SoundCloudItem_PlaysInAudioPlayer() {
         // Arrange
         val soundcloudUrl = "https://soundcloud.com/test/track"

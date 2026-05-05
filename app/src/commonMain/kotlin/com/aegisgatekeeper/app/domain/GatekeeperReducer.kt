@@ -912,13 +912,18 @@ private fun reduceMedia(
                 slice.copy(activeDownloads = slice.activeDownloads - action.id)
             }
 
-            is GatekeeperAction.SaveMediaPosition -> {
+                        is GatekeeperAction.SaveMediaPosition -> {
                 if (action.positionSeconds == 0f) {
                     slice.copy(savedMediaPositions = slice.savedMediaPositions + (action.mediaId to 0f))
                 } else {
                     effects.add(GatekeeperEffect.DbSaveMediaPosition(action.mediaId, action.positionSeconds))
                     slice.copy(savedMediaPositions = slice.savedMediaPositions + (action.mediaId to action.positionSeconds))
                 }
+            }
+
+            is GatekeeperAction.PlayYouTubeVideo -> {
+                effects.add(GatekeeperEffect.EmitAction(GatekeeperAction.OpenCleanPlayer(action.videoId)))
+                slice
             }
 
             is GatekeeperAction.OpenCleanPlayer -> {
