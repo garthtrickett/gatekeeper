@@ -54,6 +54,8 @@ Before generating an edit, ask yourself these questions in order:
 
 "15. Copy, Don't Reconstruct: When creating a search block, do not re-type the code from memory or syntactic knowledge. You must copy the exact lines directly from the provided source file snapshot. This prevents subtle but fatal mismatches, such as using is MyObject when the code actually uses just MyObject in a when block for a Kotlin singleton. The patcher requires a literal string match, not syntactic equivalence."
 
+    16. The Snapshot is the Only Source of Truth: In sequential, multi-step refactoring tasks, you MUST assume your memory of the codebase is stale. The project snapshot provided at the beginning of each prompt is the only valid source for creating search blocks. Before generating an edit, always find the target file in the current snapshot and copy the necessary lines verbatim. Do not reconstruct code from memory or prior knowledge of the file. Failure to do so is the most common cause of patch failure.
+
     ```
 
 --- 
