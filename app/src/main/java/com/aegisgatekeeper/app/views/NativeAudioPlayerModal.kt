@@ -147,8 +147,18 @@ fun NativeAudioPlayerModal(
                                 isPlaying = isPlayingState
                             }
 
-                            override fun onPlaybackStateChanged(playbackState: Int) {
+                                                        override fun onPlaybackStateChanged(playbackState: Int) {
                                 isBuffering = playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_IDLE
+                            }
+
+                            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                                android.util.Log.e("Gatekeeper", "🚨 NativePlayer Error: Code ${error.errorCode} - ${error.errorCodeName}")
+                                android.util.Log.e("Gatekeeper", "🚨 NativePlayer Error Message: ${error.message}", error)
+                                val cause = error.cause
+                                if (cause is androidx.media3.datasource.HttpDataSource.HttpDataSourceException) {
+                                    android.util.Log.e("Gatekeeper", "🚨 NativePlayer HTTP Error: ${cause.message}")
+                                    android.util.Log.e("Gatekeeper", "🚨 NativePlayer HTTP DataSpec: ${cause.dataSpec.uri}")
+                                }
                             }
                         },
                     )

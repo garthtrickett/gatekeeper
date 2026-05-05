@@ -5,56 +5,22 @@ import arrow.core.left
 import arrow.core.right
 import com.aegisgatekeeper.app.di.Singleton
 import com.aegisgatekeeper.app.domain.ContentItem
-import com.aegisgatekeeper.app.domain.ContentSource
-import com.aegisgatekeeper.app.domain.ContentType
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.timeout
-import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.request.header
-
 import io.ktor.http.contentType
 import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import me.tatarka.inject.annotations.Inject
 
 @Serializable
-data class PipedAudioStream(
-    val url: String,
-    val format: String? = null,
-    val quality: String? = null,
-    val mimeType: String? = null
-)
-
-@Serializable
-data class PipedResponse(
-    val audioStreams: List<PipedAudioStream>? = null,
-    val error: String? = null
-)
-
-@Serializable
-data class InvidiousFormat(
-    val url: String,
-    val type: String? = null
-)
-
-@Serializable
-data class InvidiousResponse(
-    val adaptiveFormats: List<InvidiousFormat>? = null,
-    val formatStreams: List<InvidiousFormat>? = null
-)
-
-@Serializable
 data class CobaltRequest(
-    val url: String
+    val url: String,
+    val downloadMode: String = "audio",
+    val audioFormat: String = "mp3"
 )
 
 @Serializable
@@ -74,325 +40,44 @@ data class CobaltResponse(
 class YouTubeExtractor(private val client: HttpClient) {
     private val parser = Json { ignoreUnknownKeys = true }
 
-        private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
+    private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
         try {
-            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Trying Cobalt ($endpoint)")
+            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Trying Local Cobalt ($endpoint)")
             val response = client.post(endpoint) {
                 contentType(io.ktor.http.ContentType.Application.Json)
                 header("Accept", "application/json")
-                // Cobalt v10+ requires 'url' and optionally 'videoQuality'
                 setBody(CobaltRequest(url = "https://www.youtube.com/watch?v=$videoId"))
                 timeout {
-                    requestTimeoutMillis = 10000
-                    connectTimeoutMillis = 10000
+                    requestTimeoutMillis = 8000
+                    connectTimeoutMillis = 5000
                 }
             }
 
-                        val text = response.bodyAsText()
+            val text = response.bodyAsText()
+            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "🔍 Cobalt Response: $text")
+            
             if (response.status.value in 200..299) {
                 val cobaltResponse = parser.decodeFromString(CobaltResponse.serializer(), text)
                 
-                if ((cobaltResponse.status == "tunnel" || cobaltResponse.status == "redirect") && cobaltResponse.url != null) {
-                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found Cobalt stream")
-                    return cobaltResponse.url
-                } else {
-                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt returned status ${cobaltResponse.status} - ${cobaltResponse.error?.code}")
-                }
-            } else {
-                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt instance failed with status ${response.status.value}: $text")
-            }
-        } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt instance failed: ${e.message}")
-        }
-        return null
-    }
-
-        private suspend fun fetchDynamicCobaltInstances(): List<String> {
-        val endpoints = listOf(
-            "https://instances.cobalt.best/api/instances.json",
-            "https://cobalt.directory/instances.json"
-        )
-        
-        for (endpoint in endpoints) {
-            try {
-                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Fetching dynamic cobalt instance list from $endpoint...")
-                val response = client.get(endpoint) {
-                    timeout {
-                        requestTimeoutMillis = 5000
-                        connectTimeoutMillis = 5000
+                if (cobaltResponse.url != null && (cobaltResponse.status == "tunnel" || cobaltResponse.status == "redirect" || cobaltResponse.status == "stream")) {
+                    var finalUrl = cobaltResponse.url
+                    if (finalUrl.startsWith("/")) {
+                        finalUrl = "${endpoint.trimEnd('/')}$finalUrl"
                     }
-                }
-                if (response.status.value in 200..299) {
-                    val bodyText = response.bodyAsText()
-                    val instances = mutableListOf<String>()
                     
-                    try {
-                        val jsonElement = parser.decodeFromString(kotlinx.serialization.json.JsonElement.serializer(), bodyText)
-                        val array = if (jsonElement is JsonArray) {
-                            jsonElement
-                        } else if (jsonElement is kotlinx.serialization.json.JsonObject) {
-                            jsonElement["instances"]?.jsonArray ?: jsonElement.values.firstOrNull { it is JsonArray }?.jsonArray
-                        } else null
-                        
-                        array?.forEach { element ->
-                            if (element is kotlinx.serialization.json.JsonObject) {
-                                val api = element["api"]?.jsonPrimitive?.contentOrNull
-                                    ?: element["url"]?.jsonPrimitive?.contentOrNull
-                                    ?: element["domain"]?.jsonPrimitive?.contentOrNull
-                                if (api != null && api.isNotBlank() && api.startsWith("http")) {
-                                    instances.add(if (api.endsWith("/")) api else "$api/")
-                                }
-                            } else if (element is kotlinx.serialization.json.JsonPrimitive) {
-                                val api = element.contentOrNull
-                                if (api != null && api.isNotBlank() && api.startsWith("http")) {
-                                    instances.add(if (api.endsWith("/")) api else "$api/")
-                                }
-                            }
-                        }
-                    } catch (e: Exception) {
-                        com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Could not parse dynamic cobalt instances JSON.")
+                    // REWRITE LOGIC: Ensure the emulator always points to the host machine (10.0.2.2)
+                    // if Cobalt returns a loopback address.
+                    val isEmulator = endpoint.contains("10.0.2.2")
+                    if (isEmulator) {
+                        finalUrl = finalUrl.replace("localhost", "10.0.2.2").replace("127.0.0.1", "10.0.2.2")
                     }
-
-                    if (instances.isNotEmpty()) {
-                        com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found ${instances.size} dynamic cobalt instances from $endpoint.")
-                        return instances.shuffled()
-                    }
-                }
-            } catch (e: Exception) {
-                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Dynamic cobalt fetch failed from $endpoint: ${e.message}")
-            }
-        }
-        return emptyList()
-    }
-
-    private suspend fun fetchDynamicInvidiousInstances(): List<String> {
-        return try {
-            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Fetching dynamic instance list from api.invidious.io...")
-            val response = client.get("https://api.invidious.io/instances.json?sort_by=health") {
-                timeout {
-                    requestTimeoutMillis = 5000
-                    connectTimeoutMillis = 5000
-                }
-            }
-            if (response.status.value in 200..299) {
-                val jsonArray = parser.decodeFromString(JsonArray.serializer(), response.bodyAsText())
-                val instances = jsonArray.mapNotNull { element ->
-                    val tuple = element.jsonArray
-                    if (tuple.size >= 2) {
-                        val details = tuple[1].jsonObject
-                        val isApi = details["api"]?.jsonPrimitive?.booleanOrNull == true
-                        val uri = details["uri"]?.jsonPrimitive?.contentOrNull
-                        if (isApi && uri != null) uri else null
-                    } else null
-                }
-                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found ${instances.size} healthy dynamic instances.")
-                instances
-            } else {
-                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Dynamic fetch failed with status ${response.status.value}")
-                emptyList()
-            }
-        } catch (e: Exception) {
-            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Dynamic fetch failed: ${e.message}")
-            emptyList()
-        }
-    }
-
-    private suspend fun tryPiped(instance: String, videoId: String): String? {
-        try {
-            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Trying Piped ($instance)")
-            val response = client.get("$instance/streams/$videoId") {
-                timeout {
-                    requestTimeoutMillis = 5000
-                    connectTimeoutMillis = 5000
-                }
-            }
-
-            if (response.status.value in 200..299) {
-                val text = response.bodyAsText()
-                val pipedResponse = parser.decodeFromString(PipedResponse.serializer(), text)
-                
-                if (pipedResponse.error != null && pipedResponse.audioStreams.isNullOrEmpty()) return null
-
-                val stream = pipedResponse.audioStreams?.firstOrNull { it.format == "M4A" || it.mimeType?.contains("audio/mp4") == true }
-                    ?: pipedResponse.audioStreams?.firstOrNull()
-
-                if (stream != null) {
-                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found Piped stream")
-                    return stream.url
-                }
-            } else {
-                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Piped instance failed with status ${response.status.value}")
-            }
-        } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Piped instance failed: ${e.message}")
-        }
-        return null
-    }
-
-    private suspend fun tryInvidious(instance: String, videoId: String): String? {
-        try {
-            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Trying Invidious ($instance)")
-            val response = client.get("$instance/api/v1/videos/$videoId") {
-                timeout {
-                    requestTimeoutMillis = 5000
-                    connectTimeoutMillis = 5000
-                }
-            }
-
-            if (response.status.value in 200..299) {
-                val text = response.bodyAsText()
-                val invResponse = parser.decodeFromString(InvidiousResponse.serializer(), text)
-                
-                val stream = invResponse.adaptiveFormats?.firstOrNull { it.type?.startsWith("audio/mp4") == true }
-                    ?: invResponse.adaptiveFormats?.firstOrNull { it.type?.startsWith("audio/") == true }
-                    ?: invResponse.formatStreams?.firstOrNull()
-
-                if (stream != null) {
-                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found Invidious stream")
-                    return stream.url
-                }
-            } else {
-                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Invidious instance failed with status ${response.status.value}")
-            }
-        } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Invidious instance failed: ${e.message}")
-        }
-        return null
-    }
-
-            suspend fun extractVideo(item: ContentItem): Either<String, ContentItem> {
-        if (com.aegisgatekeeper.app.App.isRunningTest) {
-            val placeholderStreamUrl = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
-            return item.copy(localFilePath = placeholderStreamUrl).right()
-        }
-
-        // 0. Local Dev Bypass (Try your Docker container first)
-        if (com.aegisgatekeeper.app.domain.isDevEnvironment()) {
-            val localEndpoints = listOf(
-                "http://10.0.2.2:9099/", // Android Emulator Host Loopback
-                "http://localhost:9099/" // Desktop Localhost
-            )
-            for (endpoint in localEndpoints) {
-                val url = tryCobalt(endpoint, item.videoId)
-                if (url != null) return item.copy(localFilePath = url).right()
-            }
-        }
-
-        // 1. Try Cobalt API First (Most Reliable Media Downloader API)
-        val dynamicCobalt = fetchDynamicCobaltInstances()
-        val cobaltEndpoints = dynamicCobalt + listOf(
-            "https://cobalt-api.kwiatekmiki.com/",
-            "https://coapi.kelig.me/",
-            "https://ca.haloz.at/",
-            "https://cobalt-api.ayo.tf/",
-            "https://api.cobalt.tools/"
-        )
-        for (endpoint in cobaltEndpoints) {
-            val url = tryCobalt(endpoint, item.videoId)
-            if (url != null) return item.copy(localFilePath = url).right()
-        }
-
-        // 2. Try Dynamic Invidious Instances Next
-        val dynamicInvidious = fetchDynamicInvidiousInstances()
-        for (instance in dynamicInvidious) {
-            val url = tryInvidious(instance, item.videoId)
-            if (url != null) return item.copy(localFilePath = url).right()
-        }
-
-        // 3. Try Fallback Piped Instances
-        val fallbackPiped = listOf(
-            "https://pipedapi.kavin.rocks",
-            "https://pipedapi.leptons.xyz",
-            "https://pipedapi.smnz.de",
-            "https://pipedapi.adminforge.de",
-            "https://piped-api.lunar.icu"
-        )
-        for (instance in fallbackPiped) {
-            val url = tryPiped(instance, item.videoId)
-            if (url != null) return item.copy(localFilePath = url).right()
-        }
-
-        // 4. Try Fallback Invidious Instances (if dynamic failed)
-        val fallbackInvidious = listOf(
-            "https://invidious.lunar.icu",
-            "https://inv.tux.pizza",
-            "https://invidious.projectsegfau.lt",
-            "https://yewtu.be"
-        )
-        for (instance in fallbackInvidious) {
-            if (dynamicInvidious.contains(instance)) continue // Skip if already tried
-            val url = tryInvidious(instance, item.videoId)
-            if (url != null) return item.copy(localFilePath = url).right()
-        }
-
-        return "Could not extract YouTube stream from any available instance (Local, Cobalt, Invidious, Piped)".left()
-    }
-}
-package com.aegisgatekeeper.app.api
-
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
-import com.aegisgatekeeper.app.di.Singleton
-import com.aegisgatekeeper.app.domain.ContentItem
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.timeout
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.request.header
-import io.ktor.http.contentType
-import io.ktor.client.statement.bodyAsText
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import me.tatarka.inject.annotations.Inject
-
-@Serializable
-data class CobaltRequest(
-    val url: String
-)
-
-@Serializable
-data class CobaltError(
-    val code: String? = null
-)
-
-@Serializable
-data class CobaltResponse(
-    val status: String? = null,
-    val url: String? = null,
-    val error: CobaltError? = null
-)
-
-@Inject
-@Singleton
-class YouTubeExtractor(private val client: HttpClient) {
-    private val parser = Json { ignoreUnknownKeys = true }
-
-    private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
-        try {
-            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Trying Local Cobalt ($endpoint)")
-            val response = client.post(endpoint) {
-                contentType(io.ktor.http.ContentType.Application.Json)
-                header("Accept", "application/json")
-                setBody(CobaltRequest(url = "https://www.youtube.com/watch?v=$videoId"))
-                timeout {
-                    requestTimeoutMillis = 8000
-                    connectTimeoutMillis = 5000
-                }
-            }
-
-            val text = response.bodyAsText()
-            if (response.status.value in 200..299) {
-                val cobaltResponse = parser.decodeFromString(CobaltResponse.serializer(), text)
-                if ((cobaltResponse.status == "tunnel" || cobaltResponse.status == "redirect") && cobaltResponse.url != null) {
-                    return cobaltResponse.url
+                    
+                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found stream -> $finalUrl")
+                    return finalUrl
                 }
             }
         } catch (e: Exception) {
-            // Silent fail to move to next local endpoint
+            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Exception connecting to $endpoint - ${e.message}")
         }
         return null
     }
@@ -403,110 +88,20 @@ class YouTubeExtractor(private val client: HttpClient) {
             return item.copy(localFilePath = placeholderStreamUrl).right()
         }
 
+        // We try the emulator-specific host loopback FIRST
         val localEndpoints = listOf(
-            "http://10.0.2.2:9099/",   // Android Emulator
-            "http://localhost:9099/",  // Desktop UI
-            "http://127.0.0.1:9099/"   // Physical Android via ADB Reverse
+            "http://10.0.2.2:9099/",
+            "http://localhost:9099/",
+            "http://127.0.0.1:9099/"
         )
 
         for (endpoint in localEndpoints) {
             val url = tryCobalt(endpoint, item.videoId)
             if (url != null) {
-                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found stream via $endpoint")
                 return item.copy(localFilePath = url).right()
             }
         }
 
-        return "Extraction Failed: Local Cobalt container is unreachable. Is Docker running on port 9099?".left()
+        return "Extraction Failed: Local Cobalt container is unreachable or returned an error.".left()
     }
 }
-package com.aegisgatekeeper.app.api
-
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
-import com.aegisgatekeeper.app.di.Singleton
-import com.aegisgatekeeper.app.domain.ContentItem
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.timeout
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.request.header
-import io.ktor.http.contentType
-import io.ktor.client.statement.bodyAsText
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import me.tatarka.inject.annotations.Inject
-
-@Serializable
-data class CobaltRequest(
-    val url: String
-)
-
-@Serializable
-data class CobaltError(
-    val code: String? = null
-)
-
-@Serializable
-data class CobaltResponse(
-    val status: String? = null,
-    val url: String? = null,
-    val error: CobaltError? = null
-)
-
-@Inject
-@Singleton
-class YouTubeExtractor(private val client: HttpClient) {
-    private val parser = Json { ignoreUnknownKeys = true }
-
-    private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
-        try {
-            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Trying Local Cobalt ($endpoint)")
-            val response = client.post(endpoint) {
-                contentType(io.ktor.http.ContentType.Application.Json)
-                header("Accept", "application/json")
-                setBody(CobaltRequest(url = "https://www.youtube.com/watch?v=$videoId"))
-                timeout {
-                    requestTimeoutMillis = 8000
-                    connectTimeoutMillis = 5000
-                }
-            }
-
-            val text = response.bodyAsText()
-            if (response.status.value in 200..299) {
-                val cobaltResponse = parser.decodeFromString(CobaltResponse.serializer(), text)
-                if ((cobaltResponse.status == "tunnel" || cobaltResponse.status == "redirect") && cobaltResponse.url != null) {
-                    return cobaltResponse.url
-                }
-            }
-        } catch (e: Exception) {
-            // Silent fail to move to next local endpoint
-        }
-        return null
-    }
-
-    suspend fun extractVideo(item: ContentItem): Either<String, ContentItem> {
-        if (com.aegisgatekeeper.app.App.isRunningTest) {
-            val placeholderStreamUrl = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
-            return item.copy(localFilePath = placeholderStreamUrl).right()
-        }
-
-        val localEndpoints = listOf(
-            "http://10.0.2.2:9099/",   // Android Emulator
-            "http://localhost:9099/",  // Desktop UI
-            "http://127.0.0.1:9099/"   // Physical Android via ADB Reverse
-        )
-
-        for (endpoint in localEndpoints) {
-            val url = tryCobalt(endpoint, item.videoId)
-            if (url != null) {
-                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found stream via $endpoint")
-                return item.copy(localFilePath = url).right()
-            }
-        }
-
-        return "Extraction Failed: Local Cobalt container is unreachable. Is Docker running on port 9099?".left()
-    }
-}
-

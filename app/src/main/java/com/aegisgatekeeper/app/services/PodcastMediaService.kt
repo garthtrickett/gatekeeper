@@ -13,14 +13,20 @@ import com.aegisgatekeeper.app.App
 class PodcastMediaService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
 
-    override fun onCreate() {
+        override fun onCreate() {
         super.onCreate()
+        
+        // CRITICAL: Mask ExoPlayer as a standard desktop browser so YouTube doesn't throw 403 Forbidden
+        val dataSourceFactory = androidx.media3.datasource.DefaultHttpDataSource.Factory()
+            .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36")
+            .setAllowCrossProtocolRedirects(true)
+
         val cacheDataSourceFactory =
-            CacheDataSource
+            androidx.media3.datasource.cache.CacheDataSource
                 .Factory()
                 .setCache(App.downloadCache)
-                .setUpstreamDataSourceFactory(DefaultHttpDataSource.Factory())
-                .setCacheWriteDataSinkFactory(null) // Do not write to cache during playback
+                .setUpstreamDataSourceFactory(dataSourceFactory)
+                .setCacheWriteDataSinkFactory(null)
 
         val audioAttributes =
             androidx.media3.common.AudioAttributes
@@ -32,8 +38,8 @@ class PodcastMediaService : MediaSessionService() {
         val player =
             ExoPlayer
                 .Builder(this)
-                .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSourceFactory))
-                .setAudioAttributes(audioAttributes, true) // Enable Audio Focus!
+                .setMediaSourceFactory(androidx.media3.exoplayer.source.DefaultMediaSourceFactory(cacheDataSourceFactory))
+                .setAudioAttributes(audioAttributes, true)
                 .build()
         val intent =
             Intent(this, com.aegisgatekeeper.app.MainActivity::class.java).apply {
