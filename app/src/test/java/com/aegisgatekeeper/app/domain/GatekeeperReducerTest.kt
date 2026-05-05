@@ -581,18 +581,18 @@ class GatekeeperReducerTest {
         assertThat(whitelist.expiresAtTimestamp).isEqualTo(100_000L + 15_000L)
     }
 
-    @Test
-    fun testOpenCleanPlayer_setsActiveVideoId() {
-        val action = GatekeeperAction.OpenCleanPlayer("testVideoId")
+        @Test
+    fun testOpenCleanAudioPlayer_setsActiveAudioUrl() {
+        val action = GatekeeperAction.OpenCleanAudioPlayer("https://soundcloud.com/test")
         val newState = reduce(initialState, action).state
-        assertThat(newState.media.activeVideoId).isEqualTo("testVideoId")
+        assertThat(newState.media.activeAudioUrl).isEqualTo("https://soundcloud.com/test")
     }
 
     @Test
-    fun testCloseCleanPlayer_clearsActiveVideoId() {
-        val stateBefore = initialState.copy(media = initialState.media.copy(activeVideoId = "testVideoId"))
-        val newState = reduce(stateBefore, GatekeeperAction.StopCleanPlayer).state
-        assertThat(newState.media.activeVideoId).isNull()
+    fun testStopCleanAudioPlayer_clearsActiveAudioUrl() {
+        val stateBefore = initialState.copy(media = initialState.media.copy(activeAudioUrl = "https://soundcloud.com/test"))
+        val newState = reduce(stateBefore, GatekeeperAction.StopCleanAudioPlayer).state
+        assertThat(newState.media.activeAudioUrl).isNull()
     }
 
     @Test

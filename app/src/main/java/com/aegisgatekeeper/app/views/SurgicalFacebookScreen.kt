@@ -36,8 +36,6 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 
 @SuppressLint("SetJavaScriptEnabled")
 @Suppress("FunctionName")
-@SuppressLint("SetJavaScriptEnabled")
-@Suppress("FunctionName")
 @Composable
 fun SurgicalFacebookScreen(
     url: String,
