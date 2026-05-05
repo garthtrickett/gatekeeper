@@ -4,6 +4,8 @@ import android.content.Context
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.api.PodcastIndexClient
 import com.aegisgatekeeper.app.api.RssClient
+import com.aegisgatekeeper.app.api.YouTubeExtractor
+
 import com.aegisgatekeeper.app.api.UrlMetadataClient
 import com.aegisgatekeeper.app.auth.AndroidTokenProvider
 import com.aegisgatekeeper.app.auth.TokenProvider
@@ -35,6 +37,7 @@ abstract class AndroidApplicationComponent(
     abstract val podcastIndexClient: PodcastIndexClient
     abstract val rssClient: RssClient
     abstract val urlMetadataClient: UrlMetadataClient
+    abstract val youtubeExtractor: YouTubeExtractor
 
     @Provides
     @Singleton

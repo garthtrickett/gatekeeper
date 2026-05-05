@@ -23,7 +23,7 @@ Before generating an edit, ask yourself these questions in order:
 4.  **Am I migrating a file, deleting a function, or gutting a file completely?**
     *   YES: **NEVER** just rename the signature while leaving the old body intact. Orphaned code blocks will trigger "Unresolved reference" and syntax errors during compilation.
     *   **The Protocol:**
-        *   **Option A (Whole File):** If the entire file is obsolete, do not use JSON patches. Ask the user to delete it via a bash block (e.g., `rm app/src/main/java/.../LegacyFile.kt`).
+        *   **Option A (Whole File):** If the entire file is obsolete, use the **`delete`** strategy within the JSON patch. This is preferred over bash blocks as it ensures the deletion is part of the atomic patch transaction.
         *   **Option B (Specific Entities):** If you must neutralize specific functions or classes within a file, use `replace_class`, `replace_object`, or `replace_function` to replace the ENTIRE entity (signature AND body) with an empty stub.
         *   *Example Replacement:* `fun deleted_oldFunction() {}`
         *   🚨 NEVER use multi-step `smart_replace` to inject `/*` and `*/` to comment out files. The end-of-file whitespace makes matching the bottom comment impossible.
@@ -104,6 +104,18 @@ To create a new file, use a single `smart_replace` edit with an empty `search` s
   "type": "smart_replace",
   "search": "",
   "replace": "package com.aegisgatekeeper.app\\n\\nclass NewFile {\\n}"
+}
+```
+
+**4. `delete`**
+Use this to remove an obsolete file from the project. It does not require a `search` or `replace` field.
+
+```json
+{
+  "file_path": "app/src/main/java/com/aegisgatekeeper/app/OldFile.kt",
+  "edits": [
+    { "type": "delete" }
+  ]
 }
 ```
 

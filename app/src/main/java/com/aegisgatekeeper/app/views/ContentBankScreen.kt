@@ -542,7 +542,7 @@ private fun ContentItemCard(
                             onClick = {
                                 when (item.source) {
                                     ContentSource.YOUTUBE -> {
-                                                                                GatekeeperStateManager.dispatch(GatekeeperAction.PlayYouTubeVideo(item.videoId))
+                                        GatekeeperStateManager.dispatch(GatekeeperAction.PlayYouTubeVideo(item.videoId))
                                     }
 
                                     ContentSource.SOUNDCLOUD -> {
