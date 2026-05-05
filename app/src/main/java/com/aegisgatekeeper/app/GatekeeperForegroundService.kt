@@ -250,57 +250,7 @@ class GatekeeperForegroundService : Service() {
                 .setAutoCancel(true)
                 .build()
 
-        manager.notify(groupName.hashCode(), notification)
-    }
-        groupName: String,
-        time: Int,
-        deliveredMailCount: Int = 0,
-    ) {
-        val channelId = "gatekeeper_phase_channel"
-        val manager = getSystemService(NotificationManager::class.java)
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel =
-                NotificationChannel(
-                    channelId,
-                    "Phase Transitions",
-                    NotificationManager.IMPORTANCE_DEFAULT,
-                )
-            manager.createNotificationChannel(channel)
-        }
-
-        val intent =
-            Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
-        val pendingIntent =
-            android.app.PendingIntent.getActivity(
-                this,
-                0,
-                intent,
-                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE,
-            )
-
-        val timeString = String.format("%02d:%02d", time / 60, time % 60)
-
-        val text =
-            if (deliveredMailCount > 0) {
-                "A check-in token for $groupName is now available ($timeString). $deliveredMailCount messages delivered to the Digest."
-            } else {
-                "A check-in token for $groupName is now available ($timeString)."
-            }
-
-        val notification =
-            NotificationCompat
-                .Builder(this, channelId)
-                .setContentTitle("Check-In Available")
-                .setContentText(text)
-                .setSmallIcon(android.R.drawable.ic_secure)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true)
-                .build()
-
-        manager.notify(groupName.hashCode(), notification)
+                manager.notify(groupName.hashCode(), notification)
     }
 
         private fun sendGatheringNotification(vaultCount: Int) {
