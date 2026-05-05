@@ -94,15 +94,22 @@ fun NativeAudioPlayerModal(
                 val mediaController = controllerFuture?.get()
                 controller = mediaController
                 mediaController?.let { mc ->
-                    val isAlreadyPlayingThis = mc.currentMediaItem?.mediaId == contentItem.videoId
+                                    val isAlreadyPlayingThis = mc.currentMediaItem?.mediaId == contentItem.videoId
 
                     if (!isAlreadyPlayingThis) {
                         android.util.Log.d("Gatekeeper", "🎵 NativePlayer: Initializing new media session for ${contentItem.title}")
+                        val uriToPlay =
+                            if (contentItem.type == com.aegisgatekeeper.app.domain.ContentType.VIDEO) {
+                                contentItem.localFilePath // For YouTube, this holds the stream URL
+                            } else {
+                                contentItem.localFilePath ?: contentItem.videoId // For Audio, check for downloaded file first
+                            }
+
                         val mediaItem =
                             MediaItem
                                 .Builder()
-                                .setMediaId(contentItem.videoId)
-                                .setUri(contentItem.videoId)
+                                .setMediaId(contentItem.videoId) // Unique ID for session
+                                .setUri(uriToPlay) // URL to play
                                 .setMediaMetadata(
                                     MediaMetadata
                                         .Builder()
@@ -282,22 +289,30 @@ fun NativeAudioPlayerModal(
                             }
                         }
 
-                        Column(
+                                                Column(
                             modifier = Modifier.fillMaxSize().padding(32.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
                         ) {
-                            artworkUrl?.let { url ->
+                            if (artworkUrl != null) {
                                 Card(modifier = Modifier.size(240.dp), shape = MaterialTheme.shapes.medium) {
                                     KamelImage(
-                                        resource = asyncPainterResource(data = url),
+                                        resource = asyncPainterResource(data = artworkUrl),
                                         contentDescription = "Podcast Artwork",
                                         modifier = Modifier.fillMaxSize(),
                                         contentScale = ContentScale.Crop,
                                     )
                                 }
-                                Spacer(modifier = Modifier.height(32.dp))
+                            } else {
+                                // Placeholder for YouTube videos
+                                Box(
+                                    modifier = Modifier.size(240.dp).background(Color.Black, shape = MaterialTheme.shapes.medium),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text("🎬", fontSize = 120.sp)
+                                }
                             }
+                            Spacer(modifier = Modifier.height(32.dp))
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                                 Text(
                                     contentItem.title,
