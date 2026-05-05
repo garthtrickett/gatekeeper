@@ -351,4 +351,38 @@ class DualMoatIntegrationTest {
                 stateManager.state.value.interception.activeBlockReason,
             ).isEqualTo("Policy Violation: Time Limit Reached (0m left, used 0/0m) for 'Test Group'")
         }
+
+    @Test
+    fun whenIncomingCallIsDetected_grantsTemporaryGracePeriod() =
+        runTest {
+            // Arrange: An app that is normally blocked with an AlwaysBlock rule
+            val rule = BlockingRule.AlwaysBlock(id = "test-rule", groupId = "test-group-id")
+            val group =
+                stateManager.state.value.interception.appGroups
+                    .first()
+            val updatedGroup = group.copy(rules = listOf(rule))
+            val stateWithRule =
+                GatekeeperState(
+                    interception =
+                        com.aegisgatekeeper.app.domain
+                            .InterceptionState(appGroups = listOf(updatedGroup)),
+                )
+
+            val stateFlowField = stateManager.javaClass.getDeclaredField("_state")
+            stateFlowField.isAccessible = true
+            @Suppress("UNCHECKED_CAST")
+            (stateFlowField.get(stateManager) as kotlinx.coroutines.flow.MutableStateFlow<GatekeeperState>).value = stateWithRule
+
+            // Act: Dispatch the action that the NotificationListenerService would send
+            stateManager.dispatch(GatekeeperAction.GrantTemporaryCallWhitelist(testAppPackage, System.currentTimeMillis()))
+
+            // Act: Now, simulate the app coming to the foreground. The evaluator should see the whitelist.
+            com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(
+                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext,
+                testAppPackage,
+            )
+
+            // Assert: The overlay should NOT be active because of the temporary whitelist.
+            assertThat(stateManager.state.value.interception.isOverlayActive).isFalse()
+        }
 }

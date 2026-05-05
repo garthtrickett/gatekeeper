@@ -571,6 +571,17 @@ class GatekeeperReducerTest {
     }
 
     @Test
+    fun `GrantTemporaryCallWhitelist adds a 15-second whitelist`() {
+        val action = GatekeeperAction.GrantTemporaryCallWhitelist(blacklistedApp, 100_000L)
+        val newState = reduce(initialState, action).state
+
+        val whitelist = newState.interception.activeWhitelists[blacklistedApp]
+        assertThat(whitelist).isNotNull()
+        assertThat(whitelist!!.reason).isEqualTo("INCOMING_CALL")
+        assertThat(whitelist.expiresAtTimestamp).isEqualTo(100_000L + 15_000L)
+    }
+
+    @Test
     fun testOpenCleanPlayer_setsActiveVideoId() {
         val action = GatekeeperAction.OpenCleanPlayer("testVideoId")
         val newState = reduce(initialState, action).state
