@@ -239,22 +239,33 @@ class GatekeeperReducerTest {
         assertThat(genericEffect.isGeneric).isTrue()
     }
 
-    @Test
-    fun testAddEpisodeToBank_EmitsActionChainingEffect() {
+        @Test
+    fun testAddEpisodeToBank_AppendsToContentBankAndEmitsDbEffect() {
         val episode = CachedEpisode("1", "pod1", "Test Ep", "https://audio.mp3", 3600L, "Jan 1")
         val action = GatekeeperAction.AddEpisodeToBank(episode, "pod1", "My Podcast")
 
         val update = reduce(initialState, action)
+        val newState = update.state
 
-        // Verify it emits a follow-up action to save the content
-        val emitEffect = update.effects.filterIsInstance<GatekeeperEffect.EmitAction>().first()
-        val chainedAction = emitEffect.action as GatekeeperAction.SaveToContentBank
+        // 1. Verify a ContentItem is added to the state
+        assertThat(newState.data.contentItems).hasSize(1)
+        val newItem = newState.data.contentItems.first()
 
-        assertThat(chainedAction.title).isEqualTo("Test Ep")
-        assertThat(chainedAction.videoId).isEqualTo("https://audio.mp3")
-        assertThat(chainedAction.channelName).isEqualTo("My Podcast")
-        assertThat(chainedAction.source).isEqualTo(ContentSource.GENERIC)
-        assertThat(chainedAction.type).isEqualTo(ContentType.AUDIO)
+        // 2. Verify its properties are correct
+        assertThat(newItem.title).isEqualTo("Test Ep")
+        assertThat(newItem.videoId).isEqualTo("https://audio.mp3")
+        assertThat(newItem.channelName).isEqualTo("My Podcast")
+        assertThat(newItem.source).isEqualTo(ContentSource.GENERIC)
+        assertThat(newItem.type).isEqualTo(ContentType.AUDIO)
+        assertThat(newItem.podcastId).isEqualTo("pod1")
+        assertThat(newItem.durationSeconds).isEqualTo(3600L)
+
+        // 3. Verify the correct database effect is emitted
+        assertThat(update.effects).hasSize(1)
+        val dbEffect = update.effects.first()
+        assertThat(dbEffect).isInstanceOf(GatekeeperEffect.DbUpsertContentItem::class.java)
+        val upsertEffect = dbEffect as GatekeeperEffect.DbUpsertContentItem
+        assertThat(upsertEffect.item).isEqualTo(newItem)
     }
 
     @Test
