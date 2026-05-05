@@ -10,6 +10,11 @@ import com.aegisgatekeeper.app.domain.ContentType
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.request.header
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -47,10 +52,56 @@ data class InvidiousResponse(
     val formatStreams: List<InvidiousFormat>? = null
 )
 
+@Serializable
+data class CobaltRequest(
+    val url: String,
+    val isAudioOnly: Boolean = false
+)
+
+@Serializable
+data class CobaltResponse(
+    val status: String? = null,
+    val url: String? = null,
+    val text: String? = null
+)
+
 @Inject
 @Singleton
 class YouTubeExtractor(private val client: HttpClient) {
     private val parser = Json { ignoreUnknownKeys = true }
+
+    private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
+        try {
+            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Trying Cobalt ($endpoint)")
+            val response = client.post(endpoint) {
+                contentType(ContentType.Application.Json)
+                header("Accept", "application/json")
+                setBody(CobaltRequest(url = "https://www.youtube.com/watch?v=$videoId"))
+                timeout {
+                    requestTimeoutMillis = 8000
+                    connectTimeoutMillis = 8000
+                }
+            }
+
+            if (response.status.value in 200..299) {
+                val text = response.bodyAsText()
+                val cobaltResponse = parser.decodeFromString(CobaltResponse.serializer(), text)
+                
+                if ((cobaltResponse.status == "stream" || cobaltResponse.status == "redirect") && cobaltResponse.url != null) {
+                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found Cobalt stream")
+                    return cobaltResponse.url
+                } else {
+                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt returned status ${cobaltResponse.status}")
+                }
+            } else {
+                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt instance failed with status ${response.status.value}")
+            }
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt instance failed: ${e.message}")
+        }
+        return null
+    }
 
     private suspend fun fetchDynamicInvidiousInstances(): List<String> {
         return try {
@@ -155,14 +206,25 @@ class YouTubeExtractor(private val client: HttpClient) {
             return item.copy(localFilePath = placeholderStreamUrl).right()
         }
 
-        // 1. Try Dynamic Invidious Instances First
+        // 1. Try Cobalt API First (Most Reliable Media Downloader API)
+        val cobaltEndpoints = listOf(
+            "https://api.cobalt.tools/",
+            "https://co.wuk.sh/",
+            "https://api.cobalt.tux.pizza/"
+        )
+        for (endpoint in cobaltEndpoints) {
+            val url = tryCobalt(endpoint, item.videoId)
+            if (url != null) return item.copy(localFilePath = url).right()
+        }
+
+        // 2. Try Dynamic Invidious Instances Next
         val dynamicInvidious = fetchDynamicInvidiousInstances()
         for (instance in dynamicInvidious) {
             val url = tryInvidious(instance, item.videoId)
             if (url != null) return item.copy(localFilePath = url).right()
         }
 
-        // 2. Try Fallback Piped Instances
+        // 3. Try Fallback Piped Instances
         val fallbackPiped = listOf(
             "https://pipedapi.kavin.rocks",
             "https://pipedapi.leptons.xyz",
@@ -175,7 +237,7 @@ class YouTubeExtractor(private val client: HttpClient) {
             if (url != null) return item.copy(localFilePath = url).right()
         }
 
-        // 3. Try Fallback Invidious Instances (if dynamic failed)
+        // 4. Try Fallback Invidious Instances (if dynamic failed)
         val fallbackInvidious = listOf(
             "https://invidious.lunar.icu",
             "https://inv.tux.pizza",
@@ -183,11 +245,11 @@ class YouTubeExtractor(private val client: HttpClient) {
             "https://yewtu.be"
         )
         for (instance in fallbackInvidious) {
-            if (dynamicInvidious.contains(instance)) continue // Skip if already tried in step 1
+            if (dynamicInvidious.contains(instance)) continue // Skip if already tried
             val url = tryInvidious(instance, item.videoId)
             if (url != null) return item.copy(localFilePath = url).right()
         }
 
-        return "Could not extract YouTube stream from any available instance".left()
+        return "Could not extract YouTube stream from any available instance (Cobalt, Invidious, Piped)".left()
     }
 }
