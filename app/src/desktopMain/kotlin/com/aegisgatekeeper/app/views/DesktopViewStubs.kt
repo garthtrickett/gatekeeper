@@ -27,7 +27,7 @@ import com.aegisgatekeeper.app.GatekeeperStateManager
 
 @Suppress("FunctionName")
 @Composable
-actual fun CleanPlayerModal(
+fun CleanPlayerModal(
     videoId: String,
     isVisible: Boolean,
     onMinimize: () -> Unit,
