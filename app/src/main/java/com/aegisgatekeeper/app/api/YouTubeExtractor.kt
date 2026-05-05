@@ -70,16 +70,17 @@ data class CobaltResponse(
 class YouTubeExtractor(private val client: HttpClient) {
     private val parser = Json { ignoreUnknownKeys = true }
 
-    private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
+        private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
         try {
             com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Trying Cobalt ($endpoint)")
             val response = client.post(endpoint) {
                 contentType(io.ktor.http.ContentType.Application.Json)
                 header("Accept", "application/json")
+                // Cobalt v10+ requires 'url' and optionally 'videoQuality'
                 setBody(CobaltRequest(url = "https://www.youtube.com/watch?v=$videoId"))
                 timeout {
-                    requestTimeoutMillis = 8000
-                    connectTimeoutMillis = 8000
+                    requestTimeoutMillis = 10000
+                    connectTimeoutMillis = 10000
                 }
             }
 
@@ -91,7 +92,7 @@ class YouTubeExtractor(private val client: HttpClient) {
                     com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found Cobalt stream")
                     return cobaltResponse.url
                 } else {
-                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt returned status ${cobaltResponse.status}")
+                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt returned status ${cobaltResponse.status} - ${cobaltResponse.text}")
                 }
             } else {
                 com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt instance failed with status ${response.status.value}")
