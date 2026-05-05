@@ -68,20 +68,15 @@ class MainActivity : ComponentActivity() {
     ) {
         if (isRecreation) return
 
-        val videoIdToPlay = intent.getStringExtra("OPEN_CLEAN_PLAYER_VIDEO_ID")
-        val audioUrlToPlay = intent.getStringExtra("OPEN_CLEAN_AUDIO_URL")
+                val audioUrlToPlay = intent.getStringExtra("OPEN_CLEAN_AUDIO_URL")
         val nativeAudioIdToPlay = intent.getStringExtra("OPEN_NATIVE_AUDIO_ID")
         val openActiveNativePlayer = intent.getBooleanExtra("OPEN_ACTIVE_NATIVE_PLAYER", false)
 
-        intent.removeExtra("OPEN_CLEAN_PLAYER_VIDEO_ID")
         intent.removeExtra("OPEN_CLEAN_AUDIO_URL")
         intent.removeExtra("OPEN_NATIVE_AUDIO_ID")
         intent.removeExtra("OPEN_ACTIVE_NATIVE_PLAYER")
 
-        if (videoIdToPlay != null) {
-            android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Clean Player (Video: $videoIdToPlay)")
-            GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanPlayer(videoIdToPlay))
-        } else if (audioUrlToPlay != null) {
+                if (audioUrlToPlay != null) {
             android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Clean Audio Player (URL: $audioUrlToPlay)")
             GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanAudioPlayer(audioUrlToPlay))
         } else if (nativeAudioIdToPlay != null) {
@@ -100,7 +95,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        if (videoIdToPlay != null || audioUrlToPlay != null || nativeAudioIdToPlay != null || openActiveNativePlayer) {
+                if (audioUrlToPlay != null || nativeAudioIdToPlay != null || openActiveNativePlayer) {
             // Reset unmask state
             lifecycleScope.launch {
                 try {
@@ -381,15 +376,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                                                 val activeVideoId = state.media.activeVideoId
- if (activeVideoId != null) {
- com.aegisgatekeeper.app.views.CleanPlayerModal(
- videoId = activeVideoId,
- isVisible = state.media.isVideoPlayerMaximized,
- onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },
- onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) },
- )
- }
+                                                 
 
                         val activeAudioUrl = state.media.activeAudioUrl
                         if (activeAudioUrl != null) {

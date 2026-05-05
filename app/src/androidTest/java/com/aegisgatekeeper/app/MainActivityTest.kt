@@ -25,23 +25,7 @@ class MainActivityTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-    @Test
-    fun testWidgetDeepLink_DispatchesOpenCleanPlayerAction() {
-        // Arrange: Simulate the exact intent fired by the Glance Widget's "Watch" button
-        val testVideoId = "abc123XYZ"
-        val intent =
-            Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java).apply {
-                putExtra("OPEN_CLEAN_PLAYER_VIDEO_ID", testVideoId)
-            }
-
-        // Act: Launch the Activity with the specific intent
-        ActivityScenario.launch<MainActivity>(intent).use {
-            // Assert: The intent should have been intercepted in onCreate(),
-            // dispatching OpenCleanPlayer and setting the activeVideoId in the StateManager.
-            val currentState = GatekeeperStateManager.state.value
-            assertThat(currentState.media.activeVideoId).isEqualTo(testVideoId)
-        }
-    }
+    
 
     @Test
     fun testDeepLink_DispatchesOpenCleanAudioPlayerAction() {
