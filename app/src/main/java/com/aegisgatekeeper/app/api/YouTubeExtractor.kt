@@ -43,10 +43,9 @@ data class InvidiousResponse(
 @Inject
 @Singleton
 class YouTubeExtractor(private val client: HttpClient) {
-    private val parser = Json { ignoreUnknownKeys = true }
+    private val parser = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
 
     suspend fun extractVideo(item: ContentItem): Either<String, ContentItem> {
-        // Fallback for isolated UI tests so network requests don't break mock environments
         if (com.aegisgatekeeper.app.App.isRunningTest) {
             val placeholderStreamUrl = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
             return item.copy(localFilePath = placeholderStreamUrl).right()
@@ -54,47 +53,54 @@ class YouTubeExtractor(private val client: HttpClient) {
 
         val pipedInstances = listOf(
             "https://pipedapi.kavin.rocks",
-            "https://pipedapi.tokhmi.xyz",
-            "https://piped-api.garudalinux.org",
-            "https://api.piped.projectsegfau.lt"
+            "https://api.piped.projectsegfau.lt",
+            "https://pipedapi.moomoo.me",
+            "https://pipedapi.drgns.space"
         )
 
         for (instance in pipedInstances) {
             try {
-                val response = client.get("$instance/streams/${item.videoId}")
+                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Trying Piped ($instance)")
+                val response = io.ktor.client.plugins.timeout {
+                    requestTimeoutMillis = 5000
+                }.let { client.get("$instance/streams/${item.videoId}") }
+
                 if (response.status.value in 200..299) {
-                    val text = response.bodyAsText()
+                    val text = response.io.ktor.client.statement.bodyAsText()
                     val pipedResponse = parser.decodeFromString(PipedResponse.serializer(), text)
                     
-                    if (pipedResponse.error != null && pipedResponse.audioStreams.isNullOrEmpty()) {
-                        continue
-                    }
+                    if (pipedResponse.error != null && pipedResponse.audioStreams.isNullOrEmpty()) continue
 
-                    // Prefer M4A streams as they play flawlessly in ExoPlayer without video tracks attached
-                    val stream = pipedResponse.audioStreams?.firstOrNull { it.format == "M4A" }
+                    val stream = pipedResponse.audioStreams?.firstOrNull { it.format == "M4A" || it.mimeType?.contains("audio/mp4") == true }
                         ?: pipedResponse.audioStreams?.firstOrNull()
 
                     if (stream != null) {
+                        com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found Piped stream")
                         return item.copy(localFilePath = stream.url).right()
                     }
                 }
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                continue
+                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Piped instance failed: ${e.message}")
             }
         }
 
         val invidiousInstances = listOf(
+            "https://invidious.lunar.icu",
             "https://inv.tux.pizza",
-            "https://invidious.jing.rocks",
-            "https://vid.puffyan.us"
+            "https://invidious.projectsegfau.lt",
+            "https://iv.melmac.it"
         )
 
         for (instance in invidiousInstances) {
             try {
-                val response = client.get("$instance/api/v1/videos/${item.videoId}")
+                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Trying Invidious ($instance)")
+                val response = io.ktor.client.plugins.timeout {
+                    requestTimeoutMillis = 5000
+                }.let { client.get("$instance/api/v1/videos/${item.videoId}") }
+
                 if (response.status.value in 200..299) {
-                    val text = response.bodyAsText()
+                    val text = response.io.ktor.client.statement.bodyAsText()
                     val invResponse = parser.decodeFromString(InvidiousResponse.serializer(), text)
                     
                     val stream = invResponse.adaptiveFormats?.firstOrNull { it.type?.startsWith("audio/mp4") == true }
@@ -102,12 +108,13 @@ class YouTubeExtractor(private val client: HttpClient) {
                         ?: invResponse.formatStreams?.firstOrNull()
 
                     if (stream != null) {
+                        com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found Invidious stream")
                         return item.copy(localFilePath = stream.url).right()
                     }
                 }
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                continue
+                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Invidious instance failed: ${e.message}")
             }
         }
 
