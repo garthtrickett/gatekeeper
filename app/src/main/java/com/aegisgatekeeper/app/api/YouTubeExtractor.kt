@@ -263,15 +263,15 @@ class YouTubeExtractor(private val client: HttpClient) {
         return null
     }
 
-        suspend fun extractVideo(item: ContentItem): Either<String, ContentItem> {
-                if (com.aegisgatekeeper.app.App.isRunningTest) {
+            suspend fun extractVideo(item: ContentItem): Either<String, ContentItem> {
+        if (com.aegisgatekeeper.app.App.isRunningTest) {
             val placeholderStreamUrl = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
             return item.copy(localFilePath = placeholderStreamUrl).right()
         }
 
-        // 0. Local Dev Bypass
+        // 0. Local Dev Bypass (Try your Docker container first)
         if (com.aegisgatekeeper.app.domain.isDevEnvironment()) {
-                                    val localEndpoints = listOf(
+            val localEndpoints = listOf(
                 "http://10.0.2.2:9099/", // Android Emulator Host Loopback
                 "http://localhost:9099/" // Desktop Localhost
             )
@@ -328,6 +328,6 @@ class YouTubeExtractor(private val client: HttpClient) {
             if (url != null) return item.copy(localFilePath = url).right()
         }
 
-        return "Could not extract YouTube stream from any available instance (Cobalt, Invidious, Piped)".left()
+        return "Could not extract YouTube stream from any available instance (Local, Cobalt, Invidious, Piped)".left()
     }
 }
