@@ -81,8 +81,10 @@ fun NativeAudioPlayerModal(
     val state by GatekeeperStateManager.state.collectAsState()
     val savedPosition = state.media.savedMediaPositions[contentItem.videoId] ?: 0f
 
-    val podcastSub = state.sync.podcastSubscriptions.find { it.id == contentItem.podcastId }
-    val artworkUrl = podcastSub?.artworkUrl
+        val podcastSub = state.sync.podcastSubscriptions.find { it.id == contentItem.podcastId }
+    val artworkUrl = podcastSub?.artworkUrl ?: if (contentItem.source == com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE) {
+        "https://img.youtube.com/vi/${contentItem.videoId}/hqdefault.jpg"
+    } else null
 
     DisposableEffect(contentItem.videoId) {
         var controllerFuture: ListenableFuture<MediaController>? = null
