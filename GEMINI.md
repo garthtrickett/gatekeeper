@@ -50,6 +50,8 @@ Before generating an edit, ask yourself these questions in order:
 
 13.     Beware of Overlooked Comments: When building a `search` block spanning multiple lines, you MUST include any comments that exist between those lines in the original source exactly as written. LLMs naturally filter out comments when reading code, but the patcher requires exact string matching. If you miss a `// comment` inside a block, the patch will fail. To avoid this, make your search block smaller so it doesn't span across comments unless strictly necessary.
 
+14. Beware of Decorators and Macros: When replacing or inserting code directly above a struct, class, or function, your search block MUST include the decorators or macros (e.g., #[derive(...)], @Component, @Injectable) immediately preceding it. If you omit the decorators from the search block, your insertion will split the decorators from the entity they belong to, causing catastrophic compilation errors.
+
     ```
 
 --- 
@@ -58,6 +60,8 @@ Before generating an edit, ask yourself these questions in order:
 
 **1. `smart_replace`**
 Use this for the majority of edits. It is whitespace-agnostic.
+
+🚨 **CRITICAL EMPTY SEARCH RULE:** ONLY use an empty `"search": ""` block if you are absolutely certain the file is completely empty or does not exist yet. If you use an empty search block on an *existing* file, the patcher will **APPEND** your `replace` code to the bottom of the file, causing duplicate definition syntax errors. If you need to completely gut and overwrite an existing file, use a bash command block (e.g., `cat << 'EOF' > file...`) instead of a JSON patch.
 
 *   **Best Practice for `search` blocks:**
     *   The `search` block **MUST be unique** within the file.
@@ -138,6 +142,22 @@ To create a new file, use a single `smart_replace` edit with an empty `search` s
     }
   ]
 }
+
+### Example Response eof approach
+cat << 'EOF' > surfer-core/src/model.rs
+use glam::Vec3;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BoardModel {
+    pub length: f32,
+    pub width: f32,
+    pub thickness: f32,
+    pub volume: f32,
+    pub fin_setup: String,
+}
+EOF
 ```
 
 # GEMINI.md - System Context & Coding Standards for "The Gatekeeper"

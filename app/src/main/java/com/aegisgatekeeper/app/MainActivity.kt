@@ -56,17 +56,24 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    override fun onNewIntent(intent: Intent) {
+        override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleIntents(intent)
+        handleIntents(intent, isRecreation = false)
     }
 
-    private fun handleIntents(intent: Intent) {
+    private fun handleIntents(intent: Intent, isRecreation: Boolean = false) {
+        if (isRecreation) return
+
         val videoIdToPlay = intent.getStringExtra("OPEN_CLEAN_PLAYER_VIDEO_ID")
         val audioUrlToPlay = intent.getStringExtra("OPEN_CLEAN_AUDIO_URL")
         val nativeAudioIdToPlay = intent.getStringExtra("OPEN_NATIVE_AUDIO_ID")
-        val openActiveNativePlayer = intent.getBooleanExtra("OPEN_ACTIVE_NATIVE_PLAYER", false)
+                val openActiveNativePlayer = intent.getBooleanExtra("OPEN_ACTIVE_NATIVE_PLAYER", false)
+
+        intent.removeExtra("OPEN_CLEAN_PLAYER_VIDEO_ID")
+        intent.removeExtra("OPEN_CLEAN_AUDIO_URL")
+        intent.removeExtra("OPEN_NATIVE_AUDIO_ID")
+        intent.removeExtra("OPEN_ACTIVE_NATIVE_PLAYER")
 
         if (videoIdToPlay != null) {
             android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Clean Player (Video: $videoIdToPlay)")
@@ -172,7 +179,7 @@ class MainActivity : ComponentActivity() {
             setTurnScreenOn(true)
             val keyguardManager = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
             keyguardManager.requestDismissKeyguard(this, null)
-        } else {
+                } else {
             @Suppress("DEPRECATION")
             window.addFlags(
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
@@ -181,7 +188,7 @@ class MainActivity : ComponentActivity() {
             )
         }
 
-        handleIntents(intent)
+        handleIntents(intent, savedInstanceState != null)
 
         // E2E Programmatic State Injection (Debug Only)
         if (BuildConfig.DEBUG) {
@@ -371,35 +378,32 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        val activeVideoId = state.media.activeVideoId
+                                                val activeVideoId = state.media.activeVideoId
                         if (activeVideoId != null) {
-                            var isPlayerModalVisible by remember(activeVideoId) { mutableStateOf(true) }
                             com.aegisgatekeeper.app.views.CleanPlayerModal(
                                 videoId = activeVideoId,
-                                isVisible = isPlayerModalVisible,
-                                onMinimize = { isPlayerModalVisible = false },
+                                isVisible = state.media.isVideoPlayerMaximized,
+                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },
                                 onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) },
                             )
                         }
 
                         val activeAudioUrl = state.media.activeAudioUrl
                         if (activeAudioUrl != null) {
-                            var isAudioPlayerModalVisible by remember(activeAudioUrl) { mutableStateOf(true) }
                             com.aegisgatekeeper.app.views.CleanAudioPlayerModal(
                                 url = activeAudioUrl,
-                                isVisible = isAudioPlayerModalVisible,
-                                onMinimize = { isAudioPlayerModalVisible = false },
+                                isVisible = state.media.isAudioPlayerMaximized,
+                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanAudioPlayer) },
                                 onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
                             )
                         }
 
                         val activeNativeMediaItem = state.media.activeNativeMediaItem
                         if (activeNativeMediaItem != null) {
-                            var isNativeAudioPlayerModalVisible by remember(activeNativeMediaItem) { mutableStateOf(true) }
                             com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
                                 contentItem = activeNativeMediaItem,
-                                isVisible = isNativeAudioPlayerModalVisible,
-                                onMinimize = { isNativeAudioPlayerModalVisible = false },
+                                isVisible = state.media.isNativePlayerMaximized,
+                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeNativePlayer) },
                                 onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
                             )
                         }

@@ -185,9 +185,11 @@ sealed interface GatekeeperAction {
         val positionSeconds: Float,
     ) : GatekeeperAction
 
-    data class OpenCleanPlayer(
+        data class OpenCleanPlayer(
         val videoId: String,
     ) : GatekeeperAction
+
+    object MinimizeCleanPlayer : GatekeeperAction
 
     object StopCleanPlayer : GatekeeperAction
 
@@ -200,15 +202,19 @@ sealed interface GatekeeperAction {
         val slotIndex: Int,
     ) : GatekeeperAction
 
-    data class OpenCleanAudioPlayer(
+        data class OpenCleanAudioPlayer(
         val url: String,
     ) : GatekeeperAction
 
+    object MinimizeCleanAudioPlayer : GatekeeperAction
+
     object StopCleanAudioPlayer : GatekeeperAction
 
-    data class OpenNativePlayer(
+        data class OpenNativePlayer(
         val contentItem: ContentItem,
     ) : GatekeeperAction
+
+    object MinimizeNativePlayer : GatekeeperAction
 
     object CloseNativePlayer : GatekeeperAction
 
