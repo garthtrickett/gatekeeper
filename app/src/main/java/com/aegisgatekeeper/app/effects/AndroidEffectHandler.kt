@@ -14,6 +14,7 @@ import com.aegisgatekeeper.app.api.PodcastIndexClient
 import com.aegisgatekeeper.app.api.RssClient
 import com.aegisgatekeeper.app.api.RssFeedData
 import com.aegisgatekeeper.app.api.UrlMetadataClient
+import com.aegisgatekeeper.app.api.YouTubeExtractor
 import com.aegisgatekeeper.app.domain.BeeperChat
 import com.aegisgatekeeper.app.domain.ScheduledMessage
 import com.aegisgatekeeper.app.domain.platformLog
@@ -32,8 +33,9 @@ class AndroidEffectHandler(
     private val context: Context,
     private val podcastIndexClient: PodcastIndexClient,
     private val rssClient: RssClient,
-    private val urlMetadataClient: UrlMetadataClient,
+        private val urlMetadataClient: UrlMetadataClient,
     private val beeperClient: BeeperClient,
+    private val youtubeExtractor: YouTubeExtractor,
 ) : PlatformEffectHandler {
     override fun goHome() {
         if (!com.aegisgatekeeper.app.App.isRunningTest) {
@@ -98,5 +100,7 @@ class AndroidEffectHandler(
         isGeneric: Boolean,
     ): Either<String, ContentMetadata> = urlMetadataClient.fetchMetadata(url, isSoundCloud, isGeneric).mapLeft { "Error fetching metadata" }
 
-    override suspend fun syncBeeperChats(): Either<String, List<BeeperChat>> = beeperClient.getChats()
+    override     suspend fun syncBeeperChats(): Either<String, List<BeeperChat>> = beeperClient.getChats()
+
+    override suspend fun fetchYouTubeStream(videoId: String): Either<String, com.aegisgatekeeper.app.domain.ContentItem> = youtubeExtractor.extractVideo(videoId)
 }

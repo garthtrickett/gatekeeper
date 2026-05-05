@@ -381,9 +381,10 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        val activeVideoId = state.media.activeVideoId
-                        if (activeVideoId != null) {
-                            com.aegisgatekeeper.app.views.CleanPlayerModal(
+                                                val activeVideoId = state.media.activeVideoId
+                        if (false && activeVideoId != null) {
+                            // Legacy WebView player disabled
+                        }
                                 videoId = activeVideoId,
                                 isVisible = state.media.isVideoPlayerMaximized,
                                 onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },

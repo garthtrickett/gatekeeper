@@ -148,6 +148,7 @@ def main():
     print(f"\n🤖 Summary: {summary}\n")
 
     file_updates = {}
+    files_to_delete = []
 
     try:
         errors =[]
@@ -156,6 +157,12 @@ def main():
             file_path = file_info['file_path']
             edits = file_info.get('edits',[])
             
+            # CHECK FOR DELETE TYPE
+            if any(e.get("type") == "delete" for e in edits):
+                if os.path.exists(file_path):
+                    files_to_delete.append(file_path)
+                continue
+
             # Legacy Aider format support
             if 'code_diff' in file_info:
                 diff = file_info['code_diff']
@@ -193,6 +200,13 @@ def main():
             sys.exit(1)
 
         # Phase 2: Write to disk only if EVERYTHING succeeded
+        
+        # Handle Deletions
+        for path in files_to_delete:
+            os.remove(path)
+            print(f"🗑️  DELETED: {path}")
+
+        # Handle Updates/Creations
         for path, new_text in file_updates.items():
             dir_name = os.path.dirname(path)
             if dir_name:
@@ -201,7 +215,7 @@ def main():
                 f.write(new_text)
             print(f"✅ {path} updated successfully.")
 
-        print(f"\nDone. {len(file_updates)} files updated successfully.")
+        print(f"\nDone. {len(file_updates) + len(files_to_delete)} file operations completed successfully.")
 
     except Exception as e:
         print(f"\n❌ FATAL ERROR: {e}")
