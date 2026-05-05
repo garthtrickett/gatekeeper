@@ -150,10 +150,10 @@ suspend fun executeMediaAndSystemEffect(
         }
 
                 is GatekeeperEffect.FetchYouTubeStream -> {
-            platformLog("Gatekeeper", "📡 Extracting YouTube stream for ${'$'}{effect.item.videoId}")
+            platformLog("Gatekeeper", "📡 Extracting YouTube stream for ${effect.item.videoId}")
             effectHandler.fetchYouTubeStream(effect.item).fold(
                 ifLeft = { error ->
-                    platformLog("Gatekeeper", "❌ YouTube Extraction Failed: ${'$'}error")
+                    platformLog("Gatekeeper", "❌ YouTube Extraction Failed: $error")
                 },
                 ifRight = { item ->
                     dispatch(GatekeeperAction.OpenNativePlayer(item))
