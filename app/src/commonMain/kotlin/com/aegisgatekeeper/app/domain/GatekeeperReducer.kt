@@ -37,7 +37,7 @@ private fun reduceInterception(
     val effects = mutableSetOf<GatekeeperEffect>()
     val newState =
         when (action) {
-                        is GatekeeperAction.RuleViolationDetected -> {
+            is GatekeeperAction.RuleViolationDetected -> {
                 val prevApp = slice.activeForegroundApp
                 val whitelist = slice.activeWhitelists[action.packageName]
                 val isWhitelistValid = whitelist != null && action.currentTimestamp < whitelist.expiresAtTimestamp
@@ -68,7 +68,7 @@ private fun reduceInterception(
                             },
                     )
 
-                                if (!isWhitelistValid) {
+                if (!isWhitelistValid) {
                     val wasExpired = whitelist != null
                     newSlice.copy(
                         isOverlayActive = true,
@@ -80,7 +80,7 @@ private fun reduceInterception(
                 } else {
                     newSlice.copy(
                         isOverlayActive = interviewApp != null || slice.isOverlayActive,
-                        pendingExitInterview = interviewApp ?: slice.pendingExitInterview
+                        pendingExitInterview = interviewApp ?: slice.pendingExitInterview,
                     )
                 }
             }
@@ -531,7 +531,7 @@ private fun reduceData(
                 slice.copy(vaultItems = listOf(item) + slice.vaultItems)
             }
 
-                        is GatekeeperAction.MarkVaultItemResolved -> {
+            is GatekeeperAction.MarkVaultItemResolved -> {
                 effects.add(GatekeeperEffect.DbMarkVaultItemResolved(action.id, action.currentTimestamp))
                 slice.copy(vaultItems = slice.vaultItems.map { if (it.id == action.id) it.copy(isResolved = true) else it })
             }
@@ -884,7 +884,7 @@ private fun reduceMedia(
                 slice.copy(isLoadingGlobalEpisodes = true)
             }
 
-                        is GatekeeperAction.LatestGlobalEpisodesLoaded -> {
+            is GatekeeperAction.LatestGlobalEpisodesLoaded -> {
                 slice.copy(isLoadingGlobalEpisodes = false, latestGlobalEpisodes = action.episodes)
             }
 
@@ -900,7 +900,7 @@ private fun reduceMedia(
                 slice.copy(activeDownloads = slice.activeDownloads - action.id)
             }
 
-                                     is GatekeeperAction.SaveMediaPosition -> {
+            is GatekeeperAction.SaveMediaPosition -> {
                 if (action.positionSeconds == 0f) {
                     slice.copy(savedMediaPositions = slice.savedMediaPositions + (action.mediaId to 0f))
                 } else {
@@ -910,11 +910,9 @@ private fun reduceMedia(
             }
 
             is GatekeeperAction.PlayYouTubeVideo -> {
- effects.add(GatekeeperEffect.FetchYouTubeStream(action.videoId))
- slice
- }
-
-            
+                effects.add(GatekeeperEffect.FetchYouTubeStream(action.videoId))
+                slice
+            }
 
             is GatekeeperAction.OpenCleanAudioPlayer -> {
                 slice.copy(activeAudioUrl = action.url, isAudioPlayerMaximized = true)

@@ -270,8 +270,11 @@ sealed interface GatekeeperEffect {
         val podcastId: String,
     ) : GatekeeperEffect
 
-        object SchedulePodcastRefresh : GatekeeperEffect
-    data class FetchYouTubeStream(val videoId: String) : GatekeeperEffect
+    object SchedulePodcastRefresh : GatekeeperEffect
+
+    data class FetchYouTubeStream(
+        val videoId: String,
+    ) : GatekeeperEffect
 
     data class FetchUrlMetadata(
         val url: String,
@@ -305,11 +308,11 @@ sealed interface GatekeeperEffect {
 
     object ClearToken : GatekeeperEffect
 
-        data class RequestMagicLink(
+    data class RequestMagicLink(
         val email: String,
     ) : GatekeeperEffect
 
-        // Utility Effects
+    // Utility Effects
     data class EmitAction(
         val action: GatekeeperAction,
     ) : GatekeeperEffect

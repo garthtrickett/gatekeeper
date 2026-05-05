@@ -33,7 +33,7 @@ class AndroidEffectHandler(
     private val context: Context,
     private val podcastIndexClient: PodcastIndexClient,
     private val rssClient: RssClient,
-        private val urlMetadataClient: UrlMetadataClient,
+    private val urlMetadataClient: UrlMetadataClient,
     private val beeperClient: BeeperClient,
     private val youtubeExtractor: YouTubeExtractor,
 ) : PlatformEffectHandler {
@@ -100,7 +100,8 @@ class AndroidEffectHandler(
         isGeneric: Boolean,
     ): Either<String, ContentMetadata> = urlMetadataClient.fetchMetadata(url, isSoundCloud, isGeneric).mapLeft { "Error fetching metadata" }
 
-    override     suspend fun syncBeeperChats(): Either<String, List<BeeperChat>> = beeperClient.getChats()
+    override suspend fun syncBeeperChats(): Either<String, List<BeeperChat>> = beeperClient.getChats()
 
-    override suspend fun fetchYouTubeStream(videoId: String): Either<String, com.aegisgatekeeper.app.domain.ContentItem> = youtubeExtractor.extractVideo(videoId)
+    override suspend fun fetchYouTubeStream(videoId: String): Either<String, com.aegisgatekeeper.app.domain.ContentItem> =
+        youtubeExtractor.extractVideo(videoId)
 }

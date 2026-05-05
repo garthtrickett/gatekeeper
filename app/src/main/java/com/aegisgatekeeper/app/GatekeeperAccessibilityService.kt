@@ -52,7 +52,7 @@ class GatekeeperAccessibilityService : AccessibilityService() {
 
         if (com.aegisgatekeeper.app.App.isRunningTest) return
 
-                if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+        if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             return
         }
 

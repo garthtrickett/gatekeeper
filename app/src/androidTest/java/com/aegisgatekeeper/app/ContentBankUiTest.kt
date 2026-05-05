@@ -318,8 +318,8 @@ class ContentBankUiTest {
             .isNotNull()
     }
 
-     @Test
- fun testContentBank_YouTubeItem_PlaysInNativePlayer() {
+    @Test
+    fun testContentBank_YouTubeItem_PlaysInNativePlayer() {
         // Arrange
         val youtubeVideoId = "dQw4w9WgXcQ"
         GatekeeperStateManager.dispatch(
@@ -334,7 +334,7 @@ class ContentBankUiTest {
 
         composeTestRule.setContent {
             GatekeeperTheme {
-                                val state by GatekeeperStateManager.state.collectAsState()
+                val state by GatekeeperStateManager.state.collectAsState()
                 ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
                 if (state.media.activeNativeMediaItem != null) {
                     com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
@@ -348,7 +348,7 @@ class ContentBankUiTest {
         }
 
         // Act: Click the play button for our new item.
-                composeTestRule.onNodeWithText("Play").performClick()
+        composeTestRule.onNodeWithText("Play").performClick()
         composeTestRule.waitForIdle()
         Thread.sleep(500) // Wait for extractor effect
 

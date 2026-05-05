@@ -226,7 +226,6 @@ data class MediaState(
     val activeAudioUrl: String? = null,
     val isAudioPlayerMaximized: Boolean = false,
     val savedMediaPositions: Map<String, Float> = emptyMap(),
-    
     val activeNativeMediaItem: ContentItem? = null,
     val isNativePlayerMaximized: Boolean = false,
     val isWebEngineReady: Boolean = false,

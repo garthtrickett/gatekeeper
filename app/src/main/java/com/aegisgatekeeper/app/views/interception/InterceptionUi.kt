@@ -103,11 +103,11 @@ fun InterceptionScreen() {
                     screen = "FRICTION"
                 },
                 onHabits = { screen = "HABITS" },
-                onPlayContent = { item ->
+                                onPlayContent = { item ->
                     if (item.type == com.aegisgatekeeper.app.domain.ContentType.VIDEO) {
                         val intent =
                             android.content.Intent(com.aegisgatekeeper.app.App.instance, MainActivity::class.java).apply {
-                                putExtra("OPEN_CLEAN_PLAYER_VIDEO_ID", item.videoId)
+                                putExtra("PLAY_YOUTUBE_VIDEO_ID", item.videoId)
                                 flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
                             }
                         com.aegisgatekeeper.app.App.instance

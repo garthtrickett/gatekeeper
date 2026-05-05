@@ -239,7 +239,7 @@ class GatekeeperReducerTest {
         assertThat(genericEffect.isGeneric).isTrue()
     }
 
-        @Test
+    @Test
     fun testAddEpisodeToBank_AppendsToContentBankAndEmitsDbEffect() {
         val episode = CachedEpisode("1", "pod1", "Test Ep", "https://audio.mp3", 3600L, "Jan 1")
         val action = GatekeeperAction.AddEpisodeToBank(episode, "pod1", "My Podcast")
@@ -592,7 +592,7 @@ class GatekeeperReducerTest {
         assertThat(whitelist.expiresAtTimestamp).isEqualTo(100_000L + 15_000L)
     }
 
-        @Test
+    @Test
     fun testOpenCleanAudioPlayer_setsActiveAudioUrl() {
         val action = GatekeeperAction.OpenCleanAudioPlayer("https://soundcloud.com/test")
         val newState = reduce(initialState, action).state

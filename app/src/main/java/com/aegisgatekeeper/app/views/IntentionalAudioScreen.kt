@@ -158,8 +158,8 @@ fun IntentionalContentScreen() {
                                             when (item.contentItem.type) {
                                                 com.aegisgatekeeper.app.domain.ContentType.VIDEO -> {
                                                     GatekeeperStateManager.dispatch(
- GatekeeperAction.PlayYouTubeVideo(item.contentItem.videoId),
- )
+                                                        GatekeeperAction.PlayYouTubeVideo(item.contentItem.videoId),
+                                                    )
                                                 }
 
                                                 com.aegisgatekeeper.app.domain.ContentType.AUDIO -> {
@@ -572,7 +572,7 @@ fun CleanAudioPlayerModal(
 
                                 webViewRef = this
 
-                                                                addJavascriptInterface(
+                                addJavascriptInterface(
                                     object {
                                         @android.webkit.JavascriptInterface
                                         fun onVideoEnded() {
@@ -582,6 +582,7 @@ fun CleanAudioPlayerModal(
                                             )
                                             onStop()
                                         }
+
                                         @android.webkit.JavascriptInterface
                                         fun onStateChange(state: Int) {
                                             playerStateCallback(state)
@@ -592,6 +593,7 @@ fun CleanAudioPlayerModal(
                                                 GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(url, currentPosition))
                                             }
                                         }
+
                                         @android.webkit.JavascriptInterface
                                         fun onTimeUpdate(time: String) {
                                             currentPosition = time.toFloatOrNull() ?: 0f

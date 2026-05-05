@@ -58,7 +58,10 @@ object AndroidRuleEvaluator {
             val checkUsage = isNewApp || ticksSinceLastUsageCheck >= 5
             if (checkUsage) {
                 ticksSinceLastUsageCheck = 0
-                val packagesToCheck = state.interception.appGroups.flatMap { it.apps }.toSet()
+                val packagesToCheck =
+                    state.interception.appGroups
+                        .flatMap { it.apps }
+                        .toSet()
                 val usages = getDailyUsageMinutes(context, packagesToCheck)
                 cachedUsageMinutes.putAll(usages)
             }
@@ -90,6 +93,7 @@ object AndroidRuleEvaluator {
                             )
                         }
                     }
+
                     is EvaluationVerdict.Allowed -> {
                         if (isNewApp) {
                             GatekeeperStateManager.dispatch(GatekeeperAction.AppBroughtToForeground(currentApp, System.currentTimeMillis()))

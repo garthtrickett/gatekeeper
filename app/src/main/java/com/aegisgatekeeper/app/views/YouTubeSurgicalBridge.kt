@@ -13,24 +13,24 @@ import com.aegisgatekeeper.app.domain.parseHumanReadableDuration
  * from the web UI directly into the Content Bank.
  */
 class YouTubeSurgicalBridge {
- @JavascriptInterface
- fun saveVideo(
- videoId: String,
- title: String,
- channelName: String,
- duration: String,
- ) {
- val durationSeconds = parseHumanReadableDuration(duration)
- GatekeeperStateManager.dispatch(
- GatekeeperAction.SaveToContentBank(
- videoId = videoId,
- title = title,
- channelName = channelName,
- durationSeconds = durationSeconds,
- source = ContentSource.YOUTUBE,
- type = ContentType.VIDEO,
- currentTimestamp = System.currentTimeMillis(),
- ),
- )
- }
+    @JavascriptInterface
+    fun saveVideo(
+        videoId: String,
+        title: String,
+        channelName: String,
+        duration: String,
+    ) {
+        val durationSeconds = parseHumanReadableDuration(duration)
+        GatekeeperStateManager.dispatch(
+            GatekeeperAction.SaveToContentBank(
+                videoId = videoId,
+                title = title,
+                channelName = channelName,
+                durationSeconds = durationSeconds,
+                source = ContentSource.YOUTUBE,
+                type = ContentType.VIDEO,
+                currentTimestamp = System.currentTimeMillis(),
+            ),
+        )
+    }
 }

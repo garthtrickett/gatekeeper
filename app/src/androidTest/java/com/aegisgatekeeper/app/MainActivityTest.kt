@@ -25,8 +25,6 @@ class MainActivityTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-    
-
     @Test
     fun testDeepLink_DispatchesOpenCleanAudioPlayerAction() {
         val testUrl = "https://soundcloud.com/test/track"

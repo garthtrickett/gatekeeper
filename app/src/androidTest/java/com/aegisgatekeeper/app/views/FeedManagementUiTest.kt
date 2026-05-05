@@ -112,7 +112,7 @@ class FeedManagementUiTest {
         composeTestRule.onNodeWithText("+").assertIsDisplayed() // Add button
 
         // Act: Click the '+' button to add to bank
-                composeTestRule.onNodeWithText("+").performClick()
+        composeTestRule.onNodeWithText("+").performClick()
         composeTestRule.waitForIdle()
 
         // Assert: Check that it was added to the bank (button should now be a checkmark)

@@ -378,7 +378,9 @@ class DualMoatIntegrationTest {
 
             // Act: Now, simulate the app coming to the foreground. The evaluator should see the whitelist.
             com.aegisgatekeeper.app.services.AndroidRuleEvaluator.performAppValidation(
-                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext,
+                androidx.test.platform.app.InstrumentationRegistry
+                    .getInstrumentation()
+                    .targetContext,
                 testAppPackage,
             )
 

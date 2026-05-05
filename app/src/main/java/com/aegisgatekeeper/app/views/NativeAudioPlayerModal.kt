@@ -94,7 +94,7 @@ fun NativeAudioPlayerModal(
                 val mediaController = controllerFuture?.get()
                 controller = mediaController
                 mediaController?.let { mc ->
-                                    val isAlreadyPlayingThis = mc.currentMediaItem?.mediaId == contentItem.videoId
+                    val isAlreadyPlayingThis = mc.currentMediaItem?.mediaId == contentItem.videoId
 
                     if (!isAlreadyPlayingThis) {
                         android.util.Log.d("Gatekeeper", "🎵 NativePlayer: Initializing new media session for ${contentItem.title}")
@@ -289,7 +289,7 @@ fun NativeAudioPlayerModal(
                             }
                         }
 
-                                                Column(
+                        Column(
                             modifier = Modifier.fillMaxSize().padding(32.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,

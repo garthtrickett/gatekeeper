@@ -71,12 +71,14 @@ class MainActivity : ComponentActivity() {
                 val audioUrlToPlay = intent.getStringExtra("OPEN_CLEAN_AUDIO_URL")
         val nativeAudioIdToPlay = intent.getStringExtra("OPEN_NATIVE_AUDIO_ID")
         val openActiveNativePlayer = intent.getBooleanExtra("OPEN_ACTIVE_NATIVE_PLAYER", false)
+        val youtubeVideoIdToPlay = intent.getStringExtra("PLAY_YOUTUBE_VIDEO_ID")
 
         intent.removeExtra("OPEN_CLEAN_AUDIO_URL")
         intent.removeExtra("OPEN_NATIVE_AUDIO_ID")
         intent.removeExtra("OPEN_ACTIVE_NATIVE_PLAYER")
+        intent.removeExtra("PLAY_YOUTUBE_VIDEO_ID")
 
-                if (audioUrlToPlay != null) {
+        if (audioUrlToPlay != null) {
             android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Clean Audio Player (URL: $audioUrlToPlay)")
             GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanAudioPlayer(audioUrlToPlay))
         } else if (nativeAudioIdToPlay != null) {
@@ -93,9 +95,12 @@ class MainActivity : ComponentActivity() {
             if (item != null) {
                 GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
             }
+        } else if (youtubeVideoIdToPlay != null) {
+            android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for YouTube Video (ID: $youtubeVideoIdToPlay)")
+            GatekeeperStateManager.dispatch(GatekeeperAction.PlayYouTubeVideo(youtubeVideoIdToPlay))
         }
 
-                if (audioUrlToPlay != null || nativeAudioIdToPlay != null || openActiveNativePlayer) {
+        if (audioUrlToPlay != null || nativeAudioIdToPlay != null || openActiveNativePlayer || youtubeVideoIdToPlay != null) {
             // Reset unmask state
             lifecycleScope.launch {
                 try {
@@ -375,8 +380,6 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-
-                                                 
 
                         val activeAudioUrl = state.media.activeAudioUrl
                         if (activeAudioUrl != null) {

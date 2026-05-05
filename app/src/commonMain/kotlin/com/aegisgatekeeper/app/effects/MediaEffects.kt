@@ -146,7 +146,7 @@ suspend fun executeMediaAndSystemEffect(
         }
 
         is GatekeeperEffect.TriggerWidgetUpdate -> {
-                        effectHandler.triggerWidgetUpdate()
+            effectHandler.triggerWidgetUpdate()
         }
 
         is GatekeeperEffect.FetchYouTubeStream -> {
@@ -157,7 +157,7 @@ suspend fun executeMediaAndSystemEffect(
                 },
                 ifRight = { item ->
                     dispatch(GatekeeperAction.OpenNativePlayer(item))
-                }
+                },
             )
         }
 
