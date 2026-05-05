@@ -84,11 +84,14 @@ suspend fun executeMediaAndSystemEffect(
             val pattern = """(?<=youtu\.be/|watch\?v=|/shorts/)([a-zA-Z0-9_-]{11})""".toRegex()
             val videoId = pattern.find(effect.url)?.value
 
-            if (videoId != null) {
+                        if (videoId != null) {
+                val metadataResult = effectHandler.fetchUrlMetadata(effect.url, isSoundCloud = false, isGeneric = false)
+                val title = metadataResult.fold({ effect.providedTitle ?: "YouTube Video" }, { it.title })
+
                 dispatch(
                     GatekeeperAction.SaveToContentBank(
                         videoId = videoId,
-                        title = effect.providedTitle ?: "YouTube Video",
+                        title = title,
                         source = ContentSource.YOUTUBE,
                         type = ContentType.VIDEO,
                         currentTimestamp = effect.timestamp,
