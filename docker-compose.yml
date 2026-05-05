@@ -29,3 +29,20 @@ services:
 
 volumes:
   pgdata:
+version: '3.8'
+
+services:
+  cobalt-api:
+    image: ghcr.io/imputnet/cobalt:latest
+    container_name: cobalt-api
+    init: true
+    restart: unless-stopped
+    ports:
+      - "9000:9000/tcp"
+    environment:
+      # Required by Cobalt to know its own URL
+      API_URL: "http://localhost:9000/"
+      
+      # Optional overrides if you face rate limits / captchas locally in the future
+      # YOUTUBE_COOKIES: "your_cookies_here"
+

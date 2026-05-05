@@ -264,9 +264,21 @@ class YouTubeExtractor(private val client: HttpClient) {
     }
 
         suspend fun extractVideo(item: ContentItem): Either<String, ContentItem> {
-        if (com.aegisgatekeeper.app.App.isRunningTest) {
+                if (com.aegisgatekeeper.app.App.isRunningTest) {
             val placeholderStreamUrl = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
             return item.copy(localFilePath = placeholderStreamUrl).right()
+        }
+
+        // 0. Local Dev Bypass
+        if (com.aegisgatekeeper.app.domain.isDevEnvironment()) {
+            val localEndpoints = listOf(
+                "http://10.0.2.2:9000/", // Android Emulator Host Loopback
+                "http://localhost:9000/" // Desktop Localhost
+            )
+            for (endpoint in localEndpoints) {
+                val url = tryCobalt(endpoint, item.videoId)
+                if (url != null) return item.copy(localFilePath = url).right()
+            }
         }
 
         // 1. Try Cobalt API First (Most Reliable Media Downloader API)
