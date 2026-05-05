@@ -33,9 +33,9 @@ services:
     init: true
     restart: unless-stopped
     ports:
-      - "9001:9000/tcp"
+      - "9099:9000/tcp"
     environment:
-      API_URL: "http://localhost:9001/"
+      API_URL: "http://localhost:9099/"
 
 volumes:
   pgdata:

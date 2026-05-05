@@ -271,9 +271,9 @@ class YouTubeExtractor(private val client: HttpClient) {
 
         // 0. Local Dev Bypass
         if (com.aegisgatekeeper.app.domain.isDevEnvironment()) {
-                        val localEndpoints = listOf(
-                "http://10.0.2.2:9001/", // Android Emulator Host Loopback
-                "http://localhost:9001/" // Desktop Localhost
+                                    val localEndpoints = listOf(
+                "http://10.0.2.2:9099/", // Android Emulator Host Loopback
+                "http://localhost:9099/" // Desktop Localhost
             )
             for (endpoint in localEndpoints) {
                 val url = tryCobalt(endpoint, item.videoId)
