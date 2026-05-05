@@ -286,13 +286,9 @@ fun BaseSurgicalWebView(
                             val currentJailRoot = view?.tag as? String
                             if (currentJailRoot != null) {
                                 // Prevent desktop escape when logged in
-                                if (newUrl.contains("www.facebook.com") || newUrl.contains("web.facebook.com")) {
+                                if (newUrl.contains("www.facebook.com")) {
                                     val mobileUrl =
-                                        newUrl
-                                            .replace(
-                                                "www.facebook.com",
-                                                "m.facebook.com",
-                                            ).replace("web.facebook.com", "m.facebook.com")
+                                        newUrl.replace("www.facebook.com", "m.facebook.com")
                                     android.util.Log.d("Gatekeeper", "🛡️ Mobile-Forcing: Rewriting to $mobileUrl")
                                     view?.loadUrl(mobileUrl)
                                     return true
