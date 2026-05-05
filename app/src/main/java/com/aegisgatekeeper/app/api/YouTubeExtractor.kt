@@ -108,6 +108,64 @@ class YouTubeExtractor(private val client: HttpClient) {
         return null
     }
 
+        private suspend fun fetchDynamicCobaltInstances(): List<String> {
+        val endpoints = listOf(
+            "https://instances.cobalt.best/api/instances.json",
+            "https://cobalt.directory/instances.json"
+        )
+        
+        for (endpoint in endpoints) {
+            try {
+                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Fetching dynamic cobalt instance list from $endpoint...")
+                val response = client.get(endpoint) {
+                    timeout {
+                        requestTimeoutMillis = 5000
+                        connectTimeoutMillis = 5000
+                    }
+                }
+                if (response.status.value in 200..299) {
+                    val bodyText = response.bodyAsText()
+                    val instances = mutableListOf<String>()
+                    
+                    try {
+                        val jsonElement = parser.decodeFromString(kotlinx.serialization.json.JsonElement.serializer(), bodyText)
+                        val array = if (jsonElement is JsonArray) {
+                            jsonElement
+                        } else if (jsonElement is kotlinx.serialization.json.JsonObject) {
+                            jsonElement["instances"]?.jsonArray ?: jsonElement.values.firstOrNull { it is JsonArray }?.jsonArray
+                        } else null
+                        
+                        array?.forEach { element ->
+                            if (element is kotlinx.serialization.json.JsonObject) {
+                                val api = element["api"]?.jsonPrimitive?.contentOrNull
+                                    ?: element["url"]?.jsonPrimitive?.contentOrNull
+                                    ?: element["domain"]?.jsonPrimitive?.contentOrNull
+                                if (api != null && api.isNotBlank() && api.startsWith("http")) {
+                                    instances.add(if (api.endsWith("/")) api else "$api/")
+                                }
+                            } else if (element is kotlinx.serialization.json.JsonPrimitive) {
+                                val api = element.contentOrNull
+                                if (api != null && api.isNotBlank() && api.startsWith("http")) {
+                                    instances.add(if (api.endsWith("/")) api else "$api/")
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Could not parse dynamic cobalt instances JSON.")
+                    }
+
+                    if (instances.isNotEmpty()) {
+                        com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found ${instances.size} dynamic cobalt instances from $endpoint.")
+                        return instances.shuffled()
+                    }
+                }
+            } catch (e: Exception) {
+                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Dynamic cobalt fetch failed from $endpoint: ${e.message}")
+            }
+        }
+        return emptyList()
+    }
+
     private suspend fun fetchDynamicInvidiousInstances(): List<String> {
         return try {
             com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Fetching dynamic instance list from api.invidious.io...")
@@ -205,17 +263,20 @@ class YouTubeExtractor(private val client: HttpClient) {
         return null
     }
 
-    suspend fun extractVideo(item: ContentItem): Either<String, ContentItem> {
+        suspend fun extractVideo(item: ContentItem): Either<String, ContentItem> {
         if (com.aegisgatekeeper.app.App.isRunningTest) {
             val placeholderStreamUrl = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
             return item.copy(localFilePath = placeholderStreamUrl).right()
         }
 
         // 1. Try Cobalt API First (Most Reliable Media Downloader API)
-        val cobaltEndpoints = listOf(
-            "https://api.cobalt.tools/",
-            "https://co.wuk.sh/",
-            "https://api.cobalt.tux.pizza/"
+        val dynamicCobalt = fetchDynamicCobaltInstances()
+        val cobaltEndpoints = dynamicCobalt + listOf(
+            "https://cobalt-api.kwiatekmiki.com/",
+            "https://coapi.kelig.me/",
+            "https://ca.haloz.at/",
+            "https://cobalt-api.ayo.tf/",
+            "https://api.cobalt.tools/"
         )
         for (endpoint in cobaltEndpoints) {
             val url = tryCobalt(endpoint, item.videoId)
