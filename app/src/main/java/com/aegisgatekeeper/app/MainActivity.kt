@@ -56,19 +56,22 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-        override fun onNewIntent(intent: Intent) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         handleIntents(intent, isRecreation = false)
     }
 
-    private fun handleIntents(intent: Intent, isRecreation: Boolean = false) {
+    private fun handleIntents(
+        intent: Intent,
+        isRecreation: Boolean = false,
+    ) {
         if (isRecreation) return
 
         val videoIdToPlay = intent.getStringExtra("OPEN_CLEAN_PLAYER_VIDEO_ID")
         val audioUrlToPlay = intent.getStringExtra("OPEN_CLEAN_AUDIO_URL")
         val nativeAudioIdToPlay = intent.getStringExtra("OPEN_NATIVE_AUDIO_ID")
-                val openActiveNativePlayer = intent.getBooleanExtra("OPEN_ACTIVE_NATIVE_PLAYER", false)
+        val openActiveNativePlayer = intent.getBooleanExtra("OPEN_ACTIVE_NATIVE_PLAYER", false)
 
         intent.removeExtra("OPEN_CLEAN_PLAYER_VIDEO_ID")
         intent.removeExtra("OPEN_CLEAN_AUDIO_URL")
@@ -179,7 +182,7 @@ class MainActivity : ComponentActivity() {
             setTurnScreenOn(true)
             val keyguardManager = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
             keyguardManager.requestDismissKeyguard(this, null)
-                } else {
+        } else {
             @Suppress("DEPRECATION")
             window.addFlags(
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
@@ -378,7 +381,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                                                val activeVideoId = state.media.activeVideoId
+                        val activeVideoId = state.media.activeVideoId
                         if (activeVideoId != null) {
                             com.aegisgatekeeper.app.views.CleanPlayerModal(
                                 videoId = activeVideoId,

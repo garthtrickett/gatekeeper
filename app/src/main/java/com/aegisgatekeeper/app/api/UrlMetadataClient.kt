@@ -16,8 +16,6 @@ import me.tatarka.inject.annotations.Inject
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-
-
 @Inject
 @Singleton
 class UrlMetadataClient(

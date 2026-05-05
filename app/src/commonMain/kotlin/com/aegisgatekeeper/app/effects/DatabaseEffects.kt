@@ -885,5 +885,3 @@ fun executeDatabaseEffect(
         else -> {}
     }
 }
-
-

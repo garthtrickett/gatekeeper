@@ -223,7 +223,7 @@ data class MediaState(
     val latestGlobalEpisodes: List<UnifiedEpisode>? = null,
     val isLoadingGlobalEpisodes: Boolean = false,
     val activeDownloads: Map<String, Float> = emptyMap(),
-        val activeAudioUrl: String? = null,
+    val activeAudioUrl: String? = null,
     val isAudioPlayerMaximized: Boolean = false,
     val savedMediaPositions: Map<String, Float> = emptyMap(),
     val activeVideoId: String? = null,
@@ -247,7 +247,7 @@ data class SyncAndIntegrationState(
     val notificationDigest: List<NotificationLog> = emptyList(),
     val beeperChats: List<BeeperChat> = emptyList(),
     val scheduledMessages: List<ScheduledMessage> = emptyList(),
-        val isSyncingBeeper: Boolean = false,
+    val isSyncingBeeper: Boolean = false,
 )
 
 data class RuleEvaluationSnapshot(
@@ -256,10 +256,13 @@ data class RuleEvaluationSnapshot(
     val isManualLockdownActive: Boolean,
     val currentMinutes: Int,
     val currentDay: DayOfWeek,
-    val usageStats: Map<String, Int>
+    val usageStats: Map<String, Int>,
 )
 
 sealed interface EvaluationVerdict {
     object Allowed : EvaluationVerdict
-    data class Blocked(val reason: String) : EvaluationVerdict
+
+    data class Blocked(
+        val reason: String,
+    ) : EvaluationVerdict
 }

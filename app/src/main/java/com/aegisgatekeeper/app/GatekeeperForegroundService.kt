@@ -200,7 +200,7 @@ class GatekeeperForegroundService : Service() {
         }
     }
 
-        private fun sendCheckInNotification(
+    private fun sendCheckInNotification(
         groupName: String,
         time: Int,
         deliveredMailCount: Int = 0,
@@ -250,10 +250,10 @@ class GatekeeperForegroundService : Service() {
                 .setAutoCancel(true)
                 .build()
 
-                manager.notify(groupName.hashCode(), notification)
+        manager.notify(groupName.hashCode(), notification)
     }
 
-        private fun sendGatheringNotification(vaultCount: Int) {
+    private fun sendGatheringNotification(vaultCount: Int) {
         val channelId = "gatekeeper_phase_channel"
         val manager = getSystemService(NotificationManager::class.java)
 

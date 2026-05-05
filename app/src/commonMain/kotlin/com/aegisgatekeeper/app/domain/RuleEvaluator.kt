@@ -17,13 +17,14 @@ fun evaluateRules(snapshot: RuleEvaluationSnapshot): EvaluationVerdict {
                     if (rule.daysOfWeek.contains(snapshot.currentDay)) {
                         val activeSlots = rule.timeSlots.filter { snapshot.currentMinutes in it.startTimeMinutes..it.endTimeMinutes }
                         if (activeSlots.isNotEmpty()) {
-                            val slotsStr = activeSlots.joinToString(", ") { slot ->
-                                val startH = (slot.startTimeMinutes / 60).toString().padStart(2, '0')
-                                val startM = (slot.startTimeMinutes % 60).toString().padStart(2, '0')
-                                val endH = (slot.endTimeMinutes / 60).toString().padStart(2, '0')
-                                val endM = (slot.endTimeMinutes % 60).toString().padStart(2, '0')
-                                "$startH:$startM - $endH:$endM"
-                            }
+                            val slotsStr =
+                                activeSlots.joinToString(", ") { slot ->
+                                    val startH = (slot.startTimeMinutes / 60).toString().padStart(2, '0')
+                                    val startM = (slot.startTimeMinutes % 60).toString().padStart(2, '0')
+                                    val endH = (slot.endTimeMinutes / 60).toString().padStart(2, '0')
+                                    val endM = (slot.endTimeMinutes % 60).toString().padStart(2, '0')
+                                    "$startH:$startM - $endH:$endM"
+                                }
                             groupViolations.add("Scheduled Block ($slotsStr)")
                         }
                     }
@@ -39,11 +40,12 @@ fun evaluateRules(snapshot: RuleEvaluationSnapshot): EvaluationVerdict {
 
                 is BlockingRule.CheckIn -> {
                     if (rule.daysOfWeek.contains(snapshot.currentDay)) {
-                        val timesStr = rule.checkInTimesMinutes.sorted().joinToString(", ") { time ->
-                            val h = (time / 60).toString().padStart(2, '0')
-                            val m = (time % 60).toString().padStart(2, '0')
-                            "$h:$m"
-                        }
+                        val timesStr =
+                            rule.checkInTimesMinutes.sorted().joinToString(", ") { time ->
+                                val h = (time / 60).toString().padStart(2, '0')
+                                val m = (time % 60).toString().padStart(2, '0')
+                                "$h:$m"
+                            }
                         groupViolations.add("Check-In Required ($timesStr)")
                     }
                 }
@@ -56,14 +58,15 @@ fun evaluateRules(snapshot: RuleEvaluationSnapshot): EvaluationVerdict {
             }
         }
 
-        val groupIsBlocked = when (group.combinator) {
-            RuleCombinator.ANY -> groupViolations.isNotEmpty()
-            RuleCombinator.ALL -> groupViolations.size == enabledRules.size && enabledRules.isNotEmpty()
-        }
+        val groupIsBlocked =
+            when (group.combinator) {
+                RuleCombinator.ANY -> groupViolations.isNotEmpty()
+                RuleCombinator.ALL -> groupViolations.size == enabledRules.size && enabledRules.isNotEmpty()
+            }
 
         if (groupIsBlocked) {
             return EvaluationVerdict.Blocked(
-                "Policy Violation: " + groupViolations.joinToString(" AND ") + " for '${group.name}'"
+                "Policy Violation: " + groupViolations.joinToString(" AND ") + " for '${group.name}'",
             )
         }
     }

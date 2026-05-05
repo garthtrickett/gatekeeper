@@ -23,5 +23,3 @@ fun executeSyncAndAuthEffect(effect: GatekeeperEffect) {
         else -> {}
     }
 }
-
-

@@ -52,14 +52,15 @@ class GatekeeperAccessibilityService : AccessibilityService() {
 
         if (com.aegisgatekeeper.app.App.isRunningTest) return
 
-        // We catch both window state changes (activity switches) and window changes (transitions/dialogs)
-        if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
-            event.eventType != AccessibilityEvent.TYPE_WINDOWS_CHANGED
-        ) {
+                if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             return
         }
 
         val packageName = event.packageName?.toString() ?: return
+
+        if (packageName == "com.android.systemui" || packageName.contains("inputmethod") || packageName.contains("keyboard")) {
+            return
+        }
 
         // Instead of just reporting the app is open, we force an immediate rule check
         // to prevent the "flash" of the distracted app.

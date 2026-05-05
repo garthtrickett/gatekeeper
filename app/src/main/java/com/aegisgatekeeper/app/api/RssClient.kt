@@ -15,8 +15,6 @@ import me.tatarka.inject.annotations.Inject
 import java.net.HttpURLConnection
 import java.net.URL
 
-
-
 @Inject
 @Singleton
 class RssClient(

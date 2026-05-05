@@ -120,7 +120,7 @@ class WebViewMediaService : Service() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-                val contentIntent =
+        val contentIntent =
             PendingIntent.getActivity(
                 this,
                 openIntentValue?.hashCode() ?: 1001,
