@@ -505,15 +505,7 @@ private fun reduceInterception(
                 slice
             }
 
-            is GatekeeperAction.YouTubeExtractionFailed -> {
-                if (slice.extractingYouTubeVideoId == action.videoId) {
-                    slice.copy(extractingYouTubeVideoId = null)
-                } else {
-                    slice
-                }
-            }
-
-            else -> {
+                        else -> {
                 slice
             }
         }
@@ -969,8 +961,16 @@ private fun reduceMedia(
                 slice.copy(currentSurgicalUrl = action.url)
             }
 
-            is GatekeeperAction.WebEngineInitialized -> {
+                        is GatekeeperAction.WebEngineInitialized -> {
                 slice.copy(isWebEngineReady = true)
+            }
+
+            is GatekeeperAction.YouTubeExtractionFailed -> {
+                if (slice.extractingYouTubeVideoId == action.videoId) {
+                    slice.copy(extractingYouTubeVideoId = null)
+                } else {
+                    slice
+                }
             }
 
             else -> {
