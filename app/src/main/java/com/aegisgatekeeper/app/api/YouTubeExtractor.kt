@@ -54,15 +54,19 @@ data class InvidiousResponse(
 
 @Serializable
 data class CobaltRequest(
-    val url: String,
-    val isAudioOnly: Boolean = false
+    val url: String
+)
+
+@Serializable
+data class CobaltError(
+    val code: String? = null
 )
 
 @Serializable
 data class CobaltResponse(
     val status: String? = null,
     val url: String? = null,
-    val text: String? = null
+    val error: CobaltError? = null
 )
 
 @Inject
@@ -84,18 +88,18 @@ class YouTubeExtractor(private val client: HttpClient) {
                 }
             }
 
+                        val text = response.bodyAsText()
             if (response.status.value in 200..299) {
-                val text = response.bodyAsText()
                 val cobaltResponse = parser.decodeFromString(CobaltResponse.serializer(), text)
                 
-                if ((cobaltResponse.status == "stream" || cobaltResponse.status == "redirect") && cobaltResponse.url != null) {
+                if ((cobaltResponse.status == "tunnel" || cobaltResponse.status == "redirect") && cobaltResponse.url != null) {
                     com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Found Cobalt stream")
                     return cobaltResponse.url
                 } else {
-                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt returned status ${cobaltResponse.status} - ${cobaltResponse.text}")
+                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt returned status ${cobaltResponse.status} - ${cobaltResponse.error?.code}")
                 }
             } else {
-                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt instance failed with status ${response.status.value}")
+                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Cobalt instance failed with status ${response.status.value}: $text")
             }
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
