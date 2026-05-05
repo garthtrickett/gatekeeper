@@ -531,9 +531,28 @@ private fun reduceData(
                 slice.copy(vaultItems = listOf(item) + slice.vaultItems)
             }
 
-            is GatekeeperAction.MarkVaultItemResolved -> {
+                        is GatekeeperAction.MarkVaultItemResolved -> {
                 effects.add(GatekeeperEffect.DbMarkVaultItemResolved(action.id, action.currentTimestamp))
                 slice.copy(vaultItems = slice.vaultItems.map { if (it.id == action.id) it.copy(isResolved = true) else it })
+            }
+
+            is GatekeeperAction.AddEpisodeToBank -> {
+                val newRank = (slice.contentItems.maxOfOrNull { it.rank } ?: -1L) + 1L
+                val item =
+                    ContentItem(
+                        id = randomUUIDString(),
+                        podcastId = action.podcastId,
+                        videoId = action.episode.audioUrl,
+                        title = action.episode.title,
+                        source = ContentSource.GENERIC,
+                        type = ContentType.AUDIO,
+                        rank = newRank,
+                        capturedAtTimestamp = currentTimeMillis(),
+                        durationSeconds = action.episode.durationSeconds,
+                        channelName = action.podcastTitle,
+                    )
+                effects.add(GatekeeperEffect.DbUpsertContentItem(item))
+                slice.copy(contentItems = slice.contentItems + item)
             }
 
             is GatekeeperAction.SaveToContentBank -> {
@@ -865,39 +884,8 @@ private fun reduceMedia(
                 slice.copy(isLoadingGlobalEpisodes = true)
             }
 
-            is GatekeeperAction.LatestGlobalEpisodesLoaded -> {
+                        is GatekeeperAction.LatestGlobalEpisodesLoaded -> {
                 slice.copy(isLoadingGlobalEpisodes = false, latestGlobalEpisodes = action.episodes)
-            }
-
-            is GatekeeperAction.AddEpisodeToBank -> {
-                val contentItem =
-                    ContentItem(
-                        id = randomUUIDString(),
-                        podcastId = action.podcastId,
-                        videoId = action.episode.audioUrl,
-                        title = action.episode.title,
-                        source = ContentSource.GENERIC,
-                        type = ContentType.AUDIO,
-                        rank = (fullState.data.contentItems.maxOfOrNull { it.rank } ?: -1L) + 1L,
-                        capturedAtTimestamp = currentTimeMillis(),
-                        durationSeconds = action.episode.durationSeconds,
-                        channelName = action.podcastTitle,
-                    )
-                effects.add(
-                    GatekeeperEffect.EmitAction(
-                        GatekeeperAction.SaveToContentBank(
-                            videoId = contentItem.videoId,
-                            title = contentItem.title,
-                            source = contentItem.source,
-                            type = contentItem.type,
-                            currentTimestamp = contentItem.capturedAtTimestamp,
-                            durationSeconds = contentItem.durationSeconds,
-                            channelName = contentItem.channelName,
-                            podcastId = contentItem.podcastId,
-                        ),
-                    ),
-                )
-                slice
             }
 
             is GatekeeperAction.DownloadProgressUpdated -> {
