@@ -21,7 +21,7 @@ data class CobaltRequest(
     val url: String,
     val videoQuality: String = "720",
     val downloadMode: String = "audio",
-    val audioFormat: String = "mp3",
+    val audioFormat: String = "best",
     val isAudioOnly: Boolean = true
 )
 
@@ -62,6 +62,10 @@ class YouTubeExtractor(private val client: HttpClient) {
                         finalUrl = "${endpoint.trimEnd('/')}$finalUrl"
                     }
                     
+                    // Rewrite localhost to match the host that actually resolved successfully via adb reverse.
+                    val host = java.net.URL(endpoint).host
+                    finalUrl = finalUrl.replace("localhost", host).replace("127.0.0.1", host)
+
                     com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Stream Resolved -> $finalUrl")
                     return finalUrl
                 }
