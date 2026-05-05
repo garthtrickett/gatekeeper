@@ -1,6 +1,7 @@
 package com.aegisgatekeeper.app.api
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.right
 import com.aegisgatekeeper.app.di.Singleton
 import com.aegisgatekeeper.app.domain.ContentItem
@@ -110,6 +111,6 @@ class YouTubeExtractor(private val client: HttpClient) {
             }
         }
 
-        return arrow.core.left("Could not extract YouTube stream from any available instance")
+        return "Could not extract YouTube stream from any available instance".left()
     }
 }
