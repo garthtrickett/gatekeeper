@@ -13,10 +13,12 @@ import com.aegisgatekeeper.app.App
 class PodcastMediaService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
 
-                        override fun onCreate() {
+                            override fun onCreate() {
         super.onCreate()
         
-        val headers = mutableMapOf("Accept" to "*/*")
+        val headers = mutableMapOf<String, String>()
+        headers["Accept"] = "*/*"
+        headers["Range"] = "bytes=0-"
         if (com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY.isNotEmpty()) {
             headers["Api-Key"] = com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY
         }
@@ -28,13 +30,6 @@ class PodcastMediaService : MediaSessionService() {
             .setConnectTimeoutMs(30000)
             .setReadTimeoutMs(30000)
 
-        val cacheDataSourceFactory =
-            androidx.media3.datasource.cache.CacheDataSource
-                .Factory()
-                .setCache(App.downloadCache)
-                .setUpstreamDataSourceFactory(dataSourceFactory)
-                .setCacheWriteDataSinkFactory(null)
-
         val audioAttributes =
             androidx.media3.common.AudioAttributes
                 .Builder()
@@ -45,7 +40,6 @@ class PodcastMediaService : MediaSessionService() {
         val player =
             ExoPlayer
                 .Builder(this)
-                // For tunneled streams, we bypass the cache to avoid Range request issues.
                 .setMediaSourceFactory(androidx.media3.exoplayer.source.DefaultMediaSourceFactory(dataSourceFactory))
                 .setAudioAttributes(audioAttributes, true)
                 .build()

@@ -36,7 +36,7 @@ data class CobaltResponse(
 class YouTubeExtractor(private val client: HttpClient) {
     private val parser = Json { ignoreUnknownKeys = true }
 
-        private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
+    private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
         val requestUrl = "https://www.youtube.com/watch?v=$videoId"
         try {
             com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Connecting to Cobalt ($endpoint)")
@@ -64,11 +64,20 @@ class YouTubeExtractor(private val client: HttpClient) {
                         finalUrl = "${base.trimEnd('/')}$finalUrl"
                     }
                     
+                    // HINT FIX: We saw in logs that Cobalt returns .m4a
+                    val keyPart = if (com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY.isNotEmpty()) {
+                        "&key=${com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY}"
+                    } else ""
+                    
+                    val separator = if (finalUrl.contains("?")) "&" else "?"
+                    // Use .m4a as the hint since that's what Cobalt is sending
+                    finalUrl = "${finalUrl}${separator}exoplayer_hint=.m4a${keyPart}"
+                    
                     com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Stream Resolved -> $finalUrl")
                     return finalUrl
                 }
             } else {
-                 com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Non-200 status -> ${response.status.value}: ${response.bodyAsText()}")
+                 com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Non-200 status -> ${response.status.value}")
             }
         } catch (e: Exception) {
             com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Attempt failed for $endpoint: ${e.message}")
@@ -86,6 +95,6 @@ class YouTubeExtractor(private val client: HttpClient) {
             return item.copy(localFilePath = url).right()
         }
 
-        return "Extraction Failed: Cobalt unreachable. Ensure your API key is correct in local.properties.".left()
+        return "Extraction Failed: Cobalt unreachable. Check server logs.".left()
     }
 }
