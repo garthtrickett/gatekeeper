@@ -169,12 +169,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // UI Test Stability: Force the screen on and bypass the keyguard.
-        // If the screen is off or locked, Compose will never perform a layout pass,
-        // causing 'No compose hierarchies found' errors in tests.
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -193,7 +189,6 @@ class MainActivity : ComponentActivity() {
 
         handleIntents(intent, savedInstanceState != null)
 
-        // E2E Programmatic State Injection (Debug Only)
         if (BuildConfig.DEBUG) {
             val receiver =
                 object : BroadcastReceiver() {
@@ -261,167 +256,10 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Skip rendering the default UI if we are running instrumented tests.
-        // This allows our tests to use MainActivity for its WakeLock properties
-        // while calling composeTestRule.setContent { ... } to render specific isolated screens.
         if (!com.aegisgatekeeper.app.App.isRunningTest) {
             setContent {
                 GatekeeperTheme {
-                    val state by GatekeeperStateManager.state.collectAsState()
-
-                    if (!state.interception.isDualMoatEnabled) {
-                        com.aegisgatekeeper.app.views
-                            .PermissionsOnboardingScreen()
-                    } else {
-                        var selectedTab by remember { mutableIntStateOf(0) }
-
-                        val navItems =
-                            listOf(
-                                "Home" to "🏠",
-                                "Vault" to "🔍",
-                                "Bank" to (if (state.sync.isProTier) "🎬" else "🔒"),
-                                "Slots" to (if (state.sync.isProTier) "📥" else "🔒"),
-                                "Outpost" to "🎯",
-                                "Digest" to "🔔",
-                                "Web" to "🌐",
-                                "Rules" to "🛡️",
-                                "Habits" to "🏃",
-                                "Insights" to (if (state.sync.isProTier) "📊" else "🔒"),
-                                "Account" to "👤",
-                            )
-
-                        Column(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
-                            Box(modifier = Modifier.weight(1f)) {
-                                when (selectedTab) {
-                                    0 -> {
-                                        com.aegisgatekeeper.app.views
-                                            .MissionControlScreen()
-                                    }
-
-                                    1 -> {
-                                        VaultReviewScreen(onNavigateToWeb = { selectedTab = 6 })
-                                    }
-
-                                    2 -> {
-                                        ContentBankScreen()
-                                    }
-
-                                    3 -> {
-                                        com.aegisgatekeeper.app.views
-                                            .IntentionalContentScreen()
-                                    }
-
-                                    4 -> {
-                                        com.aegisgatekeeper.app.views
-                                            .OutpostScreen()
-                                    }
-
-                                    5 -> {
-                                        com.aegisgatekeeper.app.views
-                                            .NotificationDigestScreen()
-                                    }
-
-                                    6 -> {
-                                        com.aegisgatekeeper.app.views
-                                            .SurgicalWebScreen()
-                                    }
-
-                                    7 -> {
-                                        com.aegisgatekeeper.app.views
-                                            .AppGroupsScreen()
-                                    }
-
-                                    8 -> {
-                                        com.aegisgatekeeper.app.views
-                                            .AlternativeActivitiesScreen()
-                                    }
-
-                                    9 -> {
-                                        com.aegisgatekeeper.app.views
-                                            .AnalyticsScreen()
-                                    }
-
-                                    10 -> {
-                                        com.aegisgatekeeper.app.views
-                                            .AccountScreen()
-                                    }
-                                }
-                            }
-
-                            androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
-                            Row(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .background(MaterialTheme.colorScheme.surface)
-                                        .padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.SpaceAround,
-                            ) {
-                                navItems.forEachIndexed { index, (label, icon) ->
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier =
-                                            Modifier
-                                                .weight(1f)
-                                                .clickable { selectedTab = index }
-                                                .padding(vertical = 4.dp),
-                                    ) {
-                                        val color =
-                                            if (selectedTab ==
-                                                index
-                                            ) {
-                                                MaterialTheme.colorScheme.primary
-                                            } else {
-                                                MaterialTheme.colorScheme.onSurfaceVariant
-                                            }
-                                        Text(icon, fontSize = 20.sp, color = color)
-                                        Text(label, fontSize = 10.sp, color = color, maxLines = 1)
-                                    }
-                                }
-                            }
-                        }
-
-                        val activeAudioUrl = state.media.activeAudioUrl
-                        if (activeAudioUrl != null) {
-                            com.aegisgatekeeper.app.views.CleanAudioPlayerModal(
-                                url = activeAudioUrl,
-                                isVisible = state.media.isAudioPlayerMaximized,
-                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanAudioPlayer) },
-                                onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
-                            )
-                        }
-
-                        val activeNativeMediaItem = state.media.activeNativeMediaItem
-                        if (activeNativeMediaItem != null) {
-                            com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
-                                contentItem = activeNativeMediaItem,
-                                isVisible = state.media.isNativePlayerMaximized,
-                                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeNativePlayer) },
-                                onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
-                            )
-                        }
-
-                        if (state.media.activeFacebookUrl != null) {
-                            com.aegisgatekeeper.app.views.SurgicalFacebookScreen(
-                                url = state.media.activeFacebookUrl!!,
-                                onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalFacebook) },
-                            )
-                        }
-
-                        if (state.media.activePinnedWebsiteUrl != null) {
-                            com.aegisgatekeeper.app.views.PinnedWebModal(
-                                url = state.media.activePinnedWebsiteUrl!!,
-                                onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.ClosePinnedWebsite) },
-                            )
-                        }
-
-                        if (state.data.pendingMetacognition != null) {
-                            com.aegisgatekeeper.app.views.MetacognitionDialog(
-                                request = state.data.pendingMetacognition!!,
-                                onDismiss = { GatekeeperStateManager.dispatch(GatekeeperAction.ClearMetacognition) },
-                            )
-                        }
-                    }
+                    cafe.adriel.voyager.navigator.Navigator(com.aegisgatekeeper.app.navigation.RootScreen())
                 }
             }
         }

@@ -126,7 +126,12 @@ kotlin {
                 implementation("app.cash.sqldelight:coroutines-extensions:2.0.2")
                 implementation("app.cash.sqldelight:primitive-adapters:2.0.2")
                 implementation("media.kamel:kamel-image:0.9.4")
-                implementation("io.arrow-kt:arrow-core:1.2.0")
+                                implementation("io.arrow-kt:arrow-core:1.2.0")
+                
+                val voyagerVersion = "1.0.0"
+                implementation("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
+                implementation("cafe.adriel.voyager:voyager-tab-navigator:$voyagerVersion")
+                implementation("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
             }
         }
         
