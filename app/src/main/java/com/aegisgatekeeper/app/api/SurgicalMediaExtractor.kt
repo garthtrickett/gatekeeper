@@ -26,7 +26,7 @@ class SurgicalMediaExtractor(
 
         // Append .mp3 as an exoplayer_hint to help ExoPlayer quickly identify the raw HTTP chunk stream
         val encodedUrl = java.net.URLEncoder.encode(fullUrl, "UTF-8")
-        val proxyUrl = "${com.aegisgatekeeper.app.BuildConfig.SURGICAL_PROXY_URL}/stream?url=$encodedUrl&exoplayer_hint=.mp3"
+        val proxyUrl = "${com.aegisgatekeeper.app.BuildConfig.SURGICAL_PROXY_URL}/stream?id=$encodedUrl&exoplayer_hint=.mp3"
         com.aegisgatekeeper.app.domain
             .platformLog("Gatekeeper", "✅ SurgicalMediaExtractor: Tunnelling through Surgical Proxy -> $proxyUrl")
 
