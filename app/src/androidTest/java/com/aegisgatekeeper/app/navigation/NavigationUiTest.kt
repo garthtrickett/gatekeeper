@@ -36,10 +36,11 @@ class NavigationUiTest {
 
     @Test
     fun testTabNavigation_SwitchesScreensCorrectly() {
-                // Act: Render the main navigation host (Voyager TabNavigator)
+        // Act: Render the main navigation host (Voyager TabNavigator)
         composeTestRule.setContent {
             GatekeeperTheme {
-                cafe.adriel.voyager.navigator.Navigator(MainNavigationScreen())
+                cafe.adriel.voyager.navigator
+                    .Navigator(MainNavigationScreen())
             }
         }
 
@@ -65,10 +66,11 @@ class NavigationUiTest {
 
     @Test
     fun testGlobalModals_RenderOverNavigation() {
-                // Arrange: Render the navigator
+        // Arrange: Render the navigator
         composeTestRule.setContent {
             GatekeeperTheme {
-                cafe.adriel.voyager.navigator.Navigator(MainNavigationScreen())
+                cafe.adriel.voyager.navigator
+                    .Navigator(MainNavigationScreen())
             }
         }
 

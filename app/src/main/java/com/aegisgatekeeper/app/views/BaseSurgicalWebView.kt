@@ -18,7 +18,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 
 data class SurgicalFilterRule(
     val urlCondition: (String) -> Boolean,
-    val hiddenSelectors: List<String>
+    val hiddenSelectors: List<String>,
 )
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -193,10 +193,11 @@ fun BaseSurgicalWebView(
                                 }
                             }
 
-                            val activeSelectors = filterRules
-                                .filter { it.urlCondition(currentUrl ?: "") }
-                                .flatMap { it.hiddenSelectors }
-                                .distinct()
+                            val activeSelectors =
+                                filterRules
+                                    .filter { it.urlCondition(currentUrl ?: "") }
+                                    .flatMap { it.hiddenSelectors }
+                                    .distinct()
 
                             if (activeSelectors.isNotEmpty()) {
                                 val cleanCss = activeSelectors.joinToString(", ") + " { display: none !important; }"

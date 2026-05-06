@@ -92,7 +92,7 @@ class AndroidEffectHandler(
         WorkManager.getInstance(context).enqueue(workRequest)
     }
 
-        override suspend fun searchPodcasts(query: String): Either<String, List<PodcastFeedDto>> {
+    override suspend fun searchPodcasts(query: String): Either<String, List<PodcastFeedDto>> {
         if (com.aegisgatekeeper.app.App.isRunningTest) return emptyList<PodcastFeedDto>().right()
         return podcastIndexClient.searchPodcasts(query)
     }
@@ -116,6 +116,7 @@ class AndroidEffectHandler(
         return beeperClient.getChats()
     }
 
-        override suspend fun fetchYouTubeStream(item: com.aegisgatekeeper.app.domain.ContentItem): Either<String, com.aegisgatekeeper.app.domain.ContentItem> =
-        youtubeExtractor.extractVideo(item)
+    override suspend fun fetchYouTubeStream(
+        item: com.aegisgatekeeper.app.domain.ContentItem,
+    ): Either<String, com.aegisgatekeeper.app.domain.ContentItem> = youtubeExtractor.extractVideo(item)
 }

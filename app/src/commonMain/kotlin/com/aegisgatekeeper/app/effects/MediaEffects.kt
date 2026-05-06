@@ -84,7 +84,7 @@ suspend fun executeMediaAndSystemEffect(
             val pattern = """(?<=youtu\.be/|watch\?v=|/shorts/)([a-zA-Z0-9_-]{11})""".toRegex()
             val videoId = pattern.find(effect.url)?.value
 
-                        if (videoId != null) {
+            if (videoId != null) {
                 val metadataResult = effectHandler.fetchUrlMetadata(effect.url, isSoundCloud = false, isGeneric = false)
                 val title = metadataResult.fold({ effect.providedTitle ?: "YouTube Video" }, { it.title })
 
@@ -152,7 +152,7 @@ suspend fun executeMediaAndSystemEffect(
             effectHandler.triggerWidgetUpdate()
         }
 
-                is GatekeeperEffect.FetchYouTubeStream -> {
+        is GatekeeperEffect.FetchYouTubeStream -> {
             platformLog("Gatekeeper", "📡 Extracting YouTube stream for ${effect.item.videoId}")
             effectHandler.fetchYouTubeStream(effect.item).fold(
                 ifLeft = { error ->

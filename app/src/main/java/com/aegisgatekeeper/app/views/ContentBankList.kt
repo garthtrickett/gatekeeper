@@ -42,6 +42,7 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+@Suppress("FunctionName")
 @Composable
 fun ContentBankList(
     items: List<ContentItem>,
@@ -54,7 +55,7 @@ fun ContentBankList(
     onDownloadRequested: (String) -> Unit,
     onDeleteDownloadedMedia: (String) -> Unit,
     onPlayContent: (ContentItem) -> Unit,
-    onDropContent: (String) -> Unit
+    onDropContent: (String) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
     var draggedItemIndex by remember { mutableStateOf<Int?>(null) }
@@ -165,6 +166,7 @@ fun ContentBankList(
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun ContentItemCard(
     item: ContentItem,

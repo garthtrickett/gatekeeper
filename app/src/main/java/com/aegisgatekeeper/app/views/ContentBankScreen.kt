@@ -87,7 +87,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                             action()
                         }
                     },
-                    onOpenPodcasts = { showFeedManagement = true }
+                    onOpenPodcasts = { showFeedManagement = true },
                 )
 
                 ContentBankList(
@@ -98,7 +98,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     extractingYouTubeVideoId = state.media.extractingYouTubeVideoId,
                     onReorder = { from, to ->
                         GatekeeperStateManager.dispatch(
-                            GatekeeperAction.ReorderContentBank(from, to, System.currentTimeMillis())
+                            GatekeeperAction.ReorderContentBank(from, to, System.currentTimeMillis()),
                         )
                     },
                     onDragStart = {
@@ -120,9 +120,11 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                             ContentSource.YOUTUBE -> {
                                 GatekeeperStateManager.dispatch(GatekeeperAction.PlayYouTubeVideo(item.videoId))
                             }
+
                             ContentSource.SOUNDCLOUD -> {
                                 GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanAudioPlayer(item.videoId))
                             }
+
                             ContentSource.SUBSTACK, ContentSource.GENERIC -> {
                                 if (item.type == ContentType.AUDIO) {
                                     GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
@@ -133,16 +135,17 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                                             android.net.Uri.parse(item.videoId),
                                         )
                                     intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-                                    com.aegisgatekeeper.app.App.instance.startActivity(intent)
+                                    com.aegisgatekeeper.app.App.instance
+                                        .startActivity(intent)
                                 }
                             }
                         }
                     },
                     onDropContent = { id ->
                         GatekeeperStateManager.dispatch(
-                            GatekeeperAction.RemoveFromContentBank(id, System.currentTimeMillis())
+                            GatekeeperAction.RemoveFromContentBank(id, System.currentTimeMillis()),
                         )
-                    }
+                    },
                 )
             } // Close Column
 
@@ -150,25 +153,28 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
             if (state.media.isProcessingLink) {
                 androidx.compose.material3.FloatingActionButton(
                     onClick = { },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(16.dp),
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ) {
                     androidx.compose.material3.CircularProgressIndicator(
-                        modifier = Modifier
-                            .padding(12.dp)
-                            .semantics { contentDescription = "Processing Link" },
+                        modifier =
+                            Modifier
+                                .padding(12.dp)
+                                .semantics { contentDescription = "Processing Link" },
                         strokeWidth = 3.dp,
                     )
                 }
             } else {
                 IndustrialButton(
                     onClick = { showAddDialog = true },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(16.dp),
                     text = "+",
                 )
             }

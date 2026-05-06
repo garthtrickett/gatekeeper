@@ -27,16 +27,18 @@ actual fun PinnedWebModal(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-                .systemBarsPadding(),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+                    .systemBarsPadding(),
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Black)
-                    .padding(8.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(Color.Black)
+                        .padding(8.dp),
                 contentAlignment = Alignment.TopEnd,
             ) {
                 IndustrialButton(onClick = onClose, text = "Exit", isWarning = true)

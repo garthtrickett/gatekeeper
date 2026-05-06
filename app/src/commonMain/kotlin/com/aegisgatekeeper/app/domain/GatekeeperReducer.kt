@@ -505,7 +505,7 @@ private fun reduceInterception(
                 slice
             }
 
-                        else -> {
+            else -> {
                 slice
             }
         }
@@ -909,7 +909,7 @@ private fun reduceMedia(
                 }
             }
 
-                        is GatekeeperAction.PlayYouTubeVideo -> {
+            is GatekeeperAction.PlayYouTubeVideo -> {
                 val item = fullState.data.contentItems.find { it.videoId == action.videoId }
                 if (item != null) {
                     effects.add(GatekeeperEffect.FetchYouTubeStream(item))
@@ -961,7 +961,7 @@ private fun reduceMedia(
                 slice.copy(currentSurgicalUrl = action.url)
             }
 
-                        is GatekeeperAction.WebEngineInitialized -> {
+            is GatekeeperAction.WebEngineInitialized -> {
                 slice.copy(isWebEngineReady = true)
             }
 

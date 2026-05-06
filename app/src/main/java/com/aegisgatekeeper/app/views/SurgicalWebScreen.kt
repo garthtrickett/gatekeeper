@@ -75,25 +75,27 @@ fun SurgicalWebScreen() {
                 "googletagmanager.com",
             )
 
-        val webFilterRules = listOf(
-            SurgicalFilterRule(
-                urlCondition = { it.contains("twitter.com") || it.contains("x.com") },
-                hiddenSelectors = listOf(
-                    "[data-testid='sidebarColumn']", 
-                    "[data-testid='primaryColumn'] > div > div:nth-child(2)", 
-                    "nav[aria-label='Primary'] > a:nth-child(2)", 
-                    "nav[aria-label='Primary'] > a:nth-child(5)"
-                )
-            ),
-            SurgicalFilterRule(
-                urlCondition = { it.contains("substack.com") },
-                hiddenSelectors = listOf(".feed-container", ".top-posts-container", ".sidebar")
-            ),
-            SurgicalFilterRule(
-                urlCondition = { it.contains("youtube.com") },
-                hiddenSelectors = listOf("#secondary", "#related", "ytd-reel-shelf-renderer", "ytd-shorts")
+        val webFilterRules =
+            listOf(
+                SurgicalFilterRule(
+                    urlCondition = { it.contains("twitter.com") || it.contains("x.com") },
+                    hiddenSelectors =
+                        listOf(
+                            "[data-testid='sidebarColumn']",
+                            "[data-testid='primaryColumn'] > div > div:nth-child(2)",
+                            "nav[aria-label='Primary'] > a:nth-child(2)",
+                            "nav[aria-label='Primary'] > a:nth-child(5)",
+                        ),
+                ),
+                SurgicalFilterRule(
+                    urlCondition = { it.contains("substack.com") },
+                    hiddenSelectors = listOf(".feed-container", ".top-posts-container", ".sidebar"),
+                ),
+                SurgicalFilterRule(
+                    urlCondition = { it.contains("youtube.com") },
+                    hiddenSelectors = listOf("#secondary", "#related", "ytd-reel-shelf-renderer", "ytd-shorts"),
+                ),
             )
-        )
 
         BaseSurgicalWebView(
             url = state.media.currentSurgicalUrl ?: "https://google.com",

@@ -308,9 +308,10 @@ class ContentBankUiTest {
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Add to Bank").assertDoesNotExist()
 
-                // Wait for coroutine to process metadata
+        // Wait for coroutine to process metadata
         composeTestRule.waitUntil(5000) {
-            GatekeeperStateManager.state.value.data.contentItems.any { it.videoId == "dQw4w9WgXcQ" }
+            GatekeeperStateManager.state.value.data.contentItems
+                .any { it.videoId == "dQw4w9WgXcQ" }
         }
 
         val state = GatekeeperStateManager.state.value
@@ -359,7 +360,7 @@ class ContentBankUiTest {
         com.google.common.truth.Truth
             .assertThat(state.media.activeNativeMediaItem)
             .isNotNull()
-                com.google.common.truth.Truth
+        com.google.common.truth.Truth
             .assertThat(state.media.activeNativeMediaItem!!.title)
             .isEqualTo("Test YouTube Video")
 

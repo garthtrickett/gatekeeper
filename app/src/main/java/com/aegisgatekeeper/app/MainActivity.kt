@@ -169,7 +169,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-        override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -259,7 +259,11 @@ class MainActivity : ComponentActivity() {
         if (!com.aegisgatekeeper.app.App.isRunningTest) {
             setContent {
                 GatekeeperTheme {
-                    cafe.adriel.voyager.navigator.Navigator(com.aegisgatekeeper.app.navigation.RootScreen())
+                    cafe.adriel.voyager.navigator
+                        .Navigator(
+                            com.aegisgatekeeper.app.navigation
+                                .RootScreen(),
+                        )
                 }
             }
         }

@@ -33,5 +33,7 @@ interface PlatformEffectHandler {
 
     suspend fun syncBeeperChats(): Either<String, List<BeeperChat>>
 
-        suspend fun fetchYouTubeStream(item: com.aegisgatekeeper.app.domain.ContentItem): Either<String, com.aegisgatekeeper.app.domain.ContentItem>
+    suspend fun fetchYouTubeStream(
+        item: com.aegisgatekeeper.app.domain.ContentItem,
+    ): Either<String, com.aegisgatekeeper.app.domain.ContentItem>
 }

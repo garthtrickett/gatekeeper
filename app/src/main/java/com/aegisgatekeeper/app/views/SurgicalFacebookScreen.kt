@@ -44,10 +44,11 @@ fun SurgicalFacebookScreen(
     var forceReload by remember { mutableStateOf(0) }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .systemBarsPadding(),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+                .systemBarsPadding(),
     ) {
         // Header Navigation
         Row(
@@ -56,9 +57,10 @@ fun SurgicalFacebookScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .horizontalScroll(rememberScrollState()),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 IndustrialButton(
@@ -177,31 +179,36 @@ fun SurgicalFacebookScreen(
                         false
                     }
                 },
-                filterRules = if (isLoggedIn) {
-                    listOf(
-                        SurgicalFilterRule(
-                            urlCondition = { !it.contains("/search/") },
-                            hiddenSelectors = listOf(
-                                "div[data-m-bubble-key=\"back_button\"]",
-                                "#m_newsfeed_stream",
-                                "#stories_tray",
-                                "#m_story_permalink_view"
-                            )
-                        ),
-                        SurgicalFilterRule(
-                            urlCondition = { it.matches(Regex(".*/(groups|events)/?(\\?.*)?$")) },
-                            hiddenSelectors = listOf(
-                                "div[role=\"button\"][aria-label=\"Back\"]",
-                                "div[role=\"button\"][aria-label=\"back\"]",
-                                "a[data-sigil=\"MBackNavBarClick\"]"
-                            )
-                        ),
-                        SurgicalFilterRule(
-                            urlCondition = { it.contains("/search/") },
-                            hiddenSelectors = listOf("div[data-m-bubble-key=\"back_button\"]")
+                filterRules =
+                    if (isLoggedIn) {
+                        listOf(
+                            SurgicalFilterRule(
+                                urlCondition = { !it.contains("/search/") },
+                                hiddenSelectors =
+                                    listOf(
+                                        "div[data-m-bubble-key=\"back_button\"]",
+                                        "#m_newsfeed_stream",
+                                        "#stories_tray",
+                                        "#m_story_permalink_view",
+                                    ),
+                            ),
+                            SurgicalFilterRule(
+                                urlCondition = { it.matches(Regex(".*/(groups|events)/?(\\?.*)?$")) },
+                                hiddenSelectors =
+                                    listOf(
+                                        "div[role=\"button\"][aria-label=\"Back\"]",
+                                        "div[role=\"button\"][aria-label=\"back\"]",
+                                        "a[data-sigil=\"MBackNavBarClick\"]",
+                                    ),
+                            ),
+                            SurgicalFilterRule(
+                                urlCondition = { it.contains("/search/") },
+                                hiddenSelectors = listOf("div[data-m-bubble-key=\"back_button\"]"),
+                            ),
                         )
-                    )
-                } else emptyList(),
+                    } else {
+                        emptyList()
+                    },
                 networkBlocklist = emptyList(),
                 onLogout = {
                     cookieManager.removeAllCookies(null)

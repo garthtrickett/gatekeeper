@@ -272,7 +272,7 @@ sealed interface GatekeeperEffect {
 
     object SchedulePodcastRefresh : GatekeeperEffect
 
-        data class FetchYouTubeStream(
+    data class FetchYouTubeStream(
         val item: ContentItem,
     ) : GatekeeperEffect
 

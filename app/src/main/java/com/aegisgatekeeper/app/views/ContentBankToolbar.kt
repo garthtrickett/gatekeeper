@@ -19,13 +19,14 @@ import com.aegisgatekeeper.app.domain.ContentType
 import com.aegisgatekeeper.app.domain.IndustrialButton
 import com.aegisgatekeeper.app.domain.IndustrialTextField
 
+@Suppress("FunctionName")
 @Composable
 fun ContentBankToolbar(
     searchQuery: String,
     onSearchChanged: (String) -> Unit,
     activeContentFilter: ContentType?,
     onFilterSelected: (ContentType?) -> Unit,
-    onOpenPodcasts: () -> Unit
+    onOpenPodcasts: () -> Unit,
 ) {
     Column {
         Text("The Content Bank", style = MaterialTheme.typography.headlineLarge)
