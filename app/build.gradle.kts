@@ -34,7 +34,7 @@ android {
 
 
         val syncUrl = properties.getProperty("SYNC_SERVER_URL") ?: "http://10.0.2.2:8081"
-        buildConfigField("String", "SYNC_SERVER_URL", "\"$syncUrl\"")
+        buildConfigField("String", "SYNC_SERVER_URL", "\"$syncUrl\"")\n\n        val cobaltUrl = properties.getProperty("COBALT_API_URL") ?: "http://10.0.2.2:9099"\n        buildConfigField("String", "COBALT_API_URL", "\"$cobaltUrl\"")\n\n        val cobaltKey = properties.getProperty("COBALT_API_KEY") ?: ""\n        buildConfigField("String", "COBALT_API_KEY", "\"$cobaltKey\"")
 
         manifestPlaceholders["appName"] = "Aegis Gatekeeper"
         manifestPlaceholders["appIcon"] = "@android:drawable/ic_lock_idle_lock"
