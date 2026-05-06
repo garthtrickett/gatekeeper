@@ -39,7 +39,7 @@ class App :
                 .setMinimumLoggingLevel(android.util.Log.INFO)
                 .build()
 
-        override fun onCreate() {
+            override fun onCreate() {
         super.onCreate()
         instance = this
         com.aegisgatekeeper.app.db.DatabaseManager
@@ -71,6 +71,12 @@ class App :
         val downloadDirectory = File(getExternalFilesDir(null), "downloads")
         downloadCache = SimpleCache(downloadDirectory, NoOpCacheEvictor(), databaseProvider)
 
+        val headers = mutableMapOf("Accept" to "*/*")
+        if (com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY.isNotEmpty()) {
+            headers["Api-Key"] = com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY
+            headers["Authorization"] = "Bearer " + com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY
+        }
+
         downloadManager =
             DownloadManager(
                 this,
@@ -78,7 +84,7 @@ class App :
                 downloadCache,
                 androidx.media3.datasource.DefaultHttpDataSource.Factory()
                     .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36")
-                    .setDefaultRequestProperties(mapOf("Accept" to "*/*"))
+                    .setDefaultRequestProperties(headers)
                     .setAllowCrossProtocolRedirects(true)
                     .setConnectTimeoutMs(30000)
                     .setReadTimeoutMs(30000),

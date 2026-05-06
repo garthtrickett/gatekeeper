@@ -13,23 +13,21 @@ import com.aegisgatekeeper.app.App
 class PodcastMediaService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
 
-                override fun onCreate() {
+                    override fun onCreate() {
         super.onCreate()
         
-        // Mask as Chrome to avoid 403 Forbidden from YouTube servers
+        val headers = mutableMapOf("Accept" to "*/*")
+        if (com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY.isNotEmpty()) {
+            headers["Api-Key"] = com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY
+            headers["Authorization"] = "Bearer " + com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY
+        }
+
         val dataSourceFactory = androidx.media3.datasource.DefaultHttpDataSource.Factory()
             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36")
-                        .setDefaultRequestProperties(mapOf("Accept" to "*/*"))
+            .setDefaultRequestProperties(headers)
             .setAllowCrossProtocolRedirects(true)
             .setConnectTimeoutMs(30000)
             .setReadTimeoutMs(30000)
-
-        val cacheDataSourceFactory =
-            androidx.media3.datasource.cache.CacheDataSource
-                .Factory()
-                .setCache(App.downloadCache)
-                .setUpstreamDataSourceFactory(dataSourceFactory)
-                .setCacheWriteDataSinkFactory(null)
 
         val audioAttributes =
             androidx.media3.common.AudioAttributes
@@ -38,10 +36,11 @@ class PodcastMediaService : MediaSessionService() {
                 .setContentType(androidx.media3.common.C.AUDIO_CONTENT_TYPE_SPEECH)
                 .build()
 
-                val player =
+        val player =
             ExoPlayer
                 .Builder(this)
-                .setMediaSourceFactory(androidx.media3.exoplayer.source.DefaultMediaSourceFactory(dataSourceFactory)) // Bypass cache completely for raw streams
+                // Bypass the CacheDataSource completely to prevent chunked tunneling errors
+                .setMediaSourceFactory(androidx.media3.exoplayer.source.DefaultMediaSourceFactory(dataSourceFactory))
                 .setAudioAttributes(audioAttributes, true)
                 .build()
 

@@ -36,7 +36,7 @@ data class CobaltResponse(
 class YouTubeExtractor(private val client: HttpClient) {
     private val parser = Json { ignoreUnknownKeys = true }
 
-    private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
+        private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
         val requestUrl = "https://www.youtube.com/watch?v=$videoId"
         try {
             com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Connecting to Cobalt ($endpoint)")
@@ -55,10 +55,7 @@ class YouTubeExtractor(private val client: HttpClient) {
 
             if (response.status.value in 200..299) {
                 val responseText = response.bodyAsText()
-                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor Raw Response: $responseText")
-                
                 val cobalt = parser.decodeFromString(CobaltResponse.serializer(), responseText)
-                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor Parsed: $cobalt")
                 
                 if (cobalt.url != null) {
                     var finalUrl = cobalt.url!!
@@ -67,25 +64,7 @@ class YouTubeExtractor(private val client: HttpClient) {
                         finalUrl = "${base.trimEnd('/')}$finalUrl"
                     }
                     
-                                        com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Stream Resolved -> $finalUrl")
-                    
-                                        java.lang.Thread {
-                        try {
-                            val conn = java.net.URL(finalUrl).openConnection() as java.net.HttpURLConnection
-                            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36")
-                            conn.setRequestProperty("Accept", "*/*")
-                            conn.connect()
-                            val stream = conn.inputStream
-                            val buffer = ByteArray(250)
-                            val read = stream.read(buffer)
-                            val hex = if (read > 0) buffer.take(read.coerceAtMost(50)).joinToString("") { "%02x".format(it) } else "empty"
-                            android.util.Log.d("Gatekeeper", "🕵️ Tunnel stream sniff: HTTP ${conn.responseCode}, read: $read bytes, type: ${conn.contentType}, hex: $hex")
-                            conn.disconnect()
-                        } catch(e: Exception) {
-                            android.util.Log.e("Gatekeeper", "🕵️ Tunnel stream sniff error: ${e.message}")
-                        }
-                    }.start()
-
+                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Stream Resolved -> $finalUrl")
                     return finalUrl
                 }
             } else {
