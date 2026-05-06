@@ -152,7 +152,7 @@ suspend fun executeMediaAndSystemEffect(
             effectHandler.triggerWidgetUpdate()
         }
 
-                        is GatekeeperEffect.FetchSurgicalStream -> {
+        is GatekeeperEffect.FetchSurgicalStream -> {
             platformLog("Gatekeeper", "📡 Extracting surgical stream for ${effect.item.videoId}")
             effectHandler.fetchSurgicalStream(effect.item).fold(
                 ifLeft = { error ->
@@ -166,7 +166,8 @@ suspend fun executeMediaAndSystemEffect(
         }
 
         is GatekeeperEffect.CompileFilterRules -> {
-            com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine.compile(effect.rules)
+            com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine
+                .compile(effect.rules)
         }
 
         else -> {}

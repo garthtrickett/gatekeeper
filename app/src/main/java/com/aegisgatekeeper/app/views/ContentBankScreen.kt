@@ -90,7 +90,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     onOpenPodcasts = { showFeedManagement = true },
                 )
 
-                                ContentBankList(
+                ContentBankList(
                     items = items,
                     hasAnyItems = state.data.contentItems.any { !it.isDeleted },
                     savedMediaPositions = state.media.savedMediaPositions,
@@ -115,7 +115,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     onDeleteDownloadedMedia = { id ->
                         GatekeeperStateManager.dispatch(GatekeeperAction.DeleteDownloadedMedia(id))
                     },
-                                        onPlayContent = { item ->
+                    onPlayContent = { item ->
                         when (item.source) {
                             ContentSource.YOUTUBE, ContentSource.SOUNDCLOUD -> {
                                 GatekeeperStateManager.dispatch(GatekeeperAction.ExtractAndPlayMedia(item))

@@ -15,7 +15,7 @@ class SurgicalFilterEngine {
         for (rule in rawRules) {
             val trimmed = rule.trim()
             if (trimmed.isEmpty() || trimmed.startsWith("!")) continue
-            
+
             if (trimmed.contains("##")) {
                 val parts = trimmed.split("##", limit = 2)
                 val domains = parts[0].split(",").map { it.trim() }.filter { it.isNotEmpty() }
@@ -30,10 +30,16 @@ class SurgicalFilterEngine {
         }
         networkRules = newNetwork
         cosmeticRules = newCosmetic
-        platformLog("Gatekeeper", "🛡️ SurgicalFilterEngine: Compiled ${networkRules.size} network rules, ${cosmeticRules.size} cosmetic rules.")
+        platformLog(
+            "Gatekeeper",
+            "🛡️ SurgicalFilterEngine: Compiled ${networkRules.size} network rules, ${cosmeticRules.size} cosmetic rules.",
+        )
     }
 
-    fun shouldBlockRequest(url: String, documentUrl: String): Boolean {
+    fun shouldBlockRequest(
+        url: String,
+        documentUrl: String,
+    ): Boolean {
         val lowerUrl = url.lowercase()
         for (rule in networkRules) {
             if (lowerUrl.contains(rule.pattern.lowercase())) {
@@ -55,6 +61,12 @@ class SurgicalFilterEngine {
         return matchedSelectors.joinToString(", ") + " { display: none !important; }"
     }
 
-    private data class NetworkRule(val pattern: String)
-    private data class CosmeticRule(val domains: List<String>, val selector: String)
+    private data class NetworkRule(
+        val pattern: String,
+    )
+
+    private data class CosmeticRule(
+        val domains: List<String>,
+        val selector: String,
+    )
 }

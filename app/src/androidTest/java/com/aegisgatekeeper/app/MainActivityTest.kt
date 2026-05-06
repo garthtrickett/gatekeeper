@@ -25,17 +25,18 @@ class MainActivityTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-        @Test
+    @Test
     fun testDeepLink_DispatchesExtractAndPlayMediaAction() {
-        val item = com.aegisgatekeeper.app.domain.ContentItem(
-            id = "test_sc",
-            videoId = "https://soundcloud.com/test/track",
-            title = "Test Audio",
-            source = com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD,
-            type = com.aegisgatekeeper.app.domain.ContentType.AUDIO,
-            rank = 0,
-            capturedAtTimestamp = 0L,
-        )
+        val item =
+            com.aegisgatekeeper.app.domain.ContentItem(
+                id = "test_sc",
+                videoId = "https://soundcloud.com/test/track",
+                title = "Test Audio",
+                source = com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD,
+                type = com.aegisgatekeeper.app.domain.ContentType.AUDIO,
+                rank = 0,
+                capturedAtTimestamp = 0L,
+            )
         GatekeeperStateManager.dispatch(
             com.aegisgatekeeper.app.domain.GatekeeperAction.SaveToContentBank(
                 videoId = item.videoId,
@@ -45,15 +46,19 @@ class MainActivityTest {
                 currentTimestamp = 0L,
             ),
         )
-        val savedItem = GatekeeperStateManager.state.value.data.contentItems.first { it.videoId == item.videoId }
+        val savedItem =
+            GatekeeperStateManager.state.value.data.contentItems
+                .first { it.videoId == item.videoId }
         val intent =
             Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java).apply {
                 putExtra("PLAY_SURGICAL_MEDIA_ID", savedItem.id)
             }
 
-                ActivityScenario.launch<MainActivity>(intent).use {
+        ActivityScenario.launch<MainActivity>(intent).use {
             var attempts = 0
-            while (GatekeeperStateManager.state.value.media.activeNativeMediaItem?.id != savedItem.id && attempts < 20) {
+            while (GatekeeperStateManager.state.value.media.activeNativeMediaItem
+                    ?.id != savedItem.id && attempts < 20
+            ) {
                 Thread.sleep(100)
                 attempts++
             }

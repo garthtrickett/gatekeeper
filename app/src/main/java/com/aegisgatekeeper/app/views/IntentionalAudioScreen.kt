@@ -155,7 +155,7 @@ fun IntentionalContentScreen() {
                                 if (item != null) {
                                     IndustrialButton(
                                         onClick = {
-                                                                                        when (item.contentItem.type) {
+                                            when (item.contentItem.type) {
                                                 com.aegisgatekeeper.app.domain.ContentType.VIDEO -> {
                                                     GatekeeperStateManager.dispatch(
                                                         GatekeeperAction.ExtractAndPlayMedia(item.contentItem),
@@ -168,7 +168,7 @@ fun IntentionalContentScreen() {
                                                     ) {
                                                         GatekeeperStateManager.dispatch(
                                                             GatekeeperAction.ExtractAndPlayMedia(item.contentItem),
-                                                    )
+                                                        )
                                                     } else {
                                                         GatekeeperStateManager.dispatch(
                                                             GatekeeperAction.OpenNativePlayer(item.contentItem),
@@ -315,4 +315,3 @@ fun IntentionalContentScreen() {
         }
     }
 }
-

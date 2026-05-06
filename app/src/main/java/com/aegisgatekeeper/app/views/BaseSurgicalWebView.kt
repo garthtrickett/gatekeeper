@@ -89,7 +89,7 @@ fun BaseSurgicalWebView(
                         }
                     }
 
-                                webViewClient =
+                webViewClient =
                     object : WebViewClient() {
                         @Volatile
                         private var currentDocUrl: String = url
@@ -197,7 +197,7 @@ fun BaseSurgicalWebView(
                                 }
                             }
 
-                                                        val filterEngine = com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine
+                            val filterEngine = com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine
                             val engineCss = filterEngine.getCosmeticCss(currentUrl ?: "")
 
                             val activeSelectors =
@@ -206,14 +206,15 @@ fun BaseSurgicalWebView(
                                     .flatMap { it.hiddenSelectors }
                                     .distinct()
 
-                            val combinedCss = buildString {
-                                append(engineCss)
-                                if (activeSelectors.isNotEmpty()) {
-                                    if (isNotEmpty()) append(" ")
-                                    append(activeSelectors.joinToString(", "))
-                                    append(" { display: none !important; }")
+                            val combinedCss =
+                                buildString {
+                                    append(engineCss)
+                                    if (activeSelectors.isNotEmpty()) {
+                                        if (isNotEmpty()) append(" ")
+                                        append(activeSelectors.joinToString(", "))
+                                        append(" { display: none !important; }")
+                                    }
                                 }
-                            }
 
                             if (combinedCss.isNotBlank()) {
                                 val cleanCss = combinedCss
@@ -249,19 +250,19 @@ fun BaseSurgicalWebView(
                             }
                         }
 
-                                                                        override fun shouldInterceptRequest(
+                        override fun shouldInterceptRequest(
                             view: WebView?,
                             request: WebResourceRequest?,
                         ): android.webkit.WebResourceResponse? {
                             val requestUrl = request?.url?.toString() ?: ""
                             val documentUrl = if (request?.isForMainFrame == true) requestUrl else currentDocUrl
-                            
+
                             val filterEngine = com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine
                             if (filterEngine.shouldBlockRequest(requestUrl, documentUrl)) {
                                 android.util.Log.d("Gatekeeper", "🛡️ BASE-WEB: Blocked network request to $requestUrl")
                                 return android.webkit.WebResourceResponse("text/plain", "UTF-8", null)
                             }
-                            
+
                             val shouldBlock = networkBlocklist.any { requestUrl.contains(it, ignoreCase = true) }
                             if (shouldBlock) {
                                 android.util.Log.d("Gatekeeper", "🛡️ BASE-WEB: Blocked network request to $requestUrl")

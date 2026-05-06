@@ -25,8 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.aegisgatekeeper.app.GatekeeperStateManager
 
-
-
 @Suppress("FunctionName")
 @Composable
 actual fun PinnedWebModal(

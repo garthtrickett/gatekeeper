@@ -911,7 +911,7 @@ private fun reduceMedia(
                 }
             }
 
-                        is GatekeeperAction.ExtractAndPlayMedia -> {
+            is GatekeeperAction.ExtractAndPlayMedia -> {
                 effects.add(GatekeeperEffect.FetchSurgicalStream(action.item))
                 slice.copy(extractingMediaId = action.item.id)
             }
@@ -952,7 +952,7 @@ private fun reduceMedia(
                 slice.copy(isWebEngineReady = true)
             }
 
-                        is GatekeeperAction.SurgicalExtractionFailed -> {
+            is GatekeeperAction.SurgicalExtractionFailed -> {
                 if (slice.extractingMediaId == action.itemId) {
                     slice.copy(extractingMediaId = null)
                 } else {

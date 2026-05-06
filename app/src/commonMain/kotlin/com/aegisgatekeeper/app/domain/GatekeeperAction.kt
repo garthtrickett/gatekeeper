@@ -185,7 +185,7 @@ sealed interface GatekeeperAction {
         val id: String,
     ) : GatekeeperAction
 
-        data class ExtractAndPlayMedia(
+    data class ExtractAndPlayMedia(
         val item: ContentItem,
     ) : GatekeeperAction
 
@@ -204,7 +204,7 @@ sealed interface GatekeeperAction {
         val contentItem: ContentItem,
     ) : GatekeeperAction
 
-        data class ClearIntentionalSlot(
+    data class ClearIntentionalSlot(
         val slotIndex: Int,
     ) : GatekeeperAction
 
@@ -478,7 +478,7 @@ sealed interface GatekeeperAction {
         val id: String,
     ) : GatekeeperAction
 
-        data class MessageFailed(
+    data class MessageFailed(
         val id: String,
         val error: String,
     ) : GatekeeperAction

@@ -66,7 +66,7 @@ fun SurgicalWebScreen() {
             )
         }
 
-                BaseSurgicalWebView(
+        BaseSurgicalWebView(
             url = state.media.currentSurgicalUrl ?: "https://google.com",
             modifier = Modifier.weight(1f),
         )

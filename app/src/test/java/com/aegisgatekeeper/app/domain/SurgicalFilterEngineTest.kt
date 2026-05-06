@@ -14,10 +14,11 @@ class SurgicalFilterEngineTest {
 
     @Test
     fun `compiles network rules correctly`() {
-        val rules = listOf(
-            "||doubleclick.net^",
-            "||ads.twitter.com^"
-        )
+        val rules =
+            listOf(
+                "||doubleclick.net^",
+                "||ads.twitter.com^",
+            )
         engine.compile(rules)
 
         assertThat(engine.shouldBlockRequest("https://doubleclick.net/js/script.js", "https://example.com")).isTrue()
@@ -27,10 +28,11 @@ class SurgicalFilterEngineTest {
 
     @Test
     fun `compiles cosmetic rules correctly`() {
-        val rules = listOf(
-            "twitter.com,x.com##[data-testid='sidebarColumn']",
-            "youtube.com###secondary"
-        )
+        val rules =
+            listOf(
+                "twitter.com,x.com##[data-testid='sidebarColumn']",
+                "youtube.com###secondary",
+            )
         engine.compile(rules)
 
         val twitterCss = engine.getCosmeticCss("https://twitter.com/home")
@@ -44,12 +46,13 @@ class SurgicalFilterEngineTest {
 
     @Test
     fun `ignores comments and empty lines`() {
-        val rules = listOf(
-            "! This is a comment",
-            "",
-            "  ",
-            "||tracker.com^"
-        )
+        val rules =
+            listOf(
+                "! This is a comment",
+                "",
+                "  ",
+                "||tracker.com^",
+            )
         engine.compile(rules)
 
         assertThat(engine.shouldBlockRequest("https://tracker.com/pixel", "https://example.com")).isTrue()

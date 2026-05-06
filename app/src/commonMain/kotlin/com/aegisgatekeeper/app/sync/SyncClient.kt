@@ -89,14 +89,14 @@ object SyncClient {
             } else {
                 SyncError.ServerError(response.status.value).left()
             }
-                } catch (e: Exception) {
+        } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
             SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
         }
     }
 
-    suspend fun fetchFilterRules(): Either<SyncError, List<String>> {
-        return try {
+    suspend fun fetchFilterRules(): Either<SyncError, List<String>> =
+        try {
             val response =
                 client.get("https://raw.githubusercontent.com/Gatekeeper/filters/main/rules.txt")
             if (response.status.value in 200..299) {
@@ -108,7 +108,6 @@ object SyncClient {
             if (e is kotlinx.coroutines.CancellationException) throw e
             SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
         }
-    }
 
     suspend fun pullChanges(lastSyncTimestamp: Long = 0L): Either<SyncError, SyncPullPayload> {
         val token =

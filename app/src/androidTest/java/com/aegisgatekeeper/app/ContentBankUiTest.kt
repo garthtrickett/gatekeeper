@@ -368,7 +368,7 @@ class ContentBankUiTest {
         composeTestRule.onNodeWithText("End Session").assertIsDisplayed()
     }
 
-        @Test
+    @Test
     fun testContentBank_SoundCloudItem_PlaysInNativePlayer() {
         // Arrange
         val soundcloudUrl = "https://soundcloud.com/test/track"

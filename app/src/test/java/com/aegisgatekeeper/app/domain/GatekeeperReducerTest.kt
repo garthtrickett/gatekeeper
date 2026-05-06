@@ -592,9 +592,18 @@ class GatekeeperReducerTest {
         assertThat(whitelist.expiresAtTimestamp).isEqualTo(100_000L + 15_000L)
     }
 
-        @Test
+    @Test
     fun testExtractAndPlayMedia_setsExtractingMediaId() {
-        val item = ContentItem(id = "c1", videoId = "vid1", title = "Title", source = ContentSource.YOUTUBE, type = ContentType.VIDEO, rank = 0, capturedAtTimestamp = 0L)
+        val item =
+            ContentItem(
+                id = "c1",
+                videoId = "vid1",
+                title = "Title",
+                source = ContentSource.YOUTUBE,
+                type = ContentType.VIDEO,
+                rank = 0,
+                capturedAtTimestamp = 0L,
+            )
         val action = GatekeeperAction.ExtractAndPlayMedia(item)
         val newState = reduce(initialState, action).state
         assertThat(newState.media.extractingMediaId).isEqualTo("c1")
@@ -873,8 +882,6 @@ class GatekeeperReducerTest {
         assertThat(state2.data.intentionalSlots).isEmpty()
         assertThat(update.effects.any { it is GatekeeperEffect.DbClearIntentionalSlot }).isTrue()
     }
-
-    
 
     @Test
     fun testSetManualLockdown_UpdatesState() {
@@ -1397,7 +1404,7 @@ class GatekeeperReducerTest {
         ).isEqualTo(MessageStatus.FAILED)
     }
 
-        @Test
+    @Test
     fun testUpdateFilterRules_UpdatesStateAndEmitsCompileEffect() {
         val rules = listOf("||new-tracker.com^", "example.com##.ad")
         val action = GatekeeperAction.UpdateFilterRules(rules)

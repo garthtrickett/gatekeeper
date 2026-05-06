@@ -169,7 +169,7 @@ class MainNavigationScreen : Screen {
             }
         }
 
-                // Global Background Modals
+        // Global Background Modals
         val activeNativeMediaItem = state.media.activeNativeMediaItem
         if (activeNativeMediaItem != null) {
             NativeAudioPlayerModal(

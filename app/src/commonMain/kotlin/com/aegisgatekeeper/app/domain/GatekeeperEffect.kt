@@ -270,7 +270,7 @@ sealed interface GatekeeperEffect {
         val podcastId: String,
     ) : GatekeeperEffect
 
-        object SchedulePodcastRefresh : GatekeeperEffect
+    object SchedulePodcastRefresh : GatekeeperEffect
 
     data class FetchSurgicalStream(
         val item: ContentItem,
@@ -312,7 +312,7 @@ sealed interface GatekeeperEffect {
         val email: String,
     ) : GatekeeperEffect
 
-        // Utility Effects
+    // Utility Effects
     data class EmitAction(
         val action: GatekeeperAction,
     ) : GatekeeperEffect

@@ -145,7 +145,7 @@ fun ContentBankList(
         ) {
             itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
                 val isBeingDragged = index == draggedItemIndex
-                                val elevation by animateFloatAsState(if (isBeingDragged) 8f else 0f, label = "elevation")
+                val elevation by animateFloatAsState(if (isBeingDragged) 8f else 0f, label = "elevation")
                 ContentItemCard(
                     item = item,
                     savedPosition = savedMediaPositions[item.videoId],

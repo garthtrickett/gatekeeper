@@ -34,7 +34,7 @@ abstract class AndroidApplicationComponent(
 
     abstract val podcastIndexClient: PodcastIndexClient
     abstract val rssClient: RssClient
-        abstract val urlMetadataClient: UrlMetadataClient
+    abstract val urlMetadataClient: UrlMetadataClient
     abstract val surgicalMediaExtractor: com.aegisgatekeeper.app.api.SurgicalMediaExtractor
 
     @Provides

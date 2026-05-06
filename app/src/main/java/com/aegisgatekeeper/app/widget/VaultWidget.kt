@@ -156,10 +156,11 @@ class VaultWidget : GlanceAppWidget() {
                                         )
                                         Spacer(modifier = GlanceModifier.height(8.dp))
 
-                                                                                val intent =
+                                        val intent =
                                             Intent(context, MainActivity::class.java).apply {
-                                                if (it.source == com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE || 
-                                                    it.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
+                                                if (it.source == com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE ||
+                                                    it.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD
+                                                ) {
                                                     putExtra("PLAY_SURGICAL_MEDIA_ID", it.id)
                                                 } else if (it.type == ContentType.AUDIO) {
                                                     putExtra("OPEN_NATIVE_AUDIO_ID", it.id)
