@@ -909,28 +909,13 @@ private fun reduceMedia(
                 }
             }
 
-            is GatekeeperAction.PlayYouTubeVideo -> {
-                val item = fullState.data.contentItems.find { it.videoId == action.videoId }
-                if (item != null) {
-                    effects.add(GatekeeperEffect.FetchYouTubeStream(item))
-                }
-                slice.copy(extractingYouTubeVideoId = action.videoId)
-            }
-
-            is GatekeeperAction.OpenCleanAudioPlayer -> {
-                slice.copy(activeAudioUrl = action.url, isAudioPlayerMaximized = true)
-            }
-
-            is GatekeeperAction.MinimizeCleanAudioPlayer -> {
-                slice.copy(isAudioPlayerMaximized = false)
-            }
-
-            is GatekeeperAction.StopCleanAudioPlayer -> {
-                slice.copy(activeAudioUrl = null, isAudioPlayerMaximized = false)
+                        is GatekeeperAction.ExtractAndPlayMedia -> {
+                effects.add(GatekeeperEffect.FetchSurgicalStream(action.item))
+                slice.copy(extractingMediaId = action.item.id)
             }
 
             is GatekeeperAction.OpenNativePlayer -> {
-                slice.copy(activeNativeMediaItem = action.contentItem, isNativePlayerMaximized = true, extractingYouTubeVideoId = null)
+                slice.copy(activeNativeMediaItem = action.contentItem, isNativePlayerMaximized = true, extractingMediaId = null)
             }
 
             is GatekeeperAction.MinimizeNativePlayer -> {
@@ -965,9 +950,9 @@ private fun reduceMedia(
                 slice.copy(isWebEngineReady = true)
             }
 
-            is GatekeeperAction.YouTubeExtractionFailed -> {
-                if (slice.extractingYouTubeVideoId == action.videoId) {
-                    slice.copy(extractingYouTubeVideoId = null)
+            is GatekeeperAction.SurgicalExtractionFailed -> {
+                if (slice.extractingMediaId == action.itemId) {
+                    slice.copy(extractingMediaId = null)
                 } else {
                     slice
                 }

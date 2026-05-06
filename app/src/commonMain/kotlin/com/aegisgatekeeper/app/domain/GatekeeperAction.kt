@@ -185,12 +185,12 @@ sealed interface GatekeeperAction {
         val id: String,
     ) : GatekeeperAction
 
-    data class PlayYouTubeVideo(
-        val videoId: String,
+        data class ExtractAndPlayMedia(
+        val item: ContentItem,
     ) : GatekeeperAction
 
-    data class YouTubeExtractionFailed(
-        val videoId: String,
+    data class SurgicalExtractionFailed(
+        val itemId: String,
         val error: String,
     ) : GatekeeperAction
 
@@ -204,17 +204,9 @@ sealed interface GatekeeperAction {
         val contentItem: ContentItem,
     ) : GatekeeperAction
 
-    data class ClearIntentionalSlot(
+        data class ClearIntentionalSlot(
         val slotIndex: Int,
     ) : GatekeeperAction
-
-    data class OpenCleanAudioPlayer(
-        val url: String,
-    ) : GatekeeperAction
-
-    object MinimizeCleanAudioPlayer : GatekeeperAction
-
-    object StopCleanAudioPlayer : GatekeeperAction
 
     data class OpenNativePlayer(
         val contentItem: ContentItem,

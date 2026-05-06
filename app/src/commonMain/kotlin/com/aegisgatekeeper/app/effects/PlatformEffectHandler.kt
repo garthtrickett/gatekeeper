@@ -31,9 +31,9 @@ interface PlatformEffectHandler {
         isGeneric: Boolean = false,
     ): Either<String, ContentMetadata>
 
-    suspend fun syncBeeperChats(): Either<String, List<BeeperChat>>
+        suspend fun syncBeeperChats(): Either<String, List<BeeperChat>>
 
-    suspend fun fetchYouTubeStream(
+    suspend fun fetchSurgicalStream(
         item: com.aegisgatekeeper.app.domain.ContentItem,
     ): Either<String, com.aegisgatekeeper.app.domain.ContentItem>
 }
