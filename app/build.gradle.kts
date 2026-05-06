@@ -36,11 +36,8 @@ android {
         val syncUrl = properties.getProperty("SYNC_SERVER_URL") ?: "http://10.0.2.2:8081"
                 buildConfigField("String", "SYNC_SERVER_URL", "\"$syncUrl\"")
 
-                val cobaltUrl = properties.getProperty("COBALT_API_URL") ?: "https://cobalt-production-08c4.up.railway.app"
-        buildConfigField("String", "COBALT_API_URL", "\"$cobaltUrl\"")
-
-        val cobaltKey = properties.getProperty("COBALT_API_KEY") ?: ""
-        buildConfigField("String", "COBALT_API_KEY", "\"$cobaltKey\"")
+                        val proxyUrl = properties.getProperty("SURGICAL_PROXY_URL") ?: "http://localhost:8000"
+        buildConfigField("String", "SURGICAL_PROXY_URL", "\"$proxyUrl\"")
 
         manifestPlaceholders["appName"] = "Aegis Gatekeeper"
         manifestPlaceholders["appIcon"] = "@android:drawable/ic_lock_idle_lock"

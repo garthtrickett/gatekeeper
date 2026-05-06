@@ -213,8 +213,13 @@
                     alias logs='adb logcat | grep -iE "Gatekeeper|AndroidRuntime|WindowManager|FATAL"'
                                         alias deploy-dev='adb reverse tcp:8081 tcp:8081 && gradle installDevDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app.dev/com.aegisgatekeeper.app.MainActivity && echo "✅ DEV Deployed & Port 8081 Reversed. Waiting for logs..." && logs'
                     alias backend-logs='docker-compose logs -f'
-                    alias deploy-prod='adb reverse tcp:8081 tcp:8081 && gradle installProdDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app/com.aegisgatekeeper.app.MainActivity && echo "✅ PROD Deployed & Port 8081 Reversed. Waiting for logs..." && logs'
-                    alias backend-logs='docker-compose logs -f'
+
+                    alias deploy-dev='adb reverse tcp:8081 tcp:8081 && adb reverse tcp:8000 tcp:8000 && gradle installDevDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app.dev/com.aegisgatekeeper.app.MainActivity && echo "✅ DEV Deployed. Ports 8081 (Sync) & 8000 (YT-Proxy) Reversed. Waiting for logs..." && logs'
+                    alias deploy-prod='adb reverse tcp:8081 tcp:8081 && adb reverse tcp:8000 tcp:8000 && gradle installProdDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app/com.aegisgatekeeper.app.MainActivity && echo "✅ PROD Deployed. Ports 8081 (Sync) & 8000 (YT-Proxy) Reversed. Waiting for logs..." && logs'
+                    
+
+
+                    
 
                     # Linting & Quality
                     alias lint-style='ktlint "app/src/**/*.kt"'

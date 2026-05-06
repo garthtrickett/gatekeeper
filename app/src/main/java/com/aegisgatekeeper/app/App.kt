@@ -71,10 +71,7 @@ class App :
         val downloadDirectory = File(getExternalFilesDir(null), "downloads")
         downloadCache = SimpleCache(downloadDirectory, NoOpCacheEvictor(), databaseProvider)
 
-        val headers = mutableMapOf("Accept" to "*/*")
-        if (com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY.isNotEmpty()) {
-            headers["Api-Key"] = com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY
-        }
+                val headers = mutableMapOf("Accept" to "*/*")
 
         downloadManager =
             DownloadManager(
