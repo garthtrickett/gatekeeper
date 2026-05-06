@@ -43,7 +43,10 @@ class YouTubeExtractor(private val client: HttpClient) {
             com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Connecting to Local Cobalt ($endpoint) for URL: $requestUrl")
             val response = client.post(endpoint) {
                 contentType(io.ktor.http.ContentType.Application.Json)
-                header("Accept", "application/json")\n                if (com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY.isNotEmpty()) {\n                    header("Api-Key", com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY)\n                }
+                header("Accept", "application/json")
+                if (com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY.isNotEmpty()) {
+                    header("Api-Key", com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY)
+                }
                 setBody(CobaltRequest(url = requestUrl))
                                 timeout {
                     requestTimeoutMillis = 30000
@@ -89,13 +92,13 @@ class YouTubeExtractor(private val client: HttpClient) {
 
         // For Physical Device + ADB Reverse, we only care about localhost.
         // We try 127.0.0.1 as well because some Android versions handle it better than 'localhost'.
-                val endpoints = mutableListOf<String>()\n        endpoints.add(com.aegisgatekeeper.app.BuildConfig.COBALT_API_URL)\n        val localEndpoints = listOf(
+        val localEndpoints = listOf(
             "http://localhost:9099/",
             "http://127.0.0.1:9099/",
             "http://10.0.2.2:9099/"
         )
 
-        for (endpoint in (listOf(com.aegisgatekeeper.app.BuildConfig.COBALT_API_URL) + localEndpoints)) {
+        for (endpoint in (listOf(com.aegisgatekeeper.app.BuildConfig.COBALT_API_URL) + localEndpoints).distinct()) {
             val url = tryCobalt(endpoint, item.videoId)
             if (url != null) {
                 com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "🚀 YouTubeExtractor: Extraction successful for ${item.videoId}")
