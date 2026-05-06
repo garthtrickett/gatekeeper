@@ -174,7 +174,7 @@ sealed interface GatekeeperAction {
 
     data class DownloadCompleted(
         val id: String,
-        val localFilePath: String,
+        val localFilePath: String?,
     ) : GatekeeperAction
 
     data class DownloadFailed(
