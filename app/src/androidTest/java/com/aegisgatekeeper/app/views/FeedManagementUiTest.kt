@@ -66,8 +66,9 @@ class FeedManagementUiTest {
 
         // Assert: State updated to active podcast (don't sleep, avoid network failure race)
         val state = GatekeeperStateManager.state.value
-        assertThat(state.media.activePodcastId).isEqualTo("podcast_123")
-        assertThat(state.media.isLoadingEpisodes).isTrue() // Because we dispatched LoadPodcastEpisodes
+                assertThat(state.media.activePodcastId).isEqualTo("podcast_123")
+        assertThat(state.media.isLoadingEpisodes).isFalse() // Test stub returns immediately
+        assertThat(state.media.activePodcastEpisodes).isNotNull() // Emitted by test stub
 
         showDialog.value = false
         composeTestRule.waitForIdle()
