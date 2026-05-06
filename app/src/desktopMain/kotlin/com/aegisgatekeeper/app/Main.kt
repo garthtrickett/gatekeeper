@@ -81,6 +81,16 @@ fun main() = application {
                         pullResult.fold(
                             ifLeft = {},
                             ifRight = { payload ->
+                                                                payload.vaultItems.forEach {
+                                    if (it.isResolved) {
+                                        println("Desktop received RESOLVED Vault Item!")
+                                    } else {
+                                        println("Desktop received synced Vault Item!")
+                                    }
+                                }
+                                payload.contentItems.forEach {
+                                    println("Desktop received synced Content Item!")
+                                }
                                 val newVaults = payload.vaultItems.map { com.aegisgatekeeper.app.domain.VaultItem(it.id, it.query, it.capturedAtTimestamp, it.isResolved, it.lastModified, true, it.isDeleted) }
                                 val newContents = payload.contentItems.map { com.aegisgatekeeper.app.domain.ContentItem(it.id, it.podcastId, it.videoId, it.title, it.channelName, com.aegisgatekeeper.app.domain.ContentSource.valueOf(it.source), com.aegisgatekeeper.app.domain.ContentType.valueOf(it.type), it.rank, it.capturedAtTimestamp, it.durationSeconds, it.lastModified, true, it.isDeleted) }
                                 GatekeeperStateManager.dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.RemoteSyncCompleted(newVaults, newContents))
