@@ -104,10 +104,11 @@ fun NativeAudioPlayerModal(
                     if (!isAlreadyPlayingThis) {
                         android.util.Log.d("Gatekeeper", "🎵 NativePlayer: Initializing new media session for ${contentItem.title}")
                         val uriToPlay =
-                            if (contentItem.type == com.aegisgatekeeper.app.domain.ContentType.VIDEO) {
-                                contentItem.localFilePath // For YouTube, this holds the stream URL
+                            if (contentItem.source == com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE ||
+                                contentItem.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
+                                contentItem.localFilePath // This is the surgical proxy URL
                             } else {
-                                contentItem.localFilePath ?: contentItem.videoId // For Audio, check for downloaded file first
+                                contentItem.videoId // For direct audio, always use the original URL. CacheDataSource will handle local playback.
                             }
 
                         val mediaItem =

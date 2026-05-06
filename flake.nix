@@ -222,7 +222,7 @@
 
                     # Hard refresh (SLOW - use only if YouTube stops working)
                     alias yt-proxy-refresh='docker-compose -f youtube-proxy/docker-compose.yaml build --no-cache && docker-compose -f youtube-proxy/docker-compose.yaml up -d'
-                    alias yt-proxy-logs='docker logs -f gatekeeper-yt-proxy'
+                    alias yt-proxy-logs='docker logs -f youtube-proxy'
                     alias yt-proxy-down='docker-compose -f youtube-proxy/docker-compose.yaml down'                    
 
                     # Linting & Quality
