@@ -36,7 +36,7 @@ android {
         val syncUrl = properties.getProperty("SYNC_SERVER_URL") ?: "http://10.0.2.2:8081"
                 buildConfigField("String", "SYNC_SERVER_URL", "\"$syncUrl\"")
 
-        val cobaltUrl = properties.getProperty("COBALT_API_URL") ?: "http://10.0.2.2:9099"
+                val cobaltUrl = properties.getProperty("COBALT_API_URL") ?: "https://cobalt-production-08c4.up.railway.app"
         buildConfigField("String", "COBALT_API_URL", "\"$cobaltUrl\"")
 
         val cobaltKey = properties.getProperty("COBALT_API_KEY") ?: ""
