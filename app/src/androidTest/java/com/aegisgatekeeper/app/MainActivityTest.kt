@@ -51,9 +51,14 @@ class MainActivityTest {
                 putExtra("PLAY_SURGICAL_MEDIA_ID", savedItem.id)
             }
 
-        ActivityScenario.launch<MainActivity>(intent).use {
+                ActivityScenario.launch<MainActivity>(intent).use {
+            var attempts = 0
+            while (GatekeeperStateManager.state.value.media.activeNativeMediaItem?.id != savedItem.id && attempts < 20) {
+                Thread.sleep(100)
+                attempts++
+            }
             val currentState = GatekeeperStateManager.state.value
-            assertThat(currentState.media.extractingMediaId).isEqualTo(savedItem.id)
+            assertThat(currentState.media.activeNativeMediaItem?.id).isEqualTo(savedItem.id)
         }
     }
 
