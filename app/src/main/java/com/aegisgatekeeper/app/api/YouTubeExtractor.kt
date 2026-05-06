@@ -20,12 +20,8 @@ import me.tatarka.inject.annotations.Inject
 data class CobaltRequest(
     val url: String,
     val videoQuality: String = "720",
-    val downloadMode: String = "auto"
-)
-    val url: String,
-    val videoQuality: String = "720",
     val downloadMode: String = "audio",
-    val audioFormat: String = "best"
+    val audioFormat: String = "mp3"
 )
 
 @Serializable
@@ -40,7 +36,7 @@ data class CobaltResponse(
 class YouTubeExtractor(private val client: HttpClient) {
     private val parser = Json { ignoreUnknownKeys = true }
 
-            private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
+    private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
         val requestUrl = "https://www.youtube.com/watch?v=$videoId"
         try {
             com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Connecting to Cobalt ($endpoint)")
@@ -83,7 +79,7 @@ class YouTubeExtractor(private val client: HttpClient) {
         return null
     }
 
-        suspend fun extractVideo(item: ContentItem): Either<String, ContentItem> {
+    suspend fun extractVideo(item: ContentItem): Either<String, ContentItem> {
         if (com.aegisgatekeeper.app.App.isRunningTest) {
             return item.copy(localFilePath = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4").right()
         }

@@ -39,7 +39,7 @@ class App :
                 .setMinimumLoggingLevel(android.util.Log.INFO)
                 .build()
 
-    override fun onCreate() {
+        override fun onCreate() {
         super.onCreate()
         instance = this
         com.aegisgatekeeper.app.db.DatabaseManager
@@ -71,12 +71,12 @@ class App :
         val downloadDirectory = File(getExternalFilesDir(null), "downloads")
         downloadCache = SimpleCache(downloadDirectory, NoOpCacheEvictor(), databaseProvider)
 
-                downloadManager =
+        downloadManager =
             DownloadManager(
                 this,
                 databaseProvider,
                 downloadCache,
-                                androidx.media3.datasource.DefaultHttpDataSource.Factory()
+                androidx.media3.datasource.DefaultHttpDataSource.Factory()
                     .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36")
                     .setDefaultRequestProperties(mapOf("Accept" to "*/*"))
                     .setAllowCrossProtocolRedirects(true)

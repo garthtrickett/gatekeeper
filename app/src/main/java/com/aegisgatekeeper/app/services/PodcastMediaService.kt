@@ -13,11 +13,11 @@ import com.aegisgatekeeper.app.App
 class PodcastMediaService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
 
-            override fun onCreate() {
+                override fun onCreate() {
         super.onCreate()
         
-                // Mask as Chrome to avoid 403 Forbidden from YouTube servers
-                val dataSourceFactory = androidx.media3.datasource.DefaultHttpDataSource.Factory()
+        // Mask as Chrome to avoid 403 Forbidden from YouTube servers
+        val dataSourceFactory = androidx.media3.datasource.DefaultHttpDataSource.Factory()
             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36")
             .setDefaultRequestProperties(mapOf("Accept" to "*/*", "Origin" to "https://youtube.com"))
             .setAllowCrossProtocolRedirects(true)
