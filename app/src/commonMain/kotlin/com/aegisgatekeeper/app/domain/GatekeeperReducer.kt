@@ -4,7 +4,9 @@ fun reduce(
     state: GatekeeperState,
     action: GatekeeperAction,
 ): Update<GatekeeperState> {
-    if (action is GatekeeperAction.InitialStateLoaded) return Update(action.state)
+    if (action is GatekeeperAction.InitialStateLoaded) {
+        return Update(action.state, setOf(GatekeeperEffect.CompileFilterRules(action.state.media.declarativeFilterRules)))
+    }
 
     val (interception, interceptionEffects) = reduceInterception(state.interception, action, state)
     val (data, dataEffects) = reduceData(state.data, action, state)
@@ -950,12 +952,17 @@ private fun reduceMedia(
                 slice.copy(isWebEngineReady = true)
             }
 
-            is GatekeeperAction.SurgicalExtractionFailed -> {
+                        is GatekeeperAction.SurgicalExtractionFailed -> {
                 if (slice.extractingMediaId == action.itemId) {
                     slice.copy(extractingMediaId = null)
                 } else {
                     slice
                 }
+            }
+
+            is GatekeeperAction.UpdateFilterRules -> {
+                effects.add(GatekeeperEffect.CompileFilterRules(action.rules))
+                slice.copy(declarativeFilterRules = action.rules)
             }
 
             else -> {

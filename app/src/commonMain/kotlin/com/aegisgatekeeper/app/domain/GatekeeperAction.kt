@@ -478,8 +478,12 @@ sealed interface GatekeeperAction {
         val id: String,
     ) : GatekeeperAction
 
-    data class MessageFailed(
+        data class MessageFailed(
         val id: String,
         val error: String,
+    ) : GatekeeperAction
+
+    data class UpdateFilterRules(
+        val rules: List<String>,
     ) : GatekeeperAction
 }

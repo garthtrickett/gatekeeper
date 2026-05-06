@@ -312,9 +312,13 @@ sealed interface GatekeeperEffect {
         val email: String,
     ) : GatekeeperEffect
 
-    // Utility Effects
+        // Utility Effects
     data class EmitAction(
         val action: GatekeeperAction,
+    ) : GatekeeperEffect
+
+    data class CompileFilterRules(
+        val rules: List<String>,
     ) : GatekeeperEffect
 }
 

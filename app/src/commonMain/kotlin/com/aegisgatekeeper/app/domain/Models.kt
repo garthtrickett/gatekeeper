@@ -228,9 +228,27 @@ data class MediaState(
     val isNativePlayerMaximized: Boolean = false,
     val isWebEngineReady: Boolean = false,
     val currentSurgicalUrl: String? = null,
-    val extractingMediaId: String? = null,
+        val extractingMediaId: String? = null,
     val activeFacebookUrl: String? = null,
     val activePinnedWebsiteUrl: String? = null,
+    val declarativeFilterRules: List<String> = listOf(
+        "||google-analytics.com^",
+        "||doubleclick.net^",
+        "||connect.facebook.net^",
+        "||ads.twitter.com^",
+        "||googletagmanager.com^",
+        "twitter.com,x.com##[data-testid='sidebarColumn']",
+        "twitter.com,x.com##[data-testid='primaryColumn'] > div > div:nth-child(2)",
+        "twitter.com,x.com##nav[aria-label='Primary'] > a:nth-child(2)",
+        "twitter.com,x.com##nav[aria-label='Primary'] > a:nth-child(5)",
+        "substack.com##.feed-container",
+        "substack.com##.top-posts-container",
+        "substack.com##.sidebar",
+        "youtube.com###secondary",
+        "youtube.com###related",
+        "youtube.com##ytd-reel-shelf-renderer",
+        "youtube.com##ytd-shorts"
+    ),
 )
 
 data class SyncAndIntegrationState(

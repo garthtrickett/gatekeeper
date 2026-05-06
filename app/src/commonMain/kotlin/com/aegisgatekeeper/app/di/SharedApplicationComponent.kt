@@ -14,4 +14,5 @@ interface SharedApplicationComponent {
     val syncClient: SyncClient
     val beeperClient: BeeperClient
     val effectHandler: com.aegisgatekeeper.app.effects.PlatformEffectHandler
+    val surgicalFilterEngine: com.aegisgatekeeper.app.domain.SurgicalFilterEngine
 }
