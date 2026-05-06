@@ -25,27 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.aegisgatekeeper.app.GatekeeperStateManager
 
-@Suppress("FunctionName")
-// CleanPlayerModal removed
-    videoId: String,
-    isVisible: Boolean,
-    onMinimize: () -> Unit,
-    onStop: () -> Unit,
-) {
-    if (!isVisible) return
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Clean Player (Desktop MVP)")
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                com.aegisgatekeeper.app.domain
-                    .IndustrialButton(onClick = onMinimize, text = "Minimize")
-                com.aegisgatekeeper.app.domain
-                    .IndustrialButton(onClick = onStop, text = "End Session", isWarning = true)
-            }
-        }
-    }
-}
+
 
 @Suppress("FunctionName")
 @Composable

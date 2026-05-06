@@ -90,15 +90,12 @@ class MainActivity : ComponentActivity() {
             if (item != null) {
                 GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
             }
-        } else if (openActiveNativePlayer) {
+                } else if (openActiveNativePlayer) {
             android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Active Native Audio Player")
             val item = GatekeeperStateManager.state.value.media.activeNativeMediaItem
             if (item != null) {
                 GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
             }
-        } else if (youtubeVideoIdToPlay != null) {
-            android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for YouTube Video (ID: $youtubeVideoIdToPlay)")
-            GatekeeperStateManager.dispatch(GatekeeperAction.PlayYouTubeVideo(youtubeVideoIdToPlay))
         }
 
                 if (surgicalMediaIdToPlay != null || nativeAudioIdToPlay != null || openActiveNativePlayer) {

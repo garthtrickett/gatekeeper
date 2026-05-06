@@ -74,12 +74,21 @@ class NavigationUiTest {
             }
         }
 
-        // Act: Dispatch an action to trigger a global modal (e.g., Clean Audio Player)
-        GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanAudioPlayer("https://soundcloud.com/test"))
+                // Act: Dispatch an action to trigger a global modal (e.g., Native Audio Player)
+        val mockItem = com.aegisgatekeeper.app.domain.ContentItem(
+            id = "test_id",
+            videoId = "test_video",
+            title = "Test Podcast",
+            source = com.aegisgatekeeper.app.domain.ContentSource.GENERIC,
+            type = com.aegisgatekeeper.app.domain.ContentType.AUDIO,
+            rank = 0,
+            capturedAtTimestamp = 0L
+        )
+        GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(mockItem))
         composeTestRule.waitForIdle()
 
         // Assert: The modal should be injected over the navigator UI
-        // We look for the 'Minimize' button which is part of the CleanAudioPlayerModal
+        // We look for the 'Minimize' button which is part of the NativeAudioPlayerModal
         composeTestRule.onNodeWithText("Minimize").assertIsDisplayed()
         composeTestRule.onNodeWithText("End Session").assertIsDisplayed()
     }

@@ -874,18 +874,7 @@ class GatekeeperReducerTest {
         assertThat(update.effects.any { it is GatekeeperEffect.DbClearIntentionalSlot }).isTrue()
     }
 
-    @Test
-    fun testOpenCleanAudioPlayer_SetsActiveAudioUrl() {
-        val newState = reduce(initialState, GatekeeperAction.OpenCleanAudioPlayer("https://soundcloud.com/test")).state
-        assertThat(newState.media.activeAudioUrl).isEqualTo("https://soundcloud.com/test")
-    }
-
-    @Test
-    fun testStopCleanAudioPlayer_ClearsActiveAudioUrl() {
-        val activeState = initialState.copy(media = initialState.media.copy(activeAudioUrl = "https://soundcloud.com/test"))
-        val newState = reduce(activeState, GatekeeperAction.StopCleanAudioPlayer).state
-        assertThat(newState.media.activeAudioUrl).isNull()
-    }
+    
 
     @Test
     fun testSetManualLockdown_UpdatesState() {
