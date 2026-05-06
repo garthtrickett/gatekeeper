@@ -302,7 +302,7 @@ private fun PodcastEpisodesView(
             }
         } else {
             LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(state.media.activePodcastEpisodes!!, key = { it.audioUrl }) { ep ->
+                items(state.media.activePodcastEpisodes!!, key = { it.id }) { ep ->
                     val isAlreadyInBank = state.data.contentItems.any { it.videoId == ep.audioUrl && !it.isDeleted }
                     Card(
                         modifier = Modifier.fillMaxWidth(),
