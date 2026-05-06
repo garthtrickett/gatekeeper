@@ -1,0 +1,3 @@
+[submodule "youtube-proxy"]
+	path = youtube-proxy
+	url = https://github.com/garthtrickett/gatekeeper-surgical-proxy
