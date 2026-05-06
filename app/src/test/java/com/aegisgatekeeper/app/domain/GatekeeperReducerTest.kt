@@ -1397,6 +1397,17 @@ class GatekeeperReducerTest {
         ).isEqualTo(MessageStatus.FAILED)
     }
 
+        @Test
+    fun testUpdateFilterRules_UpdatesStateAndEmitsCompileEffect() {
+        val rules = listOf("||new-tracker.com^", "example.com##.ad")
+        val action = GatekeeperAction.UpdateFilterRules(rules)
+        val update = reduce(initialState, action)
+        val newState = update.state
+
+        assertThat(newState.media.declarativeFilterRules).isEqualTo(rules)
+        assertThat(update.effects.any { it is GatekeeperEffect.CompileFilterRules && it.rules == rules }).isTrue()
+    }
+
     @Test
     fun testInitialStateLoaded_ReplacesState() {
         val loadedState =
