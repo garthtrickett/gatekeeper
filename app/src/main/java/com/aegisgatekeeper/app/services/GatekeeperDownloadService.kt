@@ -47,7 +47,7 @@ class GatekeeperDownloadService :
 
                         Download.STATE_COMPLETED -> {
                             GatekeeperStateManager.dispatch(
-                                GatekeeperAction.DownloadCompleted(download.request.id, null),
+                                GatekeeperAction.DownloadCompleted(download.request.id, download.request.uri.toString()),
                             )
                             checkStopPolling(downloadManager)
                         }
