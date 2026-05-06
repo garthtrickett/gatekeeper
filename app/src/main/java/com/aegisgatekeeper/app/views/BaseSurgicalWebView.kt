@@ -16,13 +16,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 
+data class SurgicalFilterRule(
+    val urlCondition: (String) -> Boolean,
+    val hiddenSelectors: List<String>
+)
+
 @SuppressLint("SetJavaScriptEnabled")
 @Suppress("FunctionName")
 @Composable
 fun BaseSurgicalWebView(
     url: String,
-    cssInjector: (String) -> String,
-    networkBlocklist: List<String>,
+    filterRules: List<SurgicalFilterRule> = emptyList(),
+    networkBlocklist: List<String> = emptyList(),
     modifier: Modifier = Modifier,
     onPageLoaded: (String) -> Unit = {},
     onLogout: (() -> Unit)? = null,
@@ -190,9 +195,13 @@ fun BaseSurgicalWebView(
                                 }
                             }
 
-                            val cssToInject = cssInjector(currentUrl ?: "")
-                            if (cssToInject.isNotBlank()) {
-                                val cleanCss = cssToInject.replace("\n", " ").replace("\"", "\\\"").replace("'", "\\'")
+                                                        val activeSelectors = filterRules
+                                .filter { it.urlCondition(currentUrl ?: "") }
+                                .flatMap { it.hiddenSelectors }
+                                .distinct()
+
+                            if (activeSelectors.isNotEmpty()) {
+                                val cleanCss = activeSelectors.joinToString(", ") + " { display: none !important; }"
                                 val js =
                                     """
                                     (function() {

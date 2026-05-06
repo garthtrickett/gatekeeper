@@ -186,26 +186,31 @@ fun SurgicalFacebookScreen(
                         false
                     }
                 },
-                cssInjector = { currentUrl ->
-                    if (isLoggedIn) {
-                        val hideList = mutableListOf("div[data-m-bubble-key=\"back_button\"]")
-                        val isSearchPage = currentUrl.contains("/search/")
-                        if (!isSearchPage) {
-                            hideList.add("#m_newsfeed_stream")
-                            hideList.add("#stories_tray")
-                            hideList.add("#m_story_permalink_view")
-                        }
-                        val isRootList = currentUrl.matches(Regex(".*/(groups|events)/?(\\?.*)?$"))
-                        if (isRootList) {
-                            hideList.add("div[role=\"button\"][aria-label=\"Back\"]")
-                            hideList.add("div[role=\"button\"][aria-label=\"back\"]")
-                            hideList.add("a[data-sigil=\"MBackNavBarClick\"]")
-                        }
-                        hideList.joinToString(", ") + " { display: none !important; }"
-                    } else {
-                        ""
-                    }
-                },
+                                filterRules = if (isLoggedIn) {
+                    listOf(
+                        SurgicalFilterRule(
+                            urlCondition = { !it.contains("/search/") },
+                            hiddenSelectors = listOf(
+                                "div[data-m-bubble-key=\"back_button\"]",
+                                "#m_newsfeed_stream",
+                                "#stories_tray",
+                                "#m_story_permalink_view"
+                            )
+                        ),
+                        SurgicalFilterRule(
+                            urlCondition = { it.matches(Regex(".*/(groups|events)/?(\\?.*)?$")) },
+                            hiddenSelectors = listOf(
+                                "div[role=\"button\"][aria-label=\"Back\"]",
+                                "div[role=\"button\"][aria-label=\"back\"]",
+                                "a[data-sigil=\"MBackNavBarClick\"]"
+                            )
+                        ),
+                        SurgicalFilterRule(
+                            urlCondition = { it.contains("/search/") },
+                            hiddenSelectors = listOf("div[data-m-bubble-key=\"back_button\"]")
+                        )
+                    )
+                } else emptyList(),
                 networkBlocklist = emptyList(),
                 onLogout = {
                     cookieManager.removeAllCookies(null)

@@ -44,10 +44,10 @@ actual fun PinnedWebModal(
                 IndustrialButton(onClick = onClose, text = "Exit", isWarning = true)
             }
 
-            BaseSurgicalWebView(
+                        BaseSurgicalWebView(
                 url = url,
                 modifier = Modifier.weight(1f),
-                cssInjector = { "" },
+                filterRules = emptyList(),
                 networkBlocklist = emptyList(),
                 onPageLoaded = { loadedUrl ->
                     // Once login is successful, we'll be redirected back to youtube.

@@ -217,8 +217,8 @@
                     alias deploy-dev='adb reverse tcp:8081 tcp:8081 && adb reverse tcp:8000 tcp:8000 && gradle installDevDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app.dev/com.aegisgatekeeper.app.MainActivity && echo "✅ DEV Deployed. Ports 8081 (Sync) & 8000 (YT-Proxy) Reversed. Waiting for logs..." && logs'
                     alias deploy-prod='adb reverse tcp:8081 tcp:8081 && adb reverse tcp:8000 tcp:8000 && gradle installProdDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app/com.aegisgatekeeper.app.MainActivity && echo "✅ PROD Deployed. Ports 8081 (Sync) & 8000 (YT-Proxy) Reversed. Waiting for logs..." && logs'
                     
-
-
+                    # Add this to your main app's flake.nix shellHook
+                    alias yt-proxy='(cd youtube-proxy && nix run)'
                     
 
                     # Linting & Quality
