@@ -308,8 +308,10 @@ class ContentBankUiTest {
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Add to Bank").assertDoesNotExist()
 
-        // Wait for coroutine to process metadata
-        Thread.sleep(1000)
+                // Wait for coroutine to process metadata
+        composeTestRule.waitUntil(5000) {
+            GatekeeperStateManager.state.value.data.contentItems.any { it.videoId == "dQw4w9WgXcQ" }
+        }
 
         val state = GatekeeperStateManager.state.value
         val item = state.data.contentItems.find { it.videoId == "dQw4w9WgXcQ" }

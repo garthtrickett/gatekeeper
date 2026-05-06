@@ -7,6 +7,8 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import com.aegisgatekeeper.app.App
 import com.aegisgatekeeper.app.api.ContentMetadata
 import com.aegisgatekeeper.app.api.PodcastFeedDto
@@ -90,17 +92,29 @@ class AndroidEffectHandler(
         WorkManager.getInstance(context).enqueue(workRequest)
     }
 
-    override suspend fun searchPodcasts(query: String): Either<String, List<PodcastFeedDto>> = podcastIndexClient.searchPodcasts(query)
+        override suspend fun searchPodcasts(query: String): Either<String, List<PodcastFeedDto>> {
+        if (com.aegisgatekeeper.app.App.isRunningTest) return emptyList<PodcastFeedDto>().right()
+        return podcastIndexClient.searchPodcasts(query)
+    }
 
-    override suspend fun fetchPodcastFeed(url: String): Either<String, RssFeedData> = rssClient.fetchFeed(url)
+    override suspend fun fetchPodcastFeed(url: String): Either<String, RssFeedData> {
+        if (com.aegisgatekeeper.app.App.isRunningTest) return RssFeedData("Test Podcast", null, emptyList()).right()
+        return rssClient.fetchFeed(url)
+    }
 
     override suspend fun fetchUrlMetadata(
         url: String,
         isSoundCloud: Boolean,
         isGeneric: Boolean,
-    ): Either<String, ContentMetadata> = urlMetadataClient.fetchMetadata(url, isSoundCloud, isGeneric).mapLeft { "Error fetching metadata" }
+    ): Either<String, ContentMetadata> {
+        if (com.aegisgatekeeper.app.App.isRunningTest) return ContentMetadata("Test Title", 1000L, url).right()
+        return urlMetadataClient.fetchMetadata(url, isSoundCloud, isGeneric).mapLeft { "Error fetching metadata" }
+    }
 
-    override suspend fun syncBeeperChats(): Either<String, List<BeeperChat>> = beeperClient.getChats()
+    override suspend fun syncBeeperChats(): Either<String, List<BeeperChat>> {
+        if (com.aegisgatekeeper.app.App.isRunningTest) return emptyList<BeeperChat>().right()
+        return beeperClient.getChats()
+    }
 
         override suspend fun fetchYouTubeStream(item: com.aegisgatekeeper.app.domain.ContentItem): Either<String, com.aegisgatekeeper.app.domain.ContentItem> =
         youtubeExtractor.extractVideo(item)

@@ -67,10 +67,10 @@ class RootScreen : Screen {
     override fun Content() {
         val state by GatekeeperStateManager.state.collectAsState()
 
-        if (!state.interception.isDualMoatEnabled) {
+                if (!state.interception.isDualMoatEnabled) {
             PermissionsOnboardingScreen()
         } else {
-            MainNavigationScreen()
+            MainNavigationScreen().Content()
         }
     }
 }
