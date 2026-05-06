@@ -19,6 +19,7 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 import com.aegisgatekeeper.app.domain.IndustrialTextField
 
 @Suppress("FunctionName")
+@Suppress("FunctionName")
 @Composable
 fun SurgicalWebScreen() {
     val state by GatekeeperStateManager.state.collectAsState()
@@ -75,7 +76,7 @@ fun SurgicalWebScreen() {
                 "googletagmanager.com",
             )
 
-                val webFilterRules = listOf(
+        val webFilterRules = listOf(
             SurgicalFilterRule(
                 urlCondition = { it.contains("twitter.com") || it.contains("x.com") },
                 hiddenSelectors = listOf(
