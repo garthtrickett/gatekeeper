@@ -12,6 +12,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
@@ -85,6 +86,21 @@ object SyncClient {
                 Unit.right()
             } else if (response.status.value == 401 || response.status.value == 403) {
                 SyncError.Unauthorized.left()
+            } else {
+                SyncError.ServerError(response.status.value).left()
+            }
+                } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
+        }
+    }
+
+    suspend fun fetchFilterRules(): Either<SyncError, List<String>> {
+        return try {
+            val response =
+                client.get("https://raw.githubusercontent.com/Gatekeeper/filters/main/rules.txt")
+            if (response.status.value in 200..299) {
+                response.bodyAsText().lines().right()
             } else {
                 SyncError.ServerError(response.status.value).left()
             }
