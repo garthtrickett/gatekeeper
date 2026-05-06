@@ -193,14 +193,26 @@ fun BaseSurgicalWebView(
                                 }
                             }
 
+                                                        val filterEngine = com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine
+                            val engineCss = filterEngine.getCosmeticCss(currentUrl ?: "")
+
                             val activeSelectors =
                                 filterRules
                                     .filter { it.urlCondition(currentUrl ?: "") }
                                     .flatMap { it.hiddenSelectors }
                                     .distinct()
 
-                            if (activeSelectors.isNotEmpty()) {
-                                val cleanCss = activeSelectors.joinToString(", ") + " { display: none !important; }"
+                            val combinedCss = buildString {
+                                append(engineCss)
+                                if (activeSelectors.isNotEmpty()) {
+                                    if (isNotEmpty()) append(" ")
+                                    append(activeSelectors.joinToString(", "))
+                                    append(" { display: none !important; }")
+                                }
+                            }
+
+                            if (combinedCss.isNotBlank()) {
+                                val cleanCss = combinedCss
                                 val js =
                                     """
                                     (function() {
@@ -233,11 +245,19 @@ fun BaseSurgicalWebView(
                             }
                         }
 
-                        override fun shouldInterceptRequest(
+                                                override fun shouldInterceptRequest(
                             view: WebView?,
                             request: WebResourceRequest?,
                         ): android.webkit.WebResourceResponse? {
                             val requestUrl = request?.url?.toString() ?: ""
+                            val documentUrl = view?.url ?: ""
+                            
+                            val filterEngine = com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine
+                            if (filterEngine.shouldBlockRequest(requestUrl, documentUrl)) {
+                                android.util.Log.d("Gatekeeper", "🛡️ BASE-WEB: Blocked network request to $requestUrl")
+                                return android.webkit.WebResourceResponse("text/plain", "UTF-8", null)
+                            }
+                            
                             val shouldBlock = networkBlocklist.any { requestUrl.contains(it, ignoreCase = true) }
                             if (shouldBlock) {
                                 android.util.Log.d("Gatekeeper", "🛡️ BASE-WEB: Blocked network request to $requestUrl")
