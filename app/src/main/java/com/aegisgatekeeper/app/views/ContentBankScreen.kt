@@ -55,8 +55,186 @@ import kotlinx.coroutines.launch
 import java.time.LocalTime
 
 @Suppress("FunctionName")
+@Suppress("FunctionName")
 @Composable
 fun ContentBankScreen(overrideTime: LocalTime? = null) {
+    val state by GatekeeperStateManager.state.collectAsState()
+
+    if (!state.sync.isProTier) {
+        PaywallScreen(
+            title = "The Priority Matrix",
+            description =
+                "The Free tier includes the Lookup Vault and Layer Alpha. Upgrade to Pro to unlock " +
+                    "the Sovereign Media Queue, Drag-and-Drop ranking, and the Surgical YouTube Engine.",
+        )
+        return
+    }
+
+    var activeContentFilter by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<ContentType?>(null) }
+    var searchQuery by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf("") }
+
+    val items =
+        state.data.contentItems
+            .filter { (activeContentFilter == null || it.type == activeContentFilter) && !it.isDeleted }
+            .filter {
+                it.title.contains(searchQuery, ignoreCase = true) ||
+                    (it.channelName?.contains(searchQuery, ignoreCase = true) == true)
+            }.sortedBy { it.rank }
+
+    // Deep Work & Friction State
+    val currentTime by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(overrideTime ?: java.time.LocalTime.now()) }
+    val isDeepWork =
+        com.aegisgatekeeper.app.domain
+            .isDeepWorkHours(currentTime, state.data.deepWorkStartMinutes, state.data.deepWorkEndMinutes)
+    var isEditingUnlocked by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showFriction by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var pendingFilterAction by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<(() -> Unit)?>(null) }
+    var showAddDialog by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showFeedManagement by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+
+    androidx.compose.material3.Surface(modifier = androidx.compose.ui.Modifier.fillMaxSize(), color = androidx.compose.material3.MaterialTheme.colorScheme.background) {
+        androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.fillMaxSize()) {
+            androidx.compose.foundation.layout.Column(modifier = androidx.compose.ui.Modifier.fillMaxSize().padding(16.dp)) {
+                ContentBankToolbar(
+                    searchQuery = searchQuery,
+                    onSearchChanged = { searchQuery = it },
+                    activeContentFilter = activeContentFilter,
+                    onFilterSelected = { type ->
+                        val action = { activeContentFilter = type }
+                        if (isDeepWork && !isEditingUnlocked && activeContentFilter != type) {
+                            pendingFilterAction = action
+                            showFriction = true
+                        } else {
+                            action()
+                        }
+                    },
+                    onOpenPodcasts = { showFeedManagement = true }
+                )
+
+                ContentBankList(
+                    items = items,
+                    hasAnyItems = state.data.contentItems.any { !it.isDeleted },
+                    savedMediaPositions = state.media.savedMediaPositions,
+                    activeDownloads = state.media.activeDownloads,
+                    extractingYouTubeVideoId = state.media.extractingYouTubeVideoId,
+                    onReorder = { from, to ->
+                        GatekeeperStateManager.dispatch(
+                            GatekeeperAction.ReorderContentBank(from, to, System.currentTimeMillis())
+                        )
+                    },
+                    onDragStart = {
+                        if (isDeepWork && !isEditingUnlocked) {
+                            showFriction = true
+                            false
+                        } else {
+                            true
+                        }
+                    },
+                    onDownloadRequested = { id ->
+                        GatekeeperStateManager.dispatch(GatekeeperAction.DownloadMediaRequested(id))
+                    },
+                    onDeleteDownloadedMedia = { id ->
+                        GatekeeperStateManager.dispatch(GatekeeperAction.DeleteDownloadedMedia(id))
+                    },
+                    onPlayContent = { item ->
+                        when (item.source) {
+                            ContentSource.YOUTUBE -> {
+                                GatekeeperStateManager.dispatch(GatekeeperAction.PlayYouTubeVideo(item.videoId))
+                            }
+                            ContentSource.SOUNDCLOUD -> {
+                                GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanAudioPlayer(item.videoId))
+                            }
+                            ContentSource.SUBSTACK, ContentSource.GENERIC -> {
+                                if (item.type == ContentType.AUDIO) {
+                                    GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
+                                } else {
+                                    val intent =
+                                        android.content.Intent(
+                                            android.content.Intent.ACTION_VIEW,
+                                            android.net.Uri.parse(item.videoId),
+                                        )
+                                    intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                                    com.aegisgatekeeper.app.App.instance.startActivity(intent)
+                                }
+                            }
+                        }
+                    },
+                    onDropContent = { id ->
+                        GatekeeperStateManager.dispatch(
+                            GatekeeperAction.RemoveFromContentBank(id, System.currentTimeMillis())
+                        )
+                    }
+                )
+            } // Close Column
+
+            // Capture Button
+            if (state.media.isProcessingLink) {
+                androidx.compose.material3.FloatingActionButton(
+                    onClick = { },
+                    modifier =
+                        androidx.compose.ui.Modifier
+                            .align(androidx.compose.ui.Alignment.BottomEnd)
+                            .padding(16.dp),
+                    containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+                ) {
+                    androidx.compose.material3.CircularProgressIndicator(
+                        modifier =
+                            androidx.compose.ui.Modifier
+                                .padding(12.dp)
+                                .androidx.compose.ui.semantics.semantics { androidx.compose.ui.semantics.contentDescription = "Processing Link" },
+                        strokeWidth = 3.dp,
+                    )
+                }
+            } else {
+                com.aegisgatekeeper.app.domain.IndustrialButton(
+                    onClick = { showAddDialog = true },
+                    modifier =
+                        androidx.compose.ui.Modifier
+                            .align(androidx.compose.ui.Alignment.BottomEnd)
+                            .padding(16.dp),
+                    text = "+",
+                )
+            }
+        } // Close Box
+
+        // Friction Modal
+        if (showFriction) {
+            androidx.compose.ui.window.Dialog(
+                onDismissRequest = { showFriction = false },
+                properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
+            ) {
+                BallBalancingUi(
+                    title = "Deep Work Interruption",
+                    subtitle = "Complete this task to unlock list editing.",
+                    onSuccess = {
+                        isEditingUnlocked = true
+                        showFriction = false
+                        pendingFilterAction?.invoke()
+                        pendingFilterAction = null
+                    },
+                    onClose = { showFriction = false },
+                )
+            }
+        }
+
+        if (showAddDialog) {
+            AddLinkDialog(
+                onDismiss = { showAddDialog = false },
+                onSave = { url ->
+                    GatekeeperStateManager.dispatch(
+                        GatekeeperAction.ProcessSharedLink(url = url, currentTimestamp = System.currentTimeMillis()),
+                    )
+                    showAddDialog = false
+                },
+            )
+        }
+
+        if (showFeedManagement) {
+            FeedManagementDialog(onDismiss = { showFeedManagement = false })
+        }
+    }
+}
     val state by GatekeeperStateManager.state.collectAsState()
 
     if (!state.sync.isProTier) {
@@ -431,8 +609,9 @@ fun AddLinkDialog(
 }
 
 @Suppress("FunctionName")
+@Suppress("FunctionName")
 @Composable
-private fun ContentItemCard(
+private fun deleted_ContentItemCard() {}
     item: ContentItem,
     savedPosition: Float? = null,
     modifier: Modifier = Modifier,
