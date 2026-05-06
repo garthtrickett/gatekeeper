@@ -39,7 +39,7 @@ class App :
                 .setMinimumLoggingLevel(android.util.Log.INFO)
                 .build()
 
-            override fun onCreate() {
+                override fun onCreate() {
         super.onCreate()
         instance = this
         com.aegisgatekeeper.app.db.DatabaseManager
@@ -74,7 +74,6 @@ class App :
         val headers = mutableMapOf("Accept" to "*/*")
         if (com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY.isNotEmpty()) {
             headers["Api-Key"] = com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY
-            headers["Authorization"] = "Bearer " + com.aegisgatekeeper.app.BuildConfig.COBALT_API_KEY
         }
 
         downloadManager =
