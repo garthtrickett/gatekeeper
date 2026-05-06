@@ -5,7 +5,6 @@ import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.api.PodcastIndexClient
 import com.aegisgatekeeper.app.api.RssClient
 import com.aegisgatekeeper.app.api.UrlMetadataClient
-import com.aegisgatekeeper.app.api.YouTubeExtractor
 import com.aegisgatekeeper.app.auth.AndroidTokenProvider
 import com.aegisgatekeeper.app.auth.TokenProvider
 import com.aegisgatekeeper.app.db.AndroidSqlDriverFactory
