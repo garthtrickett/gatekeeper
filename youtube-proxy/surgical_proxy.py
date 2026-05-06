@@ -14,21 +14,27 @@ def get_stream_url(video_id: str):
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         try:
-            info = ydl.extract_info(f"https://www.youtube.com/watch?v={video_id}", download=False)
+            # FIX: Pass video_id directly instead of using the broken f-string
+            info = ydl.extract_info(video_id, download=False)
             return info['url']
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/stream")
-async def stream_video(id: str):
+async def stream_video(id: str, request: Request):
     url = get_stream_url(id)
     
+    # Extract the Range header from the incoming curl request
+    headers = {}
+    if "range" in request.headers:
+        headers["Range"] = request.headers["range"]
+    
     def iterfile():
-        with requests.get(url, stream=True) as r:
+        # Pass the headers along to the final audio stream
+        with requests.get(url, stream=True, headers=headers) as r:
             yield from r.iter_content(chunk_size=1024*64)
 
+    # You might also need to dynamically adjust the status_code/headers 
+    # of StreamingResponse for complete 206 Partial Content compliance, 
+    # but this will get the upstream server doing the heavy lifting!
     return StreamingResponse(iterfile(), media_type="audio/mpeg")
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)

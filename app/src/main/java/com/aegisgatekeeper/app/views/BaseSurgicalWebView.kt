@@ -89,14 +89,18 @@ fun BaseSurgicalWebView(
                         }
                     }
 
-                webViewClient =
+                                webViewClient =
                     object : WebViewClient() {
+                        @Volatile
+                        private var currentDocUrl: String = url
+
                         override fun onPageStarted(
                             view: WebView?,
                             currentUrl: String?,
                             favicon: android.graphics.Bitmap?,
                         ) {
                             super.onPageStarted(view, currentUrl, favicon)
+                            currentDocUrl = currentUrl ?: ""
                             android.util.Log.d("Gatekeeper", "📡 BASE-WEB-LOADING: $currentUrl")
                             if (currentUrl != null && currentUrl.contains("logout.php") && onLogout != null) {
                                 android.util.Log.d("Gatekeeper", "🚪 BASE-WEB-AUTH: Logout detected.")
@@ -245,12 +249,12 @@ fun BaseSurgicalWebView(
                             }
                         }
 
-                                                override fun shouldInterceptRequest(
+                                                                        override fun shouldInterceptRequest(
                             view: WebView?,
                             request: WebResourceRequest?,
                         ): android.webkit.WebResourceResponse? {
                             val requestUrl = request?.url?.toString() ?: ""
-                            val documentUrl = view?.url ?: ""
+                            val documentUrl = if (request?.isForMainFrame == true) requestUrl else currentDocUrl
                             
                             val filterEngine = com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine
                             if (filterEngine.shouldBlockRequest(requestUrl, documentUrl)) {
