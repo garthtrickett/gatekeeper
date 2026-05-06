@@ -21,7 +21,7 @@ data class CobaltRequest(
     val url: String,
     val videoQuality: String = "720",
     val downloadMode: String = "audio",
-    val audioFormat: String = "mp3"
+    val audioFormat: String = "best"
 )
 
 @Serializable
@@ -69,7 +69,7 @@ class YouTubeExtractor(private val client: HttpClient) {
                     
                                         com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Stream Resolved -> $finalUrl")
                     
-                    java.lang.Thread {
+                                        java.lang.Thread {
                         try {
                             val conn = java.net.URL(finalUrl).openConnection() as java.net.HttpURLConnection
                             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36")
@@ -78,8 +78,8 @@ class YouTubeExtractor(private val client: HttpClient) {
                             val stream = conn.inputStream
                             val buffer = ByteArray(250)
                             val read = stream.read(buffer)
-                            val str = String(buffer, 0, read.coerceAtLeast(0))
-                            android.util.Log.d("Gatekeeper", "🕵️ Tunnel stream sniff: HTTP ${conn.responseCode}, content: $str")
+                            val hex = if (read > 0) buffer.take(read.coerceAtMost(50)).joinToString("") { "%02x".format(it) } else "empty"
+                            android.util.Log.d("Gatekeeper", "🕵️ Tunnel stream sniff: HTTP ${conn.responseCode}, read: $read bytes, type: ${conn.contentType}, hex: $hex")
                             conn.disconnect()
                         } catch(e: Exception) {
                             android.util.Log.e("Gatekeeper", "🕵️ Tunnel stream sniff error: ${e.message}")
