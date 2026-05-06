@@ -47,7 +47,7 @@ class GatekeeperDownloadService :
 
                         Download.STATE_COMPLETED -> {
                             GatekeeperStateManager.dispatch(
-                                GatekeeperAction.DownloadCompleted(download.request.id, "cached_in_simplecache"),
+                                GatekeeperAction.DownloadCompleted(download.request.id, null),
                             )
                             checkStopPolling(downloadManager)
                         }

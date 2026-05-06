@@ -37,12 +37,17 @@ class PodcastMediaService : MediaSessionService() {
                 .setContentType(androidx.media3.common.C.AUDIO_CONTENT_TYPE_SPEECH)
                 .build()
 
+        val cacheDataSourceFactory =
+            CacheDataSource.Factory()
+                .setCache(App.downloadCache)
+                .setUpstreamDataSourceFactory(dataSourceFactory)
+                .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+
         val player =
             ExoPlayer
                 .Builder(this)
                 .setMediaSourceFactory(
-                    androidx.media3.exoplayer.source
-                        .DefaultMediaSourceFactory(dataSourceFactory),
+                    DefaultMediaSourceFactory(cacheDataSourceFactory)
                 ).setAudioAttributes(audioAttributes, true)
                 .build()
 
