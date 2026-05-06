@@ -20,6 +20,10 @@ import me.tatarka.inject.annotations.Inject
 data class CobaltRequest(
     val url: String,
     val videoQuality: String = "720",
+    val downloadMode: String = "auto"
+)
+    val url: String,
+    val videoQuality: String = "720",
     val downloadMode: String = "audio",
     val audioFormat: String = "best"
 )
