@@ -18,8 +18,6 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 
 @Suppress("FunctionName")
 @Composable
-actual @Suppress("FunctionName")
-@Composable
 actual fun PinnedWebModal(
     url: String,
     onClose: () -> Unit,
@@ -29,65 +27,22 @@ actual fun PinnedWebModal(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.Black)
-                    .systemBarsPadding(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+                .systemBarsPadding(),
         ) {
             Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .background(Color.Black)
-                        .padding(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black)
+                    .padding(8.dp),
                 contentAlignment = Alignment.TopEnd,
             ) {
                 IndustrialButton(onClick = onClose, text = "Exit", isWarning = true)
             }
 
             BaseSurgicalWebView(
-                url = url,
-                modifier = Modifier.weight(1f),
-                filterRules = emptyList(),
-                networkBlocklist = emptyList(),
-                onPageLoaded = { loadedUrl ->
-                    // Once login is successful, we'll be redirected back to youtube.
-                    // At that point, we can close this modal.
-                    if (loadedUrl.contains("youtube.com") && !loadedUrl.contains("accounts.google.com")) {
-                        onClose()
-                    }
-                },
-            )
-        }
-    }
-}
-    url: String,
-    onClose: () -> Unit,
-) {
-    Dialog(
-        onDismissRequest = onClose,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.Black)
-                    .systemBarsPadding(),
-        ) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .background(Color.Black)
-                        .padding(8.dp),
-                contentAlignment = Alignment.TopEnd,
-            ) {
-                IndustrialButton(onClick = onClose, text = "Exit", isWarning = true)
-            }
-
-                        BaseSurgicalWebView(
                 url = url,
                 modifier = Modifier.weight(1f),
                 filterRules = emptyList(),

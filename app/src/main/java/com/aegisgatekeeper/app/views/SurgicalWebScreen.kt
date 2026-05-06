@@ -19,7 +19,6 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 import com.aegisgatekeeper.app.domain.IndustrialTextField
 
 @Suppress("FunctionName")
-@Suppress("FunctionName")
 @Composable
 fun SurgicalWebScreen() {
     val state by GatekeeperStateManager.state.collectAsState()

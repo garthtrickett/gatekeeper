@@ -1,8 +1,5 @@
 package com.aegisgatekeeper.app.views
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,14 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,33 +18,22 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.aegisgatekeeper.app.GatekeeperStateManager
-import com.aegisgatekeeper.app.domain.ContentItem
 import com.aegisgatekeeper.app.domain.ContentSource
 import com.aegisgatekeeper.app.domain.ContentType
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.IndustrialButton
 import com.aegisgatekeeper.app.domain.IndustrialTextField
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import java.time.LocalTime
 
-@Suppress("FunctionName")
 @Suppress("FunctionName")
 @Composable
 fun ContentBankScreen(overrideTime: LocalTime? = null) {
@@ -70,8 +49,8 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
         return
     }
 
-    var activeContentFilter by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<ContentType?>(null) }
-    var searchQuery by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf("") }
+    var activeContentFilter by remember { mutableStateOf<ContentType?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
 
     val items =
         state.data.contentItems
@@ -82,19 +61,19 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
             }.sortedBy { it.rank }
 
     // Deep Work & Friction State
-    val currentTime by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(overrideTime ?: java.time.LocalTime.now()) }
+    val currentTime by remember { mutableStateOf(overrideTime ?: LocalTime.now()) }
     val isDeepWork =
         com.aegisgatekeeper.app.domain
             .isDeepWorkHours(currentTime, state.data.deepWorkStartMinutes, state.data.deepWorkEndMinutes)
-    var isEditingUnlocked by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-    var showFriction by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-    var pendingFilterAction by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<(() -> Unit)?>(null) }
-    var showAddDialog by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-    var showFeedManagement by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var isEditingUnlocked by remember { mutableStateOf(false) }
+    var showFriction by remember { mutableStateOf(false) }
+    var pendingFilterAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var showAddDialog by remember { mutableStateOf(false) }
+    var showFeedManagement by remember { mutableStateOf(false) }
 
-    androidx.compose.material3.Surface(modifier = androidx.compose.ui.Modifier.fillMaxSize(), color = androidx.compose.material3.MaterialTheme.colorScheme.background) {
-        androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.fillMaxSize()) {
-            androidx.compose.foundation.layout.Column(modifier = androidx.compose.ui.Modifier.fillMaxSize().padding(16.dp)) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                 ContentBankToolbar(
                     searchQuery = searchQuery,
                     onSearchChanged = { searchQuery = it },
@@ -171,312 +150,25 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
             if (state.media.isProcessingLink) {
                 androidx.compose.material3.FloatingActionButton(
                     onClick = { },
-                    modifier =
-                        androidx.compose.ui.Modifier
-                            .align(androidx.compose.ui.Alignment.BottomEnd)
-                            .padding(16.dp),
-                    containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
-                ) {
-                    androidx.compose.material3.CircularProgressIndicator(
-                        modifier =
-                            androidx.compose.ui.Modifier
-                                .padding(12.dp)
-                                .androidx.compose.ui.semantics.semantics { androidx.compose.ui.semantics.contentDescription = "Processing Link" },
-                        strokeWidth = 3.dp,
-                    )
-                }
-            } else {
-                com.aegisgatekeeper.app.domain.IndustrialButton(
-                    onClick = { showAddDialog = true },
-                    modifier =
-                        androidx.compose.ui.Modifier
-                            .align(androidx.compose.ui.Alignment.BottomEnd)
-                            .padding(16.dp),
-                    text = "+",
-                )
-            }
-        } // Close Box
-
-        // Friction Modal
-        if (showFriction) {
-            androidx.compose.ui.window.Dialog(
-                onDismissRequest = { showFriction = false },
-                properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
-            ) {
-                BallBalancingUi(
-                    title = "Deep Work Interruption",
-                    subtitle = "Complete this task to unlock list editing.",
-                    onSuccess = {
-                        isEditingUnlocked = true
-                        showFriction = false
-                        pendingFilterAction?.invoke()
-                        pendingFilterAction = null
-                    },
-                    onClose = { showFriction = false },
-                )
-            }
-        }
-
-        if (showAddDialog) {
-            AddLinkDialog(
-                onDismiss = { showAddDialog = false },
-                onSave = { url ->
-                    GatekeeperStateManager.dispatch(
-                        GatekeeperAction.ProcessSharedLink(url = url, currentTimestamp = System.currentTimeMillis()),
-                    )
-                    showAddDialog = false
-                },
-            )
-        }
-
-        if (showFeedManagement) {
-            FeedManagementDialog(onDismiss = { showFeedManagement = false })
-        }
-    }
-}
-    val state by GatekeeperStateManager.state.collectAsState()
-
-    if (!state.sync.isProTier) {
-        PaywallScreen(
-            title = "The Priority Matrix",
-            description =
-                "The Free tier includes the Lookup Vault and Layer Alpha. Upgrade to Pro to unlock " +
-                    "the Sovereign Media Queue, Drag-and-Drop ranking, and the Surgical YouTube Engine.",
-        )
-        return
-    }
-
-    var activeContentFilter by remember { mutableStateOf<ContentType?>(null) }
-    var searchQuery by remember { mutableStateOf("") }
-
-    val items =
-        state.data.contentItems
-            .filter { (activeContentFilter == null || it.type == activeContentFilter) && !it.isDeleted }
-            .filter {
-                it.title.contains(searchQuery, ignoreCase = true) ||
-                    (it.channelName?.contains(searchQuery, ignoreCase = true) == true)
-            }.sortedBy { it.rank }
-
-    val lazyListState = rememberLazyListState()
-    var draggedItemIndex by remember { mutableStateOf<Int?>(null) }
-    var dragOffset by remember { mutableStateOf(0f) }
-    val scope = rememberCoroutineScope()
-    var overscrollJob by remember { mutableStateOf<Job?>(null) }
-
-    // Deep Work & Friction State
-    val currentTime by remember { mutableStateOf(overrideTime ?: LocalTime.now()) }
-    val isDeepWork =
-        com.aegisgatekeeper.app.domain
-            .isDeepWorkHours(currentTime, state.data.deepWorkStartMinutes, state.data.deepWorkEndMinutes)
-    var isEditingUnlocked by remember { mutableStateOf(false) }
-    var showFriction by remember { mutableStateOf(false) }
-    var pendingFilterAction by remember { mutableStateOf<(() -> Unit)?>(null) }
-    var showAddDialog by remember { mutableStateOf(false) }
-    var showFeedManagement by remember { mutableStateOf(false) }
-
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-                Text("The Content Bank", style = MaterialTheme.typography.headlineLarge)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "Intentional consumption queue. Rank your media.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Search Bar
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    IndustrialTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        modifier = Modifier.weight(1f),
-                        label = { Text("Search bank...") },
-                        singleLine = true,
-                    )
-                    if (searchQuery.isNotEmpty()) {
-                        IndustrialButton(onClick = { searchQuery = "" }, text = "Clear")
-                    }
-                    IndustrialButton(onClick = { showFeedManagement = true }, text = "Podcasts")
-                }
-
-                // Filtering Chips
-                Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    val activeFilter = activeContentFilter
-                    val filters =
-                        listOf(
-                            null,
-                            com.aegisgatekeeper.app.domain.ContentType.VIDEO,
-                            com.aegisgatekeeper.app.domain.ContentType.AUDIO,
-                            com.aegisgatekeeper.app.domain.ContentType.READING,
-                        )
-                    val labels = listOf("All", "Video", "Audio", "Read")
-
-                    filters.forEachIndexed { index, type ->
-                        FilterChip(
-                            selected = activeFilter == type,
-                            onClick = {
-                                val action = { activeContentFilter = type }
-                                if (isDeepWork && !isEditingUnlocked && activeFilter != type) {
-                                    pendingFilterAction = action
-                                    showFriction = true
-                                } else {
-                                    action()
-                                }
-                            },
-                            label = { Text(labels[index]) },
-                            colors =
-                                FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                                ),
-                        )
-                    }
-                }
-
-                if (state.data.contentItems.none { !it.isDeleted }) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            "Bank is empty. Share a link to Gatekeeper to capture it.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 32.dp),
-                        )
-                    }
-                } else if (items.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            "No content matches your search.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                } else {
-                    LazyColumn(
-                        state = lazyListState,
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier =
-                            Modifier.pointerInput(Unit) {
-                                detectDragGesturesAfterLongPress(
-                                    onDragStart = { offset ->
-                                        if (isDeepWork && !isEditingUnlocked) {
-                                            showFriction = true
-                                        } else {
-                                            lazyListState.layoutInfo.visibleItemsInfo
-                                                .firstOrNull { item -> offset.y.toInt() in item.offset..(item.offset + item.size) }
-                                                ?.also {
-                                                    draggedItemIndex = it.index
-                                                }
-                                        }
-                                    },
-                                    onDragEnd = {
-                                        overscrollJob?.cancel()
-                                        draggedItemIndex = null
-                                        dragOffset = 0f
-                                    },
-                                    onDragCancel = {
-                                        overscrollJob?.cancel()
-                                        draggedItemIndex = null
-                                        dragOffset = 0f
-                                    },
-                                    onDrag = { change, dragAmount ->
-                                        change.consume()
-                                        dragOffset += dragAmount.y
-
-                                        val dragged = draggedItemIndex ?: return@detectDragGesturesAfterLongPress
-                                        val draggedItem =
-                                            lazyListState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == dragged }
-                                                ?: return@detectDragGesturesAfterLongPress
-                                        val draggedItemCenter = draggedItem.offset + draggedItem.size / 2f + dragOffset
-
-                                        // Check for swaps
-                                        lazyListState.layoutInfo.visibleItemsInfo
-                                            .filter { it.index != dragged }
-                                            .forEach { item ->
-                                                val itemCenter = item.offset + item.size / 2f
-                                                if (draggedItem.index < item.index && draggedItemCenter > itemCenter) {
-                                                    GatekeeperStateManager.dispatch(
-                                                        GatekeeperAction.ReorderContentBank(
-                                                            dragged,
-                                                            item.index,
-                                                            System.currentTimeMillis(),
-                                                        ),
-                                                    )
-                                                    draggedItemIndex = item.index
-                                                } else if (draggedItem.index > item.index && draggedItemCenter < itemCenter) {
-                                                    GatekeeperStateManager.dispatch(
-                                                        GatekeeperAction.ReorderContentBank(
-                                                            dragged,
-                                                            item.index,
-                                                            System.currentTimeMillis(),
-                                                        ),
-                                                    )
-                                                    draggedItemIndex = item.index
-                                                }
-                                            }
-
-                                        // Autoscroll
-                                        val listBounds = lazyListState.layoutInfo.viewportSize.height
-                                        overscrollJob?.cancel()
-                                        if (draggedItemCenter > listBounds - 200) {
-                                            overscrollJob = scope.launch { lazyListState.scrollBy(dragAmount.y) }
-                                        } else if (draggedItemCenter < 200) {
-                                            overscrollJob = scope.launch { lazyListState.scrollBy(dragAmount.y) }
-                                        }
-                                    },
-                                )
-                            },
-                    ) {
-                        itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
-                            val isBeingDragged = index == draggedItemIndex
-                            val elevation by animateFloatAsState(if (isBeingDragged) 8f else 0f, label = "elevation")
-                            ContentItemCard(
-                                item = item,
-                                savedPosition = state.media.savedMediaPositions[item.videoId],
-                                modifier =
-                                    Modifier.graphicsLayer {
-                                        translationY = if (isBeingDragged) dragOffset else 0f
-                                        shadowElevation = elevation
-                                    },
-                            )
-                        }
-                    }
-                }
-            } // Close Column
-
-            // Capture Button
-            if (state.media.isProcessingLink) {
-                androidx.compose.material3.FloatingActionButton(
-                    onClick = { },
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(16.dp),
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ) {
                     androidx.compose.material3.CircularProgressIndicator(
-                        modifier =
-                            Modifier
-                                .padding(12.dp)
-                                .semantics { contentDescription = "Processing Link" },
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .semantics { contentDescription = "Processing Link" },
                         strokeWidth = 3.dp,
                     )
                 }
             } else {
                 IndustrialButton(
                     onClick = { showAddDialog = true },
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(16.dp),
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
                     text = "+",
                 )
             }
@@ -555,215 +247,31 @@ fun AddLinkDialog(
         Surface(
             shape = MaterialTheme.shapes.medium,
             color = MaterialTheme.colorScheme.surface,
-            modifier =
-                androidx.compose.ui.Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
         ) {
-            Column(
-                modifier =
-                    androidx.compose.ui.Modifier
-                        .padding(24.dp),
-            ) {
+            Column(modifier = Modifier.padding(24.dp)) {
                 Text("Add to Bank", style = MaterialTheme.typography.titleLarge)
-                Spacer(
-                    modifier =
-                        androidx.compose.ui.Modifier
-                            .height(16.dp),
-                )
+                Spacer(modifier = Modifier.height(16.dp))
                 IndustrialTextField(
                     value = url,
                     onValueChange = { url = it },
                     label = { Text("Paste YouTube or SoundCloud link") },
-                    modifier =
-                        androidx.compose.ui.Modifier
-                            .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
-                Spacer(
-                    modifier =
-                        androidx.compose.ui.Modifier
-                            .height(24.dp),
-                )
+                Spacer(modifier = Modifier.height(24.dp))
                 Row(
-                    modifier =
-                        androidx.compose.ui.Modifier
-                            .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                 ) {
                     IndustrialButton(onClick = onDismiss, text = "Cancel", isWarning = true)
-                    Spacer(
-                        modifier =
-                            androidx.compose.ui.Modifier
-                                .width(8.dp),
-                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     IndustrialButton(
                         onClick = { onSave(url) },
                         enabled = url.isNotBlank(),
                         text = "Add Intent",
                     )
                 }
-            }
-        }
-    }
-}
-
-@Suppress("FunctionName")
-@Suppress("FunctionName")
-@Composable
-private fun deleted_ContentItemCard() {}
-    item: ContentItem,
-    savedPosition: Float? = null,
-    modifier: Modifier = Modifier,
-) {
-    val state by GatekeeperStateManager.state.collectAsState()
-    TerminalPanel(modifier = modifier.fillMaxWidth()) {
-        Column {
-            Row(
-                modifier = Modifier.padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    "#${item.rank + 1}",
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                // Content Details
-                Column(modifier = Modifier.weight(1f)) {
-                    val decodedTitle =
-                        item.title
-                            .replace("&amp;", "&")
-                            .replace("&#39;", "'")
-                            .replace("&quot;", "\"")
-                            .replace("&lt;", "<")
-                            .replace("&gt;", ">")
-
-                    Text(
-                        text = decodedTitle,
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    if (item.channelName != null) {
-                        Text(
-                            text = item.channelName,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    val durationText = item.durationSeconds?.let { " • ${it / 60}m" } ?: ""
-                    Text(
-                        text = "${item.source.name}$durationText",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                // Action Buttons
-                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    if (item.type == ContentType.AUDIO && item.source != ContentSource.SOUNDCLOUD) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            val status = item.downloadStatus
-                            val progress = state.media.activeDownloads[item.id] ?: 0f
-                            if (status == com.aegisgatekeeper.app.domain.DownloadStatus.DOWNLOADING ||
-                                status == com.aegisgatekeeper.app.domain.DownloadStatus.QUEUED
-                            ) {
-                                androidx.compose.foundation.layout.Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.size(40.dp),
-                                ) {
-                                    if (progress > 0f && progress < 100f) {
-                                        androidx.compose.material3.CircularProgressIndicator(
-                                            progress = { progress / 100f },
-                                            color = MaterialTheme.colorScheme.primary,
-                                            strokeWidth = 2.dp,
-                                        )
-                                    } else {
-                                        androidx.compose.material3.CircularProgressIndicator(
-                                            color = MaterialTheme.colorScheme.primary,
-                                            strokeWidth = 2.dp,
-                                        )
-                                    }
-                                }
-                            } else if (status == com.aegisgatekeeper.app.domain.DownloadStatus.COMPLETED) {
-                                Text("✅", modifier = Modifier.padding(end = 8.dp))
-                                IndustrialButton(
-                                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DeleteDownloadedMedia(item.id)) },
-                                    text = "Delete Offline File",
-                                    isWarning = true,
-                                )
-                            } else {
-                                IndustrialButton(
-                                    onClick = { GatekeeperStateManager.dispatch(GatekeeperAction.DownloadMediaRequested(item.id)) },
-                                    text = "Download",
-                                )
-                            }
-                        }
-                    }
-                    if (item.source == ContentSource.YOUTUBE || item.source == ContentSource.SOUNDCLOUD ||
-                        item.type == ContentType.READING || item.type == ContentType.AUDIO
-                    ) {
-                        val isExtracting = state.media.extractingYouTubeVideoId == item.videoId
-                        IndustrialButton(
-                            onClick = {
-                                when (item.source) {
-                                    ContentSource.YOUTUBE -> {
-                                        GatekeeperStateManager.dispatch(GatekeeperAction.PlayYouTubeVideo(item.videoId))
-                                    }
-
-                                    ContentSource.SOUNDCLOUD -> {
-                                        GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanAudioPlayer(item.videoId))
-                                    }
-
-                                    ContentSource.SUBSTACK, ContentSource.GENERIC -> {
-                                        if (item.type == ContentType.AUDIO) {
-                                            GatekeeperStateManager.dispatch(GatekeeperAction.OpenNativePlayer(item))
-                                        } else {
-                                            val intent =
-                                                android.content.Intent(
-                                                    android.content.Intent.ACTION_VIEW,
-                                                    android.net.Uri.parse(item.videoId),
-                                                )
-                                            intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-                                            com.aegisgatekeeper.app.App.instance
-                                                .startActivity(intent)
-                                        }
-                                    }
-                                }
-                            },
-                            text = if (item.type == ContentType.READING) "Read" else "Play",
-                            isLoading = isExtracting,
-                            enabled = !isExtracting,
-                        )
-                    }
-                    IndustrialButton(
-                        onClick = {
-                            GatekeeperStateManager.dispatch(
-                                GatekeeperAction.RemoveFromContentBank(item.id, System.currentTimeMillis()),
-                            )
-                        },
-                        text = "Drop",
-                        isWarning = true,
-                    )
-                }
-            } // Close Row
-
-            if (savedPosition != null && savedPosition > 0f && item.durationSeconds != null && item.durationSeconds > 0) {
-                val progress = (savedPosition / item.durationSeconds).coerceIn(0f, 1f)
-                androidx.compose.material3.LinearProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier.fillMaxWidth().height(2.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = androidx.compose.ui.graphics.Color.Transparent,
-                )
             }
         }
     }
