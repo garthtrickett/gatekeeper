@@ -69,6 +69,17 @@ class SyncWorker(
                 )
             if (pushFailed) return Result.retry()
 
+                        val filterResult = com.aegisgatekeeper.app.di.GlobalDI.component.syncClient.fetchFilterRules()
+            filterResult.fold(
+                ifLeft = { error ->
+                    Log.w("Gatekeeper", "❌ SyncWorker: Filter rules pull failed: $error")
+                },
+                ifRight = { rules ->
+                    GatekeeperStateManager.dispatch(GatekeeperAction.UpdateFilterRules(rules))
+                    Log.i("Gatekeeper", "✅ SyncWorker: Downloaded ${rules.size} filter rules.")
+                }
+            )
+
             // 2. Pull Remote Changes
             val pullResult =
                 com.aegisgatekeeper.app.di.GlobalDI.component.syncClient

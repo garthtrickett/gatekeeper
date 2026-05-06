@@ -115,43 +115,24 @@ private fun applySurgicalFilters(browser: CefBrowser) {
                 if (!isLoading) {
                     val currentUrl = browser?.url ?: ""
 
-                    // Define domain-specific surgical masks
-                    val cssInjection =
-                        when {
-                            currentUrl.contains("twitter.com") || currentUrl.contains("x.com") -> {
-                                """
-                        [data-testid='sidebarColumn'], 
-[data-testid='primaryColumn'] > div > div:nth-child(2), 
-                        nav[aria-label='Primary'] > a:nth-child(2), 
-                        nav[aria-label='Primary'] > a:nth-child(5) { display: none !important; }
-                    """
-                            }
-
-                            currentUrl.contains("substack.com") -> {
-                                """
-                        .feed-container, .top-posts-container, .sidebar { display: none !important; }
-                    """
-                            }
-
-                            currentUrl.contains("youtube.com") -> {
-                                """
-                        #secondary, #related, ytd-reel-shelf-renderer, ytd-shorts { display: none !important; }
-                    """
-                            }
-
-                            else -> {
-                                ""
-                            }
-                        }
+                    val filterEngine = com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine
+                    val cssInjection = filterEngine.getCosmeticCss(currentUrl)
 
                     if (cssInjection.isNotBlank()) {
                         val cleanCss = cssInjection.replace("\n", " ").replace("\"", "\\\"")
                         browser?.executeJavaScript(
                             """
                             (function() {
-                                var style = document.createElement('style');
-                                style.innerHTML = "$cleanCss";
-                                document.head.appendChild(style);
+                                var styleId = 'gatekeeper-base-surgical-mask';
+                                var style = document.getElementById(styleId);
+                                if (!style) {
+                                    style = document.createElement('style');
+                                    style.id = styleId;
+                                    style.innerHTML = "$cleanCss";
+                                    document.head.appendChild(style);
+                                } else if (style.innerHTML !== "$cleanCss") {
+                                    style.innerHTML = "$cleanCss";
+                                }
                             })();
                             """.trimIndent(),
                             "",
@@ -168,15 +149,6 @@ private fun applySurgicalFilters(browser: CefBrowser) {
  * Simulates an ad/tracker blocker by intercepting network requests at the CefClient level.
  */
 private fun setupNetworkInterception(browser: CefBrowser) {
-    val blocklist =
-        listOf(
-            "google-analytics.com",
-            "doubleclick.net",
-            "connect.facebook.net",
-            "ads.twitter.com",
-            "googletagmanager.com",
-        )
-
     browser.client.addRequestHandler(
         object : CefRequestHandlerAdapter() {
             override fun getResourceRequestHandler(
@@ -195,9 +167,10 @@ private fun setupNetworkInterception(browser: CefBrowser) {
                         request: CefRequest?,
                     ): Boolean {
                         val url = request?.url ?: return false
-                        val shouldBlock = blocklist.any { url.contains(it, ignoreCase = true) }
+                        val documentUrl = browser?.url ?: ""
 
-                        if (shouldBlock) {
+                        val filterEngine = com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine
+                        if (filterEngine.shouldBlockRequest(url, documentUrl)) {
                             println("\uD83D\uDEE1\uFE0F Surgical Web: Blocked network request to $url")
                             return true // true cancels the request
                         }
