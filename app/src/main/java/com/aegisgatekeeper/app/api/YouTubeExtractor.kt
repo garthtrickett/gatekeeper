@@ -36,7 +36,7 @@ data class CobaltResponse(
 class YouTubeExtractor(private val client: HttpClient) {
     private val parser = Json { ignoreUnknownKeys = true }
 
-        private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
+            private suspend fun tryCobalt(endpoint: String, videoId: String): String? {
         val requestUrl = "https://www.youtube.com/watch?v=$videoId"
         try {
             com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor: Connecting to Cobalt ($endpoint)")
@@ -55,7 +55,10 @@ class YouTubeExtractor(private val client: HttpClient) {
 
             if (response.status.value in 200..299) {
                 val responseText = response.bodyAsText()
+                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor Raw Response: $responseText")
+                
                 val cobalt = parser.decodeFromString(CobaltResponse.serializer(), responseText)
+                com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "📡 YouTubeExtractor Parsed: $cobalt")
                 
                 if (cobalt.url != null) {
                     var finalUrl = cobalt.url!!
@@ -64,9 +67,11 @@ class YouTubeExtractor(private val client: HttpClient) {
                         finalUrl = "${base.trimEnd('/')}$finalUrl"
                     }
                     
-                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Stream Resolved")
+                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ YouTubeExtractor: Stream Resolved -> $finalUrl")
                     return finalUrl
                 }
+            } else {
+                 com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Non-200 status -> ${response.status.value}: ${response.bodyAsText()}")
             }
         } catch (e: Exception) {
             com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ YouTubeExtractor: Attempt failed for $endpoint: ${e.message}")
