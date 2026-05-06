@@ -66,11 +66,23 @@ class RssClient(
                                     ?.replace("]]>".toRegex(), "")
                                     ?.trim()
 
-                            val enclosure =
+                            var enclosure = 
                                 Regex(
                                     "<enclosure[^>]*?url=[\"']([^\"']+)[\"']",
                                     RegexOption.IGNORE_CASE,
                                 ).find(itemXml)?.groupValues?.get(1)
+
+                            if (enclosure != null) {
+                                try {
+                                    val decoded = java.net.URLDecoder.decode(enclosure, "UTF-8")
+                                    val lastHttp = decoded.lastIndexOf("http")
+                                    if (lastHttp > 0) { // Greater than 0 to avoid matching the start if it's the only one
+                                        enclosure = decoded.substring(lastHttp)
+                                    }
+                                } catch (e: Exception) {
+                                    // Ignore decoding errors, use original url
+                                }
+                            }
                             val durationStr =
                                 Regex(
                                     "<itunes:duration[^>]*>(.*?)</itunes:duration>",
