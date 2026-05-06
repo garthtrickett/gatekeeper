@@ -34,7 +34,13 @@ android {
 
 
         val syncUrl = properties.getProperty("SYNC_SERVER_URL") ?: "http://10.0.2.2:8081"
-        buildConfigField("String", "SYNC_SERVER_URL", "\"$syncUrl\"")\n\n        val cobaltUrl = properties.getProperty("COBALT_API_URL") ?: "http://10.0.2.2:9099"\n        buildConfigField("String", "COBALT_API_URL", "\"$cobaltUrl\"")\n\n        val cobaltKey = properties.getProperty("COBALT_API_KEY") ?: ""\n        buildConfigField("String", "COBALT_API_KEY", "\"$cobaltKey\"")
+                buildConfigField("String", "SYNC_SERVER_URL", "\"$syncUrl\"")
+
+        val cobaltUrl = properties.getProperty("COBALT_API_URL") ?: "http://10.0.2.2:9099"
+        buildConfigField("String", "COBALT_API_URL", "\"$cobaltUrl\"")
+
+        val cobaltKey = properties.getProperty("COBALT_API_KEY") ?: ""
+        buildConfigField("String", "COBALT_API_KEY", "\"$cobaltKey\"")
 
         manifestPlaceholders["appName"] = "Aegis Gatekeeper"
         manifestPlaceholders["appIcon"] = "@android:drawable/ic_lock_idle_lock"
@@ -147,7 +153,7 @@ kotlin {
                 implementation("androidx.media3:media3-exoplayer:1.4.0")
                 implementation("androidx.media3:media3-session:1.4.0")
                 implementation("androidx.media3:media3-ui:1.4.0")
-                implementation(enforcedPlatform("com.google.firebase:firebase-bom:33.1.0"))
+                implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
                 implementation("com.google.firebase:firebase-analytics")
                 implementation("com.google.firebase:firebase-messaging-ktx")
             }
