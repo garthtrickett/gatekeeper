@@ -103,11 +103,12 @@ fun InterceptionScreen() {
                     screen = "FRICTION"
                 },
                 onHabits = { screen = "HABITS" },
-                onPlayContent = { item ->
-                    if (item.type == com.aegisgatekeeper.app.domain.ContentType.VIDEO) {
+                                onPlayContent = { item ->
+                    if (item.source == com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE || 
+                        item.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
                         val intent =
                             android.content.Intent(com.aegisgatekeeper.app.App.instance, MainActivity::class.java).apply {
-                                putExtra("PLAY_YOUTUBE_VIDEO_ID", item.videoId)
+                                putExtra("PLAY_SURGICAL_MEDIA_ID", item.id)
                                 flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
                             }
                         com.aegisgatekeeper.app.App.instance
@@ -115,11 +116,7 @@ fun InterceptionScreen() {
                     } else if (item.type == com.aegisgatekeeper.app.domain.ContentType.AUDIO) {
                         val intent =
                             android.content.Intent(com.aegisgatekeeper.app.App.instance, MainActivity::class.java).apply {
-                                if (item.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
-                                    putExtra("OPEN_CLEAN_AUDIO_URL", item.videoId)
-                                } else {
-                                    putExtra("OPEN_NATIVE_AUDIO_ID", item.id)
-                                }
+                                putExtra("OPEN_NATIVE_AUDIO_ID", item.id)
                                 flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
                             }
                         com.aegisgatekeeper.app.App.instance

@@ -155,10 +155,10 @@ fun IntentionalContentScreen() {
                                 if (item != null) {
                                     IndustrialButton(
                                         onClick = {
-                                            when (item.contentItem.type) {
+                                                                                        when (item.contentItem.type) {
                                                 com.aegisgatekeeper.app.domain.ContentType.VIDEO -> {
                                                     GatekeeperStateManager.dispatch(
-                                                        GatekeeperAction.PlayYouTubeVideo(item.contentItem.videoId),
+                                                        GatekeeperAction.ExtractAndPlayMedia(item.contentItem),
                                                     )
                                                 }
 
@@ -167,8 +167,8 @@ fun IntentionalContentScreen() {
                                                         com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD
                                                     ) {
                                                         GatekeeperStateManager.dispatch(
-                                                            GatekeeperAction.OpenCleanAudioPlayer(item.contentItem.videoId),
-                                                        )
+                                                            GatekeeperAction.ExtractAndPlayMedia(item.contentItem),
+                                                    )
                                                     } else {
                                                         GatekeeperStateManager.dispatch(
                                                             GatekeeperAction.OpenNativePlayer(item.contentItem),
@@ -318,8 +318,7 @@ fun IntentionalContentScreen() {
 
 @Suppress("FunctionName")
 @SuppressLint("SetJavaScriptEnabled")
-@Composable
-fun CleanAudioPlayerModal(
+// CleanAudioPlayerModal removed
     url: String,
     isVisible: Boolean,
     onMinimize: () -> Unit,

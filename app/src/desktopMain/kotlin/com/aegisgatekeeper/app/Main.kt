@@ -51,7 +51,7 @@ fun main() =
                                 "cache"
                         }
 
-                                                else -> {
+                        else -> {
                             userHome + File.separator + ".local" + File.separator + "share" +
                                 File.separator + "gatekeeper" + File.separator + "cache"
                         }

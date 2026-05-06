@@ -25,17 +25,35 @@ class MainActivityTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-    @Test
-    fun testDeepLink_DispatchesOpenCleanAudioPlayerAction() {
-        val testUrl = "https://soundcloud.com/test/track"
+        @Test
+    fun testDeepLink_DispatchesExtractAndPlayMediaAction() {
+        val item = com.aegisgatekeeper.app.domain.ContentItem(
+            id = "test_sc",
+            videoId = "https://soundcloud.com/test/track",
+            title = "Test Audio",
+            source = com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD,
+            type = com.aegisgatekeeper.app.domain.ContentType.AUDIO,
+            rank = 0,
+            capturedAtTimestamp = 0L,
+        )
+        GatekeeperStateManager.dispatch(
+            com.aegisgatekeeper.app.domain.GatekeeperAction.SaveToContentBank(
+                videoId = item.videoId,
+                title = item.title,
+                source = item.source,
+                type = item.type,
+                currentTimestamp = 0L,
+            ),
+        )
+        val savedItem = GatekeeperStateManager.state.value.data.contentItems.first { it.videoId == item.videoId }
         val intent =
             Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java).apply {
-                putExtra("OPEN_CLEAN_AUDIO_URL", testUrl)
+                putExtra("PLAY_SURGICAL_MEDIA_ID", savedItem.id)
             }
 
         ActivityScenario.launch<MainActivity>(intent).use {
             val currentState = GatekeeperStateManager.state.value
-            assertThat(currentState.media.activeAudioUrl).isEqualTo(testUrl)
+            assertThat(currentState.media.extractingMediaId).isEqualTo(savedItem.id)
         }
     }
 

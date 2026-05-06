@@ -368,12 +368,13 @@ class ContentBankUiTest {
         composeTestRule.onNodeWithText("End Session").assertIsDisplayed()
     }
 
-    fun testContentBank_SoundCloudItem_PlaysInAudioPlayer() {
+        @Test
+    fun testContentBank_SoundCloudItem_PlaysInNativePlayer() {
         // Arrange
         val soundcloudUrl = "https://soundcloud.com/test/track"
         GatekeeperStateManager.dispatch(
             GatekeeperAction.SaveToContentBank(
-                videoId = soundcloudUrl, // For non-YouTube, videoId holds the URL
+                videoId = soundcloudUrl,
                 title = "Test SoundCloud Track",
                 source = ContentSource.SOUNDCLOUD,
                 type = ContentType.AUDIO,
@@ -385,27 +386,30 @@ class ContentBankUiTest {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
                 ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
-                if (state.media.activeAudioUrl != null) {
-                    com.aegisgatekeeper.app.views.CleanAudioPlayerModal(
-                        url = state.media.activeAudioUrl!!,
+                if (state.media.activeNativeMediaItem != null) {
+                    com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
+                        contentItem = state.media.activeNativeMediaItem!!,
                         isVisible = true,
-                        onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
-                        onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
+                        onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
+                        onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
                     )
                 }
             }
         }
 
         // Act: Click the play button for our new item.
-        // Since there's only one item, there's only one "Play" button.
         composeTestRule.onNodeWithText("Play").performClick()
         composeTestRule.waitForIdle()
+        Thread.sleep(500) // Wait for extractor effect
 
-        // Assert: The state manager should now have an active audio URL
+        // Assert: The state manager should now have an active native media item
         val state = GatekeeperStateManager.state.value
         com.google.common.truth.Truth
-            .assertThat(state.media.activeAudioUrl)
-            .isEqualTo(soundcloudUrl)
+            .assertThat(state.media.activeNativeMediaItem)
+            .isNotNull()
+        com.google.common.truth.Truth
+            .assertThat(state.media.activeNativeMediaItem!!.title)
+            .isEqualTo("Test SoundCloud Track")
 
         // Assert: The modal UI should be visible
         composeTestRule.onNodeWithText("End Session").assertIsDisplayed()

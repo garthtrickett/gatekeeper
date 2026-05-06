@@ -49,7 +49,7 @@ fun ContentBankList(
     hasAnyItems: Boolean,
     savedMediaPositions: Map<String, Float>,
     activeDownloads: Map<String, Float>,
-    extractingYouTubeVideoId: String?,
+    extractingMediaId: String?,
     onReorder: (Int, Int) -> Unit,
     onDragStart: () -> Boolean,
     onDownloadRequested: (String) -> Unit,
@@ -145,12 +145,12 @@ fun ContentBankList(
         ) {
             itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
                 val isBeingDragged = index == draggedItemIndex
-                val elevation by animateFloatAsState(if (isBeingDragged) 8f else 0f, label = "elevation")
+                                val elevation by animateFloatAsState(if (isBeingDragged) 8f else 0f, label = "elevation")
                 ContentItemCard(
                     item = item,
                     savedPosition = savedMediaPositions[item.videoId],
                     activeDownloadProgress = activeDownloads[item.id],
-                    isExtracting = extractingYouTubeVideoId == item.videoId,
+                    isExtracting = extractingMediaId == item.id,
                     onDownloadRequested = onDownloadRequested,
                     onDeleteDownloadedMedia = onDeleteDownloadedMedia,
                     onPlayContent = onPlayContent,

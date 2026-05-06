@@ -90,12 +90,12 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     onOpenPodcasts = { showFeedManagement = true },
                 )
 
-                ContentBankList(
+                                ContentBankList(
                     items = items,
                     hasAnyItems = state.data.contentItems.any { !it.isDeleted },
                     savedMediaPositions = state.media.savedMediaPositions,
                     activeDownloads = state.media.activeDownloads,
-                    extractingYouTubeVideoId = state.media.extractingYouTubeVideoId,
+                    extractingMediaId = state.media.extractingMediaId,
                     onReorder = { from, to ->
                         GatekeeperStateManager.dispatch(
                             GatekeeperAction.ReorderContentBank(from, to, System.currentTimeMillis()),
@@ -115,14 +115,10 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     onDeleteDownloadedMedia = { id ->
                         GatekeeperStateManager.dispatch(GatekeeperAction.DeleteDownloadedMedia(id))
                     },
-                    onPlayContent = { item ->
+                                        onPlayContent = { item ->
                         when (item.source) {
-                            ContentSource.YOUTUBE -> {
-                                GatekeeperStateManager.dispatch(GatekeeperAction.PlayYouTubeVideo(item.videoId))
-                            }
-
-                            ContentSource.SOUNDCLOUD -> {
-                                GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanAudioPlayer(item.videoId))
+                            ContentSource.YOUTUBE, ContentSource.SOUNDCLOUD -> {
+                                GatekeeperStateManager.dispatch(GatekeeperAction.ExtractAndPlayMedia(item))
                             }
 
                             ContentSource.SUBSTACK, ContentSource.GENERIC -> {

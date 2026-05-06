@@ -16,7 +16,7 @@ import com.aegisgatekeeper.app.api.PodcastIndexClient
 import com.aegisgatekeeper.app.api.RssClient
 import com.aegisgatekeeper.app.api.RssFeedData
 import com.aegisgatekeeper.app.api.UrlMetadataClient
-import com.aegisgatekeeper.app.api.YouTubeExtractor
+import com.aegisgatekeeper.app.api.SurgicalMediaExtractor
 import com.aegisgatekeeper.app.domain.BeeperChat
 import com.aegisgatekeeper.app.domain.ScheduledMessage
 import com.aegisgatekeeper.app.domain.platformLog
@@ -35,9 +35,9 @@ class AndroidEffectHandler(
     private val context: Context,
     private val podcastIndexClient: PodcastIndexClient,
     private val rssClient: RssClient,
-    private val urlMetadataClient: UrlMetadataClient,
+        private val urlMetadataClient: UrlMetadataClient,
     private val beeperClient: BeeperClient,
-    private val youtubeExtractor: YouTubeExtractor,
+    private val surgicalMediaExtractor: SurgicalMediaExtractor,
 ) : PlatformEffectHandler {
     override fun goHome() {
         if (!com.aegisgatekeeper.app.App.isRunningTest) {
@@ -116,7 +116,7 @@ class AndroidEffectHandler(
         return beeperClient.getChats()
     }
 
-    override suspend fun fetchYouTubeStream(
+        override suspend fun fetchSurgicalStream(
         item: com.aegisgatekeeper.app.domain.ContentItem,
-    ): Either<String, com.aegisgatekeeper.app.domain.ContentItem> = youtubeExtractor.extractVideo(item)
+    ): Either<String, com.aegisgatekeeper.app.domain.ContentItem> = surgicalMediaExtractor.extractMedia(item)
 }

@@ -170,17 +170,7 @@ class MainNavigationScreen : Screen {
             }
         }
 
-        // Global Background Modals
-        val activeAudioUrl = state.media.activeAudioUrl
-        if (activeAudioUrl != null) {
-            CleanAudioPlayerModal(
-                url = activeAudioUrl,
-                isVisible = state.media.isAudioPlayerMaximized,
-                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanAudioPlayer) },
-                onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanAudioPlayer) },
-            )
-        }
-
+                // Global Background Modals
         val activeNativeMediaItem = state.media.activeNativeMediaItem
         if (activeNativeMediaItem != null) {
             NativeAudioPlayerModal(

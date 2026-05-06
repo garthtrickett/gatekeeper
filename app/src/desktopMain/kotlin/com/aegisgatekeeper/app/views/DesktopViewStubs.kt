@@ -26,8 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.aegisgatekeeper.app.GatekeeperStateManager
 
 @Suppress("FunctionName")
-@Composable
-fun CleanPlayerModal(
+// CleanPlayerModal removed
     videoId: String,
     isVisible: Boolean,
     onMinimize: () -> Unit,

@@ -156,16 +156,13 @@ class VaultWidget : GlanceAppWidget() {
                                         )
                                         Spacer(modifier = GlanceModifier.height(8.dp))
 
-                                        val intent =
+                                                                                val intent =
                                             Intent(context, MainActivity::class.java).apply {
-                                                if (it.type == ContentType.VIDEO) {
-                                                    putExtra("PLAY_YOUTUBE_VIDEO_ID", it.videoId)
+                                                if (it.source == com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE || 
+                                                    it.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
+                                                    putExtra("PLAY_SURGICAL_MEDIA_ID", it.id)
                                                 } else if (it.type == ContentType.AUDIO) {
-                                                    if (it.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
-                                                        putExtra("OPEN_CLEAN_AUDIO_URL", it.videoId)
-                                                    } else {
-                                                        putExtra("OPEN_NATIVE_AUDIO_ID", it.id)
-                                                    }
+                                                    putExtra("OPEN_NATIVE_AUDIO_ID", it.id)
                                                 }
                                                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                             }

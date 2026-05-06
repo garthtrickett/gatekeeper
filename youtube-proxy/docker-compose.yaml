@@ -1,0 +1,9 @@
+# youtube-proxy/docker-compose.yaml
+version: '3.8'
+services:
+  yt-proxy:
+    build: .
+    container_name: gatekeeper-yt-proxy
+    ports:
+      - "8000:8000"
+    restart: always
