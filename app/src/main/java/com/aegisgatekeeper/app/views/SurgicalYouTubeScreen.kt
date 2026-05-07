@@ -205,16 +205,12 @@ fun SurgicalYouTubeScreen(
                                             btn.style.backgroundColor = '#888';
                                         };
                                         
-                                        var anchors = video.querySelectorAll('a');
-                                        anchors.forEach(function(a) {
-                                            a.style.pointerEvents = 'none';
-                                        });
-                                        video.onclick = function(e) {
+                                                                                video.addEventListener('click', function(e) {
                                             if (!e.target.closest('.gk-save-btn')) {
                                                 e.preventDefault();
                                                 e.stopPropagation();
                                             }
-                                        };
+                                        }, true);
                                         
                                         video.appendChild(btn);
                                     }
@@ -248,25 +244,27 @@ fun SurgicalYouTubeScreen(
                                             window.location.href = href;
                                         };
                                         
-                                        var anchors = channel.querySelectorAll('a');
-                                        anchors.forEach(function(a) {
-                                            a.style.pointerEvents = 'none';
-                                        });
-                                        channel.onclick = function(e) {
+                                                                                channel.addEventListener('click', function(e) {
                                             if (!e.target.closest('.gk-channel-btn')) {
                                                 e.preventDefault();
                                                 e.stopPropagation();
                                             }
-                                        };
+                                        }, true);
                                         
                                         channel.appendChild(btn);
                                     }
                                 });
 
-                                var others = document.querySelectorAll('ytm-compact-playlist-renderer, ytm-compact-radio-renderer');
+                                                                var others = document.querySelectorAll('ytm-compact-playlist-renderer, ytm-compact-radio-renderer');
                                 others.forEach(function(other) {
-                                    other.style.pointerEvents = 'none';
-                                    other.style.opacity = '0.5';
+                                    if (!other.dataset.gkDisabled) {
+                                        other.dataset.gkDisabled = 'true';
+                                        other.style.opacity = '0.5';
+                                        other.addEventListener('click', function(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                        }, true);
+                                    }
                                 });
                             }, 1000);
                         })();
