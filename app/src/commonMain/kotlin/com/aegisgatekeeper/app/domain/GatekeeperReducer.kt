@@ -960,9 +960,9 @@ private fun reduceMedia(
                 }
             }
 
-            is GatekeeperAction.UpdateFilterRules -> {
+                        is GatekeeperAction.UpdateFilterRules -> {
                 effects.add(GatekeeperEffect.CompileFilterRules(action.rules))
-                slice.copy(declarativeFilterRules = action.rules)
+                slice.copy(declarativeFilterRules = action.rules, filterRulesHash = action.hash)
             }
 
             else -> {

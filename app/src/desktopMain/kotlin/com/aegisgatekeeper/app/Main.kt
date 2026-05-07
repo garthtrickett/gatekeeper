@@ -128,12 +128,16 @@ fun main() =
                             val filterResult = syncClient.fetchFilterRules()
                             filterResult.fold(
                                 ifLeft = { println("❌ Desktop: Filter rules pull failed: $it") },
-                                                                ifRight = { result ->
-                                    GatekeeperStateManager.dispatch(
-                                        com.aegisgatekeeper.app.domain.GatekeeperAction
-                                            .UpdateFilterRules(result.rules),
-                                    )
-                                    println("✅ Desktop: Downloaded ${result.rules.size} filter rules.")
+                                                                                                ifRight = { result ->
+                                    if (GatekeeperStateManager.state.value.media.filterRulesHash != result.hash) {
+                                        GatekeeperStateManager.dispatch(
+                                            com.aegisgatekeeper.app.domain.GatekeeperAction
+                                                .UpdateFilterRules(result.rules, result.hash),
+                                        )
+                                        println("✅ Desktop: Downloaded ${result.rules.size} filter rules (New Hash).")
+                                    } else {
+                                        println("✅ Desktop: Filter rules unchanged.")
+                                    }
                                 },
                             )
 

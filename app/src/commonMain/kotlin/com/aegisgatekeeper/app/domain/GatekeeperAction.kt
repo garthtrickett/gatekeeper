@@ -483,7 +483,8 @@ sealed interface GatekeeperAction {
         val error: String,
     ) : GatekeeperAction
 
-    data class UpdateFilterRules(
+        data class UpdateFilterRules(
         val rules: List<String>,
+        val hash: String,
     ) : GatekeeperAction
 }

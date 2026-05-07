@@ -76,9 +76,13 @@ class SyncWorker(
                 ifLeft = { error ->
                     Log.w("Gatekeeper", "❌ SyncWorker: Filter rules pull failed: $error")
                 },
-                                ifRight = { result ->
-                    GatekeeperStateManager.dispatch(GatekeeperAction.UpdateFilterRules(result.rules))
-                    Log.i("Gatekeeper", "✅ SyncWorker: Downloaded ${result.rules.size} filter rules.")
+                                                ifRight = { result ->
+                    if (state.media.filterRulesHash != result.hash) {
+                        GatekeeperStateManager.dispatch(GatekeeperAction.UpdateFilterRules(result.rules, result.hash))
+                        Log.i("Gatekeeper", "✅ SyncWorker: Downloaded ${result.rules.size} filter rules (New Hash).")
+                    } else {
+                        Log.i("Gatekeeper", "✅ SyncWorker: Filter rules unchanged.")
+                    }
                 },
             )
 
