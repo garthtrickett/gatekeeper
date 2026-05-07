@@ -916,13 +916,37 @@ private fun reduceMedia(
                 slice.copy(activeDownloads = slice.activeDownloads - action.id)
             }
 
-            is GatekeeperAction.SaveMediaPosition -> {
+                        is GatekeeperAction.SaveMediaPosition -> {
                 if (action.positionSeconds == 0f) {
                     slice.copy(savedMediaPositions = slice.savedMediaPositions + (action.mediaId to 0f))
                 } else {
                     effects.add(GatekeeperEffect.DbSaveMediaPosition(action.mediaId, action.positionSeconds))
                     slice.copy(savedMediaPositions = slice.savedMediaPositions + (action.mediaId to action.positionSeconds))
                 }
+            }
+
+            is GatekeeperAction.OpenCleanPlayer -> {
+                slice.copy(activeVideoId = action.videoId, isVideoPlayerMaximized = true)
+            }
+
+            is GatekeeperAction.MinimizeCleanPlayer -> {
+                slice.copy(isVideoPlayerMaximized = false)
+            }
+
+            is GatekeeperAction.StopCleanPlayer -> {
+                slice.copy(activeVideoId = null, isVideoPlayerMaximized = false)
+            }
+
+            is GatekeeperAction.OpenCleanAudioPlayer -> {
+                slice.copy(activeAudioUrl = action.url, isAudioPlayerMaximized = true)
+            }
+
+            is GatekeeperAction.MinimizeCleanAudioPlayer -> {
+                slice.copy(isAudioPlayerMaximized = false)
+            }
+
+            is GatekeeperAction.StopCleanAudioPlayer -> {
+                slice.copy(activeAudioUrl = null, isAudioPlayerMaximized = false)
             }
 
             is GatekeeperAction.ExtractAndPlayMedia -> {

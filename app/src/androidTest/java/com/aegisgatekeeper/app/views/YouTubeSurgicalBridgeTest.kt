@@ -18,6 +18,24 @@ class YouTubeSurgicalBridgeTest {
     }
 
     @Test
+    fun playVideo_dispatchesOpenCleanPlayerAction() {
+        val bridge = YouTubeSurgicalBridge()
+        bridge.playVideo("dQw4w9WgXcQ")
+        val state = GatekeeperStateManager.state.value
+        assertThat(state.media.activeVideoId).isEqualTo("dQw4w9WgXcQ")
+        assertThat(state.media.isVideoPlayerMaximized).isTrue()
+    }
+
+        @Test
+    fun playVideo_dispatchesOpenCleanPlayerAction() {
+        val bridge = YouTubeSurgicalBridge()
+        bridge.playVideo("dQw4w9WgXcQ")
+        val state = GatekeeperStateManager.state.value
+        assertThat(state.media.activeVideoId).isEqualTo("dQw4w9WgXcQ")
+        assertThat(state.media.isVideoPlayerMaximized).isTrue()
+    }
+
+    @Test
     fun saveVideo_dispatchesCorrectActionToStateManager() {
         val bridge = YouTubeSurgicalBridge()
         val testId = "dQw4w9WgXcQ"

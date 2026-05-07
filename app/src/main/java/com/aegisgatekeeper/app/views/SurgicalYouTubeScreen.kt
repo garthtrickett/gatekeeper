@@ -1,7 +1,6 @@
 package com.aegisgatekeeper.app.views
 
 import android.annotation.SuppressLint
-import android.webkit.CookieManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -32,56 +31,52 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 @Suppress("FunctionName")
 @Composable
 fun SurgicalYouTubeScreen(
-    url: String,
-    onClose: () -> Unit,
+        url: String,
+        onClose: () -> Unit,
 ) {
     val state by GatekeeperStateManager.state.collectAsState()
     val safeChannelIds =
-        remember(state.data.safeYouTubeChannels) {
-            state.data.safeYouTubeChannels.keys
-                .joinToString(",") { "'$it'" }
-        }
+            remember(state.data.safeYouTubeChannels) {
+                state.data.safeYouTubeChannels.keys.joinToString(",") { "'$it'" }
+            }
     var forceReload by remember { mutableStateOf(0) }
 
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-                .systemBarsPadding(),
+            modifier = Modifier.fillMaxSize().background(Color.Black).systemBarsPadding(),
     ) {
         // Header Navigation
         Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 IndustrialButton(
-                    onClick = {
-                        GatekeeperStateManager.dispatch(
-                            GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/feed/channels"),
-                        )
-                    },
-                    text = "Subscriptions",
-                    enabled = !url.contains("/feed/channels"),
-                    invertEnabledColor = true,
+                        onClick = {
+                            GatekeeperStateManager.dispatch(
+                                    GatekeeperAction.OpenSurgicalYouTube(
+                                            "https://m.youtube.com/feed/channels"
+                                    ),
+                            )
+                        },
+                        text = "Subscriptions",
+                        enabled = !url.contains("/feed/channels"),
+                        invertEnabledColor = true,
                 )
                 IndustrialButton(
-                    onClick = {
-                        GatekeeperStateManager.dispatch(
-                            GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/results?search_query="),
-                        )
-                    },
-                    text = "Search",
-                    enabled = !url.contains("/results?search_query="),
-                    invertEnabledColor = true,
+                        onClick = {
+                            GatekeeperStateManager.dispatch(
+                                    GatekeeperAction.OpenSurgicalYouTube(
+                                            "https://m.youtube.com/results?search_query="
+                                    ),
+                            )
+                        },
+                        text = "Search",
+                        enabled = !url.contains("/results?search_query="),
+                        invertEnabledColor = true,
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
@@ -90,19 +85,19 @@ fun SurgicalYouTubeScreen(
 
         androidx.compose.runtime.key(forceReload) {
             BaseSurgicalWebView(
-                url = url,
-                modifier = Modifier.weight(1f),
-                onInterceptUrlChange = { webView, newUrl ->
-                    if (newUrl.contains("youtube.com")) {
-                        val targetPath =
-                            when {
-                                newUrl.contains("/feed/channels") -> "/feed/channels"
-                                newUrl.contains("/results") -> "/results"
-                                else -> null
-                            }
-                        if (targetPath != null) {
-                            val js =
-                                """
+                    url = url,
+                    modifier = Modifier.weight(1f),
+                    onInterceptUrlChange = { webView, newUrl ->
+                        if (newUrl.contains("youtube.com")) {
+                            val targetPath =
+                                    when {
+                                        newUrl.contains("/feed/channels") -> "/feed/channels"
+                                        newUrl.contains("/results") -> "/results"
+                                        else -> null
+                                    }
+                            if (targetPath != null) {
+                                val js =
+                                        """
                                 (function(targetPath) {
                                     try {
                                         var targetLink = document.querySelector('a[href*="' + targetPath + '"]');
@@ -117,41 +112,41 @@ fun SurgicalYouTubeScreen(
                                 })('${'$'}targetPath');
                                 """.trimIndent()
 
-                            webView.evaluateJavascript(js) { result ->
-                                if (result != "\"clicked\"") {
-                                    webView.loadUrl(newUrl)
+                                webView.evaluateJavascript(js) { result ->
+                                    if (result != "\"clicked\"") {
+                                        webView.loadUrl(newUrl)
+                                    }
                                 }
+                                true
+                            } else {
+                                false
                             }
-                            true
                         } else {
                             false
                         }
-                    } else {
-                        false
-                    }
-                },
-                filterRules =
-                    listOf(
-                        SurgicalFilterRule(
-                            urlCondition = { true },
-                            hiddenSelectors =
-                                listOf(
-                                    "ytm-header-bar",
-                                    "ytm-pivot-bar-renderer",
-                                    "ytm-search-header-renderer",
-                                    ".modern-sharing-ui",
-                                ),
-                        ),
-                    ),
-                networkBlocklist = emptyList(),
-                jailRoot = url,
-                jsInterfaceObj = YouTubeSurgicalBridge(),
-                jsInterfaceName = "AndroidBridge",
-                jsInjector = { currentUrl ->
-                    val initSafeChannels = "window.gkSafeChannels = [$safeChannelIds];"
-                    when {
-                        currentUrl.contains("/feed/channels") -> {
-                            """
+                    },
+                    filterRules =
+                            listOf(
+                                    SurgicalFilterRule(
+                                            urlCondition = { true },
+                                            hiddenSelectors =
+                                                    listOf(
+                                                            "ytm-header-bar",
+                                                            "ytm-pivot-bar-renderer",
+                                                            "ytm-search-header-renderer",
+                                                            ".modern-sharing-ui",
+                                                    ),
+                                    ),
+                            ),
+                    networkBlocklist = emptyList(),
+                    jailRoot = url,
+                    jsInterfaceObj = YouTubeSurgicalBridge(),
+                    jsInterfaceName = "AndroidBridge",
+                    jsInjector = { currentUrl ->
+                        val initSafeChannels = "window.gkSafeChannels = [$safeChannelIds];"
+                        when {
+                            currentUrl.contains("/feed/channels") -> {
+                                """
                             (function() {
                                 $initSafeChannels
                                 var checkInterval = setInterval(function() {
@@ -199,52 +194,20 @@ fun SurgicalYouTubeScreen(
                                 }, 1000);
                             })();
                             """.trimIndent()
-                        }
-
-                        currentUrl.contains("/watch") -> {
-                            """
+                            }
+                            currentUrl.contains("/watch") -> {
+                                """
                             (function() {
-                                document.body.classList.add('gk-watch-page');
-                                var styleId = 'gk-watch-hide';
-                                if (!document.getElementById(styleId)) {
-                                    var style = document.createElement('style');
-                                    style.id = styleId;
-                                    style.textContent = '.gk-watch-page ytm-item-section-renderer, .gk-watch-page ytm-comment-section-renderer, .gk-watch-page ytm-rich-grid-renderer, .gk-watch-page ytm-metadata-row-container-renderer { display: none !important; }';
-                                    document.head.appendChild(style);
+                                var videoId = new URLSearchParams(window.location.search).get('v');
+                                if (videoId && window.AndroidBridge) {
+                                    window.AndroidBridge.playVideo(videoId);
+                                    window.history.back();
                                 }
-
-                                var checkInterval = setInterval(function() {
-                                    var btnContainer = document.querySelector('ytm-slim-video-action-bar-renderer') || document.querySelector('.slim-video-action-bar-actions');
-                                    if (btnContainer && !document.getElementById('gk-save-btn')) {
-                                        var btn = document.createElement('button');
-                                        btn.id = 'gk-save-btn';
-                                        btn.innerText = '+ SAVE TO BANK';
-                                        btn.style.backgroundColor = '#4AF626';
-                                        btn.style.color = '#000';
-                                        btn.style.border = 'none';
-                                        btn.style.padding = '8px 16px';
-                                        btn.style.margin = '8px';
-                                        btn.style.fontWeight = 'bold';
-                                        btn.style.borderRadius = '4px';
-                                        btn.style.width = 'calc(100% - 16px)';
-                                        btn.onclick = function() {
-                                            var videoId = new URLSearchParams(window.location.search).get('v');
-                                            var title = document.querySelector('.slim-video-metadata-title')?.textContent || document.title;
-                                            var channel = document.querySelector('ytm-badge-shape-renderer')?.textContent || document.querySelector('.slim-owner-channel-name')?.textContent || '';
-                                            var duration = document.querySelector('.time-display-content')?.textContent || '';
-                                            AndroidBridge.saveVideo(videoId, title, channel, duration);
-                                            btn.innerText = 'SAVED ✓';
-                                            btn.style.backgroundColor = '#888';
-                                        };
-                                        btnContainer.parentNode.insertBefore(btn, btnContainer);
-                                    }
-                                }, 1000);
                             })();
                             """.trimIndent()
-                        }
-
-                        currentUrl.contains("/results") -> {
-                            """
+                            }
+                            currentUrl.contains("/results") -> {
+                                """
                             (function() {
                                 document.body.classList.remove('gk-watch-page');
                                 var styleId = 'gk-results-hide';
@@ -261,7 +224,7 @@ fun SurgicalYouTubeScreen(
                                             video.style.setProperty('display', 'none', 'important');
                                             return;
                                         }
-                                        if (!video.querySelector('.gk-save-btn')) {
+                                        if (!video.querySelector('.gk-button-container')) {
                                             var anchor = video.querySelector('a[href*="/watch"]');
                                             if (!anchor) return;
                                             var href = anchor.getAttribute('href');
@@ -273,17 +236,42 @@ fun SurgicalYouTubeScreen(
                                             var channel = video.querySelector('.ytm-badge-and-byline-item-byline, ytm-badge-shape-renderer, .bylines')?.innerText || '';
                                             var duration = video.querySelector('ytm-thumbnail-overlay-time-status-renderer')?.innerText || '';
 
+                                            var btnContainer = document.createElement('div');
+                                            btnContainer.className = 'gk-button-container';
+                                            btnContainer.style.display = 'flex';
+                                            btnContainer.style.flexDirection = 'row';
+                                            btnContainer.style.gap = '8px';
+                                            btnContainer.style.width = '100%';
+                                            btnContainer.style.marginTop = '8px';
+
+                                            var playBtn = document.createElement('button');
+                                            playBtn.className = 'gk-play-btn';
+                                            playBtn.innerText = '▶ PLAY';
+                                            playBtn.style.flex = '1';
+                                            playBtn.style.backgroundColor = '#FF0000';
+                                            playBtn.style.color = '#FFFFFF';
+                                            playBtn.style.border = 'none';
+                                            playBtn.style.padding = '12px 16px';
+                                            playBtn.style.fontWeight = 'bold';
+                                            playBtn.style.borderRadius = '4px';
+                                            
+                                            playBtn.onclick = function(e) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                AndroidBridge.playVideo(videoId);
+                                            };
+                                            btnContainer.appendChild(playBtn);
+
                                             var btn = document.createElement('button');
                                             btn.className = 'gk-save-btn';
-                                            btn.innerText = '+ SAVE TO BANK';
+                                            btn.innerText = '+ BANK';
+                                            btn.style.flex = '1';
                                             btn.style.backgroundColor = '#4AF626';
                                             btn.style.color = '#000';
                                             btn.style.border = 'none';
                                             btn.style.padding = '12px 16px';
-                                            btn.style.margin = '8px 0';
                                             btn.style.fontWeight = 'bold';
                                             btn.style.borderRadius = '4px';
-                                            btn.style.width = '100%';
                                             
                                             btn.onclick = function(e) {
                                                 e.preventDefault();
@@ -291,8 +279,10 @@ fun SurgicalYouTubeScreen(
                                                 AndroidBridge.saveVideo(videoId, title, channel, duration);
                                                 btn.innerText = 'SAVED ✓';
                                                 btn.style.backgroundColor = '#888';
+                                                btn.disabled = true;
                                             };
-                                            video.appendChild(btn);
+                                            btnContainer.appendChild(btn);
+                                            video.appendChild(btnContainer);
                                         }
                                     });
 
@@ -339,15 +329,26 @@ fun SurgicalYouTubeScreen(
                                         }
                                     });
                                 }, 1000);
+
+                                // Stop YouTube SPA links escaping
+                                if (!window.gkGlobalClickCatcher) {
+                                    window.gkGlobalClickCatcher = true;
+                                    document.addEventListener('click', function(e) {
+                                        if (e.target && (e.target.className === 'gk-save-btn' || e.target.className === 'gk-channel-btn' || e.target.className === 'gk-play-btn')) return;
+                                        var closestTab = e.target.closest ? e.target.closest('[role="tab"]') : null;
+                                        if (closestTab) return;
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                    }, true);
+                                }
                             })();
                             """.trimIndent()
+                            }
+                            else -> {
+                                "document.body.classList.remove('gk-watch-page');"
+                            }
                         }
-
-                        else -> {
-                            "document.body.classList.remove('gk-watch-page');"
-                        }
-                    }
-                },
+                    },
             )
         }
     }

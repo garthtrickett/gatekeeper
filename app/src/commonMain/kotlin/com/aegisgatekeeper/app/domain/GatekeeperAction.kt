@@ -194,10 +194,26 @@ sealed interface GatekeeperAction {
         val error: String,
     ) : GatekeeperAction
 
-    data class SaveMediaPosition(
+        data class SaveMediaPosition(
         val mediaId: String,
         val positionSeconds: Float,
     ) : GatekeeperAction
+
+    data class OpenCleanPlayer(
+        val videoId: String,
+    ) : GatekeeperAction
+
+    object MinimizeCleanPlayer : GatekeeperAction
+
+    object StopCleanPlayer : GatekeeperAction
+
+    data class OpenCleanAudioPlayer(
+        val url: String,
+    ) : GatekeeperAction
+
+    object MinimizeCleanAudioPlayer : GatekeeperAction
+
+    object StopCleanAudioPlayer : GatekeeperAction
 
     data class SaveIntentionalSlot(
         val slotIndex: Int,
