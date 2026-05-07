@@ -1,6 +1,7 @@
 package com.aegisgatekeeper.app.api
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.right
 import com.aegisgatekeeper.app.di.Singleton
 import com.aegisgatekeeper.app.domain.ContentItem

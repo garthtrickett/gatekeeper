@@ -45,6 +45,7 @@ import com.aegisgatekeeper.app.views.PermissionsOnboardingScreen
 import com.aegisgatekeeper.app.views.PinnedWebModal
 import com.aegisgatekeeper.app.views.SurgicalFacebookScreen
 import com.aegisgatekeeper.app.views.SurgicalWebScreen
+import com.aegisgatekeeper.app.views.SurgicalYouTubeScreen
 import com.aegisgatekeeper.app.views.VaultReviewScreen
 
 abstract class GatekeeperTab(
