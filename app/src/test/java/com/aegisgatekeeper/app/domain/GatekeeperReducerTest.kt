@@ -1404,7 +1404,7 @@ class GatekeeperReducerTest {
         ).isEqualTo(MessageStatus.FAILED)
     }
 
-        @Test
+            @Test
     fun testUpdateFilterRules_UpdatesStateAndEmitsCompileEffect() {
         val rules = listOf("||new-tracker.com^", "example.com##.ad")
         val hash = "mockhash123"

@@ -120,29 +120,37 @@ object SyncClient {
                     com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ Failed to fetch filter list: $url")
                 }
             }
-            if (rawLists.isEmpty()) {
+                        if (rawLists.isEmpty()) {
                 return SyncError.NetworkFailure("Failed to fetch any filter lists").left()
             }
-            val merged = mutableSetOf<String>()
-            val unsupportedSelectors = listOf(":has(", ":xpath(", ":upward(", ":nth-ancestor(", ":remove()", ":style(")
-            rawLists.forEach { list ->
-                list.lines().forEach { line ->
-                    val trimmed = line.trim()
-                    if (trimmed.isEmpty() || trimmed.startsWith("!")) return@forEach
-                    if (trimmed.startsWith("||") || trimmed.startsWith("@@||")) {
+            parseFilterRules(rawLists).right()
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
+        }
+    }
+
+    fun parseFilterRules(rawLists: List<String>): FilterRulesResult {
+        val merged = mutableSetOf<String>()
+        val unsupportedSelectors = listOf(":has(", ":xpath(", ":upward(", ":nth-ancestor(", ":remove()", ":style(")
+        rawLists.forEach { list ->
+            list.lines().forEach { line ->
+                val trimmed = line.trim()
+                if (trimmed.isEmpty() || trimmed.startsWith("!")) return@forEach
+                if (trimmed.startsWith("||") || trimmed.startsWith("@@||")) {
+                    merged.add(trimmed)
+                } else if (trimmed.contains("##")) {
+                    val isUnsupported = unsupportedSelectors.any { trimmed.contains(it, ignoreCase = true) }
+                    if (!isUnsupported) {
                         merged.add(trimmed)
-                    } else if (trimmed.contains("##")) {
-                        val isUnsupported = unsupportedSelectors.any { trimmed.contains(it, ignoreCase = true) }
-                        if (!isUnsupported) {
-                            merged.add(trimmed)
-                        }
                     }
                 }
             }
-            val finalRules = merged.sorted()
-            val hash = com.aegisgatekeeper.app.domain.computeHash(finalRules.joinToString("\n"))
-            FilterRulesResult(finalRules, hash).right()
-        } catch (e: Exception) {
+        }
+        val finalRules = merged.sorted()
+        val hash = com.aegisgatekeeper.app.domain.computeHash(finalRules.joinToString("\n"))
+        return FilterRulesResult(finalRules, hash)
+    }
             if (e is kotlinx.coroutines.CancellationException) throw e
             SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
         }

@@ -321,8 +321,8 @@ class ContentBankUiTest {
             .isNotNull()
     }
 
-    @Test
-    fun testContentBank_YouTubeItem_PlaysInNativePlayer() {
+        @Test
+    fun testContentBank_YouTubeItem_OpensSurgicalYouTube() {
         // Arrange
         val youtubeVideoId = "dQw4w9WgXcQ"
         GatekeeperStateManager.dispatch(
@@ -339,12 +339,10 @@ class ContentBankUiTest {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
                 ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
-                if (state.media.activeNativeMediaItem != null) {
-                    com.aegisgatekeeper.app.views.NativeAudioPlayerModal(
-                        contentItem = state.media.activeNativeMediaItem!!,
-                        isVisible = true,
-                        onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
-                        onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseNativePlayer) },
+                if (state.media.activeYouTubeUrl != null) {
+                    com.aegisgatekeeper.app.views.SurgicalYouTubeScreen(
+                        url = state.media.activeYouTubeUrl!!,
+                        onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalYouTube) },
                     )
                 }
             }
@@ -353,19 +351,15 @@ class ContentBankUiTest {
         // Act: Click the play button for our new item.
         composeTestRule.onNodeWithText("Play").performClick()
         composeTestRule.waitForIdle()
-        Thread.sleep(500) // Wait for extractor effect
 
-        // Assert: The state manager should now have an active native media item
+        // Assert: The state manager should now have an active YouTube URL
         val state = GatekeeperStateManager.state.value
         com.google.common.truth.Truth
-            .assertThat(state.media.activeNativeMediaItem)
-            .isNotNull()
-        com.google.common.truth.Truth
-            .assertThat(state.media.activeNativeMediaItem!!.title)
-            .isEqualTo("Test YouTube Video")
+            .assertThat(state.media.activeYouTubeUrl)
+            .isEqualTo("https://m.youtube.com/watch?v=dQw4w9WgXcQ")
 
-        // Assert: The modal UI should be visible
-        composeTestRule.onNodeWithText("End Session").assertIsDisplayed()
+        // Assert: The Surgical YouTube UI should be visible (e.g. Subscriptions button)
+        composeTestRule.onNodeWithText("Subscriptions").assertIsDisplayed()
     }
 
     @Test
