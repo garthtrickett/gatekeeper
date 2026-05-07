@@ -175,13 +175,24 @@ fun SurgicalYouTubeScreen(
                             }, 1000);
                         })();
                         """.trimIndent()
-                    } else if (currentUrl.contains("/results")) {
+                                        } else if (currentUrl.contains("/results")) {
                         """
                         (function() {
                             document.body.classList.remove('gk-watch-page');
+                            var styleId = 'gk-results-hide';
+                            if (!document.getElementById(styleId)) {
+                                var style = document.createElement('style');
+                                style.id = styleId;
+                                style.textContent = 'ytm-reel-shelf-renderer { display: none !important; }';
+                                document.head.appendChild(style);
+                            }
                             var checkInterval = setInterval(function() {
                                 var videos = document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer');
                                 videos.forEach(function(video) {
+                                    if (video.querySelector('a[href*="/shorts/"]')) {
+                                        video.style.display = 'none';
+                                        return;
+                                    }
                                     if (!video.querySelector('.gk-save-btn')) {
                                         var anchor = video.querySelector('a[href*="/watch"]');
                                         if (!anchor) return;

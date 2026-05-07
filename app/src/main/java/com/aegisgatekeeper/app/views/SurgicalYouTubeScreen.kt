@@ -1,6 +1,7 @@
 package com.aegisgatekeeper.app.views
 
 import android.annotation.SuppressLint
+import android.webkit.CookieManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -30,47 +31,50 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 @Suppress("FunctionName")
 @Composable
 fun SurgicalYouTubeScreen(
-        url: String,
-        onClose: () -> Unit,
+    url: String,
+    onClose: () -> Unit,
 ) {
     var forceReload by remember { mutableStateOf(0) }
 
     Column(
-            modifier = Modifier.fillMaxSize().background(Color.Black).systemBarsPadding(),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+                .systemBarsPadding(),
     ) {
         // Header Navigation
         Row(
-                modifier = Modifier.fillMaxWidth().padding(8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(
-                    modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 IndustrialButton(
-                        onClick = {
-                            GatekeeperStateManager.dispatch(
-                                    GatekeeperAction.OpenSurgicalYouTube(
-                                            "https://m.youtube.com/feed/subscriptions"
-                                    ),
-                            )
-                        },
-                        text = "Subscriptions",
-                        enabled = !url.contains("/feed/subscriptions"),
-                        invertEnabledColor = true,
+                    onClick = {
+                        GatekeeperStateManager.dispatch(
+                            GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/feed/subscriptions"),
+                        )
+                    },
+                    text = "Subscriptions",
+                    enabled = !url.contains("/feed/subscriptions"),
+                    invertEnabledColor = true,
                 )
                 IndustrialButton(
-                        onClick = {
-                            GatekeeperStateManager.dispatch(
-                                    GatekeeperAction.OpenSurgicalYouTube(
-                                            "https://m.youtube.com/results?search_query="
-                                    ),
-                            )
-                        },
-                        text = "Search",
-                        enabled = !url.contains("/results?search_query="),
-                        invertEnabledColor = true,
+                    onClick = {
+                        GatekeeperStateManager.dispatch(
+                            GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/results?search_query="),
+                        )
+                    },
+                    text = "Search",
+                    enabled = !url.contains("/results?search_query="),
+                    invertEnabledColor = true,
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
@@ -79,20 +83,19 @@ fun SurgicalYouTubeScreen(
 
         androidx.compose.runtime.key(forceReload) {
             BaseSurgicalWebView(
-                    url = url,
-                    modifier = Modifier.weight(1f),
-                    onInterceptUrlChange = { webView, newUrl ->
-                        if (newUrl.contains("youtube.com")) {
-                            val targetPath =
-                                    when {
-                                        newUrl.contains("/feed/subscriptions") ->
-                                                "/feed/subscriptions"
-                                        newUrl.contains("/results") -> "/results"
-                                        else -> null
-                                    }
-                            if (targetPath != null) {
-                                val js =
-                                        """
+                url = url,
+                modifier = Modifier.weight(1f),
+                onInterceptUrlChange = { webView, newUrl ->
+                    if (newUrl.contains("youtube.com")) {
+                        val targetPath =
+                            when {
+                                newUrl.contains("/feed/subscriptions") -> "/feed/subscriptions"
+                                newUrl.contains("/results") -> "/results"
+                                else -> null
+                            }
+                        if (targetPath != null) {
+                            val js =
+                                """
                                 (function(targetPath) {
                                     try {
                                         var targetLink = document.querySelector('a[href*="' + targetPath + '"]');
@@ -107,34 +110,28 @@ fun SurgicalYouTubeScreen(
                                 })('${'$'}targetPath');
                                 """.trimIndent()
 
-                                webView.evaluateJavascript(js) { result ->
-                                    if (result == "\"clicked\"") {
-                                        android.util.Log.d(
-                                                "Gatekeeper",
-                                                "✨ SPA hack succeeded. Soft navigating to: ${'$'}newUrl"
-                                        )
-                                    } else {
-                                        android.util.Log.d(
-                                                "Gatekeeper",
-                                                "🛡️ SPA hack failed (${'$'}result). Falling back to hard load: ${'$'}newUrl"
-                                        )
-                                        webView.loadUrl(newUrl)
-                                    }
+                            webView.evaluateJavascript(js) { result ->
+                                if (result == "\"clicked\"") {
+                                    android.util.Log.d("Gatekeeper", "✨ SPA hack succeeded. Soft navigating to: ${'$'}newUrl")
+                                } else {
+                                    android.util.Log.d("Gatekeeper", "🛡️ SPA hack failed (${'$'}result). Falling back to hard load: ${'$'}newUrl")
+                                    webView.loadUrl(newUrl)
                                 }
-                                true
-                            } else {
-                                false
                             }
+                            true
                         } else {
                             false
                         }
-                    },
-                    filterRules = emptyList(),
-                    networkBlocklist = emptyList(),
-                    jailRoot = url,
-                    jsInterfaceObj = YouTubeSurgicalBridge(),
-                    jsInterfaceName = "AndroidBridge",
-                                    jsInjector = { currentUrl ->
+                    } else {
+                        false
+                    }
+                },
+                filterRules = emptyList(),
+                networkBlocklist = emptyList(),
+                jailRoot = url,
+                jsInterfaceObj = YouTubeSurgicalBridge(),
+                jsInterfaceName = "AndroidBridge",
+                jsInjector = { currentUrl ->
                     if (currentUrl.contains("/watch")) {
                         """
                         (function() {
@@ -143,7 +140,7 @@ fun SurgicalYouTubeScreen(
                             if (!document.getElementById(styleId)) {
                                 var style = document.createElement('style');
                                 style.id = styleId;
-                                style.textContent = '.gk-watch-page ytm-slim-video-action-bar-renderer, .gk-watch-page .slim-video-action-bar-actions, .gk-watch-page ytm-item-section-renderer, .gk-watch-page ytm-comment-section-renderer, .gk-watch-page ytm-rich-grid-renderer { display: none !important; }';
+                                style.textContent = '.gk-watch-page ytm-item-section-renderer, .gk-watch-page ytm-comment-section-renderer, .gk-watch-page ytm-rich-grid-renderer, .gk-watch-page ytm-metadata-row-container-renderer { display: none !important; }';
                                 document.head.appendChild(style);
                             }
 
@@ -173,16 +170,27 @@ fun SurgicalYouTubeScreen(
                                     btnContainer.parentNode.insertBefore(btn, btnContainer);
                                     clearInterval(checkInterval);
                                 }
-                            }, 1000);
+                            }, 200);
                         })();
                         """.trimIndent()
-                    } else if (currentUrl.contains("/results")) {
+                                        } else if (currentUrl.contains("/results")) {
                         """
                         (function() {
                             document.body.classList.remove('gk-watch-page');
+                            var styleId = 'gk-results-hide';
+                            if (!document.getElementById(styleId)) {
+                                var style = document.createElement('style');
+                                style.id = styleId;
+                                style.textContent = 'ytm-reel-shelf-renderer { display: none !important; }';
+                                document.head.appendChild(style);
+                            }
                             var checkInterval = setInterval(function() {
                                 var videos = document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer');
                                 videos.forEach(function(video) {
+                                    if (video.querySelector('a[href*="/shorts/"]')) {
+                                        video.style.display = 'none';
+                                        return;
+                                    }
                                     if (!video.querySelector('.gk-save-btn')) {
                                         var anchor = video.querySelector('a[href*="/watch"]');
                                         if (!anchor) return;
@@ -278,7 +286,7 @@ fun SurgicalYouTubeScreen(
                                             e.stopPropagation();
                                         }, true);
                                     }
-                                                                });
+                                });
                             }, 1000);
                         })();
                         """.trimIndent()
