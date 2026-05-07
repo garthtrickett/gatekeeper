@@ -68,15 +68,19 @@ class MainActivity : ComponentActivity() {
     ) {
         if (isRecreation) return
 
-        val nativeAudioIdToPlay = intent.getStringExtra("OPEN_NATIVE_AUDIO_ID")
+                val nativeAudioIdToPlay = intent.getStringExtra("OPEN_NATIVE_AUDIO_ID")
         val openActiveNativePlayer = intent.getBooleanExtra("OPEN_ACTIVE_NATIVE_PLAYER", false)
         val surgicalMediaIdToPlay = intent.getStringExtra("PLAY_SURGICAL_MEDIA_ID")
+        val playSurgicalYouTubeUrl = intent.getStringExtra("PLAY_SURGICAL_YOUTUBE_URL")
 
         intent.removeExtra("OPEN_NATIVE_AUDIO_ID")
         intent.removeExtra("OPEN_ACTIVE_NATIVE_PLAYER")
         intent.removeExtra("PLAY_SURGICAL_MEDIA_ID")
+        intent.removeExtra("PLAY_SURGICAL_YOUTUBE_URL")
 
-        if (surgicalMediaIdToPlay != null) {
+        if (playSurgicalYouTubeUrl != null) {
+            GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube(playSurgicalYouTubeUrl))
+        } else if (surgicalMediaIdToPlay != null) {
             android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Surgical Media (ID: $surgicalMediaIdToPlay)")
             val item =
                 GatekeeperStateManager.state.value.data.contentItems
@@ -100,7 +104,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        if (surgicalMediaIdToPlay != null || nativeAudioIdToPlay != null || openActiveNativePlayer) {
+                if (playSurgicalYouTubeUrl != null || surgicalMediaIdToPlay != null || nativeAudioIdToPlay != null || openActiveNativePlayer) {
             // Reset unmask state
             lifecycleScope.launch {
                 try {

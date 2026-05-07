@@ -932,8 +932,16 @@ private fun reduceMedia(
                 slice.copy(activeFacebookUrl = action.url)
             }
 
-            is GatekeeperAction.CloseSurgicalFacebook -> {
+                        is GatekeeperAction.CloseSurgicalFacebook -> {
                 slice.copy(activeFacebookUrl = null)
+            }
+
+            is GatekeeperAction.OpenSurgicalYouTube -> {
+                slice.copy(activeYouTubeUrl = action.url)
+            }
+
+            is GatekeeperAction.CloseSurgicalYouTube -> {
+                slice.copy(activeYouTubeUrl = null)
             }
 
             is GatekeeperAction.OpenPinnedWebsite -> {

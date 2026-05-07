@@ -155,15 +155,21 @@ fun IntentionalContentScreen() {
                                 if (item != null) {
                                     IndustrialButton(
                                         onClick = {
-                                            when (item.contentItem.type) {
+                                                                                        when (item.contentItem.type) {
                                                 com.aegisgatekeeper.app.domain.ContentType.VIDEO -> {
-                                                    GatekeeperStateManager.dispatch(
-                                                        GatekeeperAction.ExtractAndPlayMedia(item.contentItem),
-                                                    )
+                                                    if (item.contentItem.source == com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE) {
+                                                        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/watch?v=${item.contentItem.videoId}"))
+                                                    } else {
+                                                        GatekeeperStateManager.dispatch(
+                                                            GatekeeperAction.ExtractAndPlayMedia(item.contentItem),
+                                                        )
+                                                    }
                                                 }
 
                                                 com.aegisgatekeeper.app.domain.ContentType.AUDIO -> {
-                                                    if (item.contentItem.source ==
+                                                    if (item.contentItem.source == com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE) {
+                                                        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/watch?v=${item.contentItem.videoId}"))
+                                                    } else if (item.contentItem.source ==
                                                         com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD
                                                     ) {
                                                         GatekeeperStateManager.dispatch(

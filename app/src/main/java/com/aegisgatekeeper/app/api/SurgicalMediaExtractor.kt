@@ -18,12 +18,11 @@ class SurgicalMediaExtractor(
             return item.copy(localFilePath = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4").right()
         }
 
-        val fullUrl =
-            if (item.source == ContentSource.YOUTUBE) {
-                "https://www.youtube.com/watch?v=${item.videoId}"
-            } else {
-                item.videoId // For SoundCloud and others, the videoId holds the full URL
-            }
+                if (item.source == ContentSource.YOUTUBE) {
+            return "YouTube extraction is no longer supported via proxy. Use Surgical Web View.".left()
+        }
+
+        val fullUrl = item.videoId // For SoundCloud and others, the videoId holds the full URL
 
         // Append .mp3 as an exoplayer_hint to help ExoPlayer quickly identify the raw HTTP chunk stream
         val encodedUrl = java.net.URLEncoder.encode(fullUrl, "UTF-8")

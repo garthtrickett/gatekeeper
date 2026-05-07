@@ -216,11 +216,17 @@ sealed interface GatekeeperAction {
 
     object CloseNativePlayer : GatekeeperAction
 
-    data class OpenSurgicalFacebook(
+        data class OpenSurgicalFacebook(
         val url: String = "https://m.facebook.com/groups/?_rdr",
     ) : GatekeeperAction
 
     object CloseSurgicalFacebook : GatekeeperAction
+
+    data class OpenSurgicalYouTube(
+        val url: String = "https://m.youtube.com/feed/subscriptions",
+    ) : GatekeeperAction
+
+    object CloseSurgicalYouTube : GatekeeperAction
 
     data class LogGiveUp(
         val packageName: String,

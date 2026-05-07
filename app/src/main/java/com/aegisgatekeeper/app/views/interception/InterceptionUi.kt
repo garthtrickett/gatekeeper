@@ -103,10 +103,16 @@ fun InterceptionScreen() {
                     screen = "FRICTION"
                 },
                 onHabits = { screen = "HABITS" },
-                onPlayContent = { item ->
-                    if (item.source == com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE ||
-                        item.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD
-                    ) {
+                                onPlayContent = { item ->
+                    if (item.source == com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE) {
+                        val intent =
+                            android.content.Intent(com.aegisgatekeeper.app.App.instance, MainActivity::class.java).apply {
+                                putExtra("PLAY_SURGICAL_YOUTUBE_URL", "https://m.youtube.com/watch?v=${item.videoId}")
+                                flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            }
+                        com.aegisgatekeeper.app.App.instance
+                            .startActivity(intent)
+                    } else if (item.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
                         val intent =
                             android.content.Intent(com.aegisgatekeeper.app.App.instance, MainActivity::class.java).apply {
                                 putExtra("PLAY_SURGICAL_MEDIA_ID", item.id)

@@ -121,6 +121,15 @@ fun VaultReviewScreen() {
 
 @Suppress("FunctionName")
 @Composable
+fun SurgicalYouTubeScreen(
+    url: String,
+    onClose: () -> Unit,
+) {
+    CleanYouTubeDialog(initialUrl = url, onDismiss = onClose)
+}
+
+@Suppress("FunctionName")
+@Composable
 fun CleanYouTubeDialog(
     initialUrl: String = "",
     onDismiss: () -> Unit,

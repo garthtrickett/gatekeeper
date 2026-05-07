@@ -109,11 +109,20 @@ class DesktopRootScreen : Screen {
             }
         }
 
-        if (state.media.activePinnedWebsiteUrl != null) {
+                if (state.media.activePinnedWebsiteUrl != null) {
             Surface(modifier = Modifier.fillMaxSize()) {
                 PinnedWebModal(
                     url = state.media.activePinnedWebsiteUrl!!,
                     onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.ClosePinnedWebsite) },
+                )
+            }
+        }
+
+        if (state.media.activeYouTubeUrl != null) {
+            Surface(modifier = Modifier.fillMaxSize()) {
+                com.aegisgatekeeper.app.views.SurgicalYouTubeScreen(
+                    url = state.media.activeYouTubeUrl!!,
+                    onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalYouTube) },
                 )
             }
         }

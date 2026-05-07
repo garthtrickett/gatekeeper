@@ -180,10 +180,17 @@ class MainNavigationScreen : Screen {
             )
         }
 
-        if (state.media.activeFacebookUrl != null) {
+                if (state.media.activeFacebookUrl != null) {
             SurgicalFacebookScreen(
                 url = state.media.activeFacebookUrl!!,
                 onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalFacebook) },
+            )
+        }
+
+        if (state.media.activeYouTubeUrl != null) {
+            SurgicalYouTubeScreen(
+                url = state.media.activeYouTubeUrl!!,
+                onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalYouTube) },
             )
         }
 

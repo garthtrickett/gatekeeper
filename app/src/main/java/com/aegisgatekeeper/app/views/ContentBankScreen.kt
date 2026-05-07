@@ -115,9 +115,12 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     onDeleteDownloadedMedia = { id ->
                         GatekeeperStateManager.dispatch(GatekeeperAction.DeleteDownloadedMedia(id))
                     },
-                    onPlayContent = { item ->
+                                        onPlayContent = { item ->
                         when (item.source) {
-                            ContentSource.YOUTUBE, ContentSource.SOUNDCLOUD -> {
+                            ContentSource.YOUTUBE -> {
+                                GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/watch?v=${item.videoId}"))
+                            }
+                            ContentSource.SOUNDCLOUD -> {
                                 GatekeeperStateManager.dispatch(GatekeeperAction.ExtractAndPlayMedia(item))
                             }
 

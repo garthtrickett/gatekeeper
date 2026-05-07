@@ -229,7 +229,8 @@ data class MediaState(
     val isWebEngineReady: Boolean = false,
     val currentSurgicalUrl: String? = null,
     val extractingMediaId: String? = null,
-        val activeFacebookUrl: String? = null,
+            val activeFacebookUrl: String? = null,
+    val activeYouTubeUrl: String? = null,
     val activePinnedWebsiteUrl: String? = null,
     val filterRulesHash: String? = null,
     val declarativeFilterRules: List<String> =
