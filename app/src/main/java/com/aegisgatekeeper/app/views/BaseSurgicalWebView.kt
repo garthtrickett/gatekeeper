@@ -67,7 +67,7 @@ fun BaseSurgicalWebView(
                 settings.useWideViewPort = true
                 settings.loadWithOverviewMode = true
                 settings.javaScriptCanOpenWindowsAutomatically = true
-                                settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
 
                 setOnScrollChangeListener { _, _, scrollY, _, oldY ->
                     if (Math.abs(scrollY - oldY) > 5) {
@@ -75,7 +75,7 @@ fun BaseSurgicalWebView(
                     }
                 }
 
-                                setOnTouchListener { v, event ->
+                setOnTouchListener { v, event ->
                     if (event.action == android.view.MotionEvent.ACTION_DOWN) {
                         v.parent.requestDisallowInterceptTouchEvent(true)
                     }
@@ -112,8 +112,10 @@ fun BaseSurgicalWebView(
                     object : WebViewClient() {
                         @Volatile
                         private var currentDocUrl: String = url
+
                         @Volatile
                         private var lastMobileForcingTime = 0L
+
                         @Volatile
                         private var mobileForcingCount = 0
 
@@ -180,7 +182,7 @@ fun BaseSurgicalWebView(
 
                             val currentJailRoot = view?.tag as? String
                             if (currentJailRoot != null) {
-                                                                val isExplicitHomeFeed =
+                                val isExplicitHomeFeed =
                                     currentUrl == "https://m.facebook.com/" ||
                                         currentUrl?.startsWith("https://m.facebook.com/?") == true ||
                                         currentUrl?.contains("facebook.com/home") == true ||
@@ -241,7 +243,7 @@ fun BaseSurgicalWebView(
                                     }
                                 }
 
-                                                        val cleanCss = combinedCss
+                            val cleanCss = combinedCss
                             val js =
                                 """
                                 (function() {
@@ -345,7 +347,7 @@ fun BaseSurgicalWebView(
                                 return false
                             }
 
-                                                        val currentJailRoot = view?.tag as? String
+                            val currentJailRoot = view?.tag as? String
                             if (currentJailRoot != null) {
                                 if (newUrl.contains("www.facebook.com")) {
                                     val now = System.currentTimeMillis()

@@ -723,11 +723,12 @@ private fun reduceData(
                 val isCurrentlySafe = slice.safeYouTubeChannels.containsKey(action.channelId)
                 effects.add(GatekeeperEffect.DbToggleSafeYouTubeChannel(action.channelId, action.channelName, !isCurrentlySafe))
                 slice.copy(
-                    safeYouTubeChannels = if (isCurrentlySafe) {
-                        slice.safeYouTubeChannels - action.channelId
-                    } else {
-                        slice.safeYouTubeChannels + (action.channelId to action.channelName)
-                    }
+                    safeYouTubeChannels =
+                        if (isCurrentlySafe) {
+                            slice.safeYouTubeChannels - action.channelId
+                        } else {
+                            slice.safeYouTubeChannels + (action.channelId to action.channelName)
+                        },
                 )
             }
 
@@ -888,7 +889,7 @@ private fun reduceMedia(
                 slice.copy(isLoadingEpisodes = false, activePodcastEpisodes = null, activePodcastId = null)
             }
 
-                        is GatekeeperAction.CacheParsedEpisodes -> {
+            is GatekeeperAction.CacheParsedEpisodes -> {
                 effects.add(GatekeeperEffect.DbCacheParsedEpisodes(action.episodes, action.podcastId))
                 effects.add(GatekeeperEffect.DbLoadCachedPodcastEpisodes(action.podcastId))
                 slice

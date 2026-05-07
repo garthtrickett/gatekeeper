@@ -196,7 +196,7 @@ fun main() =
                                                 it.isDeleted,
                                             )
                                         }
-                                                                        GatekeeperStateManager.dispatch(
+                                    GatekeeperStateManager.dispatch(
                                         com.aegisgatekeeper.app.domain.GatekeeperAction
                                             .RemoteSyncCompleted(newVaults, newContents),
                                     )

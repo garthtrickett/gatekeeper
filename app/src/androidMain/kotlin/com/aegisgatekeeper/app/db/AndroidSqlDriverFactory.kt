@@ -20,7 +20,9 @@ class AndroidSqlDriverFactory(
                     override fun onOpen(db: androidx.sqlite.db.SupportSQLiteDatabase) {
                         db.setForeignKeyConstraintsEnabled(true)
                         // RESCUE LOGIC: Manually create the table if it's missing to prevent crash without wiping data
-                        db.execSQL("CREATE TABLE IF NOT EXISTS SafeYouTubeChannel (channelId TEXT NOT NULL PRIMARY KEY, channelName TEXT NOT NULL);")
+                        db.execSQL(
+                            "CREATE TABLE IF NOT EXISTS SafeYouTubeChannel (channelId TEXT NOT NULL PRIMARY KEY, channelName TEXT NOT NULL);",
+                        )
                     }
 
                     override fun onUpgrade(

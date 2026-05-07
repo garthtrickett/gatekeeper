@@ -36,9 +36,11 @@ fun SurgicalYouTubeScreen(
     onClose: () -> Unit,
 ) {
     val state by GatekeeperStateManager.state.collectAsState()
-    val safeChannelIds = remember(state.data.safeYouTubeChannels) {
-        state.data.safeYouTubeChannels.keys.joinToString(",") { "'$it'" }
-    }
+    val safeChannelIds =
+        remember(state.data.safeYouTubeChannels) {
+            state.data.safeYouTubeChannels.keys
+                .joinToString(",") { "'$it'" }
+        }
     var forceReload by remember { mutableStateOf(0) }
 
     Column(
@@ -128,17 +130,19 @@ fun SurgicalYouTubeScreen(
                         false
                     }
                 },
-                filterRules = listOf(
-                    SurgicalFilterRule(
-                        urlCondition = { true },
-                        hiddenSelectors = listOf(
-                            "ytm-header-bar", 
-                            "ytm-pivot-bar-renderer", 
-                            "ytm-search-header-renderer", 
-                            ".modern-sharing-ui"
-                        )
-                    )
-                ),
+                filterRules =
+                    listOf(
+                        SurgicalFilterRule(
+                            urlCondition = { true },
+                            hiddenSelectors =
+                                listOf(
+                                    "ytm-header-bar",
+                                    "ytm-pivot-bar-renderer",
+                                    "ytm-search-header-renderer",
+                                    ".modern-sharing-ui",
+                                ),
+                        ),
+                    ),
                 networkBlocklist = emptyList(),
                 jailRoot = url,
                 jsInterfaceObj = YouTubeSurgicalBridge(),
@@ -196,6 +200,7 @@ fun SurgicalYouTubeScreen(
                             })();
                             """.trimIndent()
                         }
+
                         currentUrl.contains("/watch") -> {
                             """
                             (function() {
@@ -237,6 +242,7 @@ fun SurgicalYouTubeScreen(
                             })();
                             """.trimIndent()
                         }
+
                         currentUrl.contains("/results") -> {
                             """
                             (function() {
@@ -336,7 +342,10 @@ fun SurgicalYouTubeScreen(
                             })();
                             """.trimIndent()
                         }
-                        else -> "document.body.classList.remove('gk-watch-page');"
+
+                        else -> {
+                            "document.body.classList.remove('gk-watch-page');"
+                        }
                     }
                 },
             )
