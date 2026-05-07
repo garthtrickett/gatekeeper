@@ -75,7 +75,10 @@ fun BaseSurgicalWebView(
                     }
                 }
 
-                setOnTouchListener { v, event ->
+                                setOnTouchListener { v, event ->
+                    if (event.action == android.view.MotionEvent.ACTION_DOWN) {
+                        v.parent.requestDisallowInterceptTouchEvent(true)
+                    }
                     if (event.action == android.view.MotionEvent.ACTION_MOVE) {
                         // Log occasionally to avoid spamming the logcat buffer
                         if (System.currentTimeMillis() % 10 == 0L) {

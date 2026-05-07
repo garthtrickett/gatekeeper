@@ -170,7 +170,7 @@ fun SurgicalYouTubeScreen(
                                     btnContainer.parentNode.insertBefore(btn, btnContainer);
                                     clearInterval(checkInterval);
                                 }
-                            }, 200);
+                                                        }, 1000);
                         })();
                         """.trimIndent()
                                         } else if (currentUrl.contains("/results")) {
@@ -185,7 +185,7 @@ fun SurgicalYouTubeScreen(
                                 document.head.appendChild(style);
                             }
                                                         console.log('🔍 JS: Initializing Search Result Interceptor...');
-                            var checkInterval = setInterval(function() {
+                                                        var checkInterval = setInterval(function() {
                                 var videos = document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer, ytm-rich-item-renderer');
                                 if (videos.length > 0 && Math.random() < 0.1) {
                                      console.log('🔍 JS: Processing ' + videos.length + ' video elements...');
@@ -230,8 +230,7 @@ fun SurgicalYouTubeScreen(
                                             btn.style.backgroundColor = '#888';
                                         };
                                         
-                                                                                video.style.pointerEvents = 'none';
-                                        console.log('➕ JS: Attached Save button to video: ' + videoId);
+                                                                                                                        console.log('➕ JS: Attached Save button to video: ' + videoId);
                                         video.appendChild(btn);
                                     }
                                 });
@@ -264,17 +263,19 @@ fun SurgicalYouTubeScreen(
                                             window.location.href = href;
                                         };
                                         
-                                        channel.style.pointerEvents = 'none';
-                                        channel.appendChild(btn);
+                                                                                channel.appendChild(btn);
                                     }
                                 });
 
                                 var others = document.querySelectorAll('ytm-compact-playlist-renderer, ytm-compact-radio-renderer');
                                                                 others.forEach(function(other) {
-                                    if (!other.dataset.gkDisabled) {
+                                                                        if (!other.dataset.gkDisabled) {
                                         other.dataset.gkDisabled = 'true';
                                         other.style.opacity = '0.5';
-                                        other.style.pointerEvents = 'none';
+                                        other.addEventListener('click', function(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                        }, true);
                                     }
                                 });
                             }, 1000);
