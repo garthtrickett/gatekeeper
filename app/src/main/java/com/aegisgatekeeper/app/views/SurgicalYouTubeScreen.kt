@@ -213,7 +213,7 @@ fun SurgicalYouTubeScreen(
                                         btn.style.margin = '8px 0';
                                         btn.style.fontWeight = 'bold';
                                         btn.style.borderRadius = '4px';
-                                        btn.style.width = '100%';
+                                                                                btn.style.width = '100%';
                                         btn.style.position = 'relative';
                                         btn.style.zIndex = '1000';
                                         btn.style.pointerEvents = 'auto';
@@ -226,13 +226,7 @@ fun SurgicalYouTubeScreen(
                                             btn.style.backgroundColor = '#888';
                                         };
                                         
-                                        video.addEventListener('click', function(e) {
-                                            if (!e.target.closest('.gk-save-btn')) {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                            }
-                                        }, true);
-                                        
+                                        video.style.pointerEvents = 'none';
                                         video.appendChild(btn);
                                     }
                                 });
@@ -254,7 +248,7 @@ fun SurgicalYouTubeScreen(
                                         btn.style.margin = '8px 0';
                                         btn.style.fontWeight = 'bold';
                                         btn.style.borderRadius = '4px';
-                                        btn.style.width = '100%';
+                                                                                btn.style.width = '100%';
                                         btn.style.position = 'relative';
                                         btn.style.zIndex = '1000';
                                         btn.style.pointerEvents = 'auto';
@@ -265,26 +259,17 @@ fun SurgicalYouTubeScreen(
                                             window.location.href = href;
                                         };
                                         
-                                        channel.addEventListener('click', function(e) {
-                                            if (!e.target.closest('.gk-channel-btn')) {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                            }
-                                        }, true);
-                                        
+                                        channel.style.pointerEvents = 'none';
                                         channel.appendChild(btn);
                                     }
                                 });
 
                                 var others = document.querySelectorAll('ytm-compact-playlist-renderer, ytm-compact-radio-renderer');
-                                others.forEach(function(other) {
+                                                                others.forEach(function(other) {
                                     if (!other.dataset.gkDisabled) {
                                         other.dataset.gkDisabled = 'true';
                                         other.style.opacity = '0.5';
-                                        other.addEventListener('click', function(e) {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                        }, true);
+                                        other.style.pointerEvents = 'none';
                                     }
                                 });
                             }, 1000);
