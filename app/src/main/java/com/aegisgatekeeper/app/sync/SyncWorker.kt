@@ -69,7 +69,9 @@ class SyncWorker(
                 )
             if (pushFailed) return Result.retry()
 
-                        if (!com.aegisgatekeeper.app.domain.isDevEnvironment()) {
+            if (!com.aegisgatekeeper.app.domain
+                    .isDevEnvironment()
+            ) {
                 val filterResult =
                     com.aegisgatekeeper.app.di.GlobalDI.component.syncClient
                         .fetchFilterRules()

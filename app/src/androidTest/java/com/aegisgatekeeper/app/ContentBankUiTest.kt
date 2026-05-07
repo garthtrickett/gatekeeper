@@ -321,7 +321,7 @@ class ContentBankUiTest {
             .isNotNull()
     }
 
-        @Test
+    @Test
     fun testContentBank_YouTubeItem_OpensSurgicalYouTube() {
         // Arrange
         val youtubeVideoId = "dQw4w9WgXcQ"

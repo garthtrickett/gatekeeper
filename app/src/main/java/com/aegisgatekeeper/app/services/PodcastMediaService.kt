@@ -38,7 +38,8 @@ class PodcastMediaService : MediaSessionService() {
                 .build()
 
         val cacheDataSourceFactory =
-            CacheDataSource.Factory()
+            CacheDataSource
+                .Factory()
                 .setCache(App.downloadCache)
                 .setUpstreamDataSourceFactory(dataSourceFactory)
                 .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
@@ -47,7 +48,7 @@ class PodcastMediaService : MediaSessionService() {
             ExoPlayer
                 .Builder(this)
                 .setMediaSourceFactory(
-                    DefaultMediaSourceFactory(cacheDataSourceFactory)
+                    DefaultMediaSourceFactory(cacheDataSourceFactory),
                 ).setAudioAttributes(audioAttributes, true)
                 .build()
 

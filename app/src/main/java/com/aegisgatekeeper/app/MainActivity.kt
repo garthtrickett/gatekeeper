@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
     ) {
         if (isRecreation) return
 
-                val nativeAudioIdToPlay = intent.getStringExtra("OPEN_NATIVE_AUDIO_ID")
+        val nativeAudioIdToPlay = intent.getStringExtra("OPEN_NATIVE_AUDIO_ID")
         val openActiveNativePlayer = intent.getBooleanExtra("OPEN_ACTIVE_NATIVE_PLAYER", false)
         val surgicalMediaIdToPlay = intent.getStringExtra("PLAY_SURGICAL_MEDIA_ID")
         val playSurgicalYouTubeUrl = intent.getStringExtra("PLAY_SURGICAL_YOUTUBE_URL")
@@ -104,7 +104,9 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-                if (playSurgicalYouTubeUrl != null || surgicalMediaIdToPlay != null || nativeAudioIdToPlay != null || openActiveNativePlayer) {
+        if (playSurgicalYouTubeUrl != null || surgicalMediaIdToPlay != null || nativeAudioIdToPlay != null ||
+            openActiveNativePlayer
+        ) {
             // Reset unmask state
             lifecycleScope.launch {
                 try {

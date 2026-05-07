@@ -181,7 +181,7 @@ class MainNavigationScreen : Screen {
             )
         }
 
-                if (state.media.activeFacebookUrl != null) {
+        if (state.media.activeFacebookUrl != null) {
             SurgicalFacebookScreen(
                 url = state.media.activeFacebookUrl!!,
                 onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalFacebook) },

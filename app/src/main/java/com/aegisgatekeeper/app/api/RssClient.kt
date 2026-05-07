@@ -66,7 +66,7 @@ class RssClient(
                                     ?.replace("]]>".toRegex(), "")
                                     ?.trim()
 
-                            var enclosure = 
+                            var enclosure =
                                 Regex(
                                     "<enclosure[^>]*?url=[\"']([^\"']+)[\"']",
                                     RegexOption.IGNORE_CASE,

@@ -24,7 +24,7 @@ import kotlinx.serialization.json.Json
  */
 data class FilterRulesResult(
     val rules: List<String>,
-    val hash: String
+    val hash: String,
 )
 
 object SyncClient {
@@ -100,14 +100,15 @@ object SyncClient {
         }
     }
 
-        suspend fun fetchFilterRules(): Either<SyncError, FilterRulesResult> {
+    suspend fun fetchFilterRules(): Either<SyncError, FilterRulesResult> {
         return try {
-            val filterUrls = listOf(
-                "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt",
-                "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt",
-                "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
-                "https://raw.githubusercontent.com/Gatekeeper/filters/main/unhook.txt"
-            )
+            val filterUrls =
+                listOf(
+                    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt",
+                    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt",
+                    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
+                    "https://raw.githubusercontent.com/Gatekeeper/filters/main/unhook.txt",
+                )
             val rawLists = mutableListOf<String>()
             for (url in filterUrls) {
                 try {
@@ -117,10 +118,11 @@ object SyncClient {
                     }
                 } catch (e: Exception) {
                     if (e is kotlinx.coroutines.CancellationException) throw e
-                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ Failed to fetch filter list: $url")
+                    com.aegisgatekeeper.app.domain
+                        .platformLog("Gatekeeper", "⚠️ Failed to fetch filter list: $url")
                 }
             }
-                        if (rawLists.isEmpty()) {
+            if (rawLists.isEmpty()) {
                 return SyncError.NetworkFailure("Failed to fetch any filter lists").left()
             }
             parseFilterRules(rawLists).right()
@@ -148,7 +150,9 @@ object SyncClient {
             }
         }
         val finalRules = merged.sorted()
-                val hash = com.aegisgatekeeper.app.domain.computeHash(finalRules.joinToString("\n"))
+        val hash =
+            com.aegisgatekeeper.app.domain
+                .computeHash(finalRules.joinToString("\n"))
         return FilterRulesResult(finalRules, hash)
     }
 

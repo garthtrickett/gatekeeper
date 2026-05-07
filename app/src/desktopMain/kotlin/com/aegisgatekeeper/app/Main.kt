@@ -92,7 +92,7 @@ fun main() =
                     val syncClient = com.aegisgatekeeper.app.di.GlobalDI.component.syncClient
                     while (true) {
                         try {
-                                                        val currentState = GatekeeperStateManager.state.value
+                            val currentState = GatekeeperStateManager.state.value
                             val pushPayload =
                                 com.aegisgatekeeper.app.sync.SyncPushPayload(
                                     vaultItems =
@@ -127,10 +127,12 @@ fun main() =
                             val pushResult = syncClient.pushChanges(pushPayload)
                             pushResult.fold(
                                 ifLeft = { println("❌ Desktop: Push failed: $it") },
-                                ifRight = { println("✅ Desktop: Push successful.") }
+                                ifRight = { println("✅ Desktop: Push successful.") },
                             )
 
-                            if (!com.aegisgatekeeper.app.domain.isDevEnvironment()) {
+                            if (!com.aegisgatekeeper.app.domain
+                                    .isDevEnvironment()
+                            ) {
                                 val filterResult = syncClient.fetchFilterRules()
                                 filterResult.fold(
                                     ifLeft = { println("❌ Desktop: Filter rules pull failed: $it") },
@@ -194,13 +196,15 @@ fun main() =
                                                 it.isDeleted,
                                             )
                                         }
-                                    GatekeeperStateManager.dispatch(
+                                                                        GatekeeperStateManager.dispatch(
                                         com.aegisgatekeeper.app.domain.GatekeeperAction
                                             .RemoteSyncCompleted(newVaults, newContents),
                                     )
                                 },
                             )
                         } catch (e: Exception) {
+                            println("🚨 Desktop Sync Loop Exception: ${e.message}")
+                            e.printStackTrace()
                         }
                         val pollDelay = if (System.getenv("GATEKEEPER_DEV_TOKEN") != null) 2000L else 15 * 60 * 1000L
                         kotlinx.coroutines.delay(pollDelay)

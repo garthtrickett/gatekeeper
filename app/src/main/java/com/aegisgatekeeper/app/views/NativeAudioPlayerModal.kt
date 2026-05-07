@@ -83,15 +83,19 @@ fun NativeAudioPlayerModal(
 
     val podcastSub = state.sync.podcastSubscriptions.find { it.id == contentItem.podcastId }
     val artworkUrl =
-        podcastSub?.artworkUrl ?: if (contentItem.source == com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE) {
-            "https://img.youtube.com/vi/${contentItem.videoId}/hqdefault.jpg"
-        } else {
-            null
-        }
+        podcastSub?.artworkUrl
+            ?: if (contentItem.source ==
+                com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE
+            ) {
+                "https://img.youtube.com/vi/${contentItem.videoId}/hqdefault.jpg"
+            } else {
+                null
+            }
 
     DisposableEffect(contentItem.videoId) {
         var controllerFuture: ListenableFuture<MediaController>? = null
-        val sessionToken = SessionToken(context, ComponentName(context, PodcastMediaService::class.java))
+        val sessionToken =
+            SessionToken(context, ComponentName(context, PodcastMediaService::class.java))
 
         controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
         controllerFuture.addListener(
@@ -99,42 +103,60 @@ fun NativeAudioPlayerModal(
                 val mediaController = controllerFuture?.get()
                 controller = mediaController
                 mediaController?.let { mc ->
-                    val isAlreadyPlayingThis = mc.currentMediaItem?.mediaId == contentItem.videoId
+                    val isAlreadyPlayingThis =
+                        mc.currentMediaItem?.mediaId == contentItem.videoId
 
                     if (!isAlreadyPlayingThis) {
-                        android.util.Log.d("Gatekeeper", "🎵 NativePlayer: Initializing new media session for ${contentItem.title}")
+                        android.util.Log.d(
+                            "Gatekeeper",
+                            "🎵 NativePlayer: Initializing new media session for ${contentItem.title}",
+                        )
                         val uriToPlay =
-                            if (contentItem.source == com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE ||
-                                contentItem.source == com.aegisgatekeeper.app.domain.ContentSource.SOUNDCLOUD) {
+                            if (contentItem.source ==
+                                com.aegisgatekeeper.app.domain.ContentSource
+                                    .YOUTUBE ||
+                                contentItem.source ==
+                                com.aegisgatekeeper.app.domain
+                                    .ContentSource.SOUNDCLOUD
+                            ) {
                                 contentItem.localFilePath // This is the surgical proxy URL
                             } else {
-                                contentItem.videoId // For direct audio, always use the original URL. CacheDataSource will handle local playback.
+                                contentItem.videoId // For direct audio, always use the
+                                // original URL
                             }
 
                         val mediaItem =
                             MediaItem
                                 .Builder()
-                                .setMediaId(contentItem.videoId) // Unique ID for session
+                                .setMediaId(
+                                    contentItem.videoId,
+                                ) // Unique ID for session
                                 .setUri(uriToPlay) // URL to play
                                 .setMediaMetadata(
                                     MediaMetadata
                                         .Builder()
                                         .setTitle(contentItem.title)
-                                        .setArtist(contentItem.channelName ?: "Podcast")
-                                        .setArtworkUri(artworkUrl?.let { android.net.Uri.parse(it) })
-                                        .build(),
+                                        .setArtist(
+                                            contentItem.channelName
+                                                ?: "Podcast",
+                                        ).setArtworkUri(
+                                            artworkUrl?.let {
+                                                android.net.Uri.parse(it)
+                                            },
+                                        ).build(),
                                 ).build()
 
                         mc.setMediaItem(mediaItem)
                         mc.prepare()
                         mc.seekTo((savedPosition * 1000).toLong())
                         mc.play()
-                                        } else {
+                    } else {
                         android.util.Log.d(
                             "Gatekeeper",
                             "🎵 NativePlayer: Re-attaching to existing background session at ${mc.currentPosition}ms",
                         )
-                        // If the service is at 0 but we have a saved position, the service likely reset.
+                        // If the service is at 0 but we have a saved position, the service
+                        // likely reset.
                         // Resync it without a full media item reset to avoid a 'flicker'.
                         if (mc.currentPosition < 1000 && savedPosition > 2f) {
                             android.util.Log.d(
@@ -143,14 +165,19 @@ fun NativeAudioPlayerModal(
                             )
                             mc.seekTo((savedPosition * 1000).toLong())
                         }
-                        if (mc.playbackState == Player.STATE_IDLE || mc.playbackState == Player.STATE_ENDED || mc.playerError != null) {
+                        if (mc.playbackState == Player.STATE_IDLE ||
+                            mc.playbackState == Player.STATE_ENDED ||
+                            mc.playerError != null
+                        ) {
                             mc.prepare()
                         }
                         mc.play()
                     }
 
                     isPlaying = mc.isPlaying
-                    isBuffering = mc.playbackState == Player.STATE_BUFFERING || mc.playbackState == Player.STATE_IDLE
+                    isBuffering =
+                        mc.playbackState == Player.STATE_BUFFERING ||
+                        mc.playbackState == Player.STATE_IDLE
 
                     mc.addListener(
                         object : Player.Listener {
@@ -159,16 +186,33 @@ fun NativeAudioPlayerModal(
                             }
 
                             override fun onPlaybackStateChanged(playbackState: Int) {
-                                isBuffering = playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_IDLE
+                                isBuffering =
+                                    playbackState == Player.STATE_BUFFERING ||
+                                    playbackState == Player.STATE_IDLE
                             }
 
                             override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
-                                android.util.Log.e("Gatekeeper", "🚨 NativePlayer Error: Code ${error.errorCode} - ${error.errorCodeName}")
-                                android.util.Log.e("Gatekeeper", "🚨 NativePlayer Error Message: ${error.message}", error)
+                                android.util.Log.e(
+                                    "Gatekeeper",
+                                    "🚨 NativePlayer Error: Code ${error.errorCode} - ${error.errorCodeName}",
+                                )
+                                android.util.Log.e(
+                                    "Gatekeeper",
+                                    "🚨 NativePlayer Error Message: ${error.message}",
+                                    error,
+                                )
                                 val cause = error.cause
-                                if (cause is androidx.media3.datasource.HttpDataSource.HttpDataSourceException) {
-                                    android.util.Log.e("Gatekeeper", "🚨 NativePlayer HTTP Error: ${cause.message}")
-                                    android.util.Log.e("Gatekeeper", "🚨 NativePlayer HTTP DataSpec: ${cause.dataSpec.uri}")
+                                if (cause is
+                                        androidx.media3.datasource.HttpDataSource.HttpDataSourceException
+                                ) {
+                                    android.util.Log.e(
+                                        "Gatekeeper",
+                                        "🚨 NativePlayer HTTP Error: ${cause.message}",
+                                    )
+                                    android.util.Log.e(
+                                        "Gatekeeper",
+                                        "🚨 NativePlayer HTTP DataSpec: ${cause.dataSpec.uri}",
+                                    )
                                 }
                             }
                         },
@@ -182,8 +226,15 @@ fun NativeAudioPlayerModal(
             controller?.let {
                 val isValidState = it.duration > 0L || it.currentPosition > 0L
                 if (it.playerError == null && isValidState) {
-                    val posToSave = if (it.playbackState == Player.STATE_ENDED) 0f else it.currentPosition / 1000f
-                    GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(contentItem.videoId, posToSave))
+                    val posToSave =
+                        if (it.playbackState == Player.STATE_ENDED) {
+                            0f
+                        } else {
+                            it.currentPosition / 1000f
+                        }
+                    GatekeeperStateManager.dispatch(
+                        GatekeeperAction.SaveMediaPosition(contentItem.videoId, posToSave),
+                    )
                 }
                 it.pause()
                 it.release()
@@ -206,8 +257,15 @@ fun NativeAudioPlayerModal(
         controller?.let {
             val isValidState = it.duration > 0L || it.currentPosition > 0L
             if (it.playerError == null && isValidState) {
-                val posToSave = if (it.playbackState == Player.STATE_ENDED) 0f else it.currentPosition / 1000f
-                GatekeeperStateManager.dispatch(GatekeeperAction.SaveMediaPosition(contentItem.videoId, posToSave))
+                val posToSave =
+                    if (it.playbackState == Player.STATE_ENDED) {
+                        0f
+                    } else {
+                        it.currentPosition / 1000f
+                    }
+                GatekeeperStateManager.dispatch(
+                    GatekeeperAction.SaveMediaPosition(contentItem.videoId, posToSave),
+                )
             }
         }
         onMinimize()
@@ -216,13 +274,12 @@ fun NativeAudioPlayerModal(
     Box(
         modifier =
             if (isVisible) {
-                Modifier
-                    .fillMaxSize()
-                    .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {}
+                Modifier.fillMaxSize().clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                ) {}
             } else {
-                Modifier
-                    .size(1.dp)
-                    .alpha(0.01f)
+                Modifier.size(1.dp).alpha(0.01f)
             },
     ) {
         if (isVisible) {
@@ -236,79 +293,119 @@ fun NativeAudioPlayerModal(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text("Was this worth it?", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            "Was this worth it?",
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
                         Spacer(modifier = Modifier.height(32.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            IndustrialButton(onClick = {
-                                GatekeeperStateManager.dispatch(
-                                    GatekeeperAction.LogSessionMetacognition(
-                                        "NativeAudio: Podcast",
-                                        System.currentTimeMillis() - sessionStartTime,
-                                        Emotion.HAPPY,
-                                        System.currentTimeMillis(),
-                                    ),
-                                )
-                                onClose()
-                            }, text = "Happy")
-                            IndustrialButton(onClick = {
-                                GatekeeperStateManager.dispatch(
-                                    GatekeeperAction.LogSessionMetacognition(
-                                        "NativeAudio: Podcast",
-                                        System.currentTimeMillis() - sessionStartTime,
-                                        Emotion.ANXIOUS,
-                                        System.currentTimeMillis(),
-                                    ),
-                                )
-                                onClose()
-                            }, text = "Anxious")
-                            IndustrialButton(onClick = {
-                                GatekeeperStateManager.dispatch(
-                                    GatekeeperAction.LogSessionMetacognition(
-                                        "NativeAudio: Podcast",
-                                        System.currentTimeMillis() - sessionStartTime,
-                                        Emotion.DRAINED,
-                                        System.currentTimeMillis(),
-                                    ),
-                                )
-                                onClose()
-                            }, text = "Drained")
+                            IndustrialButton(
+                                onClick = {
+                                    GatekeeperStateManager.dispatch(
+                                        GatekeeperAction.LogSessionMetacognition(
+                                            "NativeAudio: Podcast",
+                                            System.currentTimeMillis() -
+                                                sessionStartTime,
+                                            Emotion.HAPPY,
+                                            System.currentTimeMillis(),
+                                        ),
+                                    )
+                                    onClose()
+                                },
+                                text = "Happy",
+                            )
+                            IndustrialButton(
+                                onClick = {
+                                    GatekeeperStateManager.dispatch(
+                                        GatekeeperAction.LogSessionMetacognition(
+                                            "NativeAudio: Podcast",
+                                            System.currentTimeMillis() -
+                                                sessionStartTime,
+                                            Emotion.ANXIOUS,
+                                            System.currentTimeMillis(),
+                                        ),
+                                    )
+                                    onClose()
+                                },
+                                text = "Anxious",
+                            )
+                            IndustrialButton(
+                                onClick = {
+                                    GatekeeperStateManager.dispatch(
+                                        GatekeeperAction.LogSessionMetacognition(
+                                            "NativeAudio: Podcast",
+                                            System.currentTimeMillis() -
+                                                sessionStartTime,
+                                            Emotion.DRAINED,
+                                            System.currentTimeMillis(),
+                                        ),
+                                    )
+                                    onClose()
+                                },
+                                text = "Drained",
+                            )
                         }
                         Spacer(modifier = Modifier.height(24.dp))
-                        IndustrialButton(onClick = {
-                            GatekeeperStateManager.dispatch(
-                                GatekeeperAction.LogSessionMetacognition(
-                                    "NativeAudio: Podcast",
-                                    System.currentTimeMillis() - sessionStartTime,
-                                    Emotion.SKIPPED,
-                                    System.currentTimeMillis(),
-                                ),
-                            )
-                            onClose()
-                        }, text = "Skip", isWarning = true)
+                        IndustrialButton(
+                            onClick = {
+                                GatekeeperStateManager.dispatch(
+                                    GatekeeperAction.LogSessionMetacognition(
+                                        "NativeAudio: Podcast",
+                                        System.currentTimeMillis() - sessionStartTime,
+                                        Emotion.SKIPPED,
+                                        System.currentTimeMillis(),
+                                    ),
+                                )
+                                onClose()
+                            },
+                            text = "Skip",
+                            isWarning = true,
+                        )
                     }
                 } else {
                     Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
                         Box(
-                            modifier = Modifier.fillMaxWidth().background(Color.DarkGray).padding(8.dp),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .background(Color.DarkGray)
+                                    .padding(8.dp),
                             contentAlignment = Alignment.TopEnd,
                         ) {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                IndustrialButton(onClick = {
-                                    controller?.let {
-                                        val isValidState = it.duration > 0L || it.currentPosition > 0L
-                                        if (it.playerError == null && isValidState) {
-                                            val posToSave = if (it.playbackState == Player.STATE_ENDED) 0f else it.currentPosition / 1000f
-                                            GatekeeperStateManager.dispatch(
-                                                GatekeeperAction.SaveMediaPosition(
-                                                    contentItem.videoId,
-                                                    posToSave,
-                                                ),
-                                            )
+                                IndustrialButton(
+                                    onClick = {
+                                        controller?.let {
+                                            val isValidState =
+                                                it.duration > 0L || it.currentPosition > 0L
+                                            if (it.playerError == null && isValidState) {
+                                                val posToSave =
+                                                    if (it.playbackState ==
+                                                        Player.STATE_ENDED
+                                                    ) {
+                                                        0f
+                                                    } else {
+                                                        it.currentPosition / 1000f
+                                                    }
+                                                GatekeeperStateManager.dispatch(
+                                                    GatekeeperAction.SaveMediaPosition(
+                                                        contentItem.videoId,
+                                                        posToSave,
+                                                    ),
+                                                )
+                                            }
                                         }
-                                    }
-                                    onMinimize()
-                                }, text = "Minimize")
-                                IndustrialButton(onClick = { showMetacognition = true }, text = "End Session", isWarning = true)
+                                        onMinimize()
+                                    },
+                                    text = "Minimize",
+                                )
+                                IndustrialButton(
+                                    onClick = { showMetacognition = true },
+                                    text = "End Session",
+                                    isWarning = true,
+                                )
                             }
                         }
 
@@ -318,7 +415,10 @@ fun NativeAudioPlayerModal(
                             verticalArrangement = Arrangement.Center,
                         ) {
                             if (artworkUrl != null) {
-                                Card(modifier = Modifier.size(240.dp), shape = MaterialTheme.shapes.medium) {
+                                Card(
+                                    modifier = Modifier.size(240.dp),
+                                    shape = MaterialTheme.shapes.medium,
+                                ) {
                                     KamelImage(
                                         resource = asyncPainterResource(data = artworkUrl),
                                         contentDescription = "Podcast Artwork",
@@ -329,14 +429,21 @@ fun NativeAudioPlayerModal(
                             } else {
                                 // Placeholder for YouTube videos
                                 Box(
-                                    modifier = Modifier.size(240.dp).background(Color.Black, shape = MaterialTheme.shapes.medium),
+                                    modifier =
+                                        Modifier
+                                            .size(240.dp)
+                                            .background(
+                                                Color.Black,
+                                                shape = MaterialTheme.shapes.medium,
+                                            ),
                                     contentAlignment = Alignment.Center,
-                                ) {
-                                    Text("🎬", fontSize = 120.sp)
-                                }
+                                ) { Text("🎬", fontSize = 120.sp) }
                             }
                             Spacer(modifier = Modifier.height(32.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
+                            ) {
                                 Text(
                                     contentItem.title,
                                     color = Color.White,
@@ -345,63 +452,117 @@ fun NativeAudioPlayerModal(
                                     maxLines = 2,
                                     textAlign = TextAlign.Center,
                                 )
-                                if (contentItem.downloadStatus == com.aegisgatekeeper.app.domain.DownloadStatus.COMPLETED) {
+                                if (contentItem.downloadStatus ==
+                                    com.aegisgatekeeper.app.domain.DownloadStatus
+                                        .COMPLETED
+                                ) {
                                     Spacer(modifier = Modifier.width(8.dp))
                                     androidx.compose.material3.FilterChip(
                                         selected = true,
                                         onClick = {},
-                                        label = { Text("OFFLINE", fontSize = 10.sp, fontWeight = FontWeight.Bold) },
+                                        label = {
+                                            Text(
+                                                "OFFLINE",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                            )
+                                        },
                                         colors =
-                                            androidx.compose.material3.FilterChipDefaults.filterChipColors(
-                                                selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                                            ),
+                                            androidx.compose.material3.FilterChipDefaults
+                                                .filterChipColors(
+                                                    selectedContainerColor =
+                                                        MaterialTheme
+                                                            .colorScheme
+                                                            .primary,
+                                                    selectedLabelColor =
+                                                        MaterialTheme
+                                                            .colorScheme
+                                                            .onPrimary,
+                                                ),
                                     )
                                 }
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text(contentItem.channelName ?: "Podcast", color = Color.Gray, fontSize = 16.sp, maxLines = 1)
+                            Text(
+                                contentItem.channelName ?: "Podcast",
+                                color = Color.Gray,
+                                fontSize = 16.sp,
+                                maxLines = 1,
+                            )
 
                             Spacer(modifier = Modifier.height(32.dp))
 
                             Slider(
-                                value = if (duration > 0) currentPosition.toFloat() / duration else 0f,
-                                onValueChange = { controller?.seekTo((it * duration).toLong()) },
+                                value =
+                                    if (duration > 0) {
+                                        currentPosition.toFloat() / duration
+                                    } else {
+                                        0f
+                                    },
+                                onValueChange = {
+                                    controller?.seekTo((it * duration).toLong())
+                                },
                                 modifier = Modifier.fillMaxWidth(),
                                 colors =
                                     SliderDefaults.colors(
                                         thumbColor = MaterialTheme.colorScheme.primary,
-                                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                                        activeTrackColor =
+                                            MaterialTheme.colorScheme.primary,
                                     ),
                             )
 
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text(formatTime(currentPosition), color = Color.Gray, fontSize = 12.sp)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Text(
+                                    formatTime(currentPosition),
+                                    color = Color.Gray,
+                                    fontSize = 12.sp,
+                                )
                                 Text(formatTime(duration), color = Color.Gray, fontSize = 12.sp)
                             }
 
                             Spacer(modifier = Modifier.height(24.dp))
 
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                                IndustrialButton(onClick = {
-                                    val speeds = listOf(1.0f, 1.2f, 1.5f, 2.0f)
-                                    val nextIndex = (speeds.indexOf(playbackSpeed) + 1) % speeds.size
-                                    playbackSpeed = speeds[nextIndex]
-                                    controller?.setPlaybackSpeed(playbackSpeed)
-                                }, text = "${playbackSpeed}x")
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                            ) {
+                                IndustrialButton(
+                                    onClick = {
+                                        val speeds = listOf(1.0f, 1.2f, 1.5f, 2.0f)
+                                        val nextIndex =
+                                            (speeds.indexOf(playbackSpeed) + 1) %
+                                                speeds.size
+                                        playbackSpeed = speeds[nextIndex]
+                                        controller?.setPlaybackSpeed(playbackSpeed)
+                                    },
+                                    text = "${playbackSpeed}x",
+                                )
 
-                                IndustrialButton(onClick = { controller?.seekTo(currentPosition - 15000) }, text = "-15s")
+                                IndustrialButton(
+                                    onClick = { controller?.seekTo(currentPosition - 15000) },
+                                    text = "-15s",
+                                )
 
                                 IndustrialButton(
                                     onClick = {
-                                        if (isPlaying) controller?.pause() else controller?.play()
+                                        if (isPlaying) {
+                                            controller?.pause()
+                                        } else {
+                                            controller?.play()
+                                        }
                                     },
                                     text = if (isPlaying) "Pause" else "Play",
                                     isWarning = isPlaying,
                                     isLoading = isBuffering,
                                 )
 
-                                IndustrialButton(onClick = { controller?.seekTo(currentPosition + 30000) }, text = "+30s")
+                                IndustrialButton(
+                                    onClick = { controller?.seekTo(currentPosition + 30000) },
+                                    text = "+30s",
+                                )
                             }
                         }
                     }

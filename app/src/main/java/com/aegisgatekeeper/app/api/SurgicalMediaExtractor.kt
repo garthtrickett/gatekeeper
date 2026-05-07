@@ -19,7 +19,7 @@ class SurgicalMediaExtractor(
             return item.copy(localFilePath = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4").right()
         }
 
-                if (item.source == ContentSource.YOUTUBE) {
+        if (item.source == ContentSource.YOUTUBE) {
             return "YouTube extraction is no longer supported via proxy. Use Surgical Web View.".left()
         }
 

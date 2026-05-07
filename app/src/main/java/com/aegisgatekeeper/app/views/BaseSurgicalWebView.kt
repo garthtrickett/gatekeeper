@@ -89,10 +89,14 @@ fun BaseSurgicalWebView(
                         }
                     }
 
-                webViewClient =
+                                webViewClient =
                     object : WebViewClient() {
                         @Volatile
                         private var currentDocUrl: String = url
+                        @Volatile
+                        private var lastMobileForcingTime = 0L
+                        @Volatile
+                        private var mobileForcingCount = 0
 
                         override fun onPageStarted(
                             view: WebView?,
@@ -157,7 +161,7 @@ fun BaseSurgicalWebView(
 
                             val currentJailRoot = view?.tag as? String
                             if (currentJailRoot != null) {
-                                                                val isExplicitHomeFeed =
+                                val isExplicitHomeFeed =
                                     currentUrl == "https://m.facebook.com/" ||
                                         currentUrl?.startsWith("https://m.facebook.com/?") == true ||
                                         currentUrl?.contains("facebook.com/home") == true ||
@@ -218,7 +222,7 @@ fun BaseSurgicalWebView(
                                     }
                                 }
 
-                                                        val cleanCss = combinedCss
+                            val cleanCss = combinedCss
                             val js =
                                 """
                                 (function() {
@@ -325,6 +329,20 @@ fun BaseSurgicalWebView(
                                                         val currentJailRoot = view?.tag as? String
                             if (currentJailRoot != null) {
                                 if (newUrl.contains("www.facebook.com")) {
+                                    val now = System.currentTimeMillis()
+                                    if (now - lastMobileForcingTime < 2000L) {
+                                        mobileForcingCount++
+                                    } else {
+                                        mobileForcingCount = 1
+                                    }
+                                    lastMobileForcingTime = now
+
+                                    if (mobileForcingCount > 3) {
+                                        android.util.Log.e("Gatekeeper", "🛑 Jail: Mobile-Forcing loop detected. Triggering logout.")
+                                        onLogout?.invoke()
+                                        return true
+                                    }
+
                                     val mobileUrl =
                                         newUrl.replace("www.facebook.com", "m.facebook.com")
                                     android.util.Log.d("Gatekeeper", "🛡️ Mobile-Forcing: Rewriting to $mobileUrl")

@@ -103,7 +103,7 @@ fun InterceptionScreen() {
                     screen = "FRICTION"
                 },
                 onHabits = { screen = "HABITS" },
-                                onPlayContent = { item ->
+                onPlayContent = { item ->
                     if (item.source == com.aegisgatekeeper.app.domain.ContentSource.YOUTUBE) {
                         val intent =
                             android.content.Intent(com.aegisgatekeeper.app.App.instance, MainActivity::class.java).apply {

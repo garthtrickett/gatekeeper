@@ -164,8 +164,10 @@ fun SurgicalYouTubeScreen(
                             }, 1000);
                         })();
                         """.trimIndent()
-                    } else ""
-                }
+                    } else {
+                        ""
+                    }
+                },
             )
         }
     }

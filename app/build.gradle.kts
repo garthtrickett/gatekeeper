@@ -222,6 +222,16 @@ tasks.withType<JavaExec> {
         systemProperty("java.library.path", ldLibraryPath)
     }
 
+    val devToken = System.getenv("GATEKEEPER_DEV_TOKEN")
+    if (devToken != null) {
+        environment("GATEKEEPER_DEV_TOKEN", devToken)
+    }
+    
+    val devMode = System.getenv("DEV_MODE")
+    if (devMode != null) {
+        environment("DEV_MODE", devMode)
+    }
+
     // Fix for JogAmp / JOGL "Could not determine a temporary executable directory" on NixOS
     val jogampTmp = project.layout.buildDirectory.dir("jogamp-tmp").get().asFile
     jogampTmp.mkdirs()

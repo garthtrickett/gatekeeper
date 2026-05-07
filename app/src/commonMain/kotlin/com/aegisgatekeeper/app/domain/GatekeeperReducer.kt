@@ -932,7 +932,7 @@ private fun reduceMedia(
                 slice.copy(activeFacebookUrl = action.url)
             }
 
-                        is GatekeeperAction.CloseSurgicalFacebook -> {
+            is GatekeeperAction.CloseSurgicalFacebook -> {
                 slice.copy(activeFacebookUrl = null)
             }
 
@@ -968,7 +968,7 @@ private fun reduceMedia(
                 }
             }
 
-                        is GatekeeperAction.UpdateFilterRules -> {
+            is GatekeeperAction.UpdateFilterRules -> {
                 effects.add(GatekeeperEffect.CompileFilterRules(action.rules))
                 slice.copy(declarativeFilterRules = action.rules, filterRulesHash = action.hash)
             }

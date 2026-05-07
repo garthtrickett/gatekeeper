@@ -109,7 +109,7 @@ class DesktopRootScreen : Screen {
             }
         }
 
-                if (state.media.activePinnedWebsiteUrl != null) {
+        if (state.media.activePinnedWebsiteUrl != null) {
             Surface(modifier = Modifier.fillMaxSize()) {
                 PinnedWebModal(
                     url = state.media.activePinnedWebsiteUrl!!,
