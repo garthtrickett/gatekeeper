@@ -148,25 +148,9 @@ object SyncClient {
             }
         }
         val finalRules = merged.sorted()
-        val hash = com.aegisgatekeeper.app.domain.computeHash(finalRules.joinToString("\n"))
+                val hash = com.aegisgatekeeper.app.domain.computeHash(finalRules.joinToString("\n"))
         return FilterRulesResult(finalRules, hash)
     }
-            if (e is kotlinx.coroutines.CancellationException) throw e
-            SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
-        }
-    }
-        try {
-            val response =
-                client.get("https://raw.githubusercontent.com/Gatekeeper/filters/main/rules.txt")
-            if (response.status.value in 200..299) {
-                response.bodyAsText().lines().right()
-            } else {
-                SyncError.ServerError(response.status.value).left()
-            }
-        } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-            SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
-        }
 
     suspend fun pullChanges(lastSyncTimestamp: Long = 0L): Either<SyncError, SyncPullPayload> {
         val token =
