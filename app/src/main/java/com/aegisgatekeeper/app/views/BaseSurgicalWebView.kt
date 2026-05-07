@@ -89,7 +89,7 @@ fun BaseSurgicalWebView(
                         }
                     }
 
-                                webViewClient =
+                webViewClient =
                     object : WebViewClient() {
                         @Volatile
                         private var currentDocUrl: String = url
@@ -161,7 +161,7 @@ fun BaseSurgicalWebView(
 
                             val currentJailRoot = view?.tag as? String
                             if (currentJailRoot != null) {
-                                val isExplicitHomeFeed =
+                                                                val isExplicitHomeFeed =
                                     currentUrl == "https://m.facebook.com/" ||
                                         currentUrl?.startsWith("https://m.facebook.com/?") == true ||
                                         currentUrl?.contains("facebook.com/home") == true ||
@@ -222,7 +222,7 @@ fun BaseSurgicalWebView(
                                     }
                                 }
 
-                            val cleanCss = combinedCss
+                                                        val cleanCss = combinedCss
                             val js =
                                 """
                                 (function() {
