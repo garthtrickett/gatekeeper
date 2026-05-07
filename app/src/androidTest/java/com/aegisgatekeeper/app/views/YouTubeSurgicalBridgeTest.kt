@@ -21,15 +21,7 @@ class YouTubeSurgicalBridgeTest {
     fun playVideo_dispatchesOpenCleanPlayerAction() {
         val bridge = YouTubeSurgicalBridge()
         bridge.playVideo("dQw4w9WgXcQ")
-        val state = GatekeeperStateManager.state.value
-        assertThat(state.media.activeVideoId).isEqualTo("dQw4w9WgXcQ")
-        assertThat(state.media.isVideoPlayerMaximized).isTrue()
-    }
 
-        @Test
-    fun playVideo_dispatchesOpenCleanPlayerAction() {
-        val bridge = YouTubeSurgicalBridge()
-        bridge.playVideo("dQw4w9WgXcQ")
         val state = GatekeeperStateManager.state.value
         assertThat(state.media.activeVideoId).isEqualTo("dQw4w9WgXcQ")
         assertThat(state.media.isVideoPlayerMaximized).isTrue()
@@ -53,8 +45,21 @@ class YouTubeSurgicalBridgeTest {
         assertThat(item).isNotNull()
         assertThat(item?.title).isEqualTo(testTitle)
         assertThat(item?.channelName).isEqualTo(testChannel)
-        assertThat(item?.durationSeconds).isEqualTo(933L)
+        assertThat(item?.durationSeconds).isEqualTo(933L) // 15*60 + 33
         assertThat(item?.source).isEqualTo(ContentSource.YOUTUBE)
         assertThat(item?.type).isEqualTo(ContentType.VIDEO)
+    }
+
+    @Test
+    fun toggleSafeChannel_dispatchesCorrectAction() {
+        val bridge = YouTubeSurgicalBridge()
+        val channelId = "UC-lHJ-WFAkQKdfcz6L7P6Ig"
+        val channelName = "Test Channel"
+
+        bridge.toggleSafeChannel(channelId, channelName)
+
+        val state = GatekeeperStateManager.state.value
+        assertThat(state.data.safeYouTubeChannels).containsKey(channelId)
+        assertThat(state.data.safeYouTubeChannels[channelId]).isEqualTo(channelName)
     }
 }

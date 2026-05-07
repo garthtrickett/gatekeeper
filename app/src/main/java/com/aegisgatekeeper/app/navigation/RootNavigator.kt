@@ -188,6 +188,16 @@ class MainNavigationScreen : Screen {
             )
         }
 
+        val activeVideoId = state.media.activeVideoId
+        if (activeVideoId != null) {
+            CleanPlayerModal(
+                videoId = activeVideoId,
+                isVisible = state.media.isVideoPlayerMaximized,
+                onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },
+                onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) }
+            )
+        }
+
         if (state.media.activeYouTubeUrl != null) {
             SurgicalYouTubeScreen(
                 url = state.media.activeYouTubeUrl!!,
