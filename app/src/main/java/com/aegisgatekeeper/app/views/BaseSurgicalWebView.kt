@@ -67,7 +67,23 @@ fun BaseSurgicalWebView(
                 settings.useWideViewPort = true
                 settings.loadWithOverviewMode = true
                 settings.javaScriptCanOpenWindowsAutomatically = true
-                settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                                settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+
+                setOnScrollChangeListener { _, _, scrollY, _, oldY ->
+                    if (Math.abs(scrollY - oldY) > 5) {
+                        android.util.Log.d("Gatekeeper", "📜 WebView Scroll Detected: y=$scrollY")
+                    }
+                }
+
+                setOnTouchListener { v, event ->
+                    if (event.action == android.view.MotionEvent.ACTION_MOVE) {
+                        // Log occasionally to avoid spamming the logcat buffer
+                        if (System.currentTimeMillis() % 10 == 0L) {
+                            android.util.Log.v("Gatekeeper", "👆 WebView receiving touch MOVE event")
+                        }
+                    }
+                    false // Allow the WebView to handle the event (needed for scrolling)
+                }
 
                 if (userAgent != null) {
                     settings.userAgentString = userAgent

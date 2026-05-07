@@ -184,8 +184,12 @@ fun SurgicalYouTubeScreen(
                                 style.textContent = 'ytm-reel-shelf-renderer, ytm-shorts-lockup-view-model, ytm-shorts-lockup-view-model-v2, yt-shorts-lockup-view-model, ytm-rich-section-renderer { display: none !important; }';
                                 document.head.appendChild(style);
                             }
+                                                        console.log('🔍 JS: Initializing Search Result Interceptor...');
                             var checkInterval = setInterval(function() {
                                 var videos = document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer, ytm-rich-item-renderer');
+                                if (videos.length > 0 && Math.random() < 0.1) {
+                                     console.log('🔍 JS: Processing ' + videos.length + ' video elements...');
+                                }
                                 videos.forEach(function(video) {
                                     if (video.querySelector('a[href*="/shorts/"]') || video.querySelector('a[href*="/short/"]')) {
                                         video.style.setProperty('display', 'none', 'important');
@@ -226,7 +230,8 @@ fun SurgicalYouTubeScreen(
                                             btn.style.backgroundColor = '#888';
                                         };
                                         
-                                        video.style.pointerEvents = 'none';
+                                                                                video.style.pointerEvents = 'none';
+                                        console.log('➕ JS: Attached Save button to video: ' + videoId);
                                         video.appendChild(btn);
                                     }
                                 });
