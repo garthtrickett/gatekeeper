@@ -59,11 +59,11 @@ fun SurgicalYouTubeScreen(
                 IndustrialButton(
                     onClick = {
                         GatekeeperStateManager.dispatch(
-                            GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/feed/subscriptions"),
+                            GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/feed/channels"),
                         )
                     },
                     text = "Subscriptions",
-                    enabled = !url.contains("/feed/subscriptions"),
+                    enabled = !url.contains("/feed/channels"),
                     invertEnabledColor = true,
                 )
                 IndustrialButton(
@@ -89,7 +89,7 @@ fun SurgicalYouTubeScreen(
                     if (newUrl.contains("youtube.com")) {
                         val targetPath =
                             when {
-                                newUrl.contains("/feed/subscriptions") -> "/feed/subscriptions"
+                                newUrl.contains("/feed/channels") -> "/feed/channels"
                                 newUrl.contains("/results") -> "/results"
                                 else -> null
                             }
@@ -142,7 +142,7 @@ fun SurgicalYouTubeScreen(
                 jsInterfaceObj = YouTubeSurgicalBridge(),
                 jsInterfaceName = "AndroidBridge",
                 jsInjector = { currentUrl ->
-                                        if (currentUrl.contains("/feed/subscriptions")) {
+                                        if (currentUrl.contains("/feed/channels")) {
                         """
                         (function() {
                             var checkInterval = setInterval(function() {
