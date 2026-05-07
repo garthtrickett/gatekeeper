@@ -157,15 +157,17 @@ fun BaseSurgicalWebView(
 
                             val currentJailRoot = view?.tag as? String
                             if (currentJailRoot != null) {
-                                val isExplicitHomeFeed =
+                                                                val isExplicitHomeFeed =
                                     currentUrl == "https://m.facebook.com/" ||
                                         currentUrl?.startsWith("https://m.facebook.com/?") == true ||
                                         currentUrl?.contains("facebook.com/home") == true ||
-                                        currentUrl?.contains("ref=logo") == true
+                                        currentUrl?.contains("ref=logo") == true ||
+                                        currentUrl == "https://m.youtube.com/" ||
+                                        currentUrl?.startsWith("https://m.youtube.com/?") == true
 
                                 if (isExplicitHomeFeed) {
                                     val cookies = CookieManager.getInstance().getCookie(currentUrl) ?: ""
-                                    if (onLogout != null && !cookies.contains("c_user=")) {
+                                    if (currentUrl?.contains("facebook.com") == true && onLogout != null && !cookies.contains("c_user=")) {
                                         android.util.Log.d(
                                             "Gatekeeper",
                                             "🚪 Jail: User is logged out. Triggering logout instead of jailing.",
@@ -216,32 +218,40 @@ fun BaseSurgicalWebView(
                                     }
                                 }
 
-                            if (combinedCss.isNotBlank()) {
-                                val cleanCss = combinedCss
-                                val js =
-                                    """
-                                    (function() {
-                                        function injectCSS() {
-                                            var styleId = 'gatekeeper-base-surgical-mask';
-                                            var style = document.getElementById(styleId);
-                                            if (!style) {
-                                                style = document.createElement('style');
-                                                style.id = styleId;
-                                                style.textContent = "$cleanCss";
-                                                document.documentElement.appendChild(style);
-                                            } else if (style.textContent !== "$cleanCss") {
-                                                style.textContent = "$cleanCss";
+                                                        val cleanCss = combinedCss
+                            val js =
+                                """
+                                (function() {
+                                    function injectCSS() {
+                                        if (!"$cleanCss") return;
+                                        var styleId = 'gatekeeper-base-surgical-mask';
+                                        var style = document.getElementById(styleId);
+                                        if (!style) {
+                                            style = document.createElement('style');
+                                            style.id = styleId;
+                                            style.textContent = "$cleanCss";
+                                            document.documentElement.appendChild(style);
+                                        } else if (style.textContent !== "$cleanCss") {
+                                            style.textContent = "$cleanCss";
+                                        }
+                                    }
+                                    injectCSS();
+                                    if (!window.gkCssObserver) {
+                                        window.gkCssObserver = new MutationObserver(injectCSS);
+                                        window.gkCssObserver.observe(document.documentElement, { childList: true, subtree: true });
+                                    }
+                                    if (window.location.hostname.includes('youtube.com') && !window.gkYtObserver) {
+                                        window.gkYtObserver = new MutationObserver(function() {
+                                            var shortsPivot = document.querySelector('ytm-pivot-bar-item-renderer.pivot-shorts');
+                                            if (shortsPivot && shortsPivot.style.display !== 'none') {
+                                                shortsPivot.style.setProperty('display', 'none', 'important');
                                             }
-                                        }
-                                        injectCSS();
-                                        if (!window.gkCssObserver) {
-                                            window.gkCssObserver = new MutationObserver(injectCSS);
-                                            window.gkCssObserver.observe(document.documentElement, { childList: true, subtree: true });
-                                        }
-                                    })();
-                                    """.trimIndent()
-                                view?.evaluateJavascript(js, null)
-                            }
+                                        });
+                                        window.gkYtObserver.observe(document.documentElement, { childList: true, subtree: true });
+                                    }
+                                })();
+                                """.trimIndent()
+                            view?.evaluateJavascript(js, null)
 
                             jsInjector?.invoke(currentUrl ?: "")?.let { jsToInject ->
                                 if (jsToInject.isNotBlank()) {
@@ -312,7 +322,7 @@ fun BaseSurgicalWebView(
                                 return false
                             }
 
-                            val currentJailRoot = view?.tag as? String
+                                                        val currentJailRoot = view?.tag as? String
                             if (currentJailRoot != null) {
                                 if (newUrl.contains("www.facebook.com")) {
                                     val mobileUrl =
@@ -322,11 +332,21 @@ fun BaseSurgicalWebView(
                                     return true
                                 }
 
+                                if (newUrl.contains("www.youtube.com")) {
+                                    val mobileUrl =
+                                        newUrl.replace("www.youtube.com", "m.youtube.com")
+                                    android.util.Log.d("Gatekeeper", "🛡️ Mobile-Forcing: Rewriting to $mobileUrl")
+                                    view?.loadUrl(mobileUrl)
+                                    return true
+                                }
+
                                 val isExplicitHomeFeed =
                                     newUrl == "https://m.facebook.com/" ||
                                         newUrl.startsWith("https://m.facebook.com/?") ||
                                         newUrl.contains("facebook.com/home") ||
-                                        newUrl.contains("ref=logo")
+                                        newUrl.contains("ref=logo") ||
+                                        newUrl == "https://m.youtube.com/" ||
+                                        newUrl.startsWith("https://m.youtube.com/?")
 
                                 if (isExplicitHomeFeed) {
                                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N &&
