@@ -126,13 +126,66 @@ fun SurgicalYouTubeScreen(
                         false
                     }
                 },
-                filterRules = emptyList(),
+                                filterRules = listOf(
+                    SurgicalFilterRule(
+                        urlCondition = { true },
+                        hiddenSelectors = listOf(
+                            "ytm-header-bar", // Top bar with logo/search
+                            "ytm-pivot-bar-renderer", // Bottom bar with Home/Shorts/You
+                            "ytm-search-header-renderer", // Search bar header
+                            ".modern-sharing-ui" // Share popups
+                        )
+                    )
+                ),
                 networkBlocklist = emptyList(),
                 jailRoot = url,
                 jsInterfaceObj = YouTubeSurgicalBridge(),
                 jsInterfaceName = "AndroidBridge",
                 jsInjector = { currentUrl ->
-                    if (currentUrl.contains("/watch")) {
+                                        if (currentUrl.contains("/feed/subscriptions")) {
+                        """
+                        (function() {
+                            var checkInterval = setInterval(function() {
+                                var items = document.querySelectorAll('ytm-item-section-renderer, ytm-video-with-context-renderer');
+                                items.forEach(function(item) {
+                                    if (!item.querySelector('.gk-save-btn')) {
+                                        var anchor = item.querySelector('a[href*="/watch"]');
+                                        if (!anchor) return;
+                                        var href = anchor.getAttribute('href');
+                                        var videoIdMatch = href.match(/v=([^&]+)/);
+                                        var videoId = videoIdMatch ? videoIdMatch[1] : null;
+                                        if (!videoId) return;
+
+                                        var title = item.querySelector('.compact-media-item-headline, h3')?.innerText || 'Unknown Video';
+                                        var channel = item.querySelector('.ytm-badge-and-byline-item-byline')?.innerText || '';
+                                        var duration = item.querySelector('ytm-thumbnail-overlay-time-status-renderer')?.innerText || '';
+
+                                        var btn = document.createElement('button');
+                                        btn.className = 'gk-save-btn';
+                                        btn.innerText = '+ SAVE TO BANK';
+                                        btn.style.backgroundColor = '#4AF626';
+                                        btn.style.color = '#000';
+                                        btn.style.border = 'none';
+                                        btn.style.padding = '12px 16px';
+                                        btn.style.margin = '8px 0';
+                                        btn.style.fontWeight = 'bold';
+                                        btn.style.borderRadius = '4px';
+                                        btn.style.width = '100%';
+                                        
+                                        btn.onclick = function(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            AndroidBridge.saveVideo(videoId, title, channel, duration);
+                                            btn.innerText = 'SAVED ✓';
+                                            btn.style.backgroundColor = '#888';
+                                        };
+                                        item.appendChild(btn);
+                                    }
+                                });
+                            }, 1000);
+                        })();
+                        """.trimIndent()
+                    } else if (currentUrl.contains("/watch")) {
                         """
                         (function() {
                             document.body.classList.add('gk-watch-page');
