@@ -22,6 +22,11 @@ import kotlinx.serialization.json.Json
  * Cross-platform synchronization client.
  * Uses Ktor to communicate with the Sovereign Sync Backend.
  */
+data class FilterRulesResult(
+    val rules: List<String>,
+    val hash: String
+)
+
 object SyncClient {
     private val client =
         HttpClient {
@@ -95,7 +100,53 @@ object SyncClient {
         }
     }
 
-    suspend fun fetchFilterRules(): Either<SyncError, List<String>> =
+        suspend fun fetchFilterRules(): Either<SyncError, FilterRulesResult> {
+        return try {
+            val filterUrls = listOf(
+                "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt",
+                "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt",
+                "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
+                "https://raw.githubusercontent.com/Gatekeeper/filters/main/unhook.txt"
+            )
+            val rawLists = mutableListOf<String>()
+            for (url in filterUrls) {
+                try {
+                    val response = client.get(url)
+                    if (response.status.value in 200..299) {
+                        rawLists.add(response.bodyAsText())
+                    }
+                } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "⚠️ Failed to fetch filter list: $url")
+                }
+            }
+            if (rawLists.isEmpty()) {
+                return SyncError.NetworkFailure("Failed to fetch any filter lists").left()
+            }
+            val merged = mutableSetOf<String>()
+            val unsupportedSelectors = listOf(":has(", ":xpath(", ":upward(", ":nth-ancestor(", ":remove()", ":style(")
+            rawLists.forEach { list ->
+                list.lines().forEach { line ->
+                    val trimmed = line.trim()
+                    if (trimmed.isEmpty() || trimmed.startsWith("!")) return@forEach
+                    if (trimmed.startsWith("||") || trimmed.startsWith("@@||")) {
+                        merged.add(trimmed)
+                    } else if (trimmed.contains("##")) {
+                        val isUnsupported = unsupportedSelectors.any { trimmed.contains(it, ignoreCase = true) }
+                        if (!isUnsupported) {
+                            merged.add(trimmed)
+                        }
+                    }
+                }
+            }
+            val finalRules = merged.sorted()
+            val hash = com.aegisgatekeeper.app.domain.computeHash(finalRules.joinToString("\n"))
+            FilterRulesResult(finalRules, hash).right()
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
+        }
+    }
         try {
             val response =
                 client.get("https://raw.githubusercontent.com/Gatekeeper/filters/main/rules.txt")

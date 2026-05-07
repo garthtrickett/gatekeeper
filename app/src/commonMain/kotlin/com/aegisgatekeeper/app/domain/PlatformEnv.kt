@@ -15,3 +15,5 @@ expect fun parseRssPubDate(
     dateStr: String?,
     fallback: Long,
 ): Long
+
+expect fun computeHash(input: String): String

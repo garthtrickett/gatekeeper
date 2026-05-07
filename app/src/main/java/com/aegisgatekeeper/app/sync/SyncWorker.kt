@@ -76,9 +76,9 @@ class SyncWorker(
                 ifLeft = { error ->
                     Log.w("Gatekeeper", "❌ SyncWorker: Filter rules pull failed: $error")
                 },
-                ifRight = { rules ->
-                    GatekeeperStateManager.dispatch(GatekeeperAction.UpdateFilterRules(rules))
-                    Log.i("Gatekeeper", "✅ SyncWorker: Downloaded ${rules.size} filter rules.")
+                                ifRight = { result ->
+                    GatekeeperStateManager.dispatch(GatekeeperAction.UpdateFilterRules(result.rules))
+                    Log.i("Gatekeeper", "✅ SyncWorker: Downloaded ${result.rules.size} filter rules.")
                 },
             )
 

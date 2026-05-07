@@ -15,3 +15,8 @@ actual fun platformLog(
 ) {
     println("[$tag] $message")
 }
+
+actual fun computeHash(input: String): String {
+    val bytes = java.security.MessageDigest.getInstance("SHA-256").digest(input.encodeToByteArray())
+    return bytes.joinToString("") { "%02x".format(it) }
+}
