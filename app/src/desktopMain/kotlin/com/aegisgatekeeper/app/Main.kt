@@ -92,10 +92,11 @@ fun main() =
                     val syncClient = com.aegisgatekeeper.app.di.GlobalDI.component.syncClient
                     while (true) {
                         try {
+                                                        val currentState = GatekeeperStateManager.state.value
                             val pushPayload =
                                 com.aegisgatekeeper.app.sync.SyncPushPayload(
                                     vaultItems =
-                                        state.data.vaultItems.map {
+                                        currentState.data.vaultItems.map {
                                             com.aegisgatekeeper.app.sync.VaultItemDto(
                                                 it.id,
                                                 it.query,
@@ -106,7 +107,7 @@ fun main() =
                                             )
                                         },
                                     contentItems =
-                                        state.data.contentItems.map {
+                                        currentState.data.contentItems.map {
                                             com.aegisgatekeeper.app.sync.ContentItemDto(
                                                 it.id,
                                                 it.podcastId,
@@ -123,27 +124,33 @@ fun main() =
                                             )
                                         },
                                 )
-                            syncClient.pushChanges(pushPayload)
-
-                            val filterResult = syncClient.fetchFilterRules()
-                            filterResult.fold(
-                                ifLeft = { println("❌ Desktop: Filter rules pull failed: $it") },
-                                                                                                ifRight = { result ->
-                                    if (GatekeeperStateManager.state.value.media.filterRulesHash != result.hash) {
-                                        GatekeeperStateManager.dispatch(
-                                            com.aegisgatekeeper.app.domain.GatekeeperAction
-                                                .UpdateFilterRules(result.rules, result.hash),
-                                        )
-                                        println("✅ Desktop: Downloaded ${result.rules.size} filter rules (New Hash).")
-                                    } else {
-                                        println("✅ Desktop: Filter rules unchanged.")
-                                    }
-                                },
+                            val pushResult = syncClient.pushChanges(pushPayload)
+                            pushResult.fold(
+                                ifLeft = { println("❌ Desktop: Push failed: $it") },
+                                ifRight = { println("✅ Desktop: Push successful.") }
                             )
+
+                            if (!com.aegisgatekeeper.app.domain.isDevEnvironment()) {
+                                val filterResult = syncClient.fetchFilterRules()
+                                filterResult.fold(
+                                    ifLeft = { println("❌ Desktop: Filter rules pull failed: $it") },
+                                    ifRight = { result ->
+                                        if (GatekeeperStateManager.state.value.media.filterRulesHash != result.hash) {
+                                            GatekeeperStateManager.dispatch(
+                                                com.aegisgatekeeper.app.domain.GatekeeperAction
+                                                    .UpdateFilterRules(result.rules, result.hash),
+                                            )
+                                            println("✅ Desktop: Downloaded ${result.rules.size} filter rules (New Hash).")
+                                        } else {
+                                            println("✅ Desktop: Filter rules unchanged.")
+                                        }
+                                    },
+                                )
+                            }
 
                             val pullResult = syncClient.pullChanges(0L)
                             pullResult.fold(
-                                ifLeft = {},
+                                ifLeft = { println("❌ Desktop: Pull failed: $it") },
                                 ifRight = { payload ->
                                     payload.vaultItems.forEach {
                                         if (it.isResolved) {

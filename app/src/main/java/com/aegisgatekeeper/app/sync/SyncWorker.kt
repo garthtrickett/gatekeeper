@@ -69,22 +69,24 @@ class SyncWorker(
                 )
             if (pushFailed) return Result.retry()
 
-            val filterResult =
-                com.aegisgatekeeper.app.di.GlobalDI.component.syncClient
-                    .fetchFilterRules()
-            filterResult.fold(
-                ifLeft = { error ->
-                    Log.w("Gatekeeper", "❌ SyncWorker: Filter rules pull failed: $error")
-                },
-                                                ifRight = { result ->
-                    if (state.media.filterRulesHash != result.hash) {
-                        GatekeeperStateManager.dispatch(GatekeeperAction.UpdateFilterRules(result.rules, result.hash))
-                        Log.i("Gatekeeper", "✅ SyncWorker: Downloaded ${result.rules.size} filter rules (New Hash).")
-                    } else {
-                        Log.i("Gatekeeper", "✅ SyncWorker: Filter rules unchanged.")
-                    }
-                },
-            )
+                        if (!com.aegisgatekeeper.app.domain.isDevEnvironment()) {
+                val filterResult =
+                    com.aegisgatekeeper.app.di.GlobalDI.component.syncClient
+                        .fetchFilterRules()
+                filterResult.fold(
+                    ifLeft = { error ->
+                        Log.w("Gatekeeper", "❌ SyncWorker: Filter rules pull failed: $error")
+                    },
+                    ifRight = { result ->
+                        if (state.media.filterRulesHash != result.hash) {
+                            GatekeeperStateManager.dispatch(GatekeeperAction.UpdateFilterRules(result.rules, result.hash))
+                            Log.i("Gatekeeper", "✅ SyncWorker: Downloaded ${result.rules.size} filter rules (New Hash).")
+                        } else {
+                            Log.i("Gatekeeper", "✅ SyncWorker: Filter rules unchanged.")
+                        }
+                    },
+                )
+            }
 
             // 2. Pull Remote Changes
             val pullResult =
