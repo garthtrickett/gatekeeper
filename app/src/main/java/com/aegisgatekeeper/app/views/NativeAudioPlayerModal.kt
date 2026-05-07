@@ -129,7 +129,7 @@ fun NativeAudioPlayerModal(
                         mc.prepare()
                         mc.seekTo((savedPosition * 1000).toLong())
                         mc.play()
-                    } else {
+                                        } else {
                         android.util.Log.d(
                             "Gatekeeper",
                             "🎵 NativePlayer: Re-attaching to existing background session at ${mc.currentPosition}ms",
@@ -143,7 +143,14 @@ fun NativeAudioPlayerModal(
                             )
                             mc.seekTo((savedPosition * 1000).toLong())
                         }
+                        if (mc.playbackState == Player.STATE_IDLE || mc.playbackState == Player.STATE_ENDED || mc.playerError != null) {
+                            mc.prepare()
+                        }
+                        mc.play()
                     }
+
+                    isPlaying = mc.isPlaying
+                    isBuffering = mc.playbackState == Player.STATE_BUFFERING || mc.playbackState == Player.STATE_IDLE
 
                     mc.addListener(
                         object : Player.Listener {
