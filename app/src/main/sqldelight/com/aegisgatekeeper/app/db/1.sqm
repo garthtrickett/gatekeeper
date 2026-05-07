@@ -15,3 +15,8 @@ CREATE TABLE AlternativeActivity (
     description TEXT NOT NULL,
     createdAtTimestamp INTEGER NOT NULL
 );
+-- Migration from version 1 to 2
+CREATE TABLE IF NOT EXISTS SafeYouTubeChannel (
+    channelId TEXT NOT NULL PRIMARY KEY,
+    channelName TEXT NOT NULL
+);

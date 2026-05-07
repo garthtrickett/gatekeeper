@@ -264,7 +264,6 @@ fun executeDatabaseEffect(
                             isManualLockdownActive = appSettings?.isManualLockdownActive ?: false,
                             activeFrictionGame = appSettings?.activeFrictionGame ?: com.aegisgatekeeper.app.domain.FrictionGame.GAUNTLET,
                             appGroups = appGroupsList,
-                            safeYouTubeChannels = safeChannels,
                         ),
                     data =
                         com.aegisgatekeeper.app.domain.DataState(
@@ -276,6 +275,7 @@ fun executeDatabaseEffect(
                             missionControlWebsites = pinnedWebsitesFromDb,
                             customMessages = customMessagesFromDb,
                             consumedCheckIns = consumedCheckInsList,
+                            safeYouTubeChannels = safeChannels,
                             alternativeActivities =
                                 alternativeActivitiesFromDb.map {
                                     com.aegisgatekeeper.app.domain
