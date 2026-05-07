@@ -133,10 +133,19 @@ fun SurgicalYouTubeScreen(
                 jailRoot = url,
                 jsInterfaceObj = YouTubeSurgicalBridge(),
                 jsInterfaceName = "AndroidBridge",
-                jsInjector = { currentUrl ->
+                                jsInjector = { currentUrl ->
                     if (currentUrl.contains("/watch")) {
                         """
                         (function() {
+                            document.body.classList.add('gk-watch-page');
+                            var styleId = 'gk-watch-hide';
+                            if (!document.getElementById(styleId)) {
+                                var style = document.createElement('style');
+                                style.id = styleId;
+                                style.textContent = '.gk-watch-page ytm-slim-video-action-bar-renderer, .gk-watch-page .slim-video-action-bar-actions, .gk-watch-page ytm-item-section-renderer, .gk-watch-page ytm-comment-section-renderer, .gk-watch-page ytm-rich-grid-renderer { display: none !important; }';
+                                document.head.appendChild(style);
+                            }
+
                             var checkInterval = setInterval(function() {
                                 var btnContainer = document.querySelector('ytm-slim-video-action-bar-renderer') || document.querySelector('.slim-video-action-bar-actions');
                                 if (btnContainer && !document.getElementById('gk-save-btn')) {
@@ -153,9 +162,9 @@ fun SurgicalYouTubeScreen(
                                     btn.style.width = 'calc(100% - 16px)';
                                     btn.onclick = function() {
                                         var videoId = new URLSearchParams(window.location.search).get('v');
-                                        var title = document.querySelector('.slim-video-metadata-title')?.innerText || document.title;
-                                        var channel = document.querySelector('ytm-badge-shape-renderer')?.innerText || document.querySelector('.slim-owner-channel-name')?.innerText || '';
-                                        var duration = document.querySelector('.time-display-content')?.innerText || '';
+                                        var title = document.querySelector('.slim-video-metadata-title')?.textContent || document.title;
+                                        var channel = document.querySelector('ytm-badge-shape-renderer')?.textContent || document.querySelector('.slim-owner-channel-name')?.textContent || '';
+                                        var duration = document.querySelector('.time-display-content')?.textContent || '';
                                         AndroidBridge.saveVideo(videoId, title, channel, duration);
                                         btn.innerText = 'SAVED ✓';
                                         btn.style.backgroundColor = '#888';
@@ -169,6 +178,7 @@ fun SurgicalYouTubeScreen(
                     } else if (currentUrl.contains("/results")) {
                         """
                         (function() {
+                            document.body.classList.remove('gk-watch-page');
                             var checkInterval = setInterval(function() {
                                 var videos = document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer');
                                 videos.forEach(function(video) {
@@ -303,11 +313,13 @@ fun SurgicalYouTubeScreen(
                                         });
                                         other.appendChild(overlay);
                                     }
-                                });
+                                                                });
                             }, 1000);
                         })();
                         """.trimIndent()
-                    } else ""
+                    } else {
+                        "document.body.classList.remove('gk-watch-page');"
+                    }
                 },
             )
         }
