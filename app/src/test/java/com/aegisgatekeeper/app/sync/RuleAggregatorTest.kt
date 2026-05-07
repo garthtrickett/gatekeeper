@@ -23,11 +23,11 @@ class RuleAggregatorTest {
 
         val result = SyncClient.parseFilterRules(listOf(list1, list2))
 
-        assertThat(result.rules).containsExactly(
-            "||example.com^",
-            "||tracker.com^",
+                assertThat(result.rules).containsExactly(
             "reddit.com##.promoted",
-            "youtube.com##.ad-banner"
+            "youtube.com##.ad-banner",
+            "||example.com^",
+            "||tracker.com^"
         ).inOrder()
 
         // The hash should be a non-empty string
