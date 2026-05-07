@@ -2,6 +2,7 @@ package com.aegisgatekeeper.app.views
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
@@ -53,8 +54,8 @@ class SurgicalYouTubeScrollTest {
         // Act: Perform multiple rapid swipes (spam scroll)
         composeTestRule.onNodeWithText("Subscriptions").assertExists()
         
-        repeat(5) {
-            composeTestRule.onNodeWithText("Exit").performTouchInput {
+                repeat(5) {
+            composeTestRule.onRoot().performTouchInput {
                 swipeUp(durationMillis = 100)
             }
         }
