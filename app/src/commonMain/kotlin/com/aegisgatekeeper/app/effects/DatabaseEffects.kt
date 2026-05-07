@@ -208,6 +208,7 @@ fun executeDatabaseEffect(
                     it.mediaId to
                         it.positionSeconds.toFloat()
                 }
+            val safeChannels = db.safeYouTubeChannelQueries.selectAll().executeAsList().associate { it.channelId to it.channelName }
             val appSettings = db.appSettingsQueries.getSettings().executeAsOneOrNull()
             val pinnedWebsitesFromDb =
                 db.missionControlWebsiteQueries.selectAll().executeAsList().map {
@@ -263,6 +264,7 @@ fun executeDatabaseEffect(
                             isManualLockdownActive = appSettings?.isManualLockdownActive ?: false,
                             activeFrictionGame = appSettings?.activeFrictionGame ?: com.aegisgatekeeper.app.domain.FrictionGame.GAUNTLET,
                             appGroups = appGroupsList,
+                            safeYouTubeChannels = safeChannels,
                         ),
                     data =
                         com.aegisgatekeeper.app.domain.DataState(
@@ -654,6 +656,14 @@ fun executeDatabaseEffect(
                     reason = effect.reason,
                     timestamp = effect.timestamp,
                 )
+            }
+        }
+
+        is GatekeeperEffect.DbToggleSafeYouTubeChannel -> {
+            if (effect.isSafe) {
+                db.safeYouTubeChannelQueries.insert(effect.channelId, effect.channelName)
+            } else {
+                db.safeYouTubeChannelQueries.delete(effect.channelId)
             }
         }
 

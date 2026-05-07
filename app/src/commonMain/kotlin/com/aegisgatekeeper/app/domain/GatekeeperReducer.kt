@@ -719,6 +719,18 @@ private fun reduceData(
                 slice.copy(analyticsBypasses = slice.analyticsBypasses + 1)
             }
 
+            is GatekeeperAction.ToggleSafeYouTubeChannel -> {
+                val isCurrentlySafe = slice.safeYouTubeChannels.containsKey(action.channelId)
+                effects.add(GatekeeperEffect.DbToggleSafeYouTubeChannel(action.channelId, action.channelName, !isCurrentlySafe))
+                slice.copy(
+                    safeYouTubeChannels = if (isCurrentlySafe) {
+                        slice.safeYouTubeChannels - action.channelId
+                    } else {
+                        slice.safeYouTubeChannels + (action.channelId to action.channelName)
+                    }
+                )
+            }
+
             is GatekeeperAction.UpdatePhaseWindows -> {
                 effects.add(
                     GatekeeperEffect.DbUpdatePhaseWindows(
