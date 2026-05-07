@@ -34,6 +34,7 @@ import com.aegisgatekeeper.app.views.AccountScreen
 import com.aegisgatekeeper.app.views.AlternativeActivitiesScreen
 import com.aegisgatekeeper.app.views.AnalyticsScreen
 import com.aegisgatekeeper.app.views.AppGroupsScreen
+import com.aegisgatekeeper.app.views.CleanPlayerModal
 import com.aegisgatekeeper.app.views.ContentBankScreen
 import com.aegisgatekeeper.app.views.IntentionalContentScreen
 import com.aegisgatekeeper.app.views.MetacognitionDialog
