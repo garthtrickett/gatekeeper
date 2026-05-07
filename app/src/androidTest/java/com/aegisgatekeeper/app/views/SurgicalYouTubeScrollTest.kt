@@ -5,6 +5,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.MainActivity
@@ -33,9 +35,9 @@ class SurgicalYouTubeScrollTest {
             GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/results?search_query=test")
         )
 
-        composeTestRule.setContent {
+                composeTestRule.setContent {
             GatekeeperTheme {
-                val state = GatekeeperStateManager.state.collectAsState().value
+                val state by GatekeeperStateManager.state.collectAsState()
                 if (state.media.activeYouTubeUrl != null) {
                     SurgicalYouTubeScreen(
                         url = state.media.activeYouTubeUrl!!,
