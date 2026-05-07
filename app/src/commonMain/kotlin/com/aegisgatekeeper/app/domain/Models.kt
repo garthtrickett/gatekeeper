@@ -194,6 +194,7 @@ data class InterceptionState(
 }
 
 data class DataState(
+    val safeYouTubeChannels: Map<String, String> = emptyMap(),
     val deepWorkStartMinutes: Int = 540,
     val deepWorkEndMinutes: Int = 1020,
     val gatheringStartMinutes: Int = 1080,

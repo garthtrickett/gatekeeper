@@ -145,6 +145,12 @@ sealed interface GatekeeperEffect {
         val timestamp: Long,
     ) : GatekeeperEffect
 
+    data class DbToggleSafeYouTubeChannel(
+        val channelId: String,
+        val channelName: String,
+        val isSafe: Boolean,
+    ) : GatekeeperEffect
+
     data class DbDeleteRule(
         val ruleId: String,
     ) : GatekeeperEffect

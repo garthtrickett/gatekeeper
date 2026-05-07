@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS SafeYouTubeChannel (
+    channelId TEXT NOT NULL PRIMARY KEY,
+    channelName TEXT NOT NULL
+);
+
+selectAll:
+SELECT * FROM SafeYouTubeChannel;
+
+insert:
+INSERT OR REPLACE INTO SafeYouTubeChannel(channelId, channelName) VALUES (:channelId, :channelName);
+
+delete:
+DELETE FROM SafeYouTubeChannel WHERE channelId = :channelId;

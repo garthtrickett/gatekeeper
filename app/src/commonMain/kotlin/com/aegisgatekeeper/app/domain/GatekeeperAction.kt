@@ -222,6 +222,11 @@ sealed interface GatekeeperAction {
 
     object CloseSurgicalFacebook : GatekeeperAction
 
+    data class ToggleSafeYouTubeChannel(
+        val channelId: String,
+        val channelName: String,
+    ) : GatekeeperAction
+
     data class OpenSurgicalYouTube(
         val url: String = "https://m.youtube.com/feed/subscriptions",
     ) : GatekeeperAction
