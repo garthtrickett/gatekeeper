@@ -118,8 +118,33 @@ fun executeDatabaseEffect(
         is GatekeeperEffect.DbInsertIntentionalSlot -> db.intentionalSlotQueries.insert(effect.slotIndex.toLong(), effect.contentItemId)
         is GatekeeperEffect.DbClearIntentionalSlot -> db.intentionalSlotQueries.delete(effect.slotIndex.toLong())
         is GatekeeperEffect.DbCreateAppGroup -> db.transaction { db.appGroupQueries.insertGroup(effect.id, effect.name, effect.combinator); effect.apps.forEach { db.appGroupQueries.insertGroupedApp(effect.id, it) } }
+                is GatekeeperEffect.DbCreateAppGroup -> db.transaction { db.appGroupQueries.insertGroup(effect.id, effect.name, effect.combinator); effect.apps.forEach { db.appGroupQueries.insertGroupedApp(effect.id, it) } }
+        is GatekeeperEffect.DbUpdateGroupCombinator -> db.appGroupQueries.updateCombinator(effect.combinator, effect.groupId)
+        is GatekeeperEffect.DbUpdateGroupName -> db.appGroupQueries.updateName(effect.newName, effect.groupId)
+        is GatekeeperEffect.DbUpdateGroupApps -> db.transaction { db.appGroupQueries.deleteAllAppsForGroup(effect.groupId); effect.apps.forEach { db.appGroupQueries.insertGroupedApp(effect.groupId, it) } }
+        is GatekeeperEffect.DbDeleteAppGroup -> db.appGroupQueries.deleteGroup(effect.groupId)
         is GatekeeperEffect.DbAddAlwaysBlockRule -> db.blockingRuleQueries.insertBlockingRule(effect.id, effect.groupId, "ALWAYS_BLOCK", true)
+        is GatekeeperEffect.DbAddDomainBlockRule -> db.transaction { db.blockingRuleQueries.insertBlockingRule(effect.id, effect.groupId, "DOMAIN_BLOCK", true); db.domainBlockRuleQueries.insert(effect.id, effect.domains.joinToString(",")) }
+        is GatekeeperEffect.DbUpdateDomainBlockRule -> db.domainBlockRuleQueries.insert(effect.ruleId, effect.domains.joinToString(","))
+        is GatekeeperEffect.DbAddTimeLimitRule -> db.transaction { db.blockingRuleQueries.insertBlockingRule(effect.id, effect.groupId, "TIME_LIMIT", true); db.blockingRuleQueries.insertTimeLimitRule(effect.id, effect.timeLimitMinutes.toLong()) }
+        is GatekeeperEffect.DbAddScheduledBlockRule -> db.transaction { db.blockingRuleQueries.insertBlockingRule(effect.id, effect.groupId, "SCHEDULED", true); db.blockingRuleQueries.insertScheduledBlockRule(effect.id, effect.timeSlots.joinToString(",") { "${it.startTimeMinutes}-${it.endTimeMinutes}" }, effect.daysOfWeek.joinToString(",") { it.name }) }
+        is GatekeeperEffect.DbAddCheckInRule -> db.transaction { db.blockingRuleQueries.insertBlockingRule(effect.id, effect.groupId, "CHECK_IN", true); db.blockingRuleQueries.insertCheckInRule(effect.id, effect.checkInTimesMinutes.joinToString(","), effect.durationMinutes.toLong(), effect.daysOfWeek.joinToString(",") { it.name }) }
+        is GatekeeperEffect.DbUpdateCheckInRule -> db.blockingRuleQueries.insertCheckInRule(effect.id, effect.checkInTimesMinutes.joinToString(","), effect.durationMinutes.toLong(), effect.daysOfWeek.joinToString(",") { it.name })
+        is GatekeeperEffect.DbResetCheckIns -> db.blockingRuleQueries.deleteConsumedCheckInsForGroup(effect.groupId)
+        is GatekeeperEffect.DbRedeemCheckInToken -> if (effect.log != null) db.blockingRuleQueries.insertConsumedCheckIn(effect.log.id, effect.log.groupId, effect.log.timeMinutes.toLong(), effect.log.timestamp)
         is GatekeeperEffect.DbToggleSafeYouTubeChannel -> if (effect.isSafe) db.safeYouTubeChannelQueries.insert(effect.channelId, effect.channelName) else db.safeYouTubeChannelQueries.delete(effect.channelId)
+        is GatekeeperEffect.DbLoadCachedPodcastEpisodes -> {
+            val episodes = db.podcastEpisodeQueries.selectAllForPodcast(effect.podcastId).executeAsList().map {
+                com.aegisgatekeeper.app.domain.CachedEpisode(it.id, it.podcastId, it.title, it.audioUrl, it.durationSeconds, it.pubDate, it.lastModified)
+            }
+            dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.PodcastEpisodesLoaded(episodes, effect.podcastId))
+        }
+        is GatekeeperEffect.DbLoadLatestGlobalEpisodes -> {
+            val unifiedEpisodes = db.podcastEpisodeQueries.selectAllLatestGlobal().executeAsList().map {
+                com.aegisgatekeeper.app.domain.UnifiedEpisode(it.id, it.podcastId, it.title, it.audioUrl, it.durationSeconds, it.pubDate, it.lastModified, it.showTitle, it.artworkUrl)
+            }
+            dispatch(com.aegisgatekeeper.app.domain.GatekeeperAction.LatestGlobalEpisodesLoaded(unifiedEpisodes))
+        }
         is GatekeeperEffect.DbDeleteRule -> db.blockingRuleQueries.deleteBlockingRule(effect.ruleId)
         is GatekeeperEffect.DbToggleRule -> db.blockingRuleQueries.updateRuleEnabled(effect.isEnabled, effect.ruleId)
         is GatekeeperEffect.DbUpdateProStatus -> db.appSettingsQueries.updateProStatus(effect.isProTier)

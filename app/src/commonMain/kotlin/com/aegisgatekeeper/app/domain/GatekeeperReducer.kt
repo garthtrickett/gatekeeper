@@ -888,8 +888,9 @@ private fun reduceMedia(
                 slice.copy(isLoadingEpisodes = false, activePodcastEpisodes = null, activePodcastId = null)
             }
 
-            is GatekeeperAction.CacheParsedEpisodes -> {
+                        is GatekeeperAction.CacheParsedEpisodes -> {
                 effects.add(GatekeeperEffect.DbCacheParsedEpisodes(action.episodes, action.podcastId))
+                effects.add(GatekeeperEffect.DbLoadCachedPodcastEpisodes(action.podcastId))
                 slice
             }
 
