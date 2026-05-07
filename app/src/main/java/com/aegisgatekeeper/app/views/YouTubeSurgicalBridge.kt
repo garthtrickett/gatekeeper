@@ -32,5 +32,12 @@ class YouTubeSurgicalBridge {
                 currentTimestamp = System.currentTimeMillis(),
             ),
         )
+        }
+
+    @JavascriptInterface
+    fun toggleSafeChannel(channelId: String, channelName: String) {
+        GatekeeperStateManager.dispatch(
+            GatekeeperAction.ToggleSafeYouTubeChannel(channelId, channelName)
+        )
     }
 }

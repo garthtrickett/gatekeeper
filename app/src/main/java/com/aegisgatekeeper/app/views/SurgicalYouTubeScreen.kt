@@ -142,7 +142,57 @@ fun SurgicalYouTubeScreen(
                 jsInterfaceObj = YouTubeSurgicalBridge(),
                 jsInterfaceName = "AndroidBridge",
                 jsInjector = { currentUrl ->
+                    val initSafeChannels = "window.gkSafeChannels = [$safeChannelIds];"
                                         if (currentUrl.contains("/feed/channels")) {
+                        """
+                        (function() {
+                            $initSafeChannels
+                            var checkInterval = setInterval(function() {
+                                var channels = document.querySelectorAll('ytm-channel-renderer, ytm-compact-channel-renderer');
+                                channels.forEach(function(channel) {
+                                    if (!channel.querySelector('.gk-safe-toggle')) {
+                                        var anchor = channel.querySelector('a[href*="/channel/"], a[href*="/@"]');
+                                        if (!anchor) return;
+                                        var href = anchor.getAttribute('href');
+                                        var channelId = href.split('/').pop();
+                                        var channelName = channel.querySelector('.compact-media-item-headline, .channel-name')?.innerText || 'Unknown Channel';
+
+                                        var isSafe = window.gkSafeChannels.includes(channelId);
+
+                                        var btn = document.createElement('button');
+                                        btn.className = 'gk-safe-toggle';
+                                        btn.innerText = isSafe ? 'SAFE ✅' : 'SET SAFE';
+                                        btn.style.backgroundColor = isSafe ? '#4CAF50' : '#444';
+                                        btn.style.color = '#fff';
+                                        btn.style.border = 'none';
+                                        btn.style.padding = '8px 12px';
+                                        btn.style.margin = '8px 0';
+                                        btn.style.fontWeight = 'bold';
+                                        btn.style.borderRadius = '4px';
+                                        
+                                        btn.onclick = function(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            AndroidBridge.toggleSafeChannel(channelId, channelName);
+                                            // Optimistic UI update
+                                            var currentlySafe = window.gkSafeChannels.includes(channelId);
+                                            if (currentlySafe) {
+                                                window.gkSafeChannels = window.gkSafeChannels.filter(id => id !== channelId);
+                                                btn.innerText = 'SET SAFE';
+                                                btn.style.backgroundColor = '#444';
+                                            } else {
+                                                window.gkSafeChannels.push(channelId);
+                                                btn.innerText = 'SAFE ✅';
+                                                btn.style.backgroundColor = '#4CAF50';
+                                            }
+                                        };
+                                        channel.appendChild(btn);
+                                    }
+                                });
+                            }, 1000);
+                        })();
+                        """.trimIndent()
+                    } else 
                         """
                         (function() {
                             var checkInterval = setInterval(function() {
