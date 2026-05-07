@@ -19,6 +19,8 @@ class AndroidSqlDriverFactory(
                 object : AndroidSqliteDriver.Callback(GatekeeperDatabase.Schema) {
                     override fun onOpen(db: androidx.sqlite.db.SupportSQLiteDatabase) {
                         db.setForeignKeyConstraintsEnabled(true)
+                        // RESCUE LOGIC: Manually create the table if it's missing to prevent crash without wiping data
+                        db.execSQL("CREATE TABLE IF NOT EXISTS SafeYouTubeChannel (channelId TEXT NOT NULL PRIMARY KEY, channelName TEXT NOT NULL);")
                     }
 
                     override fun onUpgrade(
@@ -32,7 +34,7 @@ class AndroidSqlDriverFactory(
                             if (com.aegisgatekeeper.app.BuildConfig.DEBUG) {
                                 android.util.Log.i(
                                     "Gatekeeper",
-                                    "DB: Migration failed (expected during dev). Destructively recreating tables...",
+                                    "DB: Migration failed. Destructively recreating tables...",
                                 )
                                 db.query("SELECT name FROM sqlite_master WHERE type='table'").use { cursor ->
                                     val tables = mutableListOf<String>()
@@ -50,8 +52,6 @@ class AndroidSqlDriverFactory(
                                 }
                                 super.onCreate(db)
                             } else {
-                                // PRODUCTION: Never wipe user data. Throw to Crashlytics/Sentry.
-                                android.util.Log.e("Gatekeeper", "CRITICAL: Database migration failed in Production!", e)
                                 throw e
                             }
                         }
