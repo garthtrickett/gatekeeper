@@ -124,7 +124,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                         when (item.source) {
                             ContentSource.YOUTUBE -> {
                                 GatekeeperStateManager.dispatch(
-                                    GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/watch?v=${item.videoId}"),
+                                    GatekeeperAction.OpenCleanPlayer(item.videoId),
                                 )
                             }
 
