@@ -58,12 +58,12 @@ fun SurgicalYouTubeScreen(
                         onClick = {
                             GatekeeperStateManager.dispatch(
                                     GatekeeperAction.OpenSurgicalYouTube(
-                                            "https://m.youtube.com/feed/subscriptions"
+                                            "https://m.youtube.com/feed/channels"
                                     ),
                             )
                         },
                         text = "Subscriptions",
-                        enabled = !url.contains("/feed/subscriptions"),
+                        enabled = !url.contains("/feed/channels"),
                         invertEnabledColor = true,
                 )
                 IndustrialButton(
@@ -202,7 +202,7 @@ fun SurgicalYouTubeScreen(
                             })();
                             """.trimIndent()
                             }
-                            (currentUrl.contains("/results") || currentUrl.contains("/feed/subscriptions")) -> {
+                            (currentUrl.contains("/results") || currentUrl.contains("/channel/") || currentUrl.contains("/@")) -> {
                                 """
                             (function() {
                                 document.body.classList.remove('gk-watch-page');
@@ -224,6 +224,11 @@ fun SurgicalYouTubeScreen(
                                         .media-item-thumbnail-container, 
                                         .media-item-details {
                                             pointer-events: none !important;
+                                        }
+                                        
+                                        /* Re-enable events for our custom buttons */
+                                        .gk-button-container {
+                                            pointer-events: auto !important;
                                         }
                                     `;
                                     document.head.appendChild(style);
