@@ -234,7 +234,9 @@ fun SurgicalYouTubeScreen(
                                     document.head.appendChild(style);
                                 }
                                 var checkInterval = setInterval(function() {
-                                    var videos = document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer, ytm-rich-item-renderer');
+                                    var videos = document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer, ytm-rich-item-renderer, ytm-media-item-view-model');
+                                    var channelNameHeader = document.querySelector('.c-channel-header-title, .ytm-channel-header-renderer-title')?.innerText || '';
+                                    
                                     videos.forEach(function(video) {
                                         if (video.querySelector('a[href*="/shorts/"]') || video.querySelector('a[href*="/short/"]')) {
                                             video.style.setProperty('display', 'none', 'important');
@@ -248,8 +250,8 @@ fun SurgicalYouTubeScreen(
                                             var videoId = videoIdMatch ? videoIdMatch[1] : null;
                                             if (!videoId) return;
 
-                                            var title = video.querySelector('.compact-media-item-headline, .media-item-headline, h3')?.innerText || 'Unknown Video';
-                                            var channel = video.querySelector('.ytm-badge-and-byline-item-byline, ytm-badge-shape-renderer, .bylines')?.innerText || '';
+                                            var title = video.querySelector('.compact-media-item-headline, .media-item-headline, h3, .ytm-media-item-metadata-title')?.innerText || 'Unknown Video';
+                                            var channel = video.querySelector('.ytm-badge-and-byline-item-byline, ytm-badge-shape-renderer, .bylines, .ytm-media-item-inset-metadata-channel-title')?.innerText || channelNameHeader;
                                             var duration = video.querySelector('ytm-thumbnail-overlay-time-status-renderer')?.innerText || '';
 
                                             var btnContainer = document.createElement('div');
@@ -341,7 +343,7 @@ fun SurgicalYouTubeScreen(
                                         // Allow-list categories
                                         const isGk = target.closest('.gk-save-btn, .gk-channel-btn, .gk-safe-toggle');
                                         const isInput = target.closest('input, textarea, [contenteditable="true"], .searchbox-input');
-                                        const isTab = target.closest('[role="tab"]');
+                                        const isTab = target.closest('[role="tab"], .ytm-tab-header-item, .tab-header-item');
                                         const isHeader = target.closest('ytm-header-bar, ytm-search-header-renderer, .header-bar, .search-container');
                                         const isIconOrBtn = target.closest('button, [role="button"], .searchbox-selection-cancel, svg, path');
                                         
