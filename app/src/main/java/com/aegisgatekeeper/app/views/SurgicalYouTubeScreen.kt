@@ -133,7 +133,6 @@ fun SurgicalYouTubeScreen(
                                                     listOf(
                                                             "ytm-header-bar",
                                                             "ytm-pivot-bar-renderer",
-                                                            "ytm-search-header-renderer",
                                                             ".modern-sharing-ui",
                                                     ),
                                     ),
@@ -334,9 +333,19 @@ fun SurgicalYouTubeScreen(
                                 if (!window.gkGlobalClickCatcher) {
                                     window.gkGlobalClickCatcher = true;
                                     document.addEventListener('click', function(e) {
-                                        if (e.target && (e.target.className === 'gk-save-btn' || e.target.className === 'gk-channel-btn' || e.target.className === 'gk-play-btn')) return;
-                                        var closestTab = e.target.closest ? e.target.closest('[role="tab"]') : null;
-                                        if (closestTab) return;
+                                        const target = e.target;
+                                        if (!target) return;
+                                        
+                                        // 1. Allow our custom buttons
+                                        if (target.closest('.gk-save-btn, .gk-channel-btn, .gk-play-btn')) return;
+                                        
+                                        // 2. Allow any navigation tabs
+                                        if (target.closest('[role="tab"]')) return;
+                                        
+                                        // 3. Allow interaction with the search bar, inputs, and clear buttons
+                                        if (target.closest('input, textarea, .searchbox-input, ytm-search-header-renderer, .searchbox-selection-cancel')) return;
+
+                                        // Block everything else to prevent escaping into the algorithmic feed
                                         e.preventDefault();
                                         e.stopPropagation();
                                     }, true);
