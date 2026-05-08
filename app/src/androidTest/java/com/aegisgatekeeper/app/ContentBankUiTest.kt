@@ -321,7 +321,7 @@ class ContentBankUiTest {
             .isNotNull()
     }
 
-        @Test
+    @Test
     fun testContentBank_YouTubeItem_OpensCleanPlayer() {
         // Arrange
         val youtubeVideoId = "dQw4w9WgXcQ"
@@ -344,7 +344,7 @@ class ContentBankUiTest {
                         videoId = state.media.activeVideoId!!,
                         isVisible = state.media.isVideoPlayerMaximized,
                         onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },
-                        onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) }
+                        onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) },
                     )
                 }
             }

@@ -1,7 +1,13 @@
 package com.aegisgatekeeper.app.views
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,16 +19,16 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 @Suppress("FunctionName")
 @Composable
 actual fun CleanPlayerModal(
-        videoId: String,
-        isVisible: Boolean,
-        onMinimize: () -> Unit,
-        onStop: () -> Unit,
+    videoId: String,
+    isVisible: Boolean,
+    onMinimize: () -> Unit,
+    onStop: () -> Unit,
 ) {
     if (!isVisible) return
 
     Box(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-            contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("Surgical Player (Desktop MVP)", style = MaterialTheme.typography.headlineMedium)
@@ -31,9 +37,9 @@ actual fun CleanPlayerModal(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                    "The IFrame Player API is currently optimized for Android.\nUse the 'Web' tab for filtered YouTube on Desktop.",
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                "The IFrame Player API is currently optimized for Android.\nUse the 'Web' tab for filtered YouTube on Desktop.",
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             Spacer(modifier = Modifier.height(32.dp))

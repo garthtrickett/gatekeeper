@@ -194,7 +194,7 @@ sealed interface GatekeeperAction {
         val error: String,
     ) : GatekeeperAction
 
-        data class SaveMediaPosition(
+    data class SaveMediaPosition(
         val mediaId: String,
         val positionSeconds: Float,
     ) : GatekeeperAction

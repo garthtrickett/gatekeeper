@@ -223,7 +223,7 @@ data class MediaState(
     val isLoadingEpisodes: Boolean = false,
     val latestGlobalEpisodes: List<UnifiedEpisode>? = null,
     val isLoadingGlobalEpisodes: Boolean = false,
-        val activeDownloads: Map<String, Float> = emptyMap(),
+    val activeDownloads: Map<String, Float> = emptyMap(),
     val activeAudioUrl: String? = null,
     val isAudioPlayerMaximized: Boolean = false,
     val savedMediaPositions: Map<String, Float> = emptyMap(),

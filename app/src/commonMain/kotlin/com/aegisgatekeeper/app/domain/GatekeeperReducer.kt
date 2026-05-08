@@ -916,7 +916,7 @@ private fun reduceMedia(
                 slice.copy(activeDownloads = slice.activeDownloads - action.id)
             }
 
-                        is GatekeeperAction.SaveMediaPosition -> {
+            is GatekeeperAction.SaveMediaPosition -> {
                 if (action.positionSeconds == 0f) {
                     slice.copy(savedMediaPositions = slice.savedMediaPositions + (action.mediaId to 0f))
                 } else {

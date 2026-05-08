@@ -6,9 +6,9 @@ import android.webkit.JavascriptInterface
 
 /** A lightweight bridge to receive state change events from the YouTube IFrame Player API. */
 class WebAppInterface(
-        private val onVideoEnded: () -> Unit,
-        private val onStateChangeCallback: (Int) -> Unit = {},
-        private val onTimeUpdateCallback: (Float) -> Unit = {},
+    private val onVideoEnded: () -> Unit,
+    private val onStateChangeCallback: (Int) -> Unit = {},
+    private val onTimeUpdateCallback: (Float) -> Unit = {},
 ) {
     @JavascriptInterface
     fun onTimeUpdate(time: String) {

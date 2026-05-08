@@ -195,7 +195,7 @@ class MainNavigationScreen : Screen {
                 videoId = activeVideoId,
                 isVisible = state.media.isVideoPlayerMaximized,
                 onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },
-                onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) }
+                onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) },
             )
         }
 

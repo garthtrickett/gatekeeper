@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 @Suppress("FunctionName")
 @Composable
 expect fun CleanPlayerModal(
-        videoId: String,
-        isVisible: Boolean,
-        onMinimize: () -> Unit,
-        onStop: () -> Unit,
+    videoId: String,
+    isVisible: Boolean,
+    onMinimize: () -> Unit,
+    onStop: () -> Unit,
 )

@@ -45,10 +45,10 @@ import com.aegisgatekeeper.app.domain.IndustrialButton
 @Suppress("FunctionName")
 @Composable
 actual fun CleanPlayerModal(
-        videoId: String,
-        isVisible: Boolean,
-        onMinimize: () -> Unit,
-        onStop: () -> Unit,
+    videoId: String,
+    isVisible: Boolean,
+    onMinimize: () -> Unit,
+    onStop: () -> Unit,
 ) {
     val sessionStartTime by remember { mutableStateOf(System.currentTimeMillis()) }
 
@@ -60,36 +60,38 @@ actual fun CleanPlayerModal(
     // Intercept the native system back button instead of relying on the Dialog's onDismissRequest
     androidx.activity.compose.BackHandler(enabled = isVisible) {
         GatekeeperStateManager.dispatch(
-                GatekeeperAction.SaveMediaPosition(videoId, currentPosition)
+            GatekeeperAction.SaveMediaPosition(videoId, currentPosition),
         )
         onMinimize()
     }
 
     val videoTitle =
-            remember(videoId) {
-                val cleanTitle =
-                        state.data.contentItems.find { it.videoId == videoId }?.title
-                                ?: "Clean Player Video"
-                cleanTitle
-                        .replace("&amp;", "&")
-                        .replace("&#39;", "'")
-                        .replace("&quot;", "\"")
-                        .replace("&lt;", "<")
-                        .replace("&gt;", ">")
-            }
+        remember(videoId) {
+            val cleanTitle =
+                state.data.contentItems
+                    .find { it.videoId == videoId }
+                    ?.title
+                    ?: "Clean Player Video"
+            cleanTitle
+                .replace("&amp;", "&")
+                .replace("&#39;", "'")
+                .replace("&quot;", "\"")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+        }
 
     var webViewRef by remember { mutableStateOf<WebView?>(null) }
     var playerStateCallback by remember { mutableStateOf<(Int) -> Unit>({}) }
 
     DisposableEffect(videoId) {
         val startIntent =
-                Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java)
-                        .apply {
-                            action = "com.aegisgatekeeper.app.SERVICE_START"
-                            putExtra("EXTRA_TITLE", videoTitle)
-                            putExtra("EXTRA_OPEN_INTENT_KEY", "OPEN_CLEAN_PLAYER_VIDEO_ID")
-                            putExtra("EXTRA_OPEN_INTENT_VALUE", videoId)
-                        }
+            Intent(context, com.aegisgatekeeper.app.services.WebViewMediaService::class.java)
+                .apply {
+                    action = "com.aegisgatekeeper.app.SERVICE_START"
+                    putExtra("EXTRA_TITLE", videoTitle)
+                    putExtra("EXTRA_OPEN_INTENT_KEY", "OPEN_CLEAN_PLAYER_VIDEO_ID")
+                    putExtra("EXTRA_OPEN_INTENT_VALUE", videoId)
+                }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(startIntent)
         } else {
@@ -100,31 +102,33 @@ actual fun CleanPlayerModal(
         val pauseFilter = IntentFilter("com.aegisgatekeeper.app.WEB_PAUSE")
         val stopFilter = IntentFilter("com.aegisgatekeeper.app.WEB_STOP")
         val receiver =
-                object : BroadcastReceiver() {
-                    override fun onReceive(
-                            ctx: Context?,
-                            intent: Intent?,
-                    ) {
-                        when (intent?.action) {
-                            "com.aegisgatekeeper.app.WEB_PLAY" -> {
-                                webViewRef?.evaluateJavascript("player.playVideo();", null)
-                            }
-                            "com.aegisgatekeeper.app.WEB_PAUSE" -> {
-                                webViewRef?.evaluateJavascript("player.pauseVideo();", null)
-                            }
-                            "com.aegisgatekeeper.app.WEB_STOP" -> {
-                                val duration = System.currentTimeMillis() - sessionStartTime
-                                GatekeeperStateManager.dispatch(
-                                        GatekeeperAction.TriggerMetacognition(
-                                                "CleanPlayer: YouTube",
-                                                duration
-                                        )
-                                )
-                                onStop()
-                            }
+            object : BroadcastReceiver() {
+                override fun onReceive(
+                    ctx: Context?,
+                    intent: Intent?,
+                ) {
+                    when (intent?.action) {
+                        "com.aegisgatekeeper.app.WEB_PLAY" -> {
+                            webViewRef?.evaluateJavascript("player.playVideo();", null)
+                        }
+
+                        "com.aegisgatekeeper.app.WEB_PAUSE" -> {
+                            webViewRef?.evaluateJavascript("player.pauseVideo();", null)
+                        }
+
+                        "com.aegisgatekeeper.app.WEB_STOP" -> {
+                            val duration = System.currentTimeMillis() - sessionStartTime
+                            GatekeeperStateManager.dispatch(
+                                GatekeeperAction.TriggerMetacognition(
+                                    "CleanPlayer: YouTube",
+                                    duration,
+                                ),
+                            )
+                            onStop()
                         }
                     }
                 }
+            }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             context.registerReceiver(receiver, playFilter, Context.RECEIVER_NOT_EXPORTED)
@@ -139,14 +143,13 @@ actual fun CleanPlayerModal(
         playerStateCallback = { playerState ->
             val isPlaying = playerState == 1
             val updateIntent =
-                    Intent(
-                                    context,
-                                    com.aegisgatekeeper.app.services.WebViewMediaService::class.java
-                            )
-                            .apply {
-                                action = "com.aegisgatekeeper.app.SERVICE_UPDATE"
-                                putExtra("EXTRA_IS_PLAYING", isPlaying)
-                            }
+                Intent(
+                    context,
+                    com.aegisgatekeeper.app.services.WebViewMediaService::class.java,
+                ).apply {
+                    action = "com.aegisgatekeeper.app.SERVICE_UPDATE"
+                    putExtra("EXTRA_IS_PLAYING", isPlaying)
+                }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(updateIntent)
             } else {
@@ -155,16 +158,18 @@ actual fun CleanPlayerModal(
         }
 
         onDispose {
-            android.webkit.CookieManager.getInstance().flush()
+            android.webkit.CookieManager
+                .getInstance()
+                .flush()
             GatekeeperStateManager.dispatch(
-                    GatekeeperAction.SaveMediaPosition(videoId, currentPosition)
+                GatekeeperAction.SaveMediaPosition(videoId, currentPosition),
             )
 
             val stopIntent =
-                    Intent(
-                            context,
-                            com.aegisgatekeeper.app.services.WebViewMediaService::class.java
-                    )
+                Intent(
+                    context,
+                    com.aegisgatekeeper.app.services.WebViewMediaService::class.java,
+                )
             context.stopService(stopIntent)
 
             try {
@@ -176,56 +181,60 @@ actual fun CleanPlayerModal(
     }
 
     Box(
-            modifier =
-                    if (isVisible) {
-                        Modifier.fillMaxSize()
-                                // Absorbs all touch events so they don't fall through to the
-                                // underlying Main UI
-                                .clickable(
-                                        indication = null,
-                                        interactionSource = remember { MutableInteractionSource() },
-                                ) {}
-                    } else {
-                        Modifier.size(1.dp).alpha(0.01f)
-                    },
+        modifier =
+            if (isVisible) {
+                Modifier
+                    .fillMaxSize()
+                    // Absorbs all touch events so they don't fall through to the
+                    // underlying Main UI
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) {}
+            } else {
+                Modifier.size(1.dp).alpha(0.01f)
+            },
     ) {
         Column(
-                modifier =
-                        if (isVisible) Modifier.fillMaxSize().systemBarsPadding()
-                        else Modifier.fillMaxSize()
+            modifier =
+                if (isVisible) {
+                    Modifier.fillMaxSize().systemBarsPadding()
+                } else {
+                    Modifier.fillMaxSize()
+                },
         ) {
             // Header with Buttons
             if (isVisible) {
                 Box(
-                        modifier = Modifier.fillMaxWidth().background(Color.DarkGray).padding(8.dp),
-                        contentAlignment = Alignment.TopEnd,
+                    modifier = Modifier.fillMaxWidth().background(Color.DarkGray).padding(8.dp),
+                    contentAlignment = Alignment.TopEnd,
                 ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         IndustrialButton(
-                                onClick = {
-                                    GatekeeperStateManager.dispatch(
-                                            GatekeeperAction.SaveMediaPosition(
-                                                    videoId,
-                                                    currentPosition
-                                            )
-                                    )
-                                    onMinimize()
-                                },
-                                text = "Minimize"
+                            onClick = {
+                                GatekeeperStateManager.dispatch(
+                                    GatekeeperAction.SaveMediaPosition(
+                                        videoId,
+                                        currentPosition,
+                                    ),
+                                )
+                                onMinimize()
+                            },
+                            text = "Minimize",
                         )
                         IndustrialButton(
-                                onClick = {
-                                    val duration = System.currentTimeMillis() - sessionStartTime
-                                    GatekeeperStateManager.dispatch(
-                                            GatekeeperAction.TriggerMetacognition(
-                                                    "CleanPlayer: YouTube",
-                                                    duration
-                                            )
-                                    )
-                                    onStop()
-                                },
-                                text = "End Session",
-                                isWarning = true
+                            onClick = {
+                                val duration = System.currentTimeMillis() - sessionStartTime
+                                GatekeeperStateManager.dispatch(
+                                    GatekeeperAction.TriggerMetacognition(
+                                        "CleanPlayer: YouTube",
+                                        duration,
+                                    ),
+                                )
+                                onStop()
+                            },
+                            text = "End Session",
+                            isWarning = true,
                         )
                     }
                 }
@@ -234,155 +243,153 @@ actual fun CleanPlayerModal(
             // The WebView Player injected strictly with an iframe
             androidx.compose.runtime.key(videoId) {
                 AndroidView(
-                        modifier = Modifier.weight(1f).fillMaxWidth(),
-                        factory = { context ->
-                            object : WebView(context) {
-                                        override fun onWindowVisibilityChanged(visibility: Int) {
-                                            super.onWindowVisibilityChanged(
-                                                    android.view.View.VISIBLE
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    factory = { context ->
+                        object : WebView(context) {
+                            override fun onWindowVisibilityChanged(visibility: Int) {
+                                super.onWindowVisibilityChanged(
+                                    android.view.View.VISIBLE,
+                                )
+                            }
+
+                            override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+                                super.onWindowFocusChanged(true)
+                            }
+
+                            override fun onVisibilityChanged(
+                                changedView: android.view.View,
+                                visibility: Int,
+                            ) {
+                                super.onVisibilityChanged(
+                                    changedView,
+                                    android.view.View.VISIBLE,
+                                )
+                            }
+                        }.apply {
+                            // Enforce match parent so it correctly sizes without the
+                            // Dialog wrapper interference
+                            layoutParams =
+                                android.view.ViewGroup.LayoutParams(
+                                    android.view.ViewGroup.LayoutParams
+                                        .MATCH_PARENT,
+                                    android.view.ViewGroup.LayoutParams
+                                        .MATCH_PARENT,
+                                )
+                            settings.javaScriptEnabled = true
+                            settings.mediaPlaybackRequiresUserGesture =
+                                false // Allow autoplay
+                            settings.domStorageEnabled = true
+                            settings.userAgentString =
+                                settings.userAgentString.replace("; wv", "")
+
+                            val cookieManager =
+                                android.webkit.CookieManager.getInstance()
+                            cookieManager.setAcceptCookie(true)
+                            cookieManager.setAcceptThirdPartyCookies(this, true)
+
+                            webChromeClient =
+                                WebChromeClient() // Required for HTML5 full-screen
+                            // media
+
+                            // Harden the WebView against external navigation
+                            webViewClient =
+                                object : WebViewClient() {
+                                    override fun shouldOverrideUrlLoading(
+                                        view: WebView?,
+                                        request: android.webkit.WebResourceRequest?,
+                                    ): Boolean {
+                                        val urlStr = request?.url?.toString() ?: ""
+                                        if (urlStr.startsWith("intent://") ||
+                                            urlStr.startsWith(
+                                                "vnd.youtube:",
                                             )
-                                        }
-
-                                        override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
-                                            super.onWindowFocusChanged(true)
-                                        }
-
-                                        override fun onVisibilityChanged(
-                                                changedView: android.view.View,
-                                                visibility: Int,
                                         ) {
-                                            super.onVisibilityChanged(
-                                                    changedView,
-                                                    android.view.View.VISIBLE
+                                            return true
+                                        }
+                                        val isAuthFlow =
+                                            urlStr.contains(
+                                                "accounts.google.com",
+                                            ) ||
+                                                urlStr.contains(
+                                                    "myaccount.google.com",
+                                                ) ||
+                                                urlStr.contains(
+                                                    "accounts.youtube.com",
+                                                )
+                                        if (isAuthFlow) {
+                                            return false
+                                        }
+                                        // Allow iframe API sub-resource loads, but
+                                        // block main frame navigations
+                                        // to prevent the user from escaping into
+                                        // standard YouTube.
+                                        return request?.isForMainFrame == true
+                                    }
+
+                                    override fun onPageFinished(
+                                        view: WebView?,
+                                        url: String?,
+                                    ) {
+                                        super.onPageFinished(view, url)
+                                        // Inject CSS to hide the "Watch on YouTube"
+                                        // logo and other junk
+                                        val css =
+                                            ".ytp-impression-link, .ytp-watermark, " +
+                                                ".ytp-watch-later-button { display: none !important; }"
+                                        val js =
+                                            "var style = document.createElement('style'); " +
+                                                "style.innerHTML = '$css'; " +
+                                                "document.head.appendChild(style);"
+                                        view?.evaluateJavascript(js, null)
+                                    }
+                                }
+
+                            webViewRef = this
+                            addJavascriptInterface(
+                                WebAppInterface(
+                                    onVideoEnded = {
+                                        val duration =
+                                            System.currentTimeMillis() -
+                                                sessionStartTime
+                                        GatekeeperStateManager.dispatch(
+                                            GatekeeperAction
+                                                .TriggerMetacognition(
+                                                    "CleanPlayer: YouTube",
+                                                    duration,
+                                                ),
+                                        )
+                                        onStop()
+                                    },
+                                    onStateChangeCallback = { state ->
+                                        playerStateCallback(state)
+                                        if (state == 0) { // ENDED
+                                            currentPosition = 0f
+                                            GatekeeperStateManager.dispatch(
+                                                GatekeeperAction
+                                                    .SaveMediaPosition(
+                                                        videoId,
+                                                        0f,
+                                                    ),
+                                            )
+                                        } else if (state == 2) { // PAUSED
+                                            GatekeeperStateManager.dispatch(
+                                                GatekeeperAction
+                                                    .SaveMediaPosition(
+                                                        videoId,
+                                                        currentPosition,
+                                                    ),
                                             )
                                         }
-                                    }
-                                    .apply {
-                                        // Enforce match parent so it correctly sizes without the
-                                        // Dialog wrapper interference
-                                        layoutParams =
-                                                android.view.ViewGroup.LayoutParams(
-                                                        android.view.ViewGroup.LayoutParams
-                                                                .MATCH_PARENT,
-                                                        android.view.ViewGroup.LayoutParams
-                                                                .MATCH_PARENT,
-                                                )
-                                        settings.javaScriptEnabled = true
-                                        settings.mediaPlaybackRequiresUserGesture =
-                                                false // Allow autoplay
-                                        settings.domStorageEnabled = true
-                                        settings.userAgentString =
-                                                settings.userAgentString.replace("; wv", "")
+                                    },
+                                    onTimeUpdateCallback = { time ->
+                                        currentPosition = time
+                                    },
+                                ),
+                                "Android",
+                            )
 
-                                        val cookieManager =
-                                                android.webkit.CookieManager.getInstance()
-                                        cookieManager.setAcceptCookie(true)
-                                        cookieManager.setAcceptThirdPartyCookies(this, true)
-
-                                        webChromeClient =
-                                                WebChromeClient() // Required for HTML5 full-screen
-                                        // media
-
-                                        // Harden the WebView against external navigation
-                                        webViewClient =
-                                                object : WebViewClient() {
-                                                    override fun shouldOverrideUrlLoading(
-                                                            view: WebView?,
-                                                            request:
-                                                                    android.webkit.WebResourceRequest?,
-                                                    ): Boolean {
-                                                        val urlStr = request?.url?.toString() ?: ""
-                                                        if (urlStr.startsWith("intent://") ||
-                                                                        urlStr.startsWith(
-                                                                                "vnd.youtube:"
-                                                                        )
-                                                        ) {
-                                                            return true
-                                                        }
-                                                        val isAuthFlow =
-                                                                urlStr.contains(
-                                                                        "accounts.google.com"
-                                                                ) ||
-                                                                        urlStr.contains(
-                                                                                "myaccount.google.com"
-                                                                        ) ||
-                                                                        urlStr.contains(
-                                                                                "accounts.youtube.com"
-                                                                        )
-                                                        if (isAuthFlow) {
-                                                            return false
-                                                        }
-                                                        // Allow iframe API sub-resource loads, but
-                                                        // block main frame navigations
-                                                        // to prevent the user from escaping into
-                                                        // standard YouTube.
-                                                        return request?.isForMainFrame == true
-                                                    }
-
-                                                    override fun onPageFinished(
-                                                            view: WebView?,
-                                                            url: String?,
-                                                    ) {
-                                                        super.onPageFinished(view, url)
-                                                        // Inject CSS to hide the "Watch on YouTube"
-                                                        // logo and other junk
-                                                        val css =
-                                                                ".ytp-impression-link, .ytp-watermark, " +
-                                                                        ".ytp-watch-later-button { display: none !important; }"
-                                                        val js =
-                                                                "var style = document.createElement('style'); " +
-                                                                        "style.innerHTML = '$css'; " +
-                                                                        "document.head.appendChild(style);"
-                                                        view?.evaluateJavascript(js, null)
-                                                    }
-                                                }
-
-                                        webViewRef = this
-                                        addJavascriptInterface(
-                                                WebAppInterface(
-                                                        onVideoEnded = {
-                                                            val duration =
-                                                                    System.currentTimeMillis() -
-                                                                            sessionStartTime
-                                                            GatekeeperStateManager.dispatch(
-                                                                    GatekeeperAction
-                                                                            .TriggerMetacognition(
-                                                                                    "CleanPlayer: YouTube",
-                                                                                    duration
-                                                                            ),
-                                                            )
-                                                            onStop()
-                                                        },
-                                                        onStateChangeCallback = { state ->
-                                                            playerStateCallback(state)
-                                                            if (state == 0) { // ENDED
-                                                                currentPosition = 0f
-                                                                GatekeeperStateManager.dispatch(
-                                                                        GatekeeperAction
-                                                                                .SaveMediaPosition(
-                                                                                        videoId,
-                                                                                        0f
-                                                                                )
-                                                                )
-                                                            } else if (state == 2) { // PAUSED
-                                                                GatekeeperStateManager.dispatch(
-                                                                        GatekeeperAction
-                                                                                .SaveMediaPosition(
-                                                                                        videoId,
-                                                                                        currentPosition
-                                                                                )
-                                                                )
-                                                            }
-                                                        },
-                                                        onTimeUpdateCallback = { time ->
-                                                            currentPosition = time
-                                                        },
-                                                ),
-                                                "Android",
-                                        )
-
-                                        val htmlData =
-                                                """
+                            val htmlData =
+                                """
                                 <!DOCTYPE html>
                                 <html>
                                 <head>
@@ -466,19 +473,19 @@ actual fun CleanPlayerModal(
                                 </html>
                                 """.trimIndent()
 
-                                        loadDataWithBaseURL(
-                                                "https://app.aegisgatekeeper.com/",
-                                                htmlData,
-                                                "text/html",
-                                                "UTF-8",
-                                                null
-                                        )
-                                    }
-                        },
-                        onRelease = { webView ->
-                            webViewRef = null
-                            webView.destroy()
-                        },
+                            loadDataWithBaseURL(
+                                "https://app.aegisgatekeeper.com/",
+                                htmlData,
+                                "text/html",
+                                "UTF-8",
+                                null,
+                            )
+                        }
+                    },
+                    onRelease = { webView ->
+                        webViewRef = null
+                        webView.destroy()
+                    },
                 )
             }
         }
