@@ -58,12 +58,12 @@ fun SurgicalYouTubeScreen(
                         onClick = {
                             GatekeeperStateManager.dispatch(
                                     GatekeeperAction.OpenSurgicalYouTube(
-                                            "https://m.youtube.com/feed/channels"
+                                            "https://m.youtube.com/feed/subscriptions"
                                     ),
                             )
                         },
                         text = "Subscriptions",
-                        enabled = !url.contains("/feed/channels"),
+                        enabled = !url.contains("/feed/subscriptions"),
                         invertEnabledColor = true,
                 )
                 IndustrialButton(
@@ -202,7 +202,7 @@ fun SurgicalYouTubeScreen(
                             })();
                             """.trimIndent()
                             }
-                            currentUrl.contains("/results") -> {
+                            (currentUrl.contains("/results") || currentUrl.contains("/feed/subscriptions")) -> {
                                 """
                             (function() {
                                 document.body.classList.remove('gk-watch-page');
@@ -210,7 +210,22 @@ fun SurgicalYouTubeScreen(
                                 if (!document.getElementById(styleId)) {
                                     var style = document.createElement('style');
                                     style.id = styleId;
-                                    style.textContent = 'ytm-reel-shelf-renderer, ytm-shorts-lockup-view-model, ytm-shorts-lockup-view-model-v2, yt-shorts-lockup-view-model, ytm-rich-section-renderer { display: none !important; }';
+                                    style.textContent = `
+                                        ytm-reel-shelf-renderer, 
+                                        ytm-shorts-lockup-view-model, 
+                                        ytm-shorts-lockup-view-model-v2, 
+                                        yt-shorts-lockup-view-model, 
+                                        ytm-rich-section-renderer, 
+                                        .ytm-feed-filter-chip-bar-renderer { display: none !important; }
+                                        
+                                        /* Disable clicking on thumbnails and titles to prevent impulsive navigation */
+                                        a.compact-media-item-image, 
+                                        a.compact-media-item-metadata-content, 
+                                        .media-item-thumbnail-container, 
+                                        .media-item-details {
+                                            pointer-events: none !important;
+                                        }
+                                    `;
                                     document.head.appendChild(style);
                                 }
                                 var checkInterval = setInterval(function() {
