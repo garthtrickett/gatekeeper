@@ -321,8 +321,8 @@ class ContentBankUiTest {
             .isNotNull()
     }
 
-    @Test
-    fun testContentBank_YouTubeItem_OpensSurgicalYouTube() {
+        @Test
+    fun testContentBank_YouTubeItem_OpensCleanPlayer() {
         // Arrange
         val youtubeVideoId = "dQw4w9WgXcQ"
         GatekeeperStateManager.dispatch(
@@ -339,10 +339,12 @@ class ContentBankUiTest {
             GatekeeperTheme {
                 val state by GatekeeperStateManager.state.collectAsState()
                 ContentBankScreen(overrideTime = java.time.LocalTime.of(20, 0))
-                if (state.media.activeYouTubeUrl != null) {
-                    com.aegisgatekeeper.app.views.SurgicalYouTubeScreen(
-                        url = state.media.activeYouTubeUrl!!,
-                        onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalYouTube) },
+                if (state.media.activeVideoId != null) {
+                    com.aegisgatekeeper.app.views.CleanPlayerModal(
+                        videoId = state.media.activeVideoId!!,
+                        isVisible = state.media.isVideoPlayerMaximized,
+                        onMinimize = { GatekeeperStateManager.dispatch(GatekeeperAction.MinimizeCleanPlayer) },
+                        onStop = { GatekeeperStateManager.dispatch(GatekeeperAction.StopCleanPlayer) }
                     )
                 }
             }
@@ -352,14 +354,14 @@ class ContentBankUiTest {
         composeTestRule.onNodeWithText("Play").performClick()
         composeTestRule.waitForIdle()
 
-        // Assert: The state manager should now have an active YouTube URL
+        // Assert: The state manager should now have an active video ID
         val state = GatekeeperStateManager.state.value
         com.google.common.truth.Truth
-            .assertThat(state.media.activeYouTubeUrl)
-            .isEqualTo("https://m.youtube.com/watch?v=dQw4w9WgXcQ")
+            .assertThat(state.media.activeVideoId)
+            .isEqualTo("dQw4w9WgXcQ")
 
-        // Assert: The Surgical YouTube UI should be visible (e.g. Subscriptions button)
-        composeTestRule.onNodeWithText("Subscriptions").assertIsDisplayed()
+        // Assert: The Clean Player UI should be visible (e.g. End Session button)
+        composeTestRule.onNodeWithText("End Session").assertIsDisplayed()
     }
 
     @Test
