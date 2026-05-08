@@ -196,11 +196,9 @@ fun SurgicalYouTubeScreen(
                             currentUrl.contains("/watch") -> {
                                 """
                             (function() {
-                                var videoId = new URLSearchParams(window.location.search).get('v');
-                                if (videoId && window.AndroidBridge) {
-                                    window.AndroidBridge.playVideo(videoId);
-                                    window.history.back();
-                                }
+                                // Prevent playback from YouTube WebView entirely.
+                                // Content must be saved to the bank to be played.
+                                window.history.back();
                             })();
                             """.trimIndent()
                             }
@@ -241,24 +239,6 @@ fun SurgicalYouTubeScreen(
                                             btnContainer.style.gap = '8px';
                                             btnContainer.style.width = '100%';
                                             btnContainer.style.marginTop = '8px';
-
-                                            var playBtn = document.createElement('button');
-                                            playBtn.className = 'gk-play-btn';
-                                            playBtn.innerText = '▶ PLAY';
-                                            playBtn.style.flex = '1';
-                                            playBtn.style.backgroundColor = '#FF0000';
-                                            playBtn.style.color = '#FFFFFF';
-                                            playBtn.style.border = 'none';
-                                            playBtn.style.padding = '12px 16px';
-                                            playBtn.style.fontWeight = 'bold';
-                                            playBtn.style.borderRadius = '4px';
-                                            
-                                            playBtn.onclick = function(e) {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                AndroidBridge.playVideo(videoId);
-                                            };
-                                            btnContainer.appendChild(playBtn);
 
                                             var btn = document.createElement('button');
                                             btn.className = 'gk-save-btn';
@@ -339,7 +319,7 @@ fun SurgicalYouTubeScreen(
                                         const info = tag + (target.className ? '.' + target.className : '');
 
                                         // Allow-list categories
-                                        const isGk = target.closest('.gk-save-btn, .gk-channel-btn, .gk-play-btn, .gk-safe-toggle');
+                                        const isGk = target.closest('.gk-save-btn, .gk-channel-btn, .gk-safe-toggle');
                                         const isInput = target.closest('input, textarea, [contenteditable="true"], .searchbox-input');
                                         const isTab = target.closest('[role="tab"]');
                                         const isHeader = target.closest('ytm-header-bar, ytm-search-header-renderer, .header-bar, .search-container');
