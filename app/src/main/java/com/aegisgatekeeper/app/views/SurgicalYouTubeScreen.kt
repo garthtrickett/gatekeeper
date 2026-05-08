@@ -131,7 +131,6 @@ fun SurgicalYouTubeScreen(
                                             urlCondition = { true },
                                             hiddenSelectors =
                                                     listOf(
-                                                            "ytm-header-bar",
                                                             "ytm-pivot-bar-renderer",
                                                             ".modern-sharing-ui",
                                                     ),
@@ -335,17 +334,24 @@ fun SurgicalYouTubeScreen(
                                     document.addEventListener('click', function(e) {
                                         const target = e.target;
                                         if (!target) return;
+
+                                        const tag = target.tagName.toLowerCase();
+                                        const info = tag + (target.className ? '.' + target.className : '');
+
+                                        // Allow-list categories
+                                        const isGk = target.closest('.gk-save-btn, .gk-channel-btn, .gk-play-btn, .gk-safe-toggle');
+                                        const isInput = target.closest('input, textarea, [contenteditable="true"], .searchbox-input');
+                                        const isTab = target.closest('[role="tab"]');
+                                        const isHeader = target.closest('ytm-header-bar, ytm-search-header-renderer, .header-bar, .search-container');
+                                        const isIconOrBtn = target.closest('button, [role="button"], .searchbox-selection-cancel, svg, path');
                                         
-                                        // 1. Allow our custom buttons
-                                        if (target.closest('.gk-save-btn, .gk-channel-btn, .gk-play-btn')) return;
-                                        
-                                        // 2. Allow any navigation tabs
-                                        if (target.closest('[role="tab"]')) return;
-                                        
-                                        // 3. Allow interaction with the search bar, inputs, and clear buttons
-                                        if (target.closest('input, textarea, .searchbox-input, ytm-search-header-renderer, .searchbox-selection-cancel')) return;
+                                        if (isGk || isInput || isTab || isHeader || isIconOrBtn) {
+                                            console.log("✅ [GK-ALLOW] " + info);
+                                            return;
+                                        }
 
                                         // Block everything else to prevent escaping into the algorithmic feed
+                                        console.log("🚫 [GK-BLOCK] " + info);
                                         e.preventDefault();
                                         e.stopPropagation();
                                     }, true);
