@@ -210,7 +210,7 @@
                     alias apk='./gradlew :app:assembleDebug && mkdir -p ~/Downloads/apks && cp app/build/outputs/apk/dev/debug/app-dev-debug.apk ~/Downloads/apks/ && cp app/build/outputs/apk/prod/debug/app-prod-debug.apk ~/Downloads/apks/ && echo "✅ APKs copied to ~/Downloads/apks/"'
 
 
-                    alias logs='adb logcat | grep -iE "Gatekeeper|AndroidRuntime|WindowManager|FATAL"'
+                    alias logs='adb logcat -s "Gatekeeper" "Gatekeeper.SurgicalJS" "Gatekeeper.CleanPlayerJS" "AndroidRuntime" "WindowManager" "FATAL"'
                                         alias deploy-dev='adb reverse tcp:8081 tcp:8081 && gradle installDevDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app.dev/com.aegisgatekeeper.app.MainActivity && echo "✅ DEV Deployed & Port 8081 Reversed. Waiting for logs..." && logs'
                     alias backend-logs='docker-compose logs -f'
 
