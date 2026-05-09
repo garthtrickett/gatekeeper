@@ -98,9 +98,9 @@ fun SurgicalYouTubeScreen(
     
                             var shelves = document.querySelectorAll('ytm-reel-shelf-renderer');
                             if (shelves.length > 0) {
-                                AndroidBridge.logMessage('SurgicalJS: Found and hid ' + shelves.length + ' <ytm-reel-shelf-renderer> shelves.');
+                                AndroidBridge.logMessage('SurgicalJS: Found and removed ' + shelves.length + ' <ytm-reel-shelf-renderer> shelves.');
                                 shelves.forEach(function(shelf) {
-                                    shelf.style.display = 'none';
+                                    shelf.remove();
                                 });
                             }
 
@@ -108,13 +108,13 @@ fun SurgicalYouTubeScreen(
                             var allResults = document.querySelectorAll('ytm-video-with-context-renderer');
                             allResults.forEach(function(video) {
                                 if (video.querySelector('a[href*="/shorts/"]')) {
-                                    video.style.display = 'none';
+                                    video.remove();
                                     shortsInResults++;
                                 }
                             });
-                            // Log even if shortsInResults is 0, to confirm the scanner ran
+
                             if (allResults.length > 0) {
-                               AndroidBridge.logMessage('SurgicalJS: Scanned ' + allResults.length + ' <ytm-video-with-context-renderer> results, hid ' + shortsInResults + ' shorts.');
+                               AndroidBridge.logMessage('SurgicalJS: Scanned ' + allResults.length + ' <ytm-video-with-context-renderer> results, removed ' + shortsInResults + ' shorts.');
                             }
                         }
 
