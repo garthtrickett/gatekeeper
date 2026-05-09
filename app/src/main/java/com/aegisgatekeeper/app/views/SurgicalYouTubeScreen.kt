@@ -93,30 +93,7 @@ fun SurgicalYouTubeScreen(
                     window.gkInterval = setInterval(function() {
                         var href = window.location.href;
                         if (!href || href === 'about:blank') return;
-                                                if (href.includes('/results')) {
-                            AndroidBridge.logMessage('SurgicalJS: Filtering shorts on results page...');
-    
-                            var shelves = document.querySelectorAll('ytm-reel-shelf-renderer');
-                            if (shelves.length > 0) {
-                                AndroidBridge.logMessage('SurgicalJS: Found and removed ' + shelves.length + ' <ytm-reel-shelf-renderer> shelves.');
-                                shelves.forEach(function(shelf) {
-                                    shelf.remove();
-                                });
-                            }
-
-                            var shortsInResults = 0;
-                            var allResults = document.querySelectorAll('ytm-video-with-context-renderer');
-                            allResults.forEach(function(video) {
-                                if (video.querySelector('a[href*="/shorts/"]')) {
-                                    video.remove();
-                                    shortsInResults++;
-                                }
-                            });
-
-                            if (allResults.length > 0) {
-                               AndroidBridge.logMessage('SurgicalJS: Scanned ' + allResults.length + ' <ytm-video-with-context-renderer> results, removed ' + shortsInResults + ' shorts.');
-                            }
-                        }
+                                                
 
                         if (href.includes('/feed/channels')) {
                             document.querySelectorAll('ytm-channel-renderer, ytm-compact-channel-renderer').forEach(function(channel) {
