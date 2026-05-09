@@ -261,9 +261,12 @@ data class MediaState(
             "youtube.com##a[href^='/shorts/'] { display: none !important; }",
             "youtube.com##.reel-shelf-header-view-model-wiz { display: none !important; }",
             "youtube.com##ytm-item-section-renderer:has(ytm-reel-shelf-renderer) { display: none !important; }",
-            "youtube.com##ytm-pivot-bar-renderer { display: none !important; }",
+                        "youtube.com##ytm-pivot-bar-renderer { display: none !important; }",
             "youtube.com##a#logo { display: none !important; }",
-            "youtube.com##.ytm-logo-container { display: none !important; }"
+            "youtube.com##.ytm-logo-container { display: none !important; }",
+            "youtube.com##.ytm-header-logo { display: none !important; }",
+            "youtube.com##yt-icon.ytm-home-logo { display: none !important; }",
+            "youtube.com##.mobile-topbar-logo { display: none !important; }"
         ),
 )
 

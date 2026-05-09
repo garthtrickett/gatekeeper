@@ -115,15 +115,18 @@ fun SurgicalYouTubeScreen(
                             };
                         });
 
-                                                // 2. COSMETIC NUKE
-                        const selectors = [
+                                                                        // 2. COSMETIC NUKE
+                        const selectors =[
                             'ytm-reel-shelf-renderer', 
                             'ytm-pivot-bar-item-renderer[tab-id="FEshorts"]', 
                             'a[href^="/shorts/"]', 
                             '.reel-shelf-header-view-model-wiz',
                             'ytm-pivot-bar-renderer', 
                             'a#logo', 
-                            '.ytm-logo-container'
+                            '.ytm-logo-container',
+                            '.ytm-header-logo',
+                            'yt-icon.ytm-home-logo',
+                            '.mobile-topbar-logo'
                         ];
                         function nuke(root) {
                             selectors.forEach(s => root.querySelectorAll(s).forEach(el => el.style.display = 'none'));
