@@ -991,7 +991,20 @@ private fun reduceMedia(
             }
 
             is GatekeeperAction.SurgicalNavigationRequested -> {
-                slice.copy(currentSurgicalUrl = action.url)
+                val newUrl = action.url
+                // If we are currently in the YouTube surgical view...
+                if (slice.activeYouTubeUrl != null) {
+                    // ...apply YouTube-specific blocking rules.
+                    if (newUrl.contains("/watch?v=") || newUrl.contains("/shorts/")) {
+                        platformLog("Gatekeeper", "🛡️ Reducer: Blocked navigation to $newUrl")
+                        slice // Return current state, blocking the navigation
+                    } else {
+                        slice.copy(activeYouTubeUrl = newUrl)
+                    }
+                } else {
+                    // Otherwise, it's the generic surgical web view
+                    slice.copy(currentSurgicalUrl = newUrl)
+                }
             }
 
             is GatekeeperAction.WebEngineInitialized -> {

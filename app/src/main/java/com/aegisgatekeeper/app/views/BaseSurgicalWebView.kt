@@ -37,6 +37,7 @@ fun BaseSurgicalWebView(
     jsInjector: ((String) -> String)? = null,
     userAgent: String? = null,
     onLoginSuccess: () -> Unit = {},
+    onUrlChangeRequested: (String) -> Unit = {},
     onInterceptUrlChange: ((WebView, String) -> Boolean)? = null,
 ) {
     var lastLoadedUrl by remember { mutableStateOf(url) }
@@ -310,99 +311,31 @@ fun BaseSurgicalWebView(
                             view: WebView?,
                             request: WebResourceRequest?,
                         ): Boolean {
-                            val newUrl = request?.url?.toString() ?: ""
-                            android.util.Log.d("Gatekeeper", "🔀 BASE-WEB-REDIRECT: $newUrl")
+                            val newUrl = request?.url?.toString() ?: return true // Block empty URLs
 
-                            if (newUrl.contains("m.facebook.com/login")) {
-                                val desktopLoginUrl = newUrl.replace("m.facebook.com", "www.facebook.com")
-                                android.util.Log.d("Gatekeeper", "🛡️ AUTH-DETOUR: Forcing desktop login via: $desktopLoginUrl")
-                                view?.loadUrl(desktopLoginUrl)
-                                return true
-                            }
-
-                            if (newUrl.startsWith("intent://") || newUrl.startsWith("fb://") || newUrl.startsWith("android-app://")) {
-                                android.util.Log.d("Gatekeeper", "🛡️ BASE-WEB: Intercepting deep link: $newUrl")
-
-                                if (newUrl.startsWith("intent://")) {
-                                    try {
-                                        val intent = android.content.Intent.parseUri(newUrl, android.content.Intent.URI_INTENT_SCHEME)
-                                        val fallbackUrl = intent.getStringExtra("browser_fallback_url")
-                                        if (fallbackUrl != null) {
-                                            android.util.Log.d("Gatekeeper", "🌐 BASE-WEB: Navigating to deep link fallback: $fallbackUrl")
-                                            view?.loadUrl(fallbackUrl)
-                                            return true
-                                        }
-                                    } catch (e: Exception) {
-                                        android.util.Log.e("Gatekeeper", "❌ BASE-WEB: Failed to parse intent fallback: ${e.message}")
-                                    }
-                                }
-                                return true
-                            }
-
+                            // Let auth flows handle themselves internally within the webview
                             val isAuthFlow =
                                 newUrl.contains("accounts.google.com") ||
                                     newUrl.contains("myaccount.google.com") ||
                                     newUrl.contains("accounts.youtube.com")
                             if (isAuthFlow) {
-                                return false
+                                return false // Let the WebView handle it
                             }
 
-                            val currentJailRoot = view?.tag as? String
-                            if (currentJailRoot != null) {
-                                if (newUrl.contains("www.facebook.com")) {
-                                    val now = System.currentTimeMillis()
-                                    if (now - lastMobileForcingTime < 2000L) {
-                                        mobileForcingCount++
-                                    } else {
-                                        mobileForcingCount = 1
-                                    }
-                                    lastMobileForcingTime = now
-
-                                    if (mobileForcingCount > 3) {
-                                        android.util.Log.e("Gatekeeper", "🛑 Jail: Mobile-Forcing loop detected. Triggering logout.")
-                                        onLogout?.invoke()
-                                        return true
-                                    }
-
-                                    val mobileUrl =
-                                        newUrl.replace("www.facebook.com", "m.facebook.com")
-                                    android.util.Log.d("Gatekeeper", "🛡️ Mobile-Forcing: Rewriting to $mobileUrl")
-                                    view?.loadUrl(mobileUrl)
-                                    return true
-                                }
-
-                                if (newUrl.contains("www.youtube.com")) {
-                                    val mobileUrl =
-                                        newUrl.replace("www.youtube.com", "m.youtube.com")
-                                    android.util.Log.d("Gatekeeper", "🛡️ Mobile-Forcing: Rewriting to $mobileUrl")
-                                    view?.loadUrl(mobileUrl)
-                                    return true
-                                }
-
-                                val isExplicitHomeFeed =
-                                    newUrl == "https://m.facebook.com/" ||
-                                        newUrl.startsWith("https://m.facebook.com/?") ||
-                                        newUrl.contains("facebook.com/home") ||
-                                        newUrl.contains("ref=logo") ||
-                                        newUrl == "https://m.youtube.com/" ||
-                                        newUrl.startsWith("https://m.youtube.com/?")
-
-                                if (isExplicitHomeFeed) {
-                                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N &&
-                                        request?.isRedirect == true
-                                    ) {
-                                        android.util.Log.d("Gatekeeper", "🛡️ Jail: Allowing redirect to Feed to preserve cookies.")
-                                        return false
-                                    }
-                                    android.util.Log.d(
-                                        "Gatekeeper",
-                                        "🛡️ Jail: Blocking navigation to Feed. Forcing current root: $currentJailRoot",
-                                    )
-                                    view?.post { view.loadUrl(currentJailRoot) }
-                                    return true
-                                }
+                            // Intercept deep links that try to open other apps
+                            if (newUrl.startsWith("intent://") || newUrl.startsWith("fb://") || newUrl.startsWith("android-app://")) {
+                                android.util.Log.d("Gatekeeper", "🛡️ BASE-WEB: Intercepting deep link: $newUrl")
+                                return true // Block it
                             }
 
+                            // If it's a main frame navigation, let the state manager decide
+                            if (request?.isForMainFrame == true) {
+                                android.util.Log.d("Gatekeeper", "📥 BASE-WEB: Intercepted navigation to $newUrl. Dispatching action.")
+                                onUrlChangeRequested(newUrl)
+                                return true // ALWAYS cancel the WebView's navigation
+                            }
+
+                            // For sub-frame loads etc, let the WebView handle it
                             return false
                         }
                     }
