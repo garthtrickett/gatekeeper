@@ -91,11 +91,93 @@ class SurgicalYouTubeUiTest {
         composeTestRule.waitForIdle()
 
         // Assert: State updated to Search URL with our new default query
-        composeTestRule.waitUntil(5000) {
+                composeTestRule.waitUntil(5000) {
             GatekeeperStateManager.state.value.media.activeYouTubeUrl
                 ?.contains("search_query=") == true
         }
         val state = GatekeeperStateManager.state.value
         assertThat(state.media.activeYouTubeUrl).contains("search_query=")
+    }
+
+    @Test
+    fun testSafeChannelsList_EmptyState() {
+        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube("gatekeeper://safe_channels"))
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                val state by GatekeeperStateManager.state.collectAsState()
+                if (state.media.activeYouTubeUrl != null) {
+                    SurgicalYouTubeScreen(
+                        url = state.media.activeYouTubeUrl!!,
+                        onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalYouTube) },
+                    )
+                }
+            }
+        }
+
+        composeTestRule.onNodeWithText("No safe channels added yet. Search for a channel and click 'SET SAFE'.").assertIsDisplayed()
+    }
+
+    @Test
+    fun testSafeChannelsList_PopulatedStateAndViewNavigation() {
+        // Arrange: Seed a safe channel
+        GatekeeperStateManager.dispatch(GatekeeperAction.ToggleSafeYouTubeChannel("UC12345", "My Safe Channel"))
+        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube("gatekeeper://safe_channels"))
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                val state by GatekeeperStateManager.state.collectAsState()
+                if (state.media.activeYouTubeUrl != null) {
+                    SurgicalYouTubeScreen(
+                        url = state.media.activeYouTubeUrl!!,
+                        onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalYouTube) },
+                    )
+                }
+            }
+        }
+
+        // Assert: Channel is visible
+        composeTestRule.onNodeWithText("My Safe Channel").assertIsDisplayed()
+        composeTestRule.onNodeWithText("View").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Remove").assertIsDisplayed()
+
+        // Act: Click View
+        composeTestRule.onNodeWithText("View").performClick()
+        composeTestRule.waitForIdle()
+
+        // Assert: URL changes to the videos tab for the channel
+        val state = GatekeeperStateManager.state.value
+        assertThat(state.media.activeYouTubeUrl).isEqualTo("https://m.youtube.com/channel/UC12345/videos")
+    }
+
+    @Test
+    fun testSafeChannelsList_RemoveAction() {
+        // Arrange: Seed a safe channel
+        GatekeeperStateManager.dispatch(GatekeeperAction.ToggleSafeYouTubeChannel("@HandleChannel", "Handle Channel Name"))
+        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube("gatekeeper://safe_channels"))
+
+        composeTestRule.setContent {
+            GatekeeperTheme {
+                val state by GatekeeperStateManager.state.collectAsState()
+                if (state.media.activeYouTubeUrl != null) {
+                    SurgicalYouTubeScreen(
+                        url = state.media.activeYouTubeUrl!!,
+                        onClose = { GatekeeperStateManager.dispatch(GatekeeperAction.CloseSurgicalYouTube) },
+                    )
+                }
+            }
+        }
+
+        // Act: Click Remove
+        composeTestRule.onNodeWithText("Remove").performClick()
+        composeTestRule.waitForIdle()
+
+        // Assert: Channel is removed from state
+        // Waiting to let the coroutine DB effect complete and update StateManager
+        composeTestRule.waitUntil(5000) {
+            GatekeeperStateManager.state.value.data.safeYouTubeChannels.isEmpty()
+        }
+        val state = GatekeeperStateManager.state.value
+        assertThat(state.data.safeYouTubeChannels).isEmpty()
     }
 }

@@ -261,8 +261,8 @@ fun SafeChannelsList(onNavigate: (String) -> Unit) {
         Text("Safe Channels", style = MaterialTheme.typography.headlineMedium, color = Color.White)
         Spacer(modifier = Modifier.height(16.dp))
         
-        if (state.data.safeYouTubeChannels.isEmpty()) {
-            Text("No safe channels added yet. Search for a channel and click 'SET SAFE'.", color = Color.Gray)
+                if (state.data.safeYouTubeChannels.isEmpty()) {
+            Text("No safe channels added yet. Search for a channel and click 'SET THIS CHANNEL AS SAFE'.", color = Color.Gray)
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(state.data.safeYouTubeChannels.entries.toList()) { (id, name) ->
