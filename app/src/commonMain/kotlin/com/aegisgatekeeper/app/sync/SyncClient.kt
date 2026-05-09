@@ -106,10 +106,8 @@ object SyncClient {
             .platformLog("Gatekeeper", "⬇️ SyncClient: Network failed, falling back to bundled filter lists.")
         val filterPaths =
             listOf(
-                "filters/adguard_base.txt",
                 "filters/adguard_mobile.txt",
                 "filters/ublock_privacy.txt",
-                "filters/unhook.txt",
             )
         val rawLists =
             filterPaths.mapNotNull {
