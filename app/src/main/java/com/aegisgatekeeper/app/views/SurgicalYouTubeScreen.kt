@@ -94,17 +94,28 @@ fun SurgicalYouTubeScreen(
                         var href = window.location.href;
                         if (!href || href === 'about:blank') return;
                                                 if (href.includes('/results')) {
-                            // Remove the entire Shorts shelf (the horizontal scrolling row)
-                            document.querySelectorAll('ytm-reel-shelf-renderer').forEach(function(shelf) {
-                                shelf.style.display = 'none';
-                            });
+                            AndroidBridge.logMessage('SurgicalJS: Filtering shorts on results page...');
+    
+                            var shelves = document.querySelectorAll('ytm-reel-shelf-renderer');
+                            if (shelves.length > 0) {
+                                AndroidBridge.logMessage('SurgicalJS: Found and hid ' + shelves.length + ' <ytm-reel-shelf-renderer> shelves.');
+                                shelves.forEach(function(shelf) {
+                                    shelf.style.display = 'none';
+                                });
+                            }
 
-                            // Remove individual Shorts that appear as regular search results
-                            document.querySelectorAll('ytm-video-with-context-renderer').forEach(function(video) {
+                            var shortsInResults = 0;
+                            var allResults = document.querySelectorAll('ytm-video-with-context-renderer');
+                            allResults.forEach(function(video) {
                                 if (video.querySelector('a[href*="/shorts/"]')) {
                                     video.style.display = 'none';
+                                    shortsInResults++;
                                 }
                             });
+                            // Log even if shortsInResults is 0, to confirm the scanner ran
+                            if (allResults.length > 0) {
+                               AndroidBridge.logMessage('SurgicalJS: Scanned ' + allResults.length + ' <ytm-video-with-context-renderer> results, hid ' + shortsInResults + ' shorts.');
+                            }
                         }
 
                         if (href.includes('/feed/channels')) {
