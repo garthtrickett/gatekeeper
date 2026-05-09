@@ -80,9 +80,9 @@ class MainActivity : ComponentActivity() {
         intent.removeExtra("PLAY_SURGICAL_YOUTUBE_URL")
         intent.removeExtra("OPEN_CLEAN_PLAYER_VIDEO_ID")
 
-        if (cleanPlayerVideoId != null) {
+                if (cleanPlayerVideoId != null) {
             GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanPlayer(cleanPlayerVideoId))
-        } else if (playSurgicalYouTubeUrl != null) {
+        } else if (!playSurgicalYouTubeUrl.isNullOrBlank()) {
             GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube(playSurgicalYouTubeUrl))
         } else if (surgicalMediaIdToPlay != null) {
             android.util.Log.d("Gatekeeper", "📺 MainActivity: Deep link received for Surgical Media (ID: $surgicalMediaIdToPlay)")

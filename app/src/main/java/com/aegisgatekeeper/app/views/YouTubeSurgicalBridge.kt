@@ -12,9 +12,9 @@ import com.aegisgatekeeper.app.domain.parseHumanReadableDuration
  * native Kotlin app's state management.
  */
 class YouTubeSurgicalBridge {
-    @JavascriptInterface
+        @JavascriptInterface
     fun logMessage(message: String) {
-        android.util.Log.d("Gatekeeper.SurgicalJS", message)
+        android.util.Log.d("Gatekeeper", "💬 JS: $message")
     }
 
     @JavascriptInterface

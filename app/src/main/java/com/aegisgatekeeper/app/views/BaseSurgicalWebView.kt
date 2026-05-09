@@ -18,6 +18,15 @@ data class SurgicalFilterRule(
     val hiddenSelectors: List<String>,
 )
 
+private fun isSameSurgicalUrl(url1: String?, url2: String?): Boolean {
+    if (url1 == url2) return true
+    if (url1 == null || url2 == null) return false
+    // Strip trailing slashes and query params for identity check to avoid scroll-reloads
+    val clean1 = url1.trimEnd('/').split("?")[0]
+    val clean2 = url2.trimEnd('/').split("?")[0]
+    return clean1 == clean2
+}
+
 @SuppressLint("SetJavaScriptEnabled")
 @Suppress("FunctionName")
 @Composable
@@ -69,7 +78,18 @@ fun BaseSurgicalWebView(
                     addJavascriptInterface(jsInterfaceObj, jsInterfaceName)
                 }
 
-                webChromeClient = WebChromeClient()
+                                webChromeClient = object : WebChromeClient() {
+                    override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                        // Re-inject JS on every progress completion to handle SPA transitions reliably
+                        if (newProgress == 100) {
+                            val currentUrl = view?.url ?: ""
+                            jsInjector?.invoke(currentUrl)?.let { script ->
+                                android.util.Log.d("Gatekeeper", "💉 [Progress100] Injecting JS into: $currentUrl")
+                                view?.evaluateJavascript(script, null)
+                            }
+                        }
+                    }
+                }
 
                 webViewClient =
                     object : WebViewClient() {
@@ -166,9 +186,10 @@ fun BaseSurgicalWebView(
                     }
             }
         },
-        update = { webView ->
-            if (url.isNotBlank() && url != webView.url) {
-                android.util.Log.d("Gatekeeper", "📡 State forcing WebView Load: $url")
+                update = { webView ->
+            // CRITICAL: Prevent hard reloads during scrolling by using isSameSurgicalUrl
+            if (url.isNotBlank() && !isSameSurgicalUrl(url, webView.url)) {
+                android.util.Log.d("Gatekeeper", "📡 State forcing hard WebView Load: $url")
                 webView.loadUrl(url)
             }
         },

@@ -84,28 +84,36 @@ fun SurgicalYouTubeScreen(
             },
             jsInterfaceObj = YouTubeSurgicalBridge(),
             jsInterfaceName = "AndroidBridge",
-            jsInjector = { _ ->
+                        jsInjector = { currentUrl ->
+                android.util.Log.d("Gatekeeper", "💉 Injecting JS for URL: $currentUrl")
                 val initSafeChannels = "window.gkSafeChannels = [$safeChannelIds];"
                 """
                                 (function() {
+                    console.log('GK_DEBUG: Script Started');
                     // Log the first bit of HTML for debugging selectors
                     if (typeof AndroidBridge.logHtml === 'function') {
                         AndroidBridge.logHtml(document.documentElement.outerHTML);
                     }
                     $initSafeChannels
-                                                            if (window.gkObserver) window.gkObserver.disconnect();
+                                                                                if (window.gkObserver) window.gkObserver.disconnect();
 
                                         // COMPOSED PATH INTERCEPTOR: Catch clicks even if inside Shadow DOM
-                    window.addEventListener('click', function(e) {
-                        const path = e.composedPath();
-                        const anchor = path.find(el => el.tagName === 'A');
-                        if (anchor && (anchor.href.includes('/watch?v=') || anchor.href.includes('/shorts/'))) {
-                            if (typeof AndroidBridge !== 'undefined') AndroidBridge.logMessage('Shielded: Blocked click to ' + anchor.href);
-                            e.preventDefault();
-                            e.stopPropagation();
-                            return false;
-                        }
-                    }, true);
+                                        if (!window.gkInterceptSet) {
+                        window.gkInterceptSet = true;
+                        const blockNav = function(e) {
+                            const path = e.composedPath();
+                            const anchor = path.find(el => el && el.tagName === 'A');
+                            if (anchor && anchor.href && (anchor.href.includes('/watch?v=') || anchor.href.includes('/shorts/'))) {
+                                if (typeof AndroidBridge !== 'undefined') AndroidBridge.logMessage('🛡️ Blocked: ' + anchor.href);
+                                e.preventDefault();
+                                e.stopPropagation();
+                                return false;
+                            }
+                        };
+                        window.addEventListener('click', blockNav, true);
+                        window.addEventListener('mousedown', blockNav, true);
+                        window.addEventListener('touchstart', blockNav, true);
+                    }
 
                                         function applyFilters() {
                         var href = window.location.href;
