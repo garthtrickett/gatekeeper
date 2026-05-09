@@ -257,10 +257,13 @@ data class MediaState(
             "youtube.com##ytd-reel-shelf-renderer",
             "youtube.com##ytd-shorts",
                         "youtube.com##ytm-reel-shelf-renderer { display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important; }",
-            "youtube.com##ytm-pivot-bar-item-renderer[tab-id='FEshorts'] { display: none !important; }",
+                        "youtube.com##ytm-pivot-bar-item-renderer[tab-id='FEshorts'] { display: none !important; }",
             "youtube.com##a[href^='/shorts/'] { display: none !important; }",
             "youtube.com##.reel-shelf-header-view-model-wiz { display: none !important; }",
-            "youtube.com##ytm-item-section-renderer:has(ytm-reel-shelf-renderer) { display: none !important; }"
+            "youtube.com##ytm-item-section-renderer:has(ytm-reel-shelf-renderer) { display: none !important; }",
+            "youtube.com##ytm-pivot-bar-renderer { display: none !important; }",
+            "youtube.com##a#logo { display: none !important; }",
+            "youtube.com##.ytm-logo-container { display: none !important; }"
         ),
 )
 
