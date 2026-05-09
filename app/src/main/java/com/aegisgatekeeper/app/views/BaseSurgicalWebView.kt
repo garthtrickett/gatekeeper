@@ -95,6 +95,8 @@ fun BaseSurgicalWebView(
 
                             onPageLoaded(actualUrl)
 
+                            android.util.Log.d("Gatekeeper.WebView", "onPageFinished for: $actualUrl")
+
                             val filterEngine = com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine
                             val combinedCss =
                                 buildString {
@@ -119,7 +121,10 @@ fun BaseSurgicalWebView(
                                 view?.evaluateJavascript(js, null)
                             }
 
-                            jsInjector?.invoke(actualUrl)?.let { view?.evaluateJavascript(it, null) }
+                            jsInjector?.invoke(actualUrl)?.let { 
+                                android.util.Log.d("Gatekeeper.WebView", "Injecting custom JS...")
+                                view?.evaluateJavascript(it, null) 
+                            }
                         }
 
                         override fun shouldOverrideUrlLoading(
