@@ -90,7 +90,7 @@ fun ContentBankScreen(overrideTime: LocalTime? = null) {
                     onOpenPodcasts = { showFeedManagement = true },
                     onOpenYouTube = {
                         GatekeeperStateManager.dispatch(
-                            GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/results?search_query="),
+                            GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/results?search_query=podcasts"),
                         )
                     },
                 )

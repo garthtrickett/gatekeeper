@@ -71,12 +71,12 @@ fun SurgicalYouTubeScreen(
                     onClick = {
                         GatekeeperStateManager.dispatch(
                             GatekeeperAction.OpenSurgicalYouTube(
-                                "https://m.youtube.com/results?search_query=",
+                                "https://m.youtube.com/results?search_query=podcasts",
                             ),
                         )
                     },
                     text = "Search",
-                    enabled = !url.contains("/results?search_query="),
+                    enabled = !url.contains("/results?search_query"),
                     invertEnabledColor = true,
                 )
             }
