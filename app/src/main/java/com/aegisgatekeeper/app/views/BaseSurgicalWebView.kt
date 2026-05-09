@@ -127,10 +127,11 @@ fun BaseSurgicalWebView(
                             }
                         }
 
-                        override fun shouldOverrideUrlLoading(
+                                                override fun shouldOverrideUrlLoading(
                             view: WebView?,
                             request: WebResourceRequest?,
                         ): Boolean {
+                            android.util.Log.d("Gatekeeper.WebView", "shouldOverrideUrlLoading for: ${request?.url}")
                             val newUrl = request?.url?.toString() ?: return true
 
                             if (newUrl.contains("accounts.google.com") || newUrl.contains("accounts.youtube.com")) {
