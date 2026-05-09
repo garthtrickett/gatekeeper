@@ -95,22 +95,32 @@ fun SurgicalYouTubeScreen(
                     $initSafeChannels
                                                             if (window.gkObserver) window.gkObserver.disconnect();
 
-                    // GLOBAL INTERCEPTOR: Catch clicks during fast scrolls before the browser acts
+                                        // COMPOSED PATH INTERCEPTOR: Catch clicks even if inside Shadow DOM
                     window.addEventListener('click', function(e) {
-                        var anchor = e.target.closest('a');
+                        const path = e.composedPath();
+                        const anchor = path.find(el => el.tagName === 'A');
                         if (anchor && (anchor.href.includes('/watch?v=') || anchor.href.includes('/shorts/'))) {
+                            if (typeof AndroidBridge !== 'undefined') AndroidBridge.logMessage('Shielded: Blocked click to ' + anchor.href);
                             e.preventDefault();
                             e.stopPropagation();
                             return false;
                         }
                     }, true);
 
-                    function applyFilters() {
+                                        function applyFilters() {
                         var href = window.location.href;
                         if (!href || href === 'about:blank') return;
 
-                        // 1. NUKE SHORTS INSTANTLY
-                        document.querySelectorAll('ytm-reel-shelf-renderer, ytm-pivot-bar-item-renderer[tab-id="FEshorts"], a[href^="/shorts/"], .reel-shelf-header-view-model-wiz, ytm-item-section-renderer:has(ytm-reel-shelf-renderer)').forEach(el => el.remove());
+                        // SHADOW DOM PIERCING NUKE
+                        const selectors = ['ytm-reel-shelf-renderer', 'ytm-pivot-bar-item-renderer[tab-id="FEshorts"]', 'a[href^="/shorts/"]', '.reel-shelf-header-view-model-wiz'];
+                        
+                        function nuke(root) {
+                            selectors.forEach(s => root.querySelectorAll(s).forEach(el => el.remove()));
+                            root.querySelectorAll('*').forEach(el => {
+                                if (el.shadowRoot) nuke(el.shadowRoot);
+                            });
+                        }
+                        nuke(document);
 
                         // 2. PROCESS CHANNELS
                         if (href.includes('/feed/channels')) {
