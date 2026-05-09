@@ -105,11 +105,12 @@ fun SurgicalFacebookScreen(
         }
 
         androidx.compose.runtime.key(forceReload, isLoggedIn) {
-            val userAgent = if (isLoggedIn) {
-                "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36"
-            } else {
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
-            }
+            val userAgent =
+                if (isLoggedIn) {
+                    "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36"
+                } else {
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
+                }
 
             BaseSurgicalWebView(
                 url = url,
@@ -122,40 +123,43 @@ fun SurgicalFacebookScreen(
                 onUrlChangeRequested = { requestedUrl ->
                     GatekeeperStateManager.dispatch(GatekeeperAction.SurgicalNavigationRequested(requestedUrl))
                 },
-                filterRules = if (isLoggedIn) {
-                    listOf(
-                        SurgicalFilterRule(
-                            urlCondition = { !it.contains("/search/") },
-                            hiddenSelectors = listOf(
-                                "div[data-m-bubble-key=\"back_button\"]",
-                                "#m_newsfeed_stream",
-                                "#stories_tray",
-                                "#m_story_permalink_view",
+                filterRules =
+                    if (isLoggedIn) {
+                        listOf(
+                            SurgicalFilterRule(
+                                urlCondition = { !it.contains("/search/") },
+                                hiddenSelectors =
+                                    listOf(
+                                        "div[data-m-bubble-key=\"back_button\"]",
+                                        "#m_newsfeed_stream",
+                                        "#stories_tray",
+                                        "#m_story_permalink_view",
+                                    ),
                             ),
-                        ),
-                        SurgicalFilterRule(
-                            urlCondition = { it.matches(Regex(".*/(groups|events)/?(\\?.*)?$")) },
-                            hiddenSelectors = listOf(
-                                "div[role=\"button\"][aria-label=\"Back\"]",
-                                "div[role=\"button\"][aria-label=\"back\"]",
-                                "a[data-sigil=\"MBackNavBarClick\"]",
+                            SurgicalFilterRule(
+                                urlCondition = { it.matches(Regex(".*/(groups|events)/?(\\?.*)?$")) },
+                                hiddenSelectors =
+                                    listOf(
+                                        "div[role=\"button\"][aria-label=\"Back\"]",
+                                        "div[role=\"button\"][aria-label=\"back\"]",
+                                        "a[data-sigil=\"MBackNavBarClick\"]",
+                                    ),
                             ),
-                        ),
-                        SurgicalFilterRule(
-                            urlCondition = { it.contains("/search/") },
-                            hiddenSelectors = listOf("div[data-m-bubble-key=\"back_button\"]"),
-                        ),
-                    )
-                } else {
-                    emptyList()
-                },
+                            SurgicalFilterRule(
+                                urlCondition = { it.contains("/search/") },
+                                hiddenSelectors = listOf("div[data-m-bubble-key=\"back_button\"]"),
+                            ),
+                        )
+                    } else {
+                        emptyList()
+                    },
                 onLogout = {
                     cookieManager.removeAllCookies(null)
                     cookieManager.flush()
                     isLoggedIn = false
                     GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalFacebook("https://m.facebook.com/login.php"))
                     forceReload++
-                }
+                },
             )
         }
     }

@@ -990,33 +990,29 @@ private fun reduceMedia(
                 slice.copy(activePinnedWebsiteUrl = null)
             }
 
-            is GatekeeperAction.SurgicalNavigationRequested -> {
+                        is GatekeeperAction.SurgicalNavigationRequested -> {
                 val newUrl = action.url
-                // 1. If we are in Surgical YouTube...
                 if (slice.activeYouTubeUrl != null) {
-                    // BLOCK: Watch pages and Shorts
+                    // 1. If we are in Surgical YouTube...
                     if (newUrl.contains("/watch?v=") || newUrl.contains("/shorts/")) {
+                        // BLOCK: Watch pages and Shorts
                         platformLog("Gatekeeper", "🛡️ Reducer: Blocked navigation to $newUrl")
                         slice
-                    } 
-                    // JAIL: If they try to hit the home feed/logo, force them back to Subscriptions
-                    else if (newUrl == "https://m.youtube.com/" || newUrl == "https://m.youtube.com") {
+                    } else if (newUrl == "https://m.youtube.com/" || newUrl == "https://m.youtube.com") {
+                        // JAIL: If they try to hit the home feed/logo, force them back to Subscriptions
                         slice.copy(activeYouTubeUrl = "https://m.youtube.com/feed/channels")
-                    }
-                    else {
+                    } else {
                         slice.copy(activeYouTubeUrl = newUrl)
                     }
-                } 
-                // 2. If we are in Surgical Facebook...
-                else if (slice.activeFacebookUrl != null) {
+                } else if (slice.activeFacebookUrl != null) {
+                    // 2. If we are in Surgical Facebook...
                     if (newUrl == "https://m.facebook.com/" || newUrl.contains("facebook.com/home")) {
                         slice.copy(activeFacebookUrl = "https://m.facebook.com/groups/?_rdr")
                     } else {
                         slice.copy(activeFacebookUrl = newUrl)
                     }
-                }
-                // 3. Generic Surgical Web
-                else {
+                } else {
+                    // 3. Generic Surgical Web
                     slice.copy(currentSurgicalUrl = newUrl)
                 }
             }

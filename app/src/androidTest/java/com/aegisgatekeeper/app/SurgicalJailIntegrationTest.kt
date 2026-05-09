@@ -9,12 +9,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Specialized integration tests verifying that the "Single Source of Truth" 
+ * Specialized integration tests verifying that the "Single Source of Truth"
  * logic in the Reducer correctly enforces the surgical jail boundaries.
  */
 @RunWith(AndroidJUnit4::class)
 class SurgicalJailIntegrationTest {
-
     private val stateManager = GatekeeperStateManager
 
     @Before

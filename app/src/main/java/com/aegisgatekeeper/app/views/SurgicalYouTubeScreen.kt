@@ -33,9 +33,11 @@ fun SurgicalYouTubeScreen(
     onClose: () -> Unit,
 ) {
     val state by GatekeeperStateManager.state.collectAsState()
-    val safeChannelIds = remember(state.data.safeYouTubeChannels) {
-        state.data.safeYouTubeChannels.keys.joinToString(",") { "'$it'" }
-    }
+    val safeChannelIds =
+        remember(state.data.safeYouTubeChannels) {
+            state.data.safeYouTubeChannels.keys
+                .joinToString(",") { "'$it'" }
+        }
 
     Column(
         modifier = Modifier.fillMaxSize().background(Color.Black).systemBarsPadding(),
@@ -52,7 +54,7 @@ fun SurgicalYouTubeScreen(
                 IndustrialButton(
                     onClick = {
                         GatekeeperStateManager.dispatch(
-                            GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/feed/channels")
+                            GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/feed/channels"),
                         )
                     },
                     text = "Subscriptions",
@@ -62,7 +64,7 @@ fun SurgicalYouTubeScreen(
                 IndustrialButton(
                     onClick = {
                         GatekeeperStateManager.dispatch(
-                            GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/results?search_query=podcasts")
+                            GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/results?search_query=podcasts"),
                         )
                     },
                     text = "Search",
@@ -133,7 +135,7 @@ fun SurgicalYouTubeScreen(
                     }, 1000);
                 })();
                 """.trimIndent()
-            }
+            },
         )
     }
 }
