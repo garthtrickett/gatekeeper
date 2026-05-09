@@ -113,23 +113,39 @@ fun SurgicalYouTubeScreen(
                         }
                         if (href.includes('/results') || href.includes('/channel/') || href.includes('/@')) {
                             document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer').forEach(function(video) {
-                                if (video.querySelector('.gk-btn')) return;
                                 var anchor = video.querySelector('a[href*="/watch"]');
-                                if (!anchor) return;
-                                var vId = anchor.href.match(/v=([^&]+)/)?.[1];
-                                if (!vId) return;
-                                var container = document.createElement('div');
-                                container.className = 'gk-btn';
-                                var btn = document.createElement('button');
-                                btn.innerText = '+ BANK';
-                                btn.style.cssText = 'background-color:#4AF626; color:#000; border:none; padding:12px 16px; font-weight:bold; border-radius:4px; width:100%; margin-top:8px;';
-                                btn.onclick = function(e) {
-                                    e.preventDefault(); e.stopPropagation();
-                                    AndroidBridge.saveVideo(vId, 'Video', 'Channel', '0:00');
-                                    btn.innerText = 'SAVED ✓'; btn.style.backgroundColor = '#888';
-                                };
-                                container.appendChild(btn);
-                                video.appendChild(container);
+                    if (!anchor) return;
+
+                    // Disable navigation on the entire video item
+                    anchor.onclick = function(e) { e.preventDefault(); e.stopPropagation(); return false; };
+
+                    // If we've already added our button, don't do it again
+                    if (video.querySelector('.gk-btn')) return;
+
+                    var vId = anchor.href.match(/v=([^&]+)/)?.[1];
+                    if (!vId) return;
+
+                    // Extract real metadata
+                    var titleEl = video.querySelector('h3.media-item-headline, h4.media-item-headline');
+                    var title = titleEl ? titleEl.textContent.trim() : 'Video';
+                    var channelEl = video.querySelector('ytm-badge-and-byline-renderer .yt-formatted-string');
+                    var channelName = channelEl ? channelEl.textContent.trim() : 'Channel';
+                    var durationEl = video.querySelector('ytm-thumbnail-overlay-time-status-renderer span');
+                    var duration = durationEl ? durationEl.textContent.trim() : '0:00';
+
+                    var container = document.createElement('div');
+                    container.className = 'gk-btn';
+                    var btn = document.createElement('button');
+                    btn.innerText = '+ BANK';
+                    btn.style.cssText = 'background-color:#4AF626; color:#000; border:none; padding:12px 16px; font-weight:bold; border-radius:4px; width:100%; margin-top:8px;';
+                    btn.onclick = function(e) {
+                        e.preventDefault(); e.stopPropagation();
+                        AndroidBridge.saveVideo(vId, title, channelName, duration);
+                        btn.innerText = 'SAVED ✓'; btn.style.backgroundColor = '#888';
+                    };
+                    container.appendChild(btn);
+
+                    video.appendChild(container);
                             });
                         }
                     }, 1000);
