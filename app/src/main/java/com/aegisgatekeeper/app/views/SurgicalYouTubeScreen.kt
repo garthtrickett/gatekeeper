@@ -136,14 +136,31 @@ fun SurgicalYouTubeScreen(
                         }
                         nuke(document);
 
-                        // 3. CHANNEL INTERFACE
+                                                // 3. CHANNEL INTERFACE
                         if (href.includes('/feed/channels')) {
                             document.querySelectorAll('ytm-channel-renderer, ytm-compact-channel-renderer').forEach(function(channel) {
                                 if (channel.dataset.gkHandled) return;
-                                var anchor = channel.querySelector('a[href*="/channel/"], a[href*="/@"]');
-                                if (!anchor) return;
+
+                                // Force navigation to the /videos tab instead of channel home
+                                var subAnchors = channel.querySelectorAll('a[href*="/channel/"], a[href*="/@"]');
+                                subAnchors.forEach(function(a) {
+                                    var path = a.getAttribute('href');
+                                    if (path && !path.includes('/videos') && !path.includes('/shorts') && !path.includes('/streams') && !path.includes('/community')) {
+                                        a.href = path + (path.endsWith('/') ? '' : '/') + 'videos';
+                                    }
+                                });
+
+                                var primaryAnchor = channel.querySelector('a[href*="/channel/"], a[href*="/@"]');
+                                if (!primaryAnchor) return;
+
                                 channel.dataset.gkHandled = 'true';
-                                var channelId = anchor.getAttribute('href').split('/').pop();
+                                var rawPath = primaryAnchor.getAttribute('href');
+                                var channelId = '';
+                                if (rawPath.includes('/channel/')) {
+                                    channelId = rawPath.split('/channel/')[1].split('/')[0];
+                                } else if (rawPath.includes('/@')) {
+                                    channelId = '@' + rawPath.split('/@')[1].split('/')[0];
+                                }
                                 var isSafe = window.gkSafeChannels.includes(channelId);
                                 var btn = document.createElement('button');
                                 btn.innerText = isSafe ? 'SAFE ✅' : 'SET SAFE';
