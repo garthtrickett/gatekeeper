@@ -113,16 +113,23 @@ fun SurgicalYouTubeScreen(
                         }
                         if (href.includes('/results') || href.includes('/channel/') || href.includes('/@')) {
                             document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer').forEach(function(video) {
-                                var anchor = video.querySelector('a[href*="/watch"]');
-                    if (!anchor) return;
+                                var anchors = video.querySelectorAll('a[href*="/watch"]');
+                    if (anchors.length === 0) return;
 
-                    // Disable navigation on the entire video item
-                    anchor.onclick = function(e) { e.preventDefault(); e.stopPropagation(); return false; };
+                    // Disable navigation on ALL links leading to a watch page
+                    anchors.forEach(function(anchor) {
+                        anchor.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            return false;
+                        };
+                    });
 
                     // If we've already added our button, don't do it again
                     if (video.querySelector('.gk-btn')) return;
 
-                    var vId = anchor.href.match(/v=([^&]+)/)?.[1];
+                    // Use the first anchor to get the video ID for banking
+                    var vId = anchors[0].href.match(/v=([^&]+)/)?.[1];
                     if (!vId) return;
 
                     // Extract real metadata

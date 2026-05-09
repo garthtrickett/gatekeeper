@@ -19,6 +19,7 @@ find . -maxdepth 10 \
     -name "*.sq" -o \
     -name "*.kts" -o \
     -name "*.xml" -o \
+    -name "*.txt" -o \
     -name "*.properties" -o \
     -name "*.nix" -o \
     -name "GEMINI.md" \

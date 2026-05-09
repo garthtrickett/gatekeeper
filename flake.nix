@@ -210,10 +210,8 @@
                     alias apk='./gradlew :app:assembleDebug && mkdir -p ~/Downloads/apks && cp app/build/outputs/apk/dev/debug/app-dev-debug.apk ~/Downloads/apks/ && cp app/build/outputs/apk/prod/debug/app-prod-debug.apk ~/Downloads/apks/ && echo "✅ APKs copied to ~/Downloads/apks/"'
 
                     alias update-filters='(cd common-shared/src/commonMain/resources/filters && \
-                      curl -L "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt" -o adguard_base.txt && \
                       curl -L "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt" -o adguard_mobile.txt && \
                       curl -L "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt" -o ublock_privacy.txt && \
-                      curl -L "https://raw.githubusercontent.com/Gatekeeper/filters/main/unhook.txt" -o unhook.txt && \
                       echo "✅ Filter lists updated.")'
 
 
@@ -389,6 +387,7 @@
 
                     # Helper Aliases
                     alias build-desktop='nix build .#default'
+
         '';
       };
     };
