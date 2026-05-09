@@ -64,7 +64,7 @@ fun SurgicalYouTubeScreen(
                 IndustrialButton(
                     onClick = {
                         GatekeeperStateManager.dispatch(
-                            GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/results?search_query=podcasts"),
+                            GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/results?search_query="),
                         )
                     },
                     text = "Search",
@@ -93,24 +93,35 @@ fun SurgicalYouTubeScreen(
                         AndroidBridge.logHtml(document.documentElement.outerHTML);
                     }
                     $initSafeChannels
-                                        if (window.gkInterval) clearInterval(window.gkInterval);
-                    window.gkInterval = setInterval(function() {
+                                                            if (window.gkObserver) window.gkObserver.disconnect();
+
+                    // GLOBAL INTERCEPTOR: Catch clicks during fast scrolls before the browser acts
+                    window.addEventListener('click', function(e) {
+                        var anchor = e.target.closest('a');
+                        if (anchor && (anchor.href.includes('/watch?v=') || anchor.href.includes('/shorts/'))) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            return false;
+                        }
+                    }, true);
+
+                    function applyFilters() {
                         var href = window.location.href;
                         if (!href || href === 'about:blank') return;
 
-                        // NUKE SHORTS
-                        document.querySelectorAll('ytm-reel-shelf-renderer, ytm-pivot-bar-item-renderer[tab-id="FEshorts"], a[href^="/shorts/"], .reel-shelf-header-view-model-wiz').forEach(el => el.remove());
-                                                
+                        // 1. NUKE SHORTS INSTANTLY
+                        document.querySelectorAll('ytm-reel-shelf-renderer, ytm-pivot-bar-item-renderer[tab-id="FEshorts"], a[href^="/shorts/"], .reel-shelf-header-view-model-wiz, ytm-item-section-renderer:has(ytm-reel-shelf-renderer)').forEach(el => el.remove());
 
+                        // 2. PROCESS CHANNELS
                         if (href.includes('/feed/channels')) {
                             document.querySelectorAll('ytm-channel-renderer, ytm-compact-channel-renderer').forEach(function(channel) {
-                                if (channel.querySelector('.gk-safe-toggle')) return;
+                                if (channel.dataset.gkHandled) return;
                                 var anchor = channel.querySelector('a[href*="/channel/"], a[href*="/@"]');
                                 if (!anchor) return;
+                                channel.dataset.gkHandled = 'true';
                                 var channelId = anchor.getAttribute('href').split('/').pop();
                                 var isSafe = window.gkSafeChannels.includes(channelId);
                                 var btn = document.createElement('button');
-                                btn.className = 'gk-safe-toggle';
                                 btn.innerText = isSafe ? 'SAFE ✅' : 'SET SAFE';
                                 btn.style.cssText = 'background-color:' + (isSafe ? '#4CAF50' : '#444') + '; color:#fff; border:none; padding:8px 12px; margin:8px 0; font-weight:bold; border-radius:4px; width:100%;';
                                 btn.onclick = function(e) {
@@ -120,51 +131,43 @@ fun SurgicalYouTubeScreen(
                                 channel.appendChild(btn);
                             });
                         }
+
+                        // 3. PROCESS SEARCH/CHANNEL RESULTS
                         if (href.includes('/results') || href.includes('/channel/') || href.includes('/@')) {
                             document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer').forEach(function(video) {
-                                var anchors = video.querySelectorAll('a[href*="/watch"]');
-                    if (anchors.length === 0) return;
+                                if (video.dataset.gkHandled) return;
+                                var anchor = video.querySelector('a[href*="/watch"]');
+                                if (!anchor) return;
+                                
+                                var vId = anchor.href.match(/v=([^&]+)/)?.[1];
+                                if (!vId) return;
+                                
+                                video.dataset.gkHandled = 'true';
+                                
+                                var titleEl = video.querySelector('h3.media-item-headline, h4.media-item-headline');
+                                var title = titleEl ? titleEl.textContent.trim() : 'Video';
+                                var channelEl = video.querySelector('ytm-badge-and-byline-renderer .yt-formatted-string');
+                                var channelName = channelEl ? channelEl.textContent.trim() : 'Channel';
+                                var durationEl = video.querySelector('ytm-thumbnail-overlay-time-status-renderer span');
+                                var duration = durationEl ? durationEl.textContent.trim() : '';
 
-                    // Disable navigation on ALL links leading to a watch page
-                    anchors.forEach(function(anchor) {
-                        anchor.onclick = function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            return false;
-                        };
-                    });
-
-                    // If we've already added our button, don't do it again
-                    if (video.querySelector('.gk-btn')) return;
-
-                    // Use the first anchor to get the video ID for banking
-                    var vId = anchors[0].href.match(/v=([^&]+)/)?.[1];
-                    if (!vId) return;
-
-                    // Extract real metadata
-                    var titleEl = video.querySelector('h3.media-item-headline, h4.media-item-headline');
-                    var title = titleEl ? titleEl.textContent.trim() : 'Video';
-                    var channelEl = video.querySelector('ytm-badge-and-byline-renderer .yt-formatted-string');
-                                        var channelName = channelEl ? channelEl.textContent.trim() : 'Channel';
-                    var durationEl = video.querySelector('ytm-thumbnail-overlay-time-status-renderer span');
-                    var duration = durationEl ? durationEl.textContent.trim() : '';
-
-                    var container = document.createElement('div');
-                    container.className = 'gk-btn';
-                    var btn = document.createElement('button');
-                    btn.innerText = '+ BANK';
-                    btn.style.cssText = 'background-color:#4AF626; color:#000; border:none; padding:12px 16px; font-weight:bold; border-radius:4px; width:100%; margin-top:8px;';
-                    btn.onclick = function(e) {
-                        e.preventDefault(); e.stopPropagation();
-                        AndroidBridge.saveVideo(vId, title, channelName, duration);
-                        btn.innerText = 'SAVED ✓'; btn.style.backgroundColor = '#888';
-                    };
-                    container.appendChild(btn);
-
-                    video.appendChild(container);
+                                var btn = document.createElement('button');
+                                btn.innerText = '+ BANK';
+                                btn.style.cssText = 'background-color:#4AF626; color:#000; border:none; padding:12px 16px; font-weight:bold; border-radius:4px; width:100%; margin-top:8px;';
+                                btn.onclick = function(e) {
+                                    e.preventDefault(); e.stopPropagation();
+                                    AndroidBridge.saveVideo(vId, title, channelName, duration);
+                                    btn.innerText = 'SAVED ✓'; btn.style.backgroundColor = '#888';
+                                };
+                                video.appendChild(btn);
                             });
                         }
-                    }, 1000);
+                    }
+
+                    // Initialize Observer
+                    window.gkObserver = new MutationObserver(applyFilters);
+                    window.gkObserver.observe(document.body, { childList: true, subtree: true });
+                    applyFilters();
                 })();
                 """.trimIndent()
             },
