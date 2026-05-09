@@ -152,7 +152,14 @@ fun SurgicalYouTubeScreen(
                         window.gkMasterInterval = setInterval(function() {
                             var href = window.location.href || '';
                             
-                            if (href.includes('/watch')) {
+                            var currentPath;
+                            try {
+                                currentPath = new URL(href).pathname;
+                            } catch (e) {
+                                currentPath = '';
+                            }
+
+                            if (currentPath === '/watch') {
                                 window.history.back();
                                 return;
                             }
