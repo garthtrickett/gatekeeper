@@ -146,8 +146,15 @@ fun SurgicalYouTubeScreen(
                                 'yt-icon.ytm-home-logo',
                                 '.mobile-topbar-logo'
                             ];
-                            function nuke(root) {
+                                                        function nuke(root) {
                                 selectors.forEach(s => root.querySelectorAll(s).forEach(el => el.style.display = 'none'));
+                                var shelfTags =['ytm-item-section-renderer', 'ytm-shelf-renderer', 'ytm-rich-shelf-renderer', 'ytm-channel-video-shelf-renderer'];
+                                root.querySelectorAll(shelfTags.join(', ')).forEach(function(shelf) {
+                                    var header = shelf.querySelector('h2, h3, .shelf-title');
+                                    if (header && /latest from/i.test(header.textContent)) {
+                                        shelf.style.display = 'none';
+                                    }
+                                });
                                 root.querySelectorAll('*').forEach(el => {
                                     if (el.shadowRoot) nuke(el.shadowRoot);
                                 });
