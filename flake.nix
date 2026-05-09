@@ -226,12 +226,6 @@
                     alias deploy-prod='adb reverse tcp:8081 tcp:8081 && adb reverse tcp:8000 tcp:8000 && gradle installProdDebug && adb logcat -c && adb shell am start -n com.aegisgatekeeper.app/com.aegisgatekeeper.app.MainActivity && echo "✅ PROD Deployed. Ports 8081 (Sync) & 8000 (YT-Proxy) Reversed. Waiting for logs..." && logs'
                     
 
-                    alias yt-proxy-up='docker-compose -f youtube-proxy/docker-compose.yaml build && docker-compose -f youtube-proxy/docker-compose.yaml up -d'
-
-                    # Hard refresh (SLOW - use only if YouTube stops working)
-                    alias yt-proxy-refresh='docker-compose -f youtube-proxy/docker-compose.yaml build --no-cache && docker-compose -f youtube-proxy/docker-compose.yaml up -d'
-                    alias yt-proxy-logs='docker logs -f youtube-proxy'
-                    alias yt-proxy-down='docker-compose -f youtube-proxy/docker-compose.yaml down'                    
 
                     # Linting & Quality
                     alias lint-style='ktlint "app/src/**/*.kt"'
@@ -395,8 +389,6 @@
 
                     # Helper Aliases
                     alias build-desktop='nix build .#default'
-
-                    ${pkgs.gradle}/bin/gradle --stop >/dev/null 2>&1 || true
         '';
       };
     };
