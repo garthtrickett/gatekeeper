@@ -90,8 +90,11 @@ class SurgicalYouTubeUiTest {
         composeTestRule.onNodeWithText("Search").performClick()
         composeTestRule.waitForIdle()
 
-        // Assert: State updated to Search URL
+                // Assert: State updated to Search URL with our new default query
+        composeTestRule.waitUntil(5000) {
+            GatekeeperStateManager.state.value.media.activeYouTubeUrl?.contains("search_query=podcasts") == true
+        }
         val state = GatekeeperStateManager.state.value
-        assertThat(state.media.activeYouTubeUrl).contains("/results?search_query=")
+        assertThat(state.media.activeYouTubeUrl).contains("search_query=podcasts")
     }
 }
