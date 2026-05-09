@@ -243,7 +243,7 @@ sealed interface GatekeeperAction {
         val channelName: String,
     ) : GatekeeperAction
 
-        data class OpenSurgicalYouTube(
+    data class OpenSurgicalYouTube(
         val url: String = "gatekeeper://safe_channels",
     ) : GatekeeperAction
 

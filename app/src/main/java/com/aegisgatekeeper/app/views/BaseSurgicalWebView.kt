@@ -18,7 +18,10 @@ data class SurgicalFilterRule(
     val hiddenSelectors: List<String>,
 )
 
-private fun isSameSurgicalUrl(url1: String?, url2: String?): Boolean {
+private fun isSameSurgicalUrl(
+    url1: String?,
+    url2: String?,
+): Boolean {
     if (url1 == url2) return true
     if (url1 == null || url2 == null) return false
     // Strip trailing slashes and query params for identity check to avoid scroll-reloads
@@ -61,7 +64,6 @@ fun BaseSurgicalWebView(
                     )
                 settings.javaScriptEnabled = true
                 settings.domStorageEnabled = true
-                settings.databaseEnabled = true
                 settings.useWideViewPort = true
                 settings.loadWithOverviewMode = true
                 settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
@@ -78,18 +80,22 @@ fun BaseSurgicalWebView(
                     addJavascriptInterface(jsInterfaceObj, jsInterfaceName)
                 }
 
-                                webChromeClient = object : WebChromeClient() {
-                    override fun onProgressChanged(view: WebView?, newProgress: Int) {
-                        // Re-inject JS on every progress completion to handle SPA transitions reliably
-                        if (newProgress == 100) {
-                            val currentUrl = view?.url ?: ""
-                            jsInjector?.invoke(currentUrl)?.let { script ->
-                                android.util.Log.d("Gatekeeper", "💉 [Progress100] Injecting JS into: $currentUrl")
-                                view?.evaluateJavascript(script, null)
+                webChromeClient =
+                    object : WebChromeClient() {
+                        override fun onProgressChanged(
+                            view: WebView?,
+                            newProgress: Int,
+                        ) {
+                            // Re-inject JS on every progress completion to handle SPA transitions reliably
+                            if (newProgress == 100) {
+                                val currentUrl = view?.url ?: ""
+                                jsInjector?.invoke(currentUrl)?.let { script ->
+                                    android.util.Log.d("Gatekeeper", "💉 [Progress100] Injecting JS into: $currentUrl")
+                                    view?.evaluateJavascript(script, null)
+                                }
                             }
                         }
                     }
-                }
 
                 webViewClient =
                     object : WebViewClient() {
@@ -128,8 +134,9 @@ fun BaseSurgicalWebView(
                                         .forEach { append("$it { display: none !important; } ") }
                                 }
 
-                                                        if (combinedCss.isNotBlank()) {
-                                val js = """
+                            if (combinedCss.isNotBlank()) {
+                                val js =
+                                    """
                                     var style = document.getElementById('gk-surgical-mask');
                                     if (!style) {
                                         style = document.createElement('style');
@@ -137,17 +144,17 @@ fun BaseSurgicalWebView(
                                         document.head.appendChild(style);
                                     }
                                     style.textContent = `$combinedCss`;
-                                """.trimIndent()
+                                    """.trimIndent()
                                 view?.evaluateJavascript(js, null)
                             }
 
-                            jsInjector?.invoke(actualUrl)?.let { 
+                            jsInjector?.invoke(actualUrl)?.let {
                                 android.util.Log.d("Gatekeeper.WebView", "Injecting custom JS...")
-                                view?.evaluateJavascript(it, null) 
+                                view?.evaluateJavascript(it, null)
                             }
                         }
 
-                                                override fun shouldOverrideUrlLoading(
+                        override fun shouldOverrideUrlLoading(
                             view: WebView?,
                             request: WebResourceRequest?,
                         ): Boolean {
@@ -186,7 +193,7 @@ fun BaseSurgicalWebView(
                     }
             }
         },
-                update = { webView ->
+        update = { webView ->
             // CRITICAL: Prevent hard reloads during scrolling by using isSameSurgicalUrl
             if (url.isNotBlank() && !isSameSurgicalUrl(url, webView.url)) {
                 android.util.Log.d("Gatekeeper", "📡 State forcing hard WebView Load: $url")

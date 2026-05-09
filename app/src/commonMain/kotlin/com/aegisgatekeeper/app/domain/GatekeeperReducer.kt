@@ -998,7 +998,7 @@ private fun reduceMedia(
                         // BLOCK: Watch pages and Shorts
                         platformLog("Gatekeeper", "🛡️ Reducer: Blocked navigation to $newUrl")
                         slice
-                                        } else if (newUrl == "https://m.youtube.com/" || newUrl == "https://m.youtube.com") {
+                    } else if (newUrl == "https://m.youtube.com/" || newUrl == "https://m.youtube.com") {
                         // JAIL: If they try to hit the home feed/logo, force them back to Safe Channels
                         slice.copy(activeYouTubeUrl = "gatekeeper://safe_channels")
                     } else {

@@ -120,12 +120,13 @@ fun parseHumanReadableDuration(duration: String): Long? {
     if (duration.isBlank() || duration == "0:00") return null
     val clean = duration.replace(Regex("[^0-9:]"), "")
     val parts = clean.split(":")
-    val seconds = when (parts.size) {
-        3 -> (parts[0].toLongOrNull() ?: 0L) * 3600 + (parts[1].toLongOrNull() ?: 0L) * 60 + (parts[2].toLongOrNull() ?: 0L)
-        2 -> (parts[0].toLongOrNull() ?: 0L) * 60 + (parts[1].toLongOrNull() ?: 0L)
-        1 -> parts[0].toLongOrNull() ?: 0L
-        else -> 0L
-    }
+    val seconds =
+        when (parts.size) {
+            3 -> (parts[0].toLongOrNull() ?: 0L) * 3600 + (parts[1].toLongOrNull() ?: 0L) * 60 + (parts[2].toLongOrNull() ?: 0L)
+            2 -> (parts[0].toLongOrNull() ?: 0L) * 60 + (parts[1].toLongOrNull() ?: 0L)
+            1 -> parts[0].toLongOrNull() ?: 0L
+            else -> 0L
+        }
     return if (seconds <= 0L) null else seconds
 }
 

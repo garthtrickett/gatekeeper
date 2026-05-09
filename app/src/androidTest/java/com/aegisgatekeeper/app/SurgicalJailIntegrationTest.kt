@@ -26,7 +26,7 @@ class SurgicalJailIntegrationTest {
         stateManager.resetStateForTest()
     }
 
-        @Test
+    @Test
     fun youtube_WatchPage_IsHardBlockedByReducer() {
         // Arrange: Start in the Safe Channels jail
         val initialUrl = "gatekeeper://safe_channels"

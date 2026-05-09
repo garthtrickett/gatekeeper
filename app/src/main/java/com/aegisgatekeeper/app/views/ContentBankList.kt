@@ -218,11 +218,12 @@ private fun ContentItemCard(
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
-                                        Spacer(modifier = Modifier.height(4.dp))
-                    val durationText = item.durationSeconds?.let {
-                        val mins = kotlin.math.ceil(it.toDouble() / 60.0).toLong()
-                        if (mins > 0) " • ${mins}m" else ""
-                    } ?: ""
+                    Spacer(modifier = Modifier.height(4.dp))
+                    val durationText =
+                        item.durationSeconds?.let {
+                            val mins = kotlin.math.ceil(it.toDouble() / 60.0).toLong()
+                            if (mins > 0) " • ${mins}m" else ""
+                        } ?: ""
                     Text(
                         text = "${item.source.name}$durationText",
                         style = MaterialTheme.typography.labelMedium,

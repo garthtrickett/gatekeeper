@@ -34,7 +34,7 @@ class SurgicalYouTubeUiTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-        @Test
+    @Test
     fun testYouTubeOverlay_AppearsAndCloses() {
         // Arrange: Open the YouTube Surgical Screen
         val testUrl = "gatekeeper://safe_channels"
@@ -66,7 +66,7 @@ class SurgicalYouTubeUiTest {
         composeTestRule.onNodeWithText("Exit").assertDoesNotExist()
     }
 
-        @Test
+    @Test
     fun testYouTubeScreen_TabSwitching_UpdatesState() {
         // Start at Safe Channels
         GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube("gatekeeper://safe_channels"))
@@ -91,7 +91,7 @@ class SurgicalYouTubeUiTest {
         composeTestRule.waitForIdle()
 
         // Assert: State updated to Search URL with our new default query
-                composeTestRule.waitUntil(5000) {
+        composeTestRule.waitUntil(5000) {
             GatekeeperStateManager.state.value.media.activeYouTubeUrl
                 ?.contains("search_query=") == true
         }
@@ -115,7 +115,10 @@ class SurgicalYouTubeUiTest {
             }
         }
 
-        composeTestRule.onNodeWithText("No safe channels added yet. Search for a channel and click 'SET SAFE'.").assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(
+                "No safe channels added yet. Search for a channel and click 'SET THIS CHANNEL AS SAFE'.",
+            ).assertIsDisplayed()
     }
 
     @Test
@@ -175,7 +178,8 @@ class SurgicalYouTubeUiTest {
         // Assert: Channel is removed from state
         // Waiting to let the coroutine DB effect complete and update StateManager
         composeTestRule.waitUntil(5000) {
-            GatekeeperStateManager.state.value.data.safeYouTubeChannels.isEmpty()
+            GatekeeperStateManager.state.value.data.safeYouTubeChannels
+                .isEmpty()
         }
         val state = GatekeeperStateManager.state.value
         assertThat(state.data.safeYouTubeChannels).isEmpty()

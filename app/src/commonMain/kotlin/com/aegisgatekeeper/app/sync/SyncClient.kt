@@ -66,7 +66,7 @@ object SyncClient {
             } else {
                 SyncError.ServerError(response.status.value).left()
             }
-                } catch (e: Exception) {
+        } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
             SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
         }
@@ -116,7 +116,10 @@ object SyncClient {
         return if (rawLists.isEmpty()) {
             SyncError.NetworkFailure("Failed to load any bundled filter lists.").left()
         } else {
-            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ SyncClient: Loaded ${rawLists.size} filter lists from local resources.")
+            com.aegisgatekeeper.app.domain.platformLog(
+                "Gatekeeper",
+                "✅ SyncClient: Loaded ${rawLists.size} filter lists from local resources.",
+            )
             parseFilterRules(rawLists).right()
         }
     }

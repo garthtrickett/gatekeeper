@@ -1417,7 +1417,7 @@ class GatekeeperReducerTest {
         assertThat(update.effects.any { it is GatekeeperEffect.CompileFilterRules && it.rules == rules }).isTrue()
     }
 
-        @Test
+    @Test
     fun `SurgicalNavigationRequested blocks YouTube watch and shorts`() {
         val state = initialState.copy(media = initialState.media.copy(activeYouTubeUrl = "gatekeeper://safe_channels"))
 
