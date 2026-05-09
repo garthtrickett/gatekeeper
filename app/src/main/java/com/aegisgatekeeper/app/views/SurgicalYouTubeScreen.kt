@@ -165,9 +165,9 @@ fun SurgicalYouTubeScreen(
                                 // Search result transitions might briefly contain '/watch' but will resolve to '/results'.
                                 if (isWatchPage && hasVideoParam) {
                                      if (window.AndroidBridge && window.AndroidBridge.logMessage) {
-                                        AndroidBridge.logMessage('Blocking navigation to watch page: ' + href);
+                                        AndroidBridge.logMessage('Blocking navigation to watch page: ' + href + '. Redirecting to subscriptions.');
                                      }
-                                     window.history.back();
+                                     window.location.href = 'https://m.youtube.com/feed/channels';
                                      return;
                                 }
                             } catch (e) {
@@ -177,9 +177,9 @@ fun SurgicalYouTubeScreen(
                                 // Fallback for safety, less precise.
                                 if (href.includes('/watch?v=')) {
                                      if (window.AndroidBridge && window.AndroidBridge.logMessage) {
-                                        AndroidBridge.logMessage('Blocking navigation via fallback due to URL parse error.');
+                                        AndroidBridge.logMessage('Blocking navigation via fallback due to URL parse error. Redirecting to subscriptions.');
                                      }
-                                     window.history.back();
+                                     window.location.href = 'https://m.youtube.com/feed/channels';
                                      return;
                                 }
                             }
