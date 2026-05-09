@@ -76,15 +76,23 @@ fun BaseSurgicalWebView(
                 webChromeClient = WebChromeClient()
 
                 webViewClient = object : WebViewClient() {
+                    // Thread-safe URL tracking for background callbacks
+                    @Volatile
+                    private var currentDocUrl: String = url
+
+                    override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+                        super.onPageStarted(view, url, favicon)
+                        currentDocUrl = url ?: ""
+                    }
+
                     override fun onPageFinished(view: WebView?, currentUrl: String?) {
                         super.onPageFinished(view, currentUrl)
                         val actualUrl = currentUrl ?: ""
+                        currentDocUrl = actualUrl
                         
-                        // Update local state so we don't trigger a re-load loop
                         lastLoadedUrl = actualUrl
                         onPageLoaded(actualUrl)
 
-                        // CSS and Filter Injection
                         val filterEngine = com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine
                         val combinedCss = buildString {
                             append(filterEngine.getCosmeticCss(actualUrl))
@@ -107,31 +115,29 @@ fun BaseSurgicalWebView(
                     override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                         val newUrl = request?.url?.toString() ?: return true
                         
-                        // Allow auth flows to happen internally
-                        if (newUrl.contains(\"accounts.google.com\") || newUrl.contains(\"accounts.youtube.com\")) {
+                        if (newUrl.contains("accounts.google.com") || newUrl.contains("accounts.youtube.com")) {
                             return false
                         }
 
-                        // Block deep links to other apps
-                        if (newUrl.startsWith(\"intent://\") || newUrl.startsWith(\"fb://\") || newUrl.startsWith(\"android-app://\")) {
+                        if (newUrl.startsWith("intent://") || newUrl.startsWith("fb://") || newUrl.startsWith("android-app://")) {
                             return true 
                         }
 
-                        // SINGLE SOURCE OF TRUTH: All main frame navs go to Reducer
                         if (request?.isForMainFrame == true) {
                             if (newUrl != lastLoadedUrl) {
-                                android.util.Log.d(\"Gatekeeper\", \"📥 WebView Navigation Intent: $newUrl\")
+                                android.util.Log.d("Gatekeeper", "📥 WebView Navigation Intent: $newUrl")
                                 onUrlChangeRequested(newUrl)
                             }
-                            return true // Cancel internal nav
+                            return true 
                         }
                         return false
                     }
 
                     override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): android.webkit.WebResourceResponse? {
-                        val reqUrl = request?.url?.toString() ?: \"\"
-                        if (com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine.shouldBlockRequest(reqUrl, view?.url ?: \"\")) {
-                            return android.webkit.WebResourceResponse(\"text/plain\", \"UTF-8\", null)
+                        val reqUrl = request?.url?.toString() ?: ""
+                        // FIX: Use currentDocUrl instead of calling view?.url (which crashes on background thread)
+                        if (com.aegisgatekeeper.app.di.GlobalDI.component.surgicalFilterEngine.shouldBlockRequest(reqUrl, currentDocUrl)) {
+                            return android.webkit.WebResourceResponse("text/plain", "UTF-8", null)
                         }
                         return super.shouldInterceptRequest(view, request)
                     }
@@ -140,7 +146,7 @@ fun BaseSurgicalWebView(
         },
         update = { webView ->
             if (url.isNotBlank() && url != lastLoadedUrl) {
-                android.util.Log.d(\"Gatekeeper\", \"📡 State forcing WebView Load: $url\")
+                android.util.Log.d("Gatekeeper", "📡 State forcing WebView Load: $url")
                 webView.loadUrl(url)
                 lastLoadedUrl = url
             }

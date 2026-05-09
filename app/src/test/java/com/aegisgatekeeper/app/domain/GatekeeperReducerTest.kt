@@ -1417,6 +1417,39 @@ class GatekeeperReducerTest {
         assertThat(update.effects.any { it is GatekeeperEffect.CompileFilterRules && it.rules == rules }).isTrue()
     }
 
+        @Test
+    fun `SurgicalNavigationRequested blocks YouTube watch and shorts`() {
+        val state = initialState.copy(media = initialState.media.copy(activeYouTubeUrl = "https://m.youtube.com/feed/channels"))
+        
+        // Try to navigate to a video
+        val watchAction = GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/watch?v=dQw4w9WgXcQ")
+        val watchState = reduce(state, watchAction).state
+        assertThat(watchState.media.activeYouTubeUrl).isEqualTo("https://m.youtube.com/feed/channels") // Unchanged
+
+        // Try to navigate to shorts
+        val shortsAction = GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/shorts/123")
+        val shortsState = reduce(state, shortsAction).state
+        assertThat(shortsState.media.activeYouTubeUrl).isEqualTo("https://m.youtube.com/feed/channels") // Unchanged
+    }
+
+    @Test
+    fun `SurgicalNavigationRequested jails YouTube homepage to subscriptions`() {
+        val state = initialState.copy(media = initialState.media.copy(activeYouTubeUrl = "https://m.youtube.com/feed/channels"))
+        val action = GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/")
+        
+        val newState = reduce(state, action).state
+        assertThat(newState.media.activeYouTubeUrl).isEqualTo("https://m.youtube.com/feed/channels")
+    }
+
+    @Test
+    fun `SurgicalNavigationRequested jails Facebook homepage to groups`() {
+        val state = initialState.copy(media = initialState.media.copy(activeFacebookUrl = "https://m.facebook.com/groups/?_rdr"))
+        val action = GatekeeperAction.SurgicalNavigationRequested("https://m.facebook.com/home.php")
+        
+        val newState = reduce(state, action).state
+        assertThat(newState.media.activeFacebookUrl).isEqualTo("https://m.facebook.com/groups/?_rdr")
+    }
+
     @Test
     fun testInitialStateLoaded_ReplacesState() {
         val loadedState =
