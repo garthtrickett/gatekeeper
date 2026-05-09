@@ -104,9 +104,16 @@ fun SurgicalYouTubeScreen(
                             const path = e.composedPath();
                             const anchor = path.find(el => el && el.tagName === 'A');
                             if (anchor && anchor.href && (anchor.href.includes('/watch?v=') || anchor.href.includes('/shorts/'))) {
-                                if (typeof AndroidBridge !== 'undefined') AndroidBridge.logMessage('🛡️ Blocked: ' + anchor.href);
-                                e.preventDefault();
+                                // THE FIX: Only prevent default for non-touch events to allow scrolling.
+                                if (e.type !== 'touchstart') {
+                                    e.preventDefault();
+                                }
+                                // Always stop propagation to prevent YouTube's SPA router from firing.
                                 e.stopPropagation();
+
+                                if (e.type === 'click' && typeof AndroidBridge !== 'undefined') {
+                                    AndroidBridge.logMessage('🛡️ Blocked: ' + anchor.href);
+                                }
                                 return false;
                             }
                         };
