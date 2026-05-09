@@ -100,7 +100,8 @@ fun SurgicalYouTubeScreen(
 
                         // 1. NEUTRALIZE LINKS: Kill navigation targets without blocking events.
                         // This ensures native browser scrolling is NEVER interrupted by preventDefault().
-                        document.querySelectorAll('a[href*="/watch?v="], a[href*="/shorts/"]').forEach(function(link) {
+                        // Added selectors for the logo and root paths to prevent escaping to the Home feed.
+                        document.querySelectorAll('a[href*="/watch?v="], a[href*="/shorts/"], a#logo, a[href="/"], a[href^="/?"]').forEach(function(link) {
                             if (link.dataset.gkNeutralized) return;
                             
                             // Save original URL so the +BANK button can still find the video ID
