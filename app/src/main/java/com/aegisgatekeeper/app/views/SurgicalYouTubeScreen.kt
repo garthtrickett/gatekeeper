@@ -198,12 +198,20 @@ fun SurgicalYouTubeScreen(
                                     channelId = '@' + rawPath.split('/@')[1].split('/')[0];
                                 }
                                 var isSafe = window.gkSafeChannels.includes(channelId);
-                                var btn = document.createElement('button');
-                                btn.innerText = isSafe ? 'SAFE ✅' : 'SET SAFE';
+                                                                var btn = document.createElement('button');
+                                btn.innerText = isSafe ? 'SAFE ✅' : 'SET THIS CHANNEL AS SAFE';
                                 btn.style.cssText = 'background-color:' + (isSafe ? '#4CAF50' : '#444') + '; color:#fff; border:none; padding:8px 12px; margin:8px 0; font-weight:bold; border-radius:4px; width:100%;';
-                                btn.onclick = function(e) {
+                                                                btn.onclick = function(e) {
                                     e.preventDefault(); e.stopPropagation();
                                     AndroidBridge.toggleSafeChannel(channelId, 'Channel');
+                                    isSafe = !isSafe;
+                                    if (isSafe) {
+                                        window.gkSafeChannels.push(channelId);
+                                    } else {
+                                        window.gkSafeChannels = window.gkSafeChannels.filter(function(id) { return id !== channelId; });
+                                    }
+                                    btn.innerText = isSafe ? 'SAFE ✅' : 'SET THIS CHANNEL AS SAFE';
+                                    btn.style.backgroundColor = isSafe ? '#4CAF50' : '#444';
                                 };
                                 channel.appendChild(btn);
                             });
@@ -268,8 +276,8 @@ fun SurgicalYouTubeScreen(
                                 }
                                 if (channelId) {
                                     var isSafe = window.gkSafeChannels.includes(channelId);
-                                    var safeBtn = document.createElement('button');
-                                    safeBtn.innerText = isSafe ? 'SAFE ✅' : 'SET SAFE';
+                                                                        var safeBtn = document.createElement('button');
+                                    safeBtn.innerText = isSafe ? 'SAFE ✅' : 'SET THIS CHANNEL AS SAFE';
                                     safeBtn.style.cssText = 'background-color:' + (isSafe ? '#4CAF50' : '#444') + '; color:#fff; border:none; padding:12px 16px; font-weight:bold; border-radius:4px; width:100%; margin-top:4px;';
                                     safeBtn.onclick = function(e) {
                                         e.preventDefault(); e.stopPropagation();
@@ -278,9 +286,9 @@ fun SurgicalYouTubeScreen(
                                         if (isSafe) {
                                             window.gkSafeChannels.push(channelId);
                                         } else {
-                                            window.gkSafeChannels = window.gkSafeChannels.filter(function(id) { return id !== channelId; });
+                                                                                    window.gkSafeChannels = window.gkSafeChannels.filter(function(id) { return id !== channelId; });
                                         }
-                                        safeBtn.innerText = isSafe ? 'SAFE ✅' : 'SET SAFE';
+                                        safeBtn.innerText = isSafe ? 'SAFE ✅' : 'SET THIS CHANNEL AS SAFE';
                                         safeBtn.style.backgroundColor = isSafe ? '#4CAF50' : '#444';
                                     };
                                     video.appendChild(safeBtn);
