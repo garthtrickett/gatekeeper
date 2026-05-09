@@ -108,7 +108,7 @@ class TimeUtilsTest {
         // Seconds only SS
         assertThat(parseHumanReadableDuration("45")).isEqualTo(45L)
 
-                // Edge cases
+        // Edge cases
         assertThat(parseHumanReadableDuration("")).isNull()
         assertThat(parseHumanReadableDuration("abc")).isNull()
         assertThat(parseHumanReadableDuration("Shorts")).isNull()

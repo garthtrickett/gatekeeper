@@ -84,7 +84,7 @@ fun SurgicalYouTubeScreen(
         }
 
         if (url == "gatekeeper://safe_channels") {
-            SafeChannelsList(
+            safeChannelsList(
                 onNavigate = {
                     GatekeeperStateManager.dispatch(GatekeeperAction.SurgicalNavigationRequested(it))
                 },
@@ -187,7 +187,7 @@ fun SurgicalYouTubeScreen(
                                     
                                     video.dataset.gkHandled = 'true';
                                     
-                                                                    var titleEl = video.querySelector('h3.media-item-headline, h4.media-item-headline');
+                                                                    var titleEl = video.querySelector('h3.media-item-headline, h4.media-item-headline, .media-item-headline, h3, h4, .yt-core-attributed-string');
                                     var title = titleEl ? titleEl.textContent.trim() : 'Video';
                                     var channelEl = video.querySelector('ytm-badge-and-byline-renderer .yt-formatted-string, .ytm-badge-and-byline-renderer-string');
                                     var pageTitle = document.title ? document.title.replace(' - YouTube', '').trim() : '';
@@ -261,7 +261,7 @@ fun SurgicalYouTubeScreen(
 }
 
 @Composable
-fun SafeChannelsList(onNavigate: (String) -> Unit) {
+fun safeChannelsList(onNavigate: (String) -> Unit) {
     val state by GatekeeperStateManager.state.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {

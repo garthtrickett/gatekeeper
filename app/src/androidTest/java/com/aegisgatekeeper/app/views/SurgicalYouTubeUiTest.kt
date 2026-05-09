@@ -53,7 +53,7 @@ class SurgicalYouTubeUiTest {
             }
         }
 
-                // Assert: Screen components exist (Navigation buttons)
+        // Assert: Screen components exist (Navigation buttons)
         composeTestRule.onAllNodesWithText("Safe Channels")[0].assertExists()
         composeTestRule.onNodeWithText("Search").assertExists()
         composeTestRule.onNodeWithText("Exit").assertExists()
@@ -84,7 +84,7 @@ class SurgicalYouTubeUiTest {
             }
         }
 
-                composeTestRule.onAllNodesWithText("Safe Channels")[0].assertExists()
+        composeTestRule.onAllNodesWithText("Safe Channels")[0].assertExists()
         composeTestRule.onNodeWithText("Search").assertExists()
 
         // Act: Click Search
