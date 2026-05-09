@@ -11,6 +11,11 @@ class WebAppInterface(
     private val onTimeUpdateCallback: (Float) -> Unit = {},
 ) {
     @JavascriptInterface
+    fun logMessage(message: String) {
+        android.util.Log.d("Gatekeeper.CleanPlayerJS", message)
+    }
+) {
+    @JavascriptInterface
     fun onTimeUpdate(time: String) {
         val parsedTime = time.toFloatOrNull() ?: 0f
         Handler(Looper.getMainLooper()).post { onTimeUpdateCallback(parsedTime) }

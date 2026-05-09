@@ -148,20 +148,40 @@ fun SurgicalYouTubeScreen(
                         $initSafeChannels
                         
                         if (window.gkMasterInterval) return;
-                        
+
                         window.gkMasterInterval = setInterval(function() {
                             var href = window.location.href || '';
-                            
-                            var currentPath;
-                            try {
-                                currentPath = new URL(href).pathname;
-                            } catch (e) {
-                                currentPath = '';
+                            // Use the bridge to log the current URL for debugging
+                            if (window.AndroidBridge && window.AndroidBridge.logMessage) {
+                                AndroidBridge.logMessage('Tick! href: ' + href);
                             }
+                            
+                            try {
+                                var url = new URL(href);
+                                var isWatchPage = url.pathname === '/watch';
+                                var hasVideoParam = url.search.includes('v=');
 
-                            if (currentPath === '/watch') {
-                                window.history.back();
-                                return;
+                                // A true watch page has a '/watch' path and a 'v=' param.
+                                // Search result transitions might briefly contain '/watch' but will resolve to '/results'.
+                                if (isWatchPage && hasVideoParam) {
+                                     if (window.AndroidBridge && window.AndroidBridge.logMessage) {
+                                        AndroidBridge.logMessage('Blocking navigation to watch page: ' + href);
+                                     }
+                                     window.history.back();
+                                     return;
+                                }
+                            } catch (e) {
+                                if (window.AndroidBridge && window.AndroidBridge.logMessage) {
+                                    AndroidBridge.logMessage('URL parse error: ' + e.message + ' for href: ' + href);
+                                }
+                                // Fallback for safety, less precise.
+                                if (href.includes('/watch?v=')) {
+                                     if (window.AndroidBridge && window.AndroidBridge.logMessage) {
+                                        AndroidBridge.logMessage('Blocking navigation via fallback due to URL parse error.');
+                                     }
+                                     window.history.back();
+                                     return;
+                                }
                             }
                             
                             if (href.includes('/feed/channels')) {

@@ -13,6 +13,11 @@ import com.aegisgatekeeper.app.domain.parseHumanReadableDuration
  */
 class YouTubeSurgicalBridge {
     @JavascriptInterface
+    fun logMessage(message: String) {
+        android.util.Log.d("Gatekeeper.SurgicalJS", message)
+    }
+
+    @JavascriptInterface
     fun playVideo(videoId: String) {
         GatekeeperStateManager.dispatch(GatekeeperAction.OpenCleanPlayer(videoId))
     }
