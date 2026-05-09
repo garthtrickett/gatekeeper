@@ -106,11 +106,16 @@ fun BaseSurgicalWebView(
                                         .forEach { append("$it { display: none !important; } ") }
                                 }
 
-                            if (combinedCss.isNotBlank()) {
-                                val js =
-                                    "var style = document.getElementById('gk-surgical-mask'); " +
-                                        "if(!style) { style = document.createElement('style'); style.id = 'gk-surgical-mask'; document.head.appendChild(style); } " +
-                                        "style.textContent = \"$combinedCss\";"
+                                                        if (combinedCss.isNotBlank()) {
+                                val js = """
+                                    var style = document.getElementById('gk-surgical-mask');
+                                    if (!style) {
+                                        style = document.createElement('style');
+                                        style.id = 'gk-surgical-mask';
+                                        document.head.appendChild(style);
+                                    }
+                                    style.textContent = `$combinedCss`;
+                                """.trimIndent()
                                 view?.evaluateJavascript(js, null)
                             }
 
@@ -141,7 +146,7 @@ fun BaseSurgicalWebView(
                             return false
                         }
 
-                                                override fun shouldInterceptRequest(
+                        override fun shouldInterceptRequest(
                             view: WebView?,
                             request: WebResourceRequest?,
                         ): android.webkit.WebResourceResponse? {

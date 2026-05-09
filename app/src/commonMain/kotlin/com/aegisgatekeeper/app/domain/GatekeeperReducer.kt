@@ -990,7 +990,7 @@ private fun reduceMedia(
                 slice.copy(activePinnedWebsiteUrl = null)
             }
 
-                        is GatekeeperAction.SurgicalNavigationRequested -> {
+            is GatekeeperAction.SurgicalNavigationRequested -> {
                 val newUrl = action.url
                 if (slice.activeYouTubeUrl != null) {
                     // 1. If we are in Surgical YouTube...
