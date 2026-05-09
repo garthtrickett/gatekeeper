@@ -87,7 +87,11 @@ fun SurgicalYouTubeScreen(
             jsInjector = { _ ->
                 val initSafeChannels = "window.gkSafeChannels = [$safeChannelIds];"
                 """
-                (function() {
+                                (function() {
+                    // Log the first bit of HTML for debugging selectors
+                    if (typeof AndroidBridge.logHtml === 'function') {
+                        AndroidBridge.logHtml(document.documentElement.outerHTML);
+                    }
                     $initSafeChannels
                     if (window.gkInterval) clearInterval(window.gkInterval);
                     window.gkInterval = setInterval(function() {

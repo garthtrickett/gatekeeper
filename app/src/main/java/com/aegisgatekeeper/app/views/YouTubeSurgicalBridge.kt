@@ -48,8 +48,14 @@ class YouTubeSurgicalBridge {
         channelId: String,
         channelName: String,
     ) {
-        GatekeeperStateManager.dispatch(
+                GatekeeperStateManager.dispatch(
             GatekeeperAction.ToggleSafeYouTubeChannel(channelId, channelName),
         )
+    }
+
+    @JavascriptInterface
+    fun logHtml(html: String) {
+        // Log the first 4000 characters for debugging selectors
+        android.util.Log.d("Gatekeeper.HTML", html.take(4000))
     }
 }
