@@ -197,13 +197,15 @@ fun SurgicalYouTubeScreen(
                                 } else if (rawPath.includes('/@')) {
                                     channelId = '@' + rawPath.split('/@')[1].split('/')[0];
                                 }
-                                var isSafe = window.gkSafeChannels.includes(channelId);
-                                                                var btn = document.createElement('button');
-                                btn.innerText = isSafe ? 'SAFE ✅' : 'SET THIS CHANNEL AS SAFE';
-                                btn.style.cssText = 'background-color:' + (isSafe ? '#4CAF50' : '#444') + '; color:#fff; border:none; padding:8px 12px; margin:8px 0; font-weight:bold; border-radius:4px; width:100%;';
-                                                                btn.onclick = function(e) {
-                                    e.preventDefault(); e.stopPropagation();
-                                    AndroidBridge.toggleSafeChannel(channelId, 'Channel');
+                                                                        var nameEl = channel.querySelector('.yt-core-attributed-string, h3, h4, .compact-media-item-headline');
+                                        var extName = nameEl ? nameEl.textContent.trim() : 'Channel';
+                                        var isSafe = window.gkSafeChannels.includes(channelId);
+                                        var btn = document.createElement('button');
+                                        btn.innerText = isSafe ? 'SAFE ✅' : 'SET THIS CHANNEL AS SAFE';
+                                        btn.style.cssText = 'background-color:' + (isSafe ? '#4CAF50' : '#444') + '; color:#fff; border:none; padding:8px 12px; margin:8px 0; font-weight:bold; border-radius:4px; width:100%;';
+                                        btn.onclick = function(e) {
+                                            e.preventDefault(); e.stopPropagation();
+                                            AndroidBridge.toggleSafeChannel(channelId, extName);
                                     isSafe = !isSafe;
                                     if (isSafe) {
                                         window.gkSafeChannels.push(channelId);
@@ -241,10 +243,11 @@ fun SurgicalYouTubeScreen(
                                 
                                 video.dataset.gkHandled = 'true';
                                 
-                                var titleEl = video.querySelector('h3.media-item-headline, h4.media-item-headline');
+                                                                var titleEl = video.querySelector('h3.media-item-headline, h4.media-item-headline');
                                 var title = titleEl ? titleEl.textContent.trim() : 'Video';
-                                var channelEl = video.querySelector('ytm-badge-and-byline-renderer .yt-formatted-string');
-                                var channelName = channelEl ? channelEl.textContent.trim() : 'Channel';
+                                var channelEl = video.querySelector('ytm-badge-and-byline-renderer .yt-formatted-string, .ytm-badge-and-byline-renderer-string');
+                                var pageTitle = document.title ? document.title.replace(' - YouTube', '').trim() : '';
+                                var channelName = channelEl ? channelEl.textContent.trim() : (pageTitle || 'Channel');
                                 
                                 var durationEl = video.querySelector('ytm-thumbnail-overlay-time-status-renderer span, .ytm-thumbnail-overlay-time-status-renderer, .badge-shape-wiz__text');
                                 var duration = durationEl ? durationEl.textContent.trim() : '';
