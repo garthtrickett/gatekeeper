@@ -93,6 +93,20 @@ fun SurgicalYouTubeScreen(
                     window.gkInterval = setInterval(function() {
                         var href = window.location.href;
                         if (!href || href === 'about:blank') return;
+                                                if (href.includes('/results')) {
+                            // Remove the entire Shorts shelf (the horizontal scrolling row)
+                            document.querySelectorAll('ytm-reel-shelf-renderer').forEach(function(shelf) {
+                                shelf.style.display = 'none';
+                            });
+
+                            // Remove individual Shorts that appear as regular search results
+                            document.querySelectorAll('ytm-video-with-context-renderer').forEach(function(video) {
+                                if (video.querySelector('a[href*="/shorts/"]')) {
+                                    video.style.display = 'none';
+                                }
+                            });
+                        }
+
                         if (href.includes('/feed/channels')) {
                             document.querySelectorAll('ytm-channel-renderer, ytm-compact-channel-renderer').forEach(function(channel) {
                                 if (channel.querySelector('.gk-safe-toggle')) return;
