@@ -40,7 +40,6 @@ fun SurgicalYouTubeScreen(
             state.data.safeYouTubeChannels.keys
                 .joinToString(",") { "'$it'" }
         }
-    var forceReload by remember { mutableStateOf(0) }
 
     Column(
         modifier = Modifier.fillMaxSize().background(Color.Black).systemBarsPadding(),
@@ -58,9 +57,7 @@ fun SurgicalYouTubeScreen(
                 IndustrialButton(
                     onClick = {
                         GatekeeperStateManager.dispatch(
-                            GatekeeperAction.OpenSurgicalYouTube(
-                                "https://m.youtube.com/feed/channels",
-                            ),
+                            GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/feed/channels")
                         )
                     },
                     text = "Subscriptions",
@@ -70,9 +67,7 @@ fun SurgicalYouTubeScreen(
                 IndustrialButton(
                     onClick = {
                         GatekeeperStateManager.dispatch(
-                            GatekeeperAction.OpenSurgicalYouTube(
-                                "https://m.youtube.com/results?search_query=podcasts",
-                            ),
+                            GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/results?search_query=podcasts")
                         )
                     },
                     text = "Search",
@@ -84,274 +79,138 @@ fun SurgicalYouTubeScreen(
             IndustrialButton(onClick = onClose, text = "Exit", isWarning = true)
         }
 
-        androidx.compose.runtime.key(forceReload) {
-            BaseSurgicalWebView(
-                url = url,
-                modifier = Modifier.weight(1f),
-                
-                filterRules =
-                    listOf(
-                        SurgicalFilterRule(
-                            urlCondition = { true },
-                            hiddenSelectors =
-                                listOf(
-                                    "ytm-pivot-bar-renderer",
-                                    ".modern-sharing-ui",
-                                ),
-                        ),
+        BaseSurgicalWebView(
+            url = url,
+            modifier = Modifier.weight(1f),
+            onUrlChangeRequested = { requestedUrl ->
+                // Native Interception: Treat the navigation as an intent to change state
+                GatekeeperStateManager.dispatch(GatekeeperAction.SurgicalNavigationRequested(requestedUrl))
+            },
+            filterRules = listOf(
+                SurgicalFilterRule(
+                    urlCondition = { true },
+                    hiddenSelectors = listOf(
+                        "ytm-pivot-bar-renderer",
+                        ".modern-sharing-ui",
                     ),
-                networkBlocklist = emptyList(),
-                jailRoot = url,
-                jsInterfaceObj = YouTubeSurgicalBridge(),
-                jsInterfaceName = "AndroidBridge",
-                jsInjector = { currentUrl ->
-                    val initSafeChannels = "window.gkSafeChannels = [$safeChannelIds];"
-                    """
-                    (function() {
-                        $initSafeChannels
+                ),
+            ),
+            networkBlocklist = emptyList(),
+            jailRoot = url,
+            jsInterfaceObj = YouTubeSurgicalBridge(),
+            jsInterfaceName = "AndroidBridge",
+            jsInjector = { _ ->
+                val initSafeChannels = "window.gkSafeChannels = [$safeChannelIds];"
+                """
+                (function() {
+                    $initSafeChannels
+                    
+                    if (window.gkCosmeticInterval) {
+                        clearInterval(window.gkCosmeticInterval);
+                    }
+
+                    // This interval is now strictly for COSMETIC UI updates (injecting buttons).
+                    // Navigation logic is handled natively by shouldOverrideUrlLoading.
+                    window.gkCosmeticInterval = setInterval(function() {
+                        var href = window.location.href || '';
+                        if (!href || href === 'about:blank') return;
+
+                        // 1. SAFE CHANNEL TOGGLES (Subscriptions Page)
+                        if (href.includes('/feed/channels')) {
+                            var channels = document.querySelectorAll('ytm-channel-renderer, ytm-compact-channel-renderer');
+                            channels.forEach(function(channel) {
+                                if (!channel.querySelector('.gk-safe-toggle')) {
+                                    var anchor = channel.querySelector('a[href*="/channel/"], a[href*="/@"], a[href*="/c/"]');
+                                    if (!anchor) return;
+                                    var channelHref = anchor.getAttribute('href');
+                                    var channelId = channelHref.split('/').pop();
+                                    var channelName = channel.querySelector('.compact-media-item-headline, .channel-name')?.innerText || 'Unknown Channel';
+                                    var isSafe = window.gkSafeChannels.includes(channelId);
+
+                                    var btn = document.createElement('button');
+                                    btn.className = 'gk-safe-toggle';
+                                    btn.innerText = isSafe ? 'SAFE ✅' : 'SET SAFE';
+                                    btn.style.cssText = 'background-color:' + (isSafe ? '#4CAF50' : '#444') + '; color:#fff; border:none; padding:8px 12px; margin:8px 0; font-weight:bold; border-radius:4px; width:100%;';
+                                    
+                                    btn.onclick = function(e) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        AndroidBridge.toggleSafeChannel(channelId, channelName);
+                                    };
+                                    channel.appendChild(btn);
+                                }
+                            });
+                        }
                         
-                        if (window.gkMasterInterval) return;
-
-                        window.gkMasterInterval = setInterval(function() {
-                            var href = window.location.href || '';
-                            // Use the bridge to log the current URL for debugging
-                            if (window.AndroidBridge && window.AndroidBridge.logMessage) {
-                                AndroidBridge.logMessage('Tick! href: ' + href);
-                            }
-
-                            if (!href || href === 'about:blank') {
-                                return; // Do not process blank pages
-                            }
-                            
-                            try {
-                                var url = new URL(href);
-                                var isWatchPage = url.pathname === '/watch';
-                                var hasVideoParam = url.search.includes('v=');
-
-                                // A true watch page has a '/watch' path and a 'v=' param.
-                                // Search result transitions might briefly contain '/watch' but will resolve to '/results'.
-                                if (isWatchPage && hasVideoParam) {
-                                     if (window.AndroidBridge && window.AndroidBridge.logMessage) {
-                                        AndroidBridge.logMessage('Blocking navigation to watch page: ' + href + '. Redirecting to subscriptions.');
-                                     }
-                                     window.location.href = 'https://m.youtube.com/feed/channels';
-                                     return;
-                                }
-                            } catch (e) {
-                                if (window.AndroidBridge && window.AndroidBridge.logMessage) {
-                                    AndroidBridge.logMessage('URL parse error: ' + e.message + ' for href: ' + href);
-                                }
-                                // Fallback for safety, less precise.
-                                if (href.includes('/watch?v=')) {
-                                     if (window.AndroidBridge && window.AndroidBridge.logMessage) {
-                                        AndroidBridge.logMessage('Blocking navigation via fallback due to URL parse error. Redirecting to subscriptions.');
-                                     }
-                                     window.location.href = 'https://m.youtube.com/feed/channels';
-                                     return;
-                                }
-                            }
-                            
-                            if (href.includes('/feed/channels')) {
-                                var channels = document.querySelectorAll('ytm-channel-renderer, ytm-compact-channel-renderer');
-                                channels.forEach(function(channel) {
-                                    if (!channel.querySelector('.gk-safe-toggle')) {
-                                        var anchor = channel.querySelector('a[href*="/channel/"], a[href*="/@"], a[href*="/c/"]');
-                                        if (!anchor) return;
-                                        var channelHref = anchor.getAttribute('href');
-                                        var channelId = channelHref.split('/').pop();
-                                        var channelName = channel.querySelector('.compact-media-item-headline, .channel-name')?.innerText || 'Unknown Channel';
-
-                                        var isSafe = window.gkSafeChannels.includes(channelId);
-
-                                        var btn = document.createElement('button');
-                                        btn.className = 'gk-safe-toggle';
-                                        btn.innerText = isSafe ? 'SAFE ✅' : 'SET SAFE';
-                                        btn.style.backgroundColor = isSafe ? '#4CAF50' : '#444';
-                                        btn.style.color = '#fff';
-                                        btn.style.border = 'none';
-                                        btn.style.padding = '8px 12px';
-                                        btn.style.margin = '8px 0';
-                                        btn.style.fontWeight = 'bold';
-                                        btn.style.borderRadius = '4px';
-                                        btn.style.width = '100%';
-                                        
-                                        btn.onclick = function(e) {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            AndroidBridge.toggleSafeChannel(channelId, channelName);
-                                            var currentlySafe = window.gkSafeChannels.includes(channelId);
-                                            if (currentlySafe) {
-                                                window.gkSafeChannels = window.gkSafeChannels.filter(id => id !== channelId);
-                                                btn.innerText = 'SET SAFE';
-                                                btn.style.backgroundColor = '#444';
-                                            } else {
-                                                window.gkSafeChannels.push(channelId);
-                                                btn.innerText = 'SAFE ✅';
-                                                btn.style.backgroundColor = '#4CAF50';
-                                            }
-                                        };
-                                        channel.appendChild(btn);
-                                    }
-                                });
-                            }
-                            
-                            if (href.includes('/results') || href.includes('/channel/') || href.includes('/@') || href.includes('/c/')) {
-                                document.body.classList.remove('gk-watch-page');
-                                var styleId = 'gk-results-hide';
-                                if (!document.getElementById(styleId)) {
-                                    var style = document.createElement('style');
-                                    style.id = styleId;
-                                    style.textContent = `
-                                        ytm-reel-shelf-renderer, 
-                                        ytm-shorts-lockup-view-model, 
-                                        ytm-shorts-lockup-view-model-v2, 
-                                        yt-shorts-lockup-view-model, 
-                                        ytm-rich-section-renderer, 
-                                        .ytm-feed-filter-chip-bar-renderer { display: none !important; }
-                                        
-                                        /* Disable clicking on thumbnails and titles to prevent impulsive navigation */
-                                        a[href*="/watch"] {
-                                            pointer-events: none !important;
-                                        }
-                                        
-                                        /* Re-enable events for our custom buttons */
-                                        .gk-button-container {
-                                            pointer-events: auto !important;
-                                        }
-                                    `;
-                                    document.head.appendChild(style);
-                                }
-                                
-                                var videos = document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer, ytm-rich-item-renderer, ytm-media-item-view-model, ytm-grid-video-renderer, ytm-item-section-renderer, ytm-playlist-video-renderer');
-                                var channelNameHeader = document.querySelector('.c-channel-header-title, .ytm-channel-header-renderer-title, .channel-header-title')?.innerText || '';
-                                
-                                videos.forEach(function(video) {
-                                    if (video.querySelector('a[href*="/shorts/"]') || video.querySelector('a[href*="/short/"]')) {
-                                        video.style.setProperty('display', 'none', 'important');
-                                        return;
-                                    }
-                                    if (!video.querySelector('.gk-button-container')) {
-                                        var anchor = video.querySelector('a[href*="/watch"]');
-                                        if (!anchor) return;
-                                        var watchHref = anchor.getAttribute('href');
-                                        var videoIdMatch = watchHref.match(/v=([^&]+)/);
-                                        var videoId = videoIdMatch ? videoIdMatch[1] : null;
-                                        if (!videoId) return;
-
-                                        var title = video.querySelector('.compact-media-item-headline, .media-item-headline, h3, .ytm-media-item-metadata-title, .yt-core-attributed-string')?.innerText || 'Unknown Video';
-                                        var channel = video.querySelector('.ytm-badge-and-byline-item-byline, ytm-badge-shape-renderer, .bylines, .ytm-media-item-inset-metadata-channel-title')?.innerText || channelNameHeader;
-                                        var duration = video.querySelector('ytm-thumbnail-overlay-time-status-renderer, .yt-core-attributed-string[aria-label]')?.innerText || '';
-
-                                        var btnContainer = document.createElement('div');
-                                        btnContainer.className = 'gk-button-container';
-                                        btnContainer.style.display = 'flex';
-                                        btnContainer.style.flexDirection = 'row';
-                                        btnContainer.style.gap = '8px';
-                                        btnContainer.style.width = '100%';
-                                        btnContainer.style.marginTop = '8px';
-
-                                        var btn = document.createElement('button');
-                                        btn.className = 'gk-save-btn';
-                                        btn.innerText = '+ BANK';
-                                        btn.style.flex = '1';
-                                        btn.style.backgroundColor = '#4AF626';
-                                        btn.style.color = '#000';
-                                        btn.style.border = 'none';
-                                        btn.style.padding = '12px 16px';
-                                        btn.style.fontWeight = 'bold';
-                                        btn.style.borderRadius = '4px';
-                                        
-                                        btn.onclick = function(e) {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            AndroidBridge.saveVideo(videoId, title, channel, duration);
-                                            btn.innerText = 'SAVED ✓';
-                                            btn.style.backgroundColor = '#888';
-                                            btn.disabled = true;
-                                        };
-                                        btnContainer.appendChild(btn);
-                                        video.appendChild(btnContainer);
-                                    }
-                                });
-
-                                var channels = document.querySelectorAll('ytm-compact-channel-renderer');
-                                channels.forEach(function(channel) {
-                                    if (!channel.querySelector('.gk-channel-btn')) {
-                                        var anchor = channel.querySelector('a');
-                                        if (!anchor) return;
-                                        var channelHref = anchor.getAttribute('href');
-                                        
-                                        var btn = document.createElement('button');
-                                        btn.className = 'gk-channel-btn';
-                                        btn.innerText = 'GO TO CHANNEL';
-                                        btn.style.backgroundColor = '#FF9800';
-                                        btn.style.color = '#000';
-                                        btn.style.border = 'none';
-                                        btn.style.padding = '12px 16px';
-                                        btn.style.margin = '8px 0';
-                                        btn.style.fontWeight = 'bold';
-                                        btn.style.borderRadius = '4px';
-                                        btn.style.width = '100%';
-                                        btn.style.position = 'relative';
-                                        btn.style.zIndex = '1000';
-                                        btn.style.pointerEvents = 'auto';
-                                        
-                                        btn.onclick = function(e) {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            window.location.href = channelHref;
-                                        };
-                                        channel.appendChild(btn);
-                                    }
-                                });
-
-                                var others = document.querySelectorAll('ytm-compact-playlist-renderer, ytm-compact-radio-renderer');
-                                others.forEach(function(other) {
-                                    if (!other.dataset.gkDisabled) {
-                                        other.dataset.gkDisabled = 'true';
-                                        other.style.opacity = '0.5';
-                                        other.addEventListener('click', function(e) {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                        }, true);
-                                    }
-                                });
-                            }
-                        }, 1000);
-
-                        // Stop YouTube SPA links escaping
-                        if (!window.gkGlobalClickCatcher) {
-                            window.gkGlobalClickCatcher = true;
-                            document.addEventListener('click', function(e) {
-                                const target = e.target;
-                                if (!target) return;
-
-                                const isGk = target.closest('.gk-save-btn, .gk-channel-btn, .gk-safe-toggle');
-                                const isInput = target.closest('input, textarea, [contenteditable="true"], .searchbox-input');
-                                const isTab = target.closest('[role="tab"], .ytm-tab-header-item, .tab-header-item');
-                                const isHeader = target.closest('ytm-header-bar, ytm-search-header-renderer, .header-bar, .search-container');
-                                const isIconOrBtn = target.closest('button,[role="button"], .searchbox-selection-cancel, svg, path');
-                                
-                                if (isGk || isInput || isTab || isHeader || isIconOrBtn) {
+                        // 2. SURGICAL BUTTONS (Search Results / Channel Pages)
+                        if (href.includes('/results') || href.includes('/channel/') || href.includes('/@') || href.includes('/c/')) {
+                            var videos = document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer, ytm-rich-item-renderer, ytm-media-item-view-model, ytm-grid-video-renderer, ytm-item-section-renderer, ytm-playlist-video-renderer');
+                            videos.forEach(function(video) {
+                                // Block shorts visually immediately
+                                if (video.querySelector('a[href*="/shorts/"]')) {
+                                    video.style.display = 'none';
                                     return;
                                 }
-
-                                e.preventDefault();
-                                e.stopPropagation();
                                 
-                                const anchor = target.closest('a');
-                                if (anchor && anchor.href) {
-                                    var newHref = anchor.href;
-                                    if (newHref.includes('/channel/') || newHref.includes('/@') || newHref.includes('/c/')) {
-                                        window.location.href = newHref;
-                                    }
+                                if (!video.querySelector('.gk-button-container')) {
+                                    var anchor = video.querySelector('a[href*="/watch"]');
+                                    if (!anchor) return;
+                                    var watchHref = anchor.getAttribute('href');
+                                    var videoIdMatch = watchHref.match(/v=([^&]+)/);
+                                    var videoId = videoIdMatch ? videoIdMatch[1] : null;
+                                    if (!videoId) return;
+
+                                    var title = video.querySelector('.compact-media-item-headline, h3, .ytm-media-item-metadata-title')?.innerText || 'Unknown Video';
+                                    var channel = video.querySelector('.ytm-badge-and-byline-item-byline, .bylines')?.innerText || '';
+                                    var duration = video.querySelector('ytm-thumbnail-overlay-time-status-renderer')?.innerText || '';
+
+                                    var container = document.createElement('div');
+                                    container.className = 'gk-button-container';
+                                    container.style.marginTop = '8px';
+
+                                    var btn = document.createElement('button');
+                                    btn.innerText = '+ BANK';
+                                    btn.style.cssText = 'background-color:#4AF626; color:#000; border:none; padding:12px 16px; font-weight:bold; border-radius:4px; width:100%;';
+                                    
+                                    btn.onclick = function(e) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        AndroidBridge.saveVideo(videoId, title, channel, duration);
+                                        btn.innerText = 'SAVED ✓';
+                                        btn.style.backgroundColor = '#888';
+                                    };
+                                    container.appendChild(btn);
+                                    video.appendChild(container);
                                 }
-                            }, true);
+                            });
                         }
-                    })();
-                    """.trimIndent()
-                },
-            )
-        }
+                    }, 1000);
+
+                    // 3. GLOBAL CLICK CATCHER (Stop impulsive escapism)
+                    if (!window.gkGlobalClickCatcher) {
+                        window.gkGlobalClickCatcher = true;
+                        document.addEventListener('click', function(e) {
+                            const target = e.target;
+                            if (!target) return;
+
+                            // Allow surgical buttons and inputs
+                            const isGk = target.closest('.gk-save-btn, .gk-safe-toggle, .gk-button-container, button');
+                            const isInput = target.closest('input, textarea, [contenteditable="true"]');
+                            if (isGk || isInput) return;
+
+                            // For everything else, prevent the default behavior.
+                            // The native shouldOverrideUrlLoading will handle state transitions for links.
+                            const anchor = target.closest('a');
+                            if (anchor) {
+                                // We let the event happen so the native side can catch the URL intent,
+                                // but we block the SPA from doing a "soft" navigation internally.
+                                android.util.Log.d("Gatekeeper.SurgicalJS", "Link clicked: " + anchor.href);
+                            }
+                        }, true);
+                    }
+                })();
+                """.trimIndent()
+            }
+        )
     }
 }

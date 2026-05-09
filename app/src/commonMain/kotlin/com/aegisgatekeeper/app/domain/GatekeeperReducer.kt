@@ -992,17 +992,31 @@ private fun reduceMedia(
 
             is GatekeeperAction.SurgicalNavigationRequested -> {
                 val newUrl = action.url
-                // If we are currently in the YouTube surgical view...
+                // 1. If we are in Surgical YouTube...
                 if (slice.activeYouTubeUrl != null) {
-                    // ...apply YouTube-specific blocking rules.
+                    // BLOCK: Watch pages and Shorts
                     if (newUrl.contains("/watch?v=") || newUrl.contains("/shorts/")) {
                         platformLog("Gatekeeper", "🛡️ Reducer: Blocked navigation to $newUrl")
-                        slice // Return current state, blocking the navigation
-                    } else {
+                        slice
+                    } 
+                    // JAIL: If they try to hit the home feed/logo, force them back to Subscriptions
+                    else if (newUrl == "https://m.youtube.com/" || newUrl == "https://m.youtube.com") {
+                        slice.copy(activeYouTubeUrl = "https://m.youtube.com/feed/channels")
+                    }
+                    else {
                         slice.copy(activeYouTubeUrl = newUrl)
                     }
-                } else {
-                    // Otherwise, it's the generic surgical web view
+                } 
+                // 2. If we are in Surgical Facebook...
+                else if (slice.activeFacebookUrl != null) {
+                    if (newUrl == "https://m.facebook.com/" || newUrl.contains("facebook.com/home")) {
+                        slice.copy(activeFacebookUrl = "https://m.facebook.com/groups/?_rdr")
+                    } else {
+                        slice.copy(activeFacebookUrl = newUrl)
+                    }
+                }
+                // 3. Generic Surgical Web
+                else {
                     slice.copy(currentSurgicalUrl = newUrl)
                 }
             }
