@@ -252,10 +252,14 @@ data class MediaState(
             "substack.com##.feed-container",
             "substack.com##.top-posts-container",
             "substack.com##.sidebar",
-            "youtube.com###secondary",
+                        "youtube.com###secondary",
             "youtube.com###related",
             "youtube.com##ytd-reel-shelf-renderer",
             "youtube.com##ytd-shorts",
+            "youtube.com##ytm-reel-shelf-renderer",
+            "youtube.com##ytm-pivot-bar-item-renderer[tab-id='FEshorts']",
+            "youtube.com##a[href^='/shorts/']",
+            "youtube.com##.reel-shelf-header-view-model-wiz"
         ),
 )
 

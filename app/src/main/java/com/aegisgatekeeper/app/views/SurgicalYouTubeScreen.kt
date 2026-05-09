@@ -93,10 +93,13 @@ fun SurgicalYouTubeScreen(
                         AndroidBridge.logHtml(document.documentElement.outerHTML);
                     }
                     $initSafeChannels
-                    if (window.gkInterval) clearInterval(window.gkInterval);
+                                        if (window.gkInterval) clearInterval(window.gkInterval);
                     window.gkInterval = setInterval(function() {
                         var href = window.location.href;
                         if (!href || href === 'about:blank') return;
+
+                        // NUKE SHORTS
+                        document.querySelectorAll('ytm-reel-shelf-renderer, ytm-pivot-bar-item-renderer[tab-id="FEshorts"], a[href^="/shorts/"], .reel-shelf-header-view-model-wiz').forEach(el => el.remove());
                                                 
 
                         if (href.includes('/feed/channels')) {
