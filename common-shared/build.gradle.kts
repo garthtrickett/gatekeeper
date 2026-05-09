@@ -36,6 +36,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
                 implementation("me.tatarka.inject:kotlin-inject-runtime:0.7.2")
             }
+            resources.srcDirs("src/commonMain/resources")
         }
     }
 }

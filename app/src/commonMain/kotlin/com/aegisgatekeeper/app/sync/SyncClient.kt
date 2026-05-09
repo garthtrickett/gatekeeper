@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import com.aegisgatekeeper.app.di.GlobalDI
+import com.aegisgatekeeper.app.domain.readResource
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpTimeout
@@ -67,7 +68,7 @@ object SyncClient {
             }
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
-            SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
+            loadBundledFilterRules()
         }
     }
 
@@ -100,6 +101,28 @@ object SyncClient {
         }
     }
 
+    private fun loadBundledFilterRules(): Either<SyncError, FilterRulesResult> {
+        com.aegisgatekeeper.app.domain
+            .platformLog("Gatekeeper", "⬇️ SyncClient: Network failed, falling back to bundled filter lists.")
+        val filterPaths =
+            listOf(
+                "filters/adguard_base.txt",
+                "filters/adguard_mobile.txt",
+                "filters/ublock_privacy.txt",
+                "filters/unhook.txt",
+            )
+        val rawLists =
+            filterPaths.mapNotNull {
+                readResource(it)
+            }
+        return if (rawLists.isEmpty()) {
+            SyncError.NetworkFailure("Failed to load any bundled filter lists.").left()
+        } else {
+            com.aegisgatekeeper.app.domain.platformLog("Gatekeeper", "✅ SyncClient: Loaded ${rawLists.size} filter lists from local resources.")
+            parseFilterRules(rawLists).right()
+        }
+    }
+
     suspend fun fetchFilterRules(): Either<SyncError, FilterRulesResult> {
         return try {
             val filterUrls =
@@ -123,7 +146,7 @@ object SyncClient {
                 }
             }
             if (rawLists.isEmpty()) {
-                return SyncError.NetworkFailure("Failed to fetch any filter lists").left()
+                return loadBundledFilterRules()
             }
             parseFilterRules(rawLists).right()
         } catch (e: Exception) {
