@@ -163,12 +163,21 @@ fun SurgicalYouTubeScreen(
                                 
                                 video.dataset.gkHandled = 'true';
                                 
-                                var titleEl = video.querySelector('h3.media-item-headline, h4.media-item-headline');
+                                                                var titleEl = video.querySelector('h3.media-item-headline, h4.media-item-headline');
                                 var title = titleEl ? titleEl.textContent.trim() : 'Video';
                                 var channelEl = video.querySelector('ytm-badge-and-byline-renderer .yt-formatted-string');
                                 var channelName = channelEl ? channelEl.textContent.trim() : 'Channel';
-                                var durationEl = video.querySelector('ytm-thumbnail-overlay-time-status-renderer span');
+                                
+                                // THE FIX: Robust duration extraction
+                                // 1. Try standard selectors
+                                var durationEl = video.querySelector('ytm-thumbnail-overlay-time-status-renderer span, .ytm-thumbnail-overlay-time-status-renderer, .badge-shape-wiz__text');
                                 var duration = durationEl ? durationEl.textContent.trim() : '';
+                                
+                                // 2. Fallback: Search the entire card text for a timestamp pattern (e.g. 04:20 or 1:02:30)
+                                if (!duration || !duration.includes(':')) {
+                                    var timestampMatch = video.innerText.match(/\d+:\d+(?::\d+)?/);
+                                    if (timestampMatch) duration = timestampMatch[0];
+                                }
 
                                 var btn = document.createElement('button');
                                 btn.innerText = '+ BANK';
