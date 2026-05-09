@@ -54,20 +54,10 @@ fun SurgicalYouTubeScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
+                        Row(
                 modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                IndustrialButton(
-                    onClick = {
-                        GatekeeperStateManager.dispatch(
-                            GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/feed/channels")
-                        )
-                    },
-                    text = "Subscriptions",
-                    enabled = !url.contains("/feed/channels"),
-                    invertEnabledColor = true,
-                )
                 IndustrialButton(
                     onClick = {
                         GatekeeperStateManager.dispatch(
@@ -164,62 +154,9 @@ fun SurgicalYouTubeScreen(
                         }
                         nuke(document);
 
-                                                                        // 3. CHANNEL INTERFACE
-                        if (href.includes('/feed/channels')) {
-                            var channels = document.querySelectorAll('ytm-channel-renderer, ytm-compact-channel-renderer');
-                            if (channels.length > 0 && typeof AndroidBridge !== 'undefined') {
-                                AndroidBridge.logMessage('GK_DEBUG: Found ' + channels.length + ' channels on Subscriptions page');
-                            }
-                            channels.forEach(function(channel) {
-                                if (channel.dataset.gkHandled) return;
+                                                                                                                // 3. CHANNEL INTERFACE (Removed)
 
-                                // Force navigation to the /videos tab instead of channel home
-                                var subAnchors = channel.querySelectorAll('a[href*="/channel/"], a[href*="/@"]');
-                                subAnchors.forEach(function(a) {
-                                    var path = a.getAttribute('href');
-                                    if (path && !path.includes('/videos') && !path.includes('/shorts') && !path.includes('/streams') && !path.includes('/community')) {
-                                        var newHref = path + (path.endsWith('/') ? '' : '/') + 'videos';
-                                        if (typeof AndroidBridge !== 'undefined') {
-                                            AndroidBridge.logMessage('GK_DEBUG: Redirecting channel link: ' + path + ' -> ' + newHref);
-                                        }
-                                        a.href = newHref;
-                                    }
-                                });
-
-                                var primaryAnchor = channel.querySelector('a[href*="/channel/"], a[href*="/@"]');
-                                if (!primaryAnchor) return;
-
-                                channel.dataset.gkHandled = 'true';
-                                var rawPath = primaryAnchor.getAttribute('href');
-                                var channelId = '';
-                                if (rawPath.includes('/channel/')) {
-                                    channelId = rawPath.split('/channel/')[1].split('/')[0];
-                                } else if (rawPath.includes('/@')) {
-                                    channelId = '@' + rawPath.split('/@')[1].split('/')[0];
-                                }
-                                                                        var nameEl = channel.querySelector('.yt-core-attributed-string, h3, h4, .compact-media-item-headline');
-                                        var extName = nameEl ? nameEl.textContent.trim() : 'Channel';
-                                        var isSafe = window.gkSafeChannels.includes(channelId);
-                                        var btn = document.createElement('button');
-                                        btn.innerText = isSafe ? 'SAFE ✅' : 'SET THIS CHANNEL AS SAFE';
-                                        btn.style.cssText = 'background-color:' + (isSafe ? '#4CAF50' : '#444') + '; color:#fff; border:none; padding:8px 12px; margin:8px 0; font-weight:bold; border-radius:4px; width:100%;';
-                                        btn.onclick = function(e) {
-                                            e.preventDefault(); e.stopPropagation();
-                                            AndroidBridge.toggleSafeChannel(channelId, extName);
-                                    isSafe = !isSafe;
-                                    if (isSafe) {
-                                        window.gkSafeChannels.push(channelId);
-                                    } else {
-                                        window.gkSafeChannels = window.gkSafeChannels.filter(function(id) { return id !== channelId; });
-                                    }
-                                    btn.innerText = isSafe ? 'SAFE ✅' : 'SET THIS CHANNEL AS SAFE';
-                                    btn.style.backgroundColor = isSafe ? '#4CAF50' : '#444';
-                                };
-                                channel.appendChild(btn);
-                            });
-                        }
-
-                                                                        // 4. VIDEO RESULTS INTERFACE
+                                        // 4. VIDEO RESULTS INTERFACE
                         if (href.includes('/results') || href.includes('/channel/') || href.includes('/@') || href.includes('/c/')) {
                             var videoElements = document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer, ytm-media-item');
                             if (videoElements.length > 0 && typeof AndroidBridge !== 'undefined' && Math.random() < 0.05) {

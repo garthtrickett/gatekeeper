@@ -48,11 +48,11 @@ class SurgicalYouTubeScrollTest {
             }
         }
 
-        // Wait for WebView to render
+                // Wait for WebView to render
         composeTestRule.waitForIdle()
 
         // Act: Perform multiple rapid swipes (spam scroll)
-        composeTestRule.onNodeWithText("Subscriptions").assertExists()
+        composeTestRule.onNodeWithText("Search").assertExists()
 
         repeat(5) {
             composeTestRule.onRoot().performTouchInput {

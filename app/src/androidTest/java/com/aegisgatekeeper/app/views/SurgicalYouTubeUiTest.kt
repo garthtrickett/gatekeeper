@@ -34,10 +34,10 @@ class SurgicalYouTubeUiTest {
         GatekeeperStateManager.resetStateForTest()
     }
 
-    @Test
+        @Test
     fun testYouTubeOverlay_AppearsAndCloses() {
         // Arrange: Open the YouTube Surgical Screen
-        val testUrl = "https://m.youtube.com/feed/subscriptions"
+        val testUrl = "gatekeeper://safe_channels"
         GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube(testUrl))
 
         composeTestRule.setContent {
@@ -53,7 +53,7 @@ class SurgicalYouTubeUiTest {
         }
 
         // Assert: Screen components exist (Navigation buttons)
-        composeTestRule.onNodeWithText("Subscriptions").assertExists()
+        composeTestRule.onNodeWithText("Safe Channels").assertExists()
         composeTestRule.onNodeWithText("Search").assertExists()
         composeTestRule.onNodeWithText("Exit").assertExists()
 
@@ -66,10 +66,10 @@ class SurgicalYouTubeUiTest {
         composeTestRule.onNodeWithText("Exit").assertDoesNotExist()
     }
 
-    @Test
+        @Test
     fun testYouTubeScreen_TabSwitching_UpdatesState() {
-        // Start at Subscriptions
-        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/feed/subscriptions"))
+        // Start at Safe Channels
+        GatekeeperStateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube("gatekeeper://safe_channels"))
 
         composeTestRule.setContent {
             GatekeeperTheme {
@@ -83,7 +83,7 @@ class SurgicalYouTubeUiTest {
             }
         }
 
-        composeTestRule.onNodeWithText("Subscriptions").assertExists()
+        composeTestRule.onNodeWithText("Safe Channels").assertExists()
         composeTestRule.onNodeWithText("Search").assertExists()
 
         // Act: Click Search

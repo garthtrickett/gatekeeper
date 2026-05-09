@@ -26,10 +26,10 @@ class SurgicalJailIntegrationTest {
         stateManager.resetStateForTest()
     }
 
-    @Test
+        @Test
     fun youtube_WatchPage_IsHardBlockedByReducer() {
-        // Arrange: Start in the Subscriptions jail
-        val initialUrl = "https://m.youtube.com/feed/channels"
+        // Arrange: Start in the Safe Channels jail
+        val initialUrl = "gatekeeper://safe_channels"
         stateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube(initialUrl))
         assertThat(stateManager.state.value.media.activeYouTubeUrl).isEqualTo(initialUrl)
 
@@ -43,7 +43,7 @@ class SurgicalJailIntegrationTest {
 
     @Test
     fun youtube_Shorts_IsHardBlockedByReducer() {
-        val initialUrl = "https://m.youtube.com/feed/channels"
+        val initialUrl = "gatekeeper://safe_channels"
         stateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube(initialUrl))
 
         // Act: Simulate intent to go to Shorts
@@ -56,14 +56,14 @@ class SurgicalJailIntegrationTest {
 
     @Test
     fun youtube_HomeFeed_IsAutomaticallyRedirected() {
-        stateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube("https://m.youtube.com/feed/channels"))
+        stateManager.dispatch(GatekeeperAction.OpenSurgicalYouTube("gatekeeper://safe_channels"))
 
         // Act: Attempt to go to the YouTube main landing page (the addictive feed)
         val homeUrl = "https://m.youtube.com/"
         stateManager.dispatch(GatekeeperAction.SurgicalNavigationRequested(homeUrl))
 
-        // Assert: The Reducer should have proactively rewritten the URL to the safe Subscriptions page
-        assertThat(stateManager.state.value.media.activeYouTubeUrl).isEqualTo("https://m.youtube.com/feed/channels")
+        // Assert: The Reducer should have proactively rewritten the URL to the safe channels page
+        assertThat(stateManager.state.value.media.activeYouTubeUrl).isEqualTo("gatekeeper://safe_channels")
     }
 
     @Test
