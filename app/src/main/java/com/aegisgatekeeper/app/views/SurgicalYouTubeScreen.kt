@@ -156,9 +156,9 @@ fun SurgicalYouTubeScreen(
                             });
                         }
 
-                        // 4. VIDEO RESULTS INTERFACE
-                        if (href.includes('/results') || href.includes('/channel/') || href.includes('/@')) {
-                            document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer').forEach(function(video) {
+                                                // 4. VIDEO RESULTS INTERFACE
+                        if (href.includes('/results') || href.includes('/channel/') || href.includes('/@') || href.includes('/c/')) {
+                            document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer, ytm-media-item').forEach(function(video) {
                                 if (video.dataset.gkHandled) return;
                                 
                                 var link = video.querySelector('a[data-gk-neutralized="true"]');
