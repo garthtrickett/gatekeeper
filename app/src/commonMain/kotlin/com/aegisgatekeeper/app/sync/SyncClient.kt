@@ -66,9 +66,9 @@ object SyncClient {
             } else {
                 SyncError.ServerError(response.status.value).left()
             }
-        } catch (e: Exception) {
+                } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
-            loadBundledFilterRules()
+            SyncError.NetworkFailure(e.message ?: "Unknown network failure").left()
         }
     }
 
