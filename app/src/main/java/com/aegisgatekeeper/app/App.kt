@@ -68,7 +68,7 @@ class App :
         )
 
         val databaseProvider = StandaloneDatabaseProvider(this)
-        val downloadDirectory = File(getExternalFilesDir(null), "downloads")
+        val downloadDirectory = File(getExternalFilesDir(null) ?: filesDir, "downloads")
         downloadCache = SimpleCache(downloadDirectory, NoOpCacheEvictor(), databaseProvider)
 
         val headers = mutableMapOf("Accept" to "*/*")
