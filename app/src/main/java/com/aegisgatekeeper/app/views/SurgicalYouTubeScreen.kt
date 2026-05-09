@@ -24,6 +24,13 @@ import androidx.compose.ui.unit.dp
 import com.aegisgatekeeper.app.GatekeeperStateManager
 import com.aegisgatekeeper.app.domain.GatekeeperAction
 import com.aegisgatekeeper.app.domain.IndustrialButton
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 
 @SuppressLint("SetJavaScriptEnabled")
 @Suppress("FunctionName")
@@ -67,19 +74,36 @@ fun SurgicalYouTubeScreen(
                             GatekeeperAction.SurgicalNavigationRequested("https://m.youtube.com/results?search_query=")
                         )
                     },
-                    text = "Search",
+                                        text = "Search",
                     enabled = !url.contains("/results?search_query"),
+                    invertEnabledColor = true,
+                )
+                IndustrialButton(
+                    onClick = {
+                        GatekeeperStateManager.dispatch(
+                            GatekeeperAction.SurgicalNavigationRequested("gatekeeper://safe_channels")
+                        )
+                    },
+                    text = "Safe Channels",
+                    enabled = url != "gatekeeper://safe_channels",
                     invertEnabledColor = true,
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
             IndustrialButton(onClick = onClose, text = "Exit", isWarning = true)
-        }
+                }
 
-        BaseSurgicalWebView(
-            url = url,
-            modifier = Modifier.weight(1f),
-            onUrlChangeRequested = { requestedUrl ->
+        if (url == "gatekeeper://safe_channels") {
+            SafeChannelsList(
+                onNavigate = {
+                    GatekeeperStateManager.dispatch(GatekeeperAction.SurgicalNavigationRequested(it))
+                }
+            )
+        } else {
+            BaseSurgicalWebView(
+                url = url,
+                modifier = Modifier.weight(1f),
+                onUrlChangeRequested = { requestedUrl ->
                 GatekeeperStateManager.dispatch(GatekeeperAction.SurgicalNavigationRequested(requestedUrl))
             },
             jsInterfaceObj = YouTubeSurgicalBridge(),
@@ -222,7 +246,7 @@ fun SurgicalYouTubeScreen(
                                     if (timestampMatch) duration = timestampMatch[0];
                                 }
 
-                                var btn = document.createElement('button');
+                                                                var btn = document.createElement('button');
                                 btn.innerText = '+ BANK';
                                 btn.style.cssText = 'background-color:#4AF626; color:#000; border:none; padding:12px 16px; font-weight:bold; border-radius:4px; width:100%; margin-top:8px;';
                                 btn.onclick = function(e) {
@@ -231,6 +255,36 @@ fun SurgicalYouTubeScreen(
                                     btn.innerText = 'SAVED ✓'; btn.style.backgroundColor = '#888';
                                 };
                                 video.appendChild(btn);
+
+                                var channelAnchor = video.querySelector('ytm-badge-and-byline-renderer a[href*="/channel/"], ytm-badge-and-byline-renderer a[href*="/@"], a[href*="/channel/"], a[href*="/@"]');
+                                var channelId = '';
+                                if (channelAnchor) {
+                                    var rawPath = channelAnchor.getAttribute('href');
+                                    if (rawPath.includes('/channel/')) {
+                                        channelId = rawPath.split('/channel/')[1].split('/')[0];
+                                    } else if (rawPath.includes('/@')) {
+                                        channelId = '@' + rawPath.split('/@')[1].split('/')[0];
+                                    }
+                                }
+                                if (channelId) {
+                                    var isSafe = window.gkSafeChannels.includes(channelId);
+                                    var safeBtn = document.createElement('button');
+                                    safeBtn.innerText = isSafe ? 'SAFE ✅' : 'SET SAFE';
+                                    safeBtn.style.cssText = 'background-color:' + (isSafe ? '#4CAF50' : '#444') + '; color:#fff; border:none; padding:12px 16px; font-weight:bold; border-radius:4px; width:100%; margin-top:4px;';
+                                    safeBtn.onclick = function(e) {
+                                        e.preventDefault(); e.stopPropagation();
+                                        AndroidBridge.toggleSafeChannel(channelId, channelName);
+                                        isSafe = !isSafe;
+                                        if (isSafe) {
+                                            window.gkSafeChannels.push(channelId);
+                                        } else {
+                                            window.gkSafeChannels = window.gkSafeChannels.filter(function(id) { return id !== channelId; });
+                                        }
+                                        safeBtn.innerText = isSafe ? 'SAFE ✅' : 'SET SAFE';
+                                        safeBtn.style.backgroundColor = isSafe ? '#4CAF50' : '#444';
+                                    };
+                                    video.appendChild(safeBtn);
+                                }
                             });
                         }
 
@@ -247,5 +301,54 @@ fun SurgicalYouTubeScreen(
                 """.trimIndent()
             },
         )
+        }
+    }
+}
+
+@Composable
+fun SafeChannelsList(onNavigate: (String) -> Unit) {
+    val state by GatekeeperStateManager.state.collectAsState()
+    
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text("Safe Channels", style = MaterialTheme.typography.headlineMedium, color = Color.White)
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        if (state.data.safeYouTubeChannels.isEmpty()) {
+            Text("No safe channels added yet. Search for a channel and click 'SET SAFE'.", color = Color.Gray)
+        } else {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(state.data.safeYouTubeChannels.entries.toList()) { (id, name) ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(name, color = Color.White, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                IndustrialButton(
+                                    onClick = {
+                                        val baseUrl = if (id.startsWith("@")) "https://m.youtube.com/$id" else "https://m.youtube.com/channel/$id"
+                                        onNavigate("$baseUrl/videos")
+                                    },
+                                    text = "View"
+                                )
+                                IndustrialButton(
+                                    onClick = {
+                                        GatekeeperStateManager.dispatch(GatekeeperAction.ToggleSafeYouTubeChannel(id, name))
+                                    },
+                                    text = "Remove",
+                                    isWarning = true
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
