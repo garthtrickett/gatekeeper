@@ -94,9 +94,13 @@ fun SurgicalYouTubeScreen(
 
                     if (window.gkObserver) window.gkObserver.disconnect();
 
-                    function applyFilters() {
+                                        function applyFilters() {
                         var href = window.location.href;
                         if (!href || href === 'about:blank') return;
+                        if (typeof AndroidBridge !== 'undefined' && Math.random() < 0.1) {
+                             // Periodically log heartbeat to ensure observer is alive
+                             AndroidBridge.logMessage('GK_HEARTBEAT: ' + href);
+                        }
 
                         // 1. NEUTRALIZE LINKS
                         document.querySelectorAll('a[href*="/watch?v="], a[href*="/shorts/"], a#logo, a[href="/"], a[href^="/?"]').forEach(function(link) {
@@ -136,9 +140,13 @@ fun SurgicalYouTubeScreen(
                         }
                         nuke(document);
 
-                                                // 3. CHANNEL INTERFACE
+                                                                        // 3. CHANNEL INTERFACE
                         if (href.includes('/feed/channels')) {
-                            document.querySelectorAll('ytm-channel-renderer, ytm-compact-channel-renderer').forEach(function(channel) {
+                            var channels = document.querySelectorAll('ytm-channel-renderer, ytm-compact-channel-renderer');
+                            if (channels.length > 0 && typeof AndroidBridge !== 'undefined') {
+                                AndroidBridge.logMessage('GK_DEBUG: Found ' + channels.length + ' channels on Subscriptions page');
+                            }
+                            channels.forEach(function(channel) {
                                 if (channel.dataset.gkHandled) return;
 
                                 // Force navigation to the /videos tab instead of channel home
@@ -146,7 +154,11 @@ fun SurgicalYouTubeScreen(
                                 subAnchors.forEach(function(a) {
                                     var path = a.getAttribute('href');
                                     if (path && !path.includes('/videos') && !path.includes('/shorts') && !path.includes('/streams') && !path.includes('/community')) {
-                                        a.href = path + (path.endsWith('/') ? '' : '/') + 'videos';
+                                        var newHref = path + (path.endsWith('/') ? '' : '/') + 'videos';
+                                        if (typeof AndroidBridge !== 'undefined') {
+                                            AndroidBridge.logMessage('GK_DEBUG: Redirecting channel link: ' + path + ' -> ' + newHref);
+                                        }
+                                        a.href = newHref;
                                     }
                                 });
 
@@ -173,12 +185,22 @@ fun SurgicalYouTubeScreen(
                             });
                         }
 
-                                                // 4. VIDEO RESULTS INTERFACE
+                                                                        // 4. VIDEO RESULTS INTERFACE
                         if (href.includes('/results') || href.includes('/channel/') || href.includes('/@') || href.includes('/c/')) {
-                            document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer, ytm-media-item').forEach(function(video) {
+                            var videoElements = document.querySelectorAll('ytm-compact-video-renderer, ytm-video-with-context-renderer, ytm-media-item');
+                            if (videoElements.length > 0 && typeof AndroidBridge !== 'undefined' && Math.random() < 0.05) {
+                                AndroidBridge.logMessage('GK_DEBUG: Video UI Scan. Found ' + videoElements.length + ' potential items at ' + href);
+                            }
+                            
+                            videoElements.forEach(function(video) {
                                 if (video.dataset.gkHandled) return;
                                 
-                                var link = video.querySelector('a[data-gk-neutralized="true"]');
+                                // Use a broader search for the link since ytm-media-item structure varies
+                                var link = video.querySelector('a[data-gk-neutralized="true"]') || video.querySelector('a[href*="/watch?v="]');
+                                
+                                if (!link && typeof AndroidBridge !== 'undefined' && Math.random() < 0.01) {
+                                    AndroidBridge.logMessage('GK_DEBUG: Video element found but no watch link detected inside: ' + video.tagName);
+                                }
                                 if (!link || !link.dataset.gkOriginalHref) return;
                                 
                                 var vIdMatch = link.dataset.gkOriginalHref.match(/v=([^&]+)/);
