@@ -88,44 +88,7 @@ fun SurgicalYouTubeScreen(
             BaseSurgicalWebView(
                 url = url,
                 modifier = Modifier.weight(1f),
-                onInterceptUrlChange = { webView, newUrl ->
-                    if (newUrl.contains("youtube.com")) {
-                        val targetPath =
-                            when {
-                                newUrl.contains("/feed/channels") -> "/feed/channels"
-                                newUrl.contains("/results") -> "/results"
-                                else -> null
-                            }
-                        if (targetPath != null) {
-                            val js =
-                                """
-                                (function(targetPath) {
-                                    try {
-                                        var targetLink = document.querySelector('a[href*="' + targetPath + '"]');
-                                        if (targetLink) {
-                                            targetLink.click();
-                                            return 'clicked';
-                                        }
-                                        return 'not_found';
-                                    } catch(e) {
-                                        return 'error_' + e.message;
-                                    }
-                                })('${'$'}targetPath');
-                                """.trimIndent()
-
-                            webView.evaluateJavascript(js) { result ->
-                                if (result != "\"clicked\"") {
-                                    webView.loadUrl(newUrl)
-                                }
-                            }
-                            true
-                        } else {
-                            false
-                        }
-                    } else {
-                        false
-                    }
-                },
+                
                 filterRules =
                     listOf(
                         SurgicalFilterRule(
@@ -154,6 +117,10 @@ fun SurgicalYouTubeScreen(
                             // Use the bridge to log the current URL for debugging
                             if (window.AndroidBridge && window.AndroidBridge.logMessage) {
                                 AndroidBridge.logMessage('Tick! href: ' + href);
+                            }
+
+                            if (!href || href === 'about:blank') {
+                                return; // Do not process blank pages
                             }
                             
                             try {
