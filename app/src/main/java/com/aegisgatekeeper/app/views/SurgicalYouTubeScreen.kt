@@ -136,9 +136,9 @@ fun SurgicalYouTubeScreen(
                     var titleEl = video.querySelector('h3.media-item-headline, h4.media-item-headline');
                     var title = titleEl ? titleEl.textContent.trim() : 'Video';
                     var channelEl = video.querySelector('ytm-badge-and-byline-renderer .yt-formatted-string');
-                    var channelName = channelEl ? channelEl.textContent.trim() : 'Channel';
+                                        var channelName = channelEl ? channelEl.textContent.trim() : 'Channel';
                     var durationEl = video.querySelector('ytm-thumbnail-overlay-time-status-renderer span');
-                    var duration = durationEl ? durationEl.textContent.trim() : '0:00';
+                    var duration = durationEl ? durationEl.textContent.trim() : '';
 
                     var container = document.createElement('div');
                     container.className = 'gk-btn';
