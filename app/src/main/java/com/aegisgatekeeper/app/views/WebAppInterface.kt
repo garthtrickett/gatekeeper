@@ -14,6 +14,45 @@ class WebAppInterface(
     fun logMessage(message: String) {
         android.util.Log.d("Gatekeeper.CleanPlayerJS", message)
     }
+
+    @JavascriptInterface
+    fun onTimeUpdate(time: String) {
+        val parsedTime = time.toFloatOrNull() ?: 0f
+        Handler(Looper.getMainLooper()).post { onTimeUpdateCallback(parsedTime) }
+    }
+
+    /**
+     * This method is called from the JavaScript inside the WebView.
+     * @param playerState The state code from the YouTube player. 0 means the video has ended.
+     */
+    @JavascriptInterface
+    fun onStateChange(playerState: Int) {
+        // Must run on main thread to update Compose state
+        Handler(Looper.getMainLooper()).post {
+            onStateChangeCallback(playerState)
+            if (playerState == 0) {
+                onVideoEnded()
+            }
+        }
+    }
+
+    /**
+     * Logs player errors from the WebView to Android's Logcat for better diagnostics. See:
+     * https://developers.google.com/youtube/iframe_api_reference#onError
+     */
+    @JavascriptInterface
+    fun logError(errorCode: Int) {
+        android.util.Log.e("Gatekeeper.YouTubePlayer", "Received internal player error: $errorCode")
+    }
+}
+    private val onVideoEnded: () -> Unit,
+    private val onStateChangeCallback: (Int) -> Unit = {},
+    private val onTimeUpdateCallback: (Float) -> Unit = {},
+) {
+    @JavascriptInterface
+    fun logMessage(message: String) {
+        android.util.Log.d("Gatekeeper.CleanPlayerJS", message)
+    }
 ) {
     @JavascriptInterface
     fun onTimeUpdate(time: String) {
