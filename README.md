@@ -1,134 +1,102 @@
-The Gatekeeper: Cognitive Orthotic System
+# Aegis Gatekeeper
 
-The Gatekeeper is a high-performance system designed to reclaim digital sovereignty. It consists of a native Android interceptor, a Compose Multiplatform dashboard with surgical web filtering, and an offline-first synchronization backend.
+Aegis Gatekeeper is a cross-platform, local-first cognitive orthotic designed to help you reclaim your digital sovereignty. Built using Kotlin Multiplatform (KMP), Jetpack Compose, and SQLDelight, it enforces cognitive boundaries at the operating system level on Android and Desktop (Linux/macOS/Windows) [1, 2]. 
 
-🛠 Prerequisites
+By substituting algorithmic feeds with curated, high-intent media, Aegis Gatekeeper transforms your devices from distraction engines into focused tools.
 
-This project uses a Nix-based development environment to manage the Android SDK, JDK 21, Kotlin Language Server, and all native dependencies.
+---
 
-Install Nix: Official Installation Guide
+## System Architecture & Features
 
-Enter the Dev Shell: Run nix develop in the project root. This ensures all aliases and tools are available in your path.
+Aegis Gatekeeper relies on a unidirectional data flow based on the **State-Action-Model (SAM)** architecture [GEMINI.md]. All business logic is modeled as pure state transitions (Reducers), separating calculations from side-effects (ViewModel, database I/O, network requests) [GEMINI.md].
 
-Setup API Keys: Create a local.properties file in the root and add your YouTube Data API v3 key:
+### 1. Dual-Moat Interceptor (Layer Alpha & Omega)
+On Android, Gatekeeper operates a multi-layered background interceptor to block distracting applications before your brain receives a dopamine loop [GEMINI.md]:
+*   **Layer Omega (Accessibility Service):** A low-latency, active window monitor that intercepts unauthorized app launches instantly [GatekeeperAccessibilityService.kt].
+*   **Layer Alpha (Usage Stats Polling):** A persistent fallback background polling mechanism that periodically inspects system state via `UsageStatsManager` to ensure protection remains active even if accessibility services are restarted or paused by the OS [GatekeeperForegroundService.kt, ForegroundAppDetector.kt].
+*   **Friction Engines:** To bypass a block, you must complete physically-modeled sensor tasks (guided by the device's gravity sensors or accelerometer) such as *The Gauntlet* (navigating a ball through a maze) or *Hold Steady* (retaining a ball in a target zone) [BallBalancingUi.kt, GyroscopeManager.kt].
 
-code
-Properties
-download
-content_copy
-expand_less
-YOUTUBE_API_KEY=your_key_here
-☁️ Backend: Sovereign Sync
+### 2. Lookup Vault & Phase Boundaries
+The system partitions your day into strict, configurable cognitive phases [VaultReviewScreen.kt, DesktopAccountScreen.kt]:
+*   **Focus Phase (Deep Work):** The Lookup Vault is locked. Any urge to search or look up information is captured into the local vault and hidden, keeping you in your current context [VaultReviewScreen.kt].
+*   **Gathering Phase (Discovery):** The Vault unlocks [VaultReviewScreen.kt]. You are presented with your captured thoughts and can systematically triage them through deliberate search options (Surgical Web, Clean YouTube, or Podcasts) [VaultReviewScreen.kt].
 
-The backend manages magic-link authentication and secure state synchronization using Ktor and PostgreSQL.
+### 3. Surgical Web & Ad-Block Filtering
+Both the Desktop client (via JCEF) and Android client (via WebView) implement a custom **Surgical Filter Engine** [SurgicalFilterEngine.kt, SurgicalWebScreen.kt, BaseSurgicalWebView.kt]:
+*   **Network & Cosmetic Filter Compilation:** Parses standard AdGuard and uBlock Origin privacy lists, blocking telemetry/ad networks and injecting customized CSS to hide algorithm feeds, sidebars, and infinite scroll mechanics on platforms like YouTube, Twitter, and Substack [SurgicalFilterEngine.kt, SyncClient.kt].
+*   **YouTube Jail:** Hard-blocks watch pages and YouTube Shorts [SurgicalJailIntegrationTest.kt]. You can only search for specific topics or watch curated, designated "Safe Channels" that you have explicitly whitelisted [SurgicalYouTubeScreen.kt, YouTubeSurgicalBridge.kt].
 
-1. Start the Database
+### 4. Sovereign Media Queue
+*   **Intentional Slots:** Features a strict 5-slot queue modeled after physical SD cards [IntentionalAudioScreen.kt]. Changing slots incurs high friction, encouraging commit-to-listen behaviors [IntentionalAudioScreen.kt].
+*   **Offline Downloads & Native Playback:** Audio from RSS feeds and podcasts can be downloaded directly for offline, distraction-free listening using native ExoPlayer/Media3 services with media session integration [GatekeeperDownloadService.kt, PodcastMediaService.kt].
 
-Spin up the local PostgreSQL instance via Docker:
+### 5. Messaging Outpost
+Integrates directly with Beeper (via Android ContentProviders) to allow outbound-only, high-intent communication [AndroidBeeperClient.kt]. You can write and queue messages to be delivered with a custom delay, allowing you to respond to people without being exposed to incoming chat list distractions [OutpostScreen.kt].
 
-code
-Bash
-download
-content_copy
-expand_less
-docker-compose up -d
-2. Run the Server
-code
-Bash
-download
-content_copy
-expand_less
-./gradlew :backend:run
+### 6. Sovereign Sync Backend
+A lightweight, self-hostable Kotlin/Ktor server that manages end-to-end state synchronization [Application.kt]:
+*   Supports secure magic-link authentication [AuthRoutes.kt].
+*   Syncs Lookup Vault entries, Content Bank queues, and custom configurations across active devices [SyncRoutes.kt].
+*   Utilizes Firebase Cloud Messaging (FCM) to trigger silent background "sync pokes" between your Android device and Desktop client when changes are pushed [SyncRoutes.kt, GatekeeperFcmService.kt].
 
-The server starts at http://0.0.0.0:8080.
+---
 
-Note on Authentication: In development, magic link emails are not sent. Instead, check the backend console logs; the verification URL will be printed there (e.g., http://localhost:8080/auth/verify-token?token=...).
+## Project Structure
 
-📱 Android: Local Development (USB)
+*   **`:app`**: KMP target containing Jetpack Compose UI, Android Services, and Desktop JVM targets [build.gradle.kts].
+*   **`:backend`**: Self-hostable Ktor synchronisation backend [build.gradle.kts].
+*   **`:common-shared`**: Shared Kotlin Multiplatform DTOs and serialization models [build.gradle.kts].
 
-The Android app features a Dual-Moat interceptor: Layer Alpha (Usage Stats polling) and Layer Omega (Accessibility Service).
+---
 
-1. Connect Device
+## Getting Started (Nix Environment)
 
-Enable Developer Options and USB Debugging on your phone.
+This project contains a comprehensive, reproducible `flake.nix` that bundles the Android SDK, JDK 21, Gradle, and all necessary native rendering libraries [flake.nix].
 
-Connect via USB and verify with adb devices.
+### Developer Shell
+Enter the development environment by running:
+```bash
+nix develop
+```
 
-2. Deploy and Monitor
+Once inside the shell, several convenient aliases are registered [flake.nix]:
 
-Use the dev-shell alias to build, install, and stream filtered logs:
+*   `desktop`: Runs the Kotlin/JVM Desktop UI [flake.nix].
+*   `backend`: Runs the Ktor synchronization backend locally [flake.nix].
+*   `apk`: Builds the debug APK files for development and production [flake.nix].
+*   `deploy-dev`: Installs the development flavor, establishes adb port reverses, and opens a Logcat pipeline [flake.nix].
+*   `deploy-prod`: Installs the production flavor with default branding [flake.nix].
+*   `update-filters`: Automatically pulls down the latest AdGuard and uBlock Origin filter lists into project resources [flake.nix].
+*   `test-unit`: Runs local JUnit tests [flake.nix].
+*   `test-ui`: Executes instrumented Android device tests [flake.nix].
 
-code
-Bash
-download
-content_copy
-expand_less
-deploy
-3. Permissions ("The Final Boss")
+### Local E2E Orchestration Pipeline
+You can spin up the entire multi-platform ecosystem (Sync Backend, Desktop UI, and Android App connected via ADB) in a single command [flake.nix]:
 
-On first launch, you must manually grant four critical permissions to enable the interceptor:
+```bash
+# Spins up the backend, Desktop UI, and reverses ports to the emulator
+dev-sync
 
-Display over other apps (The Moat UI).
+# Runs the complete end-to-end synchronization tests
+test-sync-e2e
+```
 
-Usage Access (Time tracking).
+---
 
-Accessibility Service (Zero-latency blocking).
+## Production Deployment (NixOS)
 
-Battery Optimization -> Unrestricted (Essential for background persistence).
+The system includes a Home Manager module to run the Desktop UI natively [flake.nix]. Add this repository as an input to your flake config and enable the service:
 
-💻 Desktop: Sovereignty Dashboard
+```nix
+services.gatekeeper.enable = true;
+```
 
-The desktop app provides the Surgical Web Engine (Chromium-based filtering) and a full view of your Content Bank.
+---
 
-Development Mode (Gradle)
+## Code Style & Standards
 
-To run the app via Gradle for active UI development:
-
-code
-Bash
-download
-content_copy
-expand_less
-dash
-Permanent Local Install (Linux/Asahi)
-
-To avoid Gradle's startup overhead and ensure hardware acceleration on Linux, use the installation aliases:
-
-Build & Map Dependencies: install-linux
-
-Run Anywhere: Just type gatekeeper in any terminal.
-
-⌨️ Command Reference (Aliases)
-
-All commands must be run inside the nix develop shell:
-
-Alias	Description
-deploy	Build, install to phone, and stream Gatekeeper logs.
-dash	Launch the Desktop UI via Gradle (:app:run).
-logs	Stream Logcat filtered for the Gatekeeper tag.
-wipe	Clear all app data on the connected phone.
-format	Run ktlint to enforce functional coding standards.
-test-unit	Run JVM unit tests (Reducer logic).
-test-ui	Run instrumented Android UI tests.
-install-linux	Build UberJar and install a native-entry binary to ~/.local/bin.
-🏗 Architecture & Standards
-
-Logic: Strict State-Action-Model (SAM) loop. All logic flows through pure reduce functions.
-
-Persistence: SQLDelight for compile-time safe SQLite queries.
-
-Style: Functional Kotlin (strict immutability, val by default).
-
-Logging: All logs are category-prefixed with emojis for visual parsing:
-
-📥 Action Dispatched
-
-🔄 State Updated
-
-⚙️ Side-Effect Triggered
-
-📡 Network Call
-
-👁️ Background Observation
-
-See GEMINI.md for the full technical specification.
+Contributors are expected to adhere to the standards outlined in `GEMINI.md`:
+1.  **Strict Immutability:** Never use `var` unless highly localized. Use immutable collections [GEMINI.md].
+2.  **State-Action-Model Loop:** All UI-driven features must follow the unidirectional loop governed by the Reducers [GEMINI.md].
+3.  **No Web-Jank:** Core layouts must remain strictly native Compose to ensure deep system integration [GEMINI.md].
+4.  **No OO-Managers:** Business logic belongs in top-level pure functions and extension functions [GEMINI.md]. Use classes solely for system capabilities [GEMINI.md].
